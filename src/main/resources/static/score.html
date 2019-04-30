@@ -50,7 +50,7 @@
         position: relative;
     }
 
-    #hrvsm-title {
+    #pubgolf-score {
         background: #F9F9F9;
         padding: 25px;
         box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2), 5px 10px 7px 0 rgba(0, 0, 0, 0.24);
@@ -142,12 +142,28 @@
     <title>Pub Golf - Score</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 
+    <script>
+        function submit() {
+            $.ajax({
+                url: '/submitscore,
+                type: 'post',
+                data: $('#pubgolf-score').serialize(),
+                success: function () {
+                    print("success");
+                    document.location.href = "/";
+                },
+                error: function () {
+                    print("error");
+                }
+            });
+        }
+    </script>
 </head>
 
 <body>
 <div class="flex-container">
     <div class="container2">
-        <form id="hrvsm-title">
+        <form id="pubgolf-score">
             <h3>Pub Golf</h3>
             <h4>Submit your score</h4>
             <select name="player" tabindex="1" autofocus required>
@@ -186,7 +202,7 @@
                 <input placeholder="Par" type="number" tabindex="0" name="par" required>
             </fieldset>
             <fieldset>
-                <button>Submit</button>
+                <button id="submit" onclick="submit();">Submit</button>
             </fieldset>
         </form>
     </div>
