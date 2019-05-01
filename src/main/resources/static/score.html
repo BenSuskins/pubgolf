@@ -4,55 +4,48 @@
     @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
 </style>
 <head>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <title>Pub Golf - Score</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 
     <script>
-        function submit() {
+        function submitScore() {
             $.ajax({
-                url: '/submitscore,
+                url: '/submitscore',
                 type: 'post',
                 data: $('#pubgolf-score').serialize(),
                 success: function () {
-                    print("success");
                     document.location.href = "/";
                 },
                 error: function () {
-                    print("error");
+                    alert("error submitting, please try again")
                 }
+            });
+        }
+    </script>
+
+    <script>
+        function getUser() {
+            $.get("/user", function (data) {
+                document.getElementById("name").value = data.userAuthentication.details.name;
             });
         }
     </script>
 </head>
 
-<body>
+<body onload="getUser()">
 <div class="flex-container">
     <div class="container2">
         <form id="pubgolf-score">
             <h3>Pub Golf</h3>
             <h4>Submit your score.</h4>
-            <select name="player" tabindex="1" autofocus required>
-                <option value="" disabled selected hidden>Name</option>
-                <option value="1">Player 1</option>
-                <option value="2">Player 2</option>
-                <option value="3">Player 3</option>
-                <option value="4">Player 4</option>
-                <option value="5">Player 5</option>
-                <option value="6">Player 6</option>
-                <option value="7">Player 7</option>
-                <option value="8">Player 8</option>
-                <option value="9">Player 9</option>
-                <option value="10">Player 10</option>
-                <option value="11">Player 11</option>
-                <option value="12">Player 12</option>
-                <option value="13">Player 13</option>
-                <option value="14">Player 14</option>
-                <option value="15">Player 15</option>
-                <option value="16">Player 16</option>
-            </select>
+            <fieldset>
+                <input id="name" placeholder="Name" type="text" tabindex="0" name="name" required disabled>
+            </fieldset>
 
-            <select name="hole" tabindex="1" required>
+            <select name="hole" tabindex="1" required autofocus>
                 <option value="" disabled selected hidden>Hole</option>
                 <option value="1">1 - Tequila</option>
                 <option value="2">2 - Beer</option>
@@ -68,7 +61,7 @@
                 <input placeholder="Par" type="number" tabindex="0" name="par" required>
             </fieldset>
             <fieldset>
-                <button id="submit" onclick="submit();">Submit</button>
+                <button type="button" onclick="submitScore();">Submit</button>
             </fieldset>
         </form>
     </div>
