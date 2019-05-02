@@ -1,17 +1,23 @@
 <!DOCTYPE html>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html lang="en">
 <style>
     @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
 </style>
 <head>
-    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <c:url value="styles.css" var="jstlCss"/>
+    <link href="${jstlCss}" rel="stylesheet"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
-    <title>Pub Golf - Score</title>
+    <title>Pub Gold -  ${name}!</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
-
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
     <script>
         function submitScore() {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
             $.ajax({
                 url: '/submitscore',
                 type: 'post',
@@ -42,10 +48,10 @@
             <h3>Pub Golf</h3>
             <h4>Submit your score.</h4>
             <fieldset>
-                <input id="name" placeholder="Name" type="text" tabindex="0" name="name" required disabled>
+                <input id="name" placeholder="Name" type="text" tabindex="0" name="name" required readonly>
             </fieldset>
 
-            <select name="hole" tabindex="1" required autofocus>
+            <select id="hole" name="hole" tabindex="1" required autofocus>
                 <option value="" disabled selected hidden>Hole</option>
                 <option value="1">1 - Tequila</option>
                 <option value="2">2 - Beer</option>
@@ -57,15 +63,20 @@
                 <option value="8">8 - Jägerbomb</option>
                 <option value="9">9 - VK</option>
             </select>
+
             <fieldset>
-                <input placeholder="Par" type="number" tabindex="0" name="par" required>
+                <input id="par" placeholder="Par" type="text" tabindex="0" name="par" required>
             </fieldset>
+
+            <input type="hidden"
+                   name="${_csrf.parameterName}"
+                   value="${_csrf.token}"/>
+
             <fieldset>
                 <button type="button" onclick="submitScore();">Submit</button>
             </fieldset>
         </form>
     </div>
 </div>
-
 </body>
 </html>
