@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <style>
     @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
 </style>
 <head>
-    <link rel="stylesheet" href="styles.css">
+    <c:url value="styles.css" var="jstlCss"/>
+    <link href="${jstlCss}" rel="stylesheet"/>
     <title>Pub Golf</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -20,7 +23,7 @@
             table = document.getElementById("myTable2");
             switching = true;
             // Set the sorting direction to ascending:
-            dir = "asc";
+            dir = "desc";
             /* Make a loop that will continue until
             no switching has been done: */
             while (switching) {
@@ -91,105 +94,30 @@
                     <th>Hole 9</th>
                     <th>Score</th>
                 </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>23</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>3</td>
-                </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>3</td>
-                </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td><b>Ben</b></td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
-                </tr>
+                <c:forEach var="user" items="${users}">
+                    <tr th:each="user: ${users}">
+                        <td> ${user.name}</td>
+                        <td> ${user.hole_1}</td>
+                        <td> ${user.hole_2}</td>
+                        <td> ${user.hole_3}</td>
+                        <td> ${user.hole_4}</td>
+                        <td> ${user.hole_5}</td>
+                        <td> ${user.hole_6}</td>
+                        <td> ${user.hole_7}</td>
+                        <td> ${user.hole_8}</td>
+                        <td> ${user.hole_9}</td>
+                        <td> ${user.score}</td>
+                    </tr>
+                </c:forEach>
             </table>
         </form>
     </div>
 </div>
 
+
 <div class="flex-container">
     <div class="container2">
-        <form id="hrvsm-title" method="get" action="/score.jsp">
+        <form id="hrvsm-title" method="get" action="/score">
             <button type="submit">Submit Score</button>
         </form>
     </div>

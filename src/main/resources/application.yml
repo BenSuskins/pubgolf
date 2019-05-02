@@ -10,8 +10,10 @@ security:
       clientAuthenticationScheme: form
     resource:
       userInfoUri: https://graph.facebook.com/me
+
 server:
   port: 80
+
 spring:
   mvc:
     view:

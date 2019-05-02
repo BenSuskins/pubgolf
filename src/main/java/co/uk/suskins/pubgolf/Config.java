@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @ComponentScan(basePackages = {"co.uk.suskins.pubgolf"})
-@EntityScan(basePackages = {"co.uk.suskins.pubgolf.*"})
-@EnableJpaRepositories(basePackages = {"co.uk.suskins.pubgolf."})
+@EntityScan(basePackages = {"co.uk.suskins.pubgolf"})
+@EnableJpaRepositories(basePackages = {"co.uk.suskins.pubgolf"})
 @EnableAutoConfiguration
 public class Config {
 }
