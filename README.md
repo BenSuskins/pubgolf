@@ -1,4 +1,4 @@
 # Pubgolf
-Simple Pubgolf Application using Spring with Facebook OAuth Integration
+Simple Pubgolf Leaderboard Application using Spring with Facebook OAuth Integration
 
 
