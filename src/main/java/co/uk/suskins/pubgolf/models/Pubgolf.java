@@ -1,4 +1,4 @@
-package co.uk.suskins.pubgolf;
+package co.uk.suskins.pubgolf.models;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
