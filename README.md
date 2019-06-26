@@ -11,7 +11,7 @@ Users submit scores and their name is autofilled from the Facebook integration.
 ![alt text](docs/pubgolf.PNG?raw=true "PubGolf")
 
 ## Running the App
-Configure Facebook App.
+Create Facebook App.
 
 Copy App Secret and App ID to:
 
@@ -25,9 +25,10 @@ Build .war file:
 mvn package
 ```
 
-Run the docker container
+Run the docker container:
+
 ```bash
-docker build -t pubgolf .
-docker run -p 80 pubgolf 
+docker-compose up
 ```
 
+[Local App](http://localhost/)
