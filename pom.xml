@@ -11,7 +11,7 @@
     <groupId>co.uk.suskins</groupId>
     <packaging>war</packaging>
     <artifactId>pubgolf</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>pubgolf</name>
     <description>Pubgolf Application with Facebook Login</description>
 

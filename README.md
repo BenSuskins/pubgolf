@@ -11,7 +11,7 @@ Users submit scores and their name is autofilled from the Facebook integration.
 ![alt text](docs/pubgolf.png?raw=true "PubGolf")
 
 ## Running the App
-Create Facebook App.
+Create Facebook App [here](https://developers.facebook.com/).
 
 Copy App Secret and App ID to:
 

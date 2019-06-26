@@ -17,7 +17,7 @@ RUN apt-get update && \
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 RUN export JAVA_HOME
 
-ADD target/pubgolf-0.0.1-SNAPSHOT.war  app.war
+ADD target/pubgolf-1.0.0.war  app.war
 
 EXPOSE 80
 
