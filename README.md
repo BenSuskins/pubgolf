@@ -8,7 +8,7 @@ Backed by H2 database which stores leaderboard data.
 Users submit scores and their name is autofilled from the Facebook integration.
 
 ## Screenshot
-![alt text](docs/pubgolf.PNG?raw=true "PubGolf")
+![alt text](docs/pubgolf.png?raw=true "PubGolf")
 
 ## Running the App
 Create Facebook App.

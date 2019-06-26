@@ -3,6 +3,9 @@ package co.uk.suskins.pubgolf.models;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+/**
+ * Class to represent a game of Pubgolf
+ */
 @Entity
 public class Pubgolf {
     @Id
