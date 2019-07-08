@@ -13,12 +13,11 @@
 }
 
 body {
-    font-family: "Roboto", Helvetica, Arial, sans-serif;
-    font-weight: 100;
+    font-family: 'Open Sans', sans-serif;
     font-size: 14px;
     line-height: 30px;
     color: #777;
-    background: dimgray;
+    background: #121212;
 }
 
 .flex-container {
@@ -46,22 +45,23 @@ select {
     position: relative;
 }
 
-#pubgolf-score, #hrvsm-title {
-    background: #F9F9F9;
+#pubgolf-score, #pubgolf-div {
+    background: #1d1d1d;
     padding: 25px;
     box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2), 5px 10px 7px 0 rgba(0, 0, 0, 0.24);
 }
 
 h3 {
     display: block;
-    color: black;
+    color: lightgray;
     font-size: 45px;
-    font-weight: bolder;
+    font-weight: 300;
     margin-bottom: 20px;
     text-align: center;
 }
 
 h4 {
+    color: whitesmoke;
     margin: 5px 0 15px;
     display: block;
     font-size: 35px;
@@ -73,15 +73,16 @@ th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #4CAF50;
+    background-color: #03a9f4;
     color: white;
+    font-weight: 400;
 }
 
 table, th, td {
     height: 60px;
     border-collapse: collapse;
     border: 1px solid black;
-    color: black;
+    color: whitesmoke;
     font-size: 25px;
     text-align: center;
     overflow-x: auto;
@@ -96,29 +97,26 @@ fieldset {
 }
 
 button {
+    border: 1px solid black;
     cursor: pointer;
     width: 100%;
-    border: none;
-    background: #4CAF50;
-    color: #FFF;
+    font-weight: 400;
+    background: #03a9f4;
+    color: white;
     margin: 0 0 5px;
     padding: 10px;
     font-size: 25px;
 }
 
 button:hover {
-    background: #43A047;
+    background: #2196f3;
     -webkit-transition: background 0.3s ease-in-out;
     -moz-transition: background 0.3s ease-in-out;
     transition: background-color 0.3s ease-in-out;
 }
 
-button:disabled {
-    cursor: default;
-    background: #43FF0B0B;
-}
-
 button:active {
+    background: #2196f3;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 

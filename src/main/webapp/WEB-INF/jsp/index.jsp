@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <style>
-    @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap);
 </style>
 <head>
     <c:url value="styles.css" var="jstlCss"/>
@@ -71,7 +71,7 @@
 <body onload="sortTable(10)">
 <div class="flex-container">
     <div class="container2">
-        <form id="hrvsm-title">
+        <form id="pubgolf-div">
             <h3>Pub Golf</h3>
             <table id="myTable2" style="width: 100%">
                 <tr>
@@ -110,14 +110,14 @@
 
 <div class="flex-container">
     <div class="container2">
-        <form id="hrvsm-title" method="get" action="/score">
+        <form id="pubgolf-div" method="get" action="/score">
             <button type="submit">Submit Score</button>
         </form>
     </div>
 </div>
 <div class="flex-container">
     <div class="container2">
-        <form id="hrvsm-title" method="get" action="/rules.html">
+        <form id="pubgolf-div" method="get" action="/rules.html">
             <button type="submit">Info</button>
         </form>
     </div>

@@ -3,7 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html lang="en">
 <style>
-    @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap);
 </style>
 <head>
     <c:url value="styles.css" var="jstlCss"/>
@@ -65,7 +65,7 @@
             </select>
 
             <fieldset>
-                <input id="par" placeholder="Par" type="text" tabindex="0" name="par" required>
+                <input id="par" placeholder="Par" type="number" tabindex="0" name="par" required>
             </fieldset>
 
             <input type="hidden"
