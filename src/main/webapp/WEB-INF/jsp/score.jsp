@@ -60,7 +60,7 @@
                 <option value="5">5 - Alcopop</option>
                 <option value="6">6 - Spirit & Mixer</option>
                 <option value="7">7 - Guiness</option>
-                <option value="8">8 - Jägerbomb</option>
+                <option value="8">8 - Jagerbomb</option>
                 <option value="9">9 - VK</option>
             </select>
 
