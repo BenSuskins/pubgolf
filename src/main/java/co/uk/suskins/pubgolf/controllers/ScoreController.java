@@ -3,10 +3,13 @@ package co.uk.suskins.pubgolf.controllers;
 import co.uk.suskins.pubgolf.models.Pubgolf;
 import co.uk.suskins.pubgolf.repository.PubgolfRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -83,5 +86,12 @@ public class ScoreController {
                     break;
             }
         }
+    }
+
+    @GetMapping("/getscores")
+    public List<Pubgolf> score() {
+        List<Pubgolf> entities = (List<Pubgolf>) pubgolfRepository.findAll();
+        Collections.sort(entities);
+        return entities;
     }
 }
