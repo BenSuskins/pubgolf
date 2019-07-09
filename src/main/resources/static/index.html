@@ -21,7 +21,7 @@
                 dataType: 'json',
                 success: function (response) {
                     // Base Header Row to add to
-                    var trHTML = '<tr><th>Name</th><th>Hole1</th><th>Hole2</th><th>Hole3</th><th>Hole4</th><th>Hole5</th><th>Hole6</th><th>Hole7</th><th>Hole8</th><th>Hole9</th><th>Score</th></tr>';
+                    var trHTML = '<tr><th>Name</th><th>Hole 1</th><th>Hole 2</th><th>Hole 3</th><th>Hole 4</th><th>Hole 5</th><th>Hole 6</th><th>Hole 7</th><th>Hole 8</th><th>Hole 9</th><th>Score</th></tr>';
                     $.each(response, function (i, item) {
                         trHTML += '<tr><td>' + item.name + '</td><td>' + item.hole_1 + '</td><td>' + item.hole_2 + '</td><td>'
                             + item.hole_3 + '</td><td>' + item.hole_4 + '</td><td>' + item.hole_5 + '</td><td>'
