@@ -35,7 +35,7 @@
     <script>
         function getUser() {
             $.get("/user", function (data) {
-                document.getElementById("name").value = data.userAuthentication.details.name;
+                document.getElementById("name").value = data;
             });
         }
     </script>
