@@ -2,6 +2,8 @@ package co.uk.suskins.pubgolf.controllers;
 
 import co.uk.suskins.pubgolf.models.PubGolfEntity;
 import co.uk.suskins.pubgolf.repository.PubgolfRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import java.util.Objects;
  */
 @RestController
 public class ScoreController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScoreController.class);
     @Autowired
     private PubgolfRepository pubgolfRepository;
 
@@ -24,6 +27,7 @@ public class ScoreController {
     public void submit(@RequestParam("name") String name,
                        @RequestParam("hole") String hole,
                        @RequestParam("par") String par) {
+        LOGGER.debug("{} submitted a score of {} for hole {}.", name, par, hole);
         PubGolfEntity pubGolfEntity = pubgolfRepository.findByName(name);
         if (Objects.nonNull(pubGolfEntity)) {
             switch (hole) {
