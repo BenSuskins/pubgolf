@@ -23,10 +23,10 @@
                     // Base Header Row to add to
                     var trHTML = '<tr><th>Name</th><th>Hole 1</th><th>Hole 2</th><th>Hole 3</th><th>Hole 4</th><th>Hole 5</th><th>Hole 6</th><th>Hole 7</th><th>Hole 8</th><th>Hole 9</th><th>Score</th></tr>';
                     $.each(response, function (i, item) {
-                        trHTML += '<tr><td>' + item.name + '</td><td>' + item.hole_1 + '</td><td>' + item.hole_2 + '</td><td>'
-                            + item.hole_3 + '</td><td>' + item.hole_4 + '</td><td>' + item.hole_5 + '</td><td>'
-                            + item.hole_6 + '</td><td>' + item.hole_7 + '</td><td>' + item.hole_8 + '</td><td>'
-                            + item.hole_9 + '</td><td>' + item.score + '</td></tr>';
+                        trHTML += '<tr><td>' + item.name + '</td><td>' + item.hole1 + '</td><td>' + item.hole2 + '</td><td>'
+                            + item.hole3 + '</td><td>' + item.hole4 + '</td><td>' + item.hole5 + '</td><td>'
+                            + item.hole6 + '</td><td>' + item.hole7 + '</td><td>' + item.hole8 + '</td><td>'
+                            + item.hole9 + '</td><td>' + item.score + '</td></tr>';
                     });
                     $('#scorestable').html(trHTML);
                     setTimeout(getScores, 5000);

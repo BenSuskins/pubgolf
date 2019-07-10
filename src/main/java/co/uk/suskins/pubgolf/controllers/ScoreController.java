@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Controller for submitting scores and accessing the current scores.
+ */
 @RestController
 public class ScoreController {
     @Autowired
@@ -25,31 +28,31 @@ public class ScoreController {
         if (Objects.nonNull(pubgolf)) {
             switch (hole) {
                 case "1":
-                    pubgolf.setHole_1(Integer.parseInt(par));
+                    pubgolf.setHole1(Integer.parseInt(par));
                     break;
                 case "2":
-                    pubgolf.setHole_2(Integer.parseInt(par));
+                    pubgolf.setHole2(Integer.parseInt(par));
                     break;
                 case "3":
-                    pubgolf.setHole_3(Integer.parseInt(par));
+                    pubgolf.setHole3(Integer.parseInt(par));
                     break;
                 case "4":
-                    pubgolf.setHole_4(Integer.parseInt(par));
+                    pubgolf.setHole4(Integer.parseInt(par));
                     break;
                 case "5":
-                    pubgolf.setHole_5(Integer.parseInt(par));
+                    pubgolf.setHole5(Integer.parseInt(par));
                     break;
                 case "6":
-                    pubgolf.setHole_6(Integer.parseInt(par));
+                    pubgolf.setHole6(Integer.parseInt(par));
                     break;
                 case "7":
-                    pubgolf.setHole_7(Integer.parseInt(par));
+                    pubgolf.setHole7(Integer.parseInt(par));
                     break;
                 case "8":
-                    pubgolf.setHole_8(Integer.parseInt(par));
+                    pubgolf.setHole8(Integer.parseInt(par));
                     break;
                 case "9":
-                    pubgolf.setHole_9(Integer.parseInt(par));
+                    pubgolf.setHole9(Integer.parseInt(par));
                     break;
             }
             pubgolf.updateScore();
