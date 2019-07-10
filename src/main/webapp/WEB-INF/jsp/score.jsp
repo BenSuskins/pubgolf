@@ -21,7 +21,7 @@
             $.ajax({
                 url: '/submitscore',
                 type: 'post',
-                data: $('#pubGolfEntity-score').serialize(),
+                data: $('#pubgolf-score').serialize(),
                 success: function () {
                     document.location.href = "/";
                 },
