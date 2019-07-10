@@ -6,6 +6,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * Configuration class for beans.
+ */
 @Configuration
 @ComponentScan(basePackages = {"co.uk.suskins.pubgolf"})
 @EntityScan(basePackages = {"co.uk.suskins.pubgolf"})
