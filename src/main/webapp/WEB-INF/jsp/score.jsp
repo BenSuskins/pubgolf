@@ -26,7 +26,7 @@
                     document.location.href = "/";
                 },
                 error: function () {
-                    alert("error submitting, please try again")
+                    alert("Error submitting score, please check input and try again.")
                 }
             });
         }
@@ -44,7 +44,7 @@
 <body onload="getUser()">
 <div class="flex-container">
     <div class="container2">
-        <form id="pubGolfEntity-score">
+        <form id="pubgolf-score">
             <h3>Pub Golf</h3>
             <h4>Submit your score.</h4>
             <fieldset>
