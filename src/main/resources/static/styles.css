@@ -90,7 +90,9 @@ table, th, td {
     text-align: center;
     overflow-x: auto;
 }
-
+table td:first-of-type {
+    color: #8bc34a;
+}
 fieldset {
     border: medium none !important;
     margin: 0 0 10px;

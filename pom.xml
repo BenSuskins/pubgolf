@@ -12,7 +12,7 @@
     <packaging>war</packaging>
     <artifactId>pubgolf</artifactId>
     <version>1.0.0</version>
-    <name>pubgolf</name>
+    <name>Pub Golf</name>
     <description>Pubgolf Application with Facebook Login</description>
 
     <properties>

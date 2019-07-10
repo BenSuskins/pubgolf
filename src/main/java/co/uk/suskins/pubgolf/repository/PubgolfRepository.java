@@ -1,6 +1,6 @@
 package co.uk.suskins.pubgolf.repository;
 
-import co.uk.suskins.pubgolf.models.Pubgolf;
+import co.uk.suskins.pubgolf.models.PubGolfEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
  * Interface for accessing the H2 Database.
  */
 @Repository
-public interface PubgolfRepository extends CrudRepository<Pubgolf, String> {
-    Pubgolf findByName(String name);
+public interface PubgolfRepository extends CrudRepository<PubGolfEntity, String> {
+    PubGolfEntity findByName(String name);
 }

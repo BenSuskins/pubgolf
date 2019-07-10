@@ -4,10 +4,10 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 /**
- * Entity which represents a users game of Pubgolf.
+ * Entity which represents a users game of PubGolfEntity.
  */
 @Entity
-public class Pubgolf implements Comparable<Pubgolf> {
+public class PubGolfEntity implements Comparable<PubGolfEntity> {
     @Id
     private String name;
     private Integer hole1;
@@ -21,14 +21,14 @@ public class Pubgolf implements Comparable<Pubgolf> {
     private Integer hole9;
     private Integer score;
 
-    public Pubgolf() {
+    public PubGolfEntity() {
     }
 
-    public Pubgolf(String name, int hole1,
-                   int hole2, int hole3,
-                   int hole4, int hole5,
-                   int hole6, int hole7,
-                   int hole8, int hole9) {
+    public PubGolfEntity(String name, int hole1,
+                         int hole2, int hole3,
+                         int hole4, int hole5,
+                         int hole6, int hole7,
+                         int hole8, int hole9) {
         this.name = name;
         this.hole1 = hole1;
         this.hole2 = hole2;
@@ -135,7 +135,7 @@ public class Pubgolf implements Comparable<Pubgolf> {
     }
 
     @Override
-    public int compareTo(Pubgolf o) {
+    public int compareTo(PubGolfEntity o) {
         return this.getScore().compareTo(o.getScore());
     }
 }

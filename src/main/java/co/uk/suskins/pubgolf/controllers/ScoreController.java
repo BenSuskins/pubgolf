@@ -1,6 +1,6 @@
 package co.uk.suskins.pubgolf.controllers;
 
-import co.uk.suskins.pubgolf.models.Pubgolf;
+import co.uk.suskins.pubgolf.models.PubGolfEntity;
 import co.uk.suskins.pubgolf.repository.PubgolfRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,76 +24,76 @@ public class ScoreController {
     public void submit(@RequestParam("name") String name,
                        @RequestParam("hole") String hole,
                        @RequestParam("par") String par) {
-        Pubgolf pubgolf = pubgolfRepository.findByName(name);
-        if (Objects.nonNull(pubgolf)) {
+        PubGolfEntity pubGolfEntity = pubgolfRepository.findByName(name);
+        if (Objects.nonNull(pubGolfEntity)) {
             switch (hole) {
                 case "1":
-                    pubgolf.setHole1(Integer.parseInt(par));
+                    pubGolfEntity.setHole1(Integer.parseInt(par));
                     break;
                 case "2":
-                    pubgolf.setHole2(Integer.parseInt(par));
+                    pubGolfEntity.setHole2(Integer.parseInt(par));
                     break;
                 case "3":
-                    pubgolf.setHole3(Integer.parseInt(par));
+                    pubGolfEntity.setHole3(Integer.parseInt(par));
                     break;
                 case "4":
-                    pubgolf.setHole4(Integer.parseInt(par));
+                    pubGolfEntity.setHole4(Integer.parseInt(par));
                     break;
                 case "5":
-                    pubgolf.setHole5(Integer.parseInt(par));
+                    pubGolfEntity.setHole5(Integer.parseInt(par));
                     break;
                 case "6":
-                    pubgolf.setHole6(Integer.parseInt(par));
+                    pubGolfEntity.setHole6(Integer.parseInt(par));
                     break;
                 case "7":
-                    pubgolf.setHole7(Integer.parseInt(par));
+                    pubGolfEntity.setHole7(Integer.parseInt(par));
                     break;
                 case "8":
-                    pubgolf.setHole8(Integer.parseInt(par));
+                    pubGolfEntity.setHole8(Integer.parseInt(par));
                     break;
                 case "9":
-                    pubgolf.setHole9(Integer.parseInt(par));
+                    pubGolfEntity.setHole9(Integer.parseInt(par));
                     break;
             }
-            pubgolf.updateScore();
-            pubgolfRepository.save(pubgolf);
+            pubGolfEntity.updateScore();
+            pubgolfRepository.save(pubGolfEntity);
 
         } else {
             switch (hole) {
                 case "1":
-                    pubgolfRepository.save(new Pubgolf(name, Integer.parseInt(par), 0, 0, 0, 0, 0, 0, 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, Integer.parseInt(par), 0, 0, 0, 0, 0, 0, 0, 0));
                     break;
                 case "2":
-                    pubgolfRepository.save(new Pubgolf(name, 0, Integer.parseInt(par), 0, 0, 0, 0, 0, 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, Integer.parseInt(par), 0, 0, 0, 0, 0, 0, 0));
                     break;
                 case "3":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, Integer.parseInt(par), 0, 0, 0, 0, 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, Integer.parseInt(par), 0, 0, 0, 0, 0, 0));
                     break;
                 case "4":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, 0, Integer.parseInt(par), 0, 0, 0, 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, 0, Integer.parseInt(par), 0, 0, 0, 0, 0));
                     break;
                 case "5":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, 0, 0, Integer.parseInt(par), 0, 0, 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, 0, 0, Integer.parseInt(par), 0, 0, 0, 0));
                     break;
                 case "6":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, 0, 0, 0, Integer.parseInt(par), 0, 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, 0, 0, 0, Integer.parseInt(par), 0, 0, 0));
                     break;
                 case "7":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, 0, 0, 0, 0, Integer.parseInt(par), 0, 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, 0, 0, 0, 0, Integer.parseInt(par), 0, 0));
                     break;
                 case "8":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, 0, 0, 0, 0, 0, Integer.parseInt(par), 0));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, 0, 0, 0, 0, 0, Integer.parseInt(par), 0));
                     break;
                 case "9":
-                    pubgolfRepository.save(new Pubgolf(name, 0, 0, 0, 0, 0, 0, 0, 0, Integer.parseInt(par)));
+                    pubgolfRepository.save(new PubGolfEntity(name, 0, 0, 0, 0, 0, 0, 0, 0, Integer.parseInt(par)));
                     break;
             }
         }
     }
 
     @GetMapping("/getscores")
-    public List<Pubgolf> score() {
-        List<Pubgolf> entities = (List<Pubgolf>) pubgolfRepository.findAll();
+    public List<PubGolfEntity> score() {
+        List<PubGolfEntity> entities = (List<PubGolfEntity>) pubgolfRepository.findAll();
         Collections.sort(entities);
         return entities;
     }

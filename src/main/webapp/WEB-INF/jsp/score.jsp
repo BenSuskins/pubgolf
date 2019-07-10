@@ -21,7 +21,7 @@
             $.ajax({
                 url: '/submitscore',
                 type: 'post',
-                data: $('#pubgolf-score').serialize(),
+                data: $('#pubGolfEntity-score').serialize(),
                 success: function () {
                     document.location.href = "/";
                 },
@@ -44,7 +44,7 @@
 <body onload="getUser()">
 <div class="flex-container">
     <div class="container2">
-        <form id="pubgolf-score">
+        <form id="pubGolfEntity-score">
             <h3>Pub Golf</h3>
             <h4>Submit your score.</h4>
             <fieldset>
