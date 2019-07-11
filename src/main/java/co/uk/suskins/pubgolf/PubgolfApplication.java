@@ -8,8 +8,11 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Application Entrypoint.
+ */
 @SpringBootApplication
-@EnableOAuth2Sso
+@EnableOAuth2Sso //For Facebook Login
 @Import({Config.class})
 public class PubgolfApplication extends SpringBootServletInitializer {
     public static void main(String[] args) {
