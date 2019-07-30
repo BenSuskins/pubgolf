@@ -15,6 +15,8 @@ App runs within a Docker Container using the instructions below.
 ## Running the App
 Create Facebook App [here](https://developers.facebook.com/).
 
+Set the apps domain on Facebook and the OAUTH Redirect URL.
+
 Copy App Secret and App ID to:
 
 ```bash
