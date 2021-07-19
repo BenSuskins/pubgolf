@@ -45,27 +45,27 @@
 <div class="flex-container">
     <div class="container2">
         <form id="pubgolf-score">
-            <h3>Pub Golf</h3>
-            <h4>Submit your score.</h4>
+            <h3><a href='/'>Pub Golf</a></h3>
+            <h4>Submit your score:</h4>
             <fieldset>
                 <input id="name" placeholder="Name" type="text" tabindex="0" name="name" required readonly>
             </fieldset>
 
             <select id="hole" name="hole" tabindex="1" required autofocus>
                 <option value="" disabled selected hidden>Hole</option>
-                <option value="1">1 - Tequila</option>
-                <option value="2">2 - Beer</option>
-                <option value="3">3 - Wine</option>
-                <option value="4">4 - Cider</option>
-                <option value="5">5 - Alcopop</option>
-                <option value="6">6 - Spirit & Mixer</option>
-                <option value="7">7 - Guiness</option>
-                <option value="8">8 - Jagerbomb</option>
-                <option value="9">9 - VK</option>
+                <option value="1">1 - Tequila (1)</option>
+                <option value="2">2 - Beer (3)</option>
+                <option value="3">3 - Wine (2)</option>
+                <option value="4">4 - Cider (2)</option>
+                <option value="5">5 - Alcopop (2)</option>
+                <option value="6">6 - Spirit & Mixer (2)</option>
+                <option value="7">7 - Guiness (4)</option>
+                <option value="8">8 - Jagerbomb (1)</option>
+                <option value="9">9 - VK (1)</option>
             </select>
 
             <fieldset>
-                <input id="par" placeholder="Par" type="number" tabindex="0" name="par" required>
+                <input id="par" placeholder="Score" type="number" tabindex="0" name="par" required>
             </fieldset>
 
             <input type="hidden"
