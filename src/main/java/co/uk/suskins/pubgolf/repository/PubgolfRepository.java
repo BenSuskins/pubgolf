@@ -1,13 +1,10 @@
 package co.uk.suskins.pubgolf.repository;
 
-import co.uk.suskins.pubgolf.models.PubGolfEntity;
-import org.springframework.data.repository.CrudRepository;
+import co.uk.suskins.pubgolf.entity.PubGolf;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * Interface for accessing the H2 Database.
- */
 @Repository
-public interface PubgolfRepository extends CrudRepository<PubGolfEntity, String> {
-    PubGolfEntity findByName(String name);
+public interface PubgolfRepository extends JpaRepository<PubGolf, String> {
+    PubGolf findByName(String name);
 }

@@ -11,15 +11,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>Pub Golf - Submit Score</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
-    <meta name="_csrf" content="${_csrf.token}"/>
-    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
     <script>
         function submitScore() {
-            var token = $("meta[name='_csrf']").attr("content");
-            var header = $("meta[name='_csrf_header']").attr("content");
-
             $.ajax({
-                url: '/submitscore',
+                url: '/api/v1/score',
                 type: 'post',
                 data: $('#pubgolf-score').serialize(),
                 success: function () {
@@ -31,25 +27,14 @@
             });
         }
     </script>
-
-    <script>
-        function getUser() {
-            $.get("/user", function (data) {
-                document.getElementById("name").value = data;
-            });
-        }
-    </script>
 </head>
 
-<body onload="getUser()">
+<body>
 <div class="flex-container">
     <div class="container2">
         <form id="pubgolf-score">
             <h3><a href='/'>Pub Golf</a></h3>
             <h4>Submit your score:</h4>
-            <fieldset>
-                <input id="name" placeholder="Name" type="text" tabindex="0" name="name" required readonly>
-            </fieldset>
 
             <select id="hole" name="hole" tabindex="1" required autofocus>
                 <option value="" disabled selected hidden>Hole</option>
@@ -67,10 +52,6 @@
             <fieldset>
                 <input id="par" placeholder="Score" type="number" tabindex="0" name="par" required>
             </fieldset>
-
-            <input type="hidden"
-                   name="${_csrf.parameterName}"
-                   value="${_csrf.token}"/>
 
             <fieldset>
                 <button type="button" onclick="submitScore();">Submit</button>
