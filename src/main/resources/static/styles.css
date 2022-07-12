@@ -28,6 +28,14 @@ body {
     flex-direction: column;
 }
 
+.hidden-container {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 select {
     border: medium 1 !important;
     margin: 0 0 10px;
@@ -67,7 +75,7 @@ h4 {
     color: whitesmoke;
     margin: 5px 0 15px;
     display: block;
-    font-size: 35px;
+    font-size: 25px;
     font-weight: 400;
     line-height: 20px;
 }

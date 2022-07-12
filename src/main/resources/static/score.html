@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html lang="en">
 <style>
     @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap);
 </style>
 <head>
-    <c:url value="styles.css" var="jstlCss"/>
-    <link href="${jstlCss}" rel="stylesheet"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="styles.css" rel="stylesheet">
     <title>Pub Golf - Submit Score</title>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
         function submitScore() {
             $.ajax({
@@ -26,6 +23,7 @@
                 }
             });
         }
+
     </script>
 </head>
 
@@ -35,6 +33,10 @@
         <form id="pubgolf-score">
             <h3><a href='/'>Pub Golf</a></h3>
             <h4>Submit your score:</h4>
+
+            <fieldset>
+                <input id="name" placeholder="Name" type="text" tabindex="0" name="name" required>
+            </fieldset>
 
             <select id="hole" name="hole" tabindex="1" required autofocus>
                 <option value="" disabled selected hidden>Hole</option>
