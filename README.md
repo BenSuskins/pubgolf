@@ -17,22 +17,17 @@ Create Facebook App [here](https://developers.facebook.com/).
 
 Set the apps domain on Facebook and the OAUTH Redirect URL.
 
-Copy App Secret and App ID to:
+Set the following env vars:
 
-```bash
-\src\main\resources\application.yml
+- FACEBOOK_CLIENT_ID
+- FACEBOOK_CLIENT_SECRET
+
+Build the application
+
 ```
-
-Build .war file:
-
-```bash
-mvn package
+./gradlew clean build
 ```
 
 Run the docker container:
-
-```bash
-docker-compose up
-```
 
 [Local App](http://localhost/)
