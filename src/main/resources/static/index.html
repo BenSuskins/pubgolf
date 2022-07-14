@@ -2,12 +2,6 @@
 <html lang="en">
 <style>
     @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap);
-
-
-
-
-
-
 </style>
 <head>
     <link href="styles.css" rel="stylesheet">
@@ -18,7 +12,7 @@
     <script>
         function getScores() {
             let name = localStorage.getItem("name");
-            if (!name | name === 'null) {
+            if (!name | name === 'null') {
                 name =  prompt("Please enter your name", "");
                 localStorage.setItem("name", name);
             }
