@@ -22,8 +22,7 @@ Build the application
 Run the docker container:
 
 ```
-docker build pubgolf .
-docker run pubgolf
+./run.sh
 ```
 
 
