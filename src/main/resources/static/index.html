@@ -2,6 +2,12 @@
 <html lang="en">
 <style>
     @import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap);
+
+
+
+
+
+
 </style>
 <head>
     <link href="styles.css" rel="stylesheet">
@@ -11,22 +17,30 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
         function getScores() {
+            let name = localStorage.getItem("name");
+            if (!name) {
+                name =  prompt("Please enter your name", "");
+                localStorage.setItem("name", name);
+            }
+
             $.ajaxSetup({
                 cache: false
             });
 
             $.ajax({
-                url: '/getscores',
+                url: '/api/v1/score',
                 type: 'GET',
                 dataType: 'json',
                 success: function (response) {
                     // Base Header Row to add to
-                    var trHTML = '<tr><th>Name</th><th>Hole 1</th><th>Hole 2</th><th>Hole 3</th><th>Hole 4</th><th>Hole 5</th><th>Hole 6</th><th>Hole 7</th><th>Hole 8</th><th>Hole 9</th><th>Score</th></tr>';
-                    $.each(response, function (i, item) {
-                        trHTML += '<tr><td>' + item.name + '</td><td>' + item.hole1 + '</td><td>' + item.hole2 + '</td><td>'
-                            + item.hole3 + '</td><td>' + item.hole4 + '</td><td>' + item.hole5 + '</td><td>'
-                            + item.hole6 + '</td><td>' + item.hole7 + '</td><td>' + item.hole8 + '</td><td>'
-                            + item.hole9 + '</td><td>' + item.score + '</td></tr>';
+                    var trHTML = '<tr><th>Name</th><th>Hole 1</th><th>Hole 2</th><th>Hole 3</th>' +
+                    '<th>Hole 4</th><th>Hole 5</th><th>Hole 6</th><th>Hole 7</th>' +
+                    '<th>Hole 8</th><th>Hole 9</th><th>Score</th></tr>';
+                    $.each(response, function (i, element) {
+                        trHTML += '<tr><td>' + element.name + '</td><td>' + element.hole_one + '</td><td>' + element.hole_two + '</td><td>'
+                            + element.hole_three + '</td><td>' + element.hole_four + '</td><td>' + element.hole_five + '</td><td>'
+                            + element.hole_six + '</td><td>' + element.hole_seven + '</td><td>' + element.hole_eight + '</td><td>'
+                            + element.hole_nine + '</td><td>' + element.score + '</td></tr>';
                     });
                     $('#scorestable').html(trHTML);
                     setTimeout(getScores, 5000);
@@ -34,11 +48,22 @@
             });
         }
     </script>
+
+    <script>
+        function showOrHide() {
+              var x = document.getElementById("hidden-container");
+              if (x.style.display === "flex") {
+                x.style.display = "none";
+              } else {
+                x.style.display = "flex";
+              }
+        }
+    </script>
 </head>
 
 <body onload="getScores()">
 <div class="flex-container">
-    <div class="container2">
+    <div class="container">
         <form id="pubgolf-div">
             <h3>Pub Golf</h3>
             <table id="scorestable" style="width: 100%">
@@ -49,16 +74,112 @@
 
 
 <div class="flex-container">
-    <div class="container2">
-        <form action="/score" id="pubgolf-div" method="get">
+    <div class="container">
+        <form action="/score.html" id="pubgolf-div" method="get">
             <button type="submit">Submit Score</button>
         </form>
     </div>
 </div>
+
 <div class="flex-container">
-    <div class="container2">
-        <form action="/rules.html" id="pubgolf-div" method="get">
+    <div class="container">
+        <form action="javascript:showOrHide()" id="pubgolf-div" method="get">
             <button type="submit">Info</button>
+        </form>
+    </div>
+</div>
+
+<div class="hidden-container" id="hidden-container">
+    <div class="container">
+        <form id="pubgolf-div">
+            <h3>Pars</h3>
+            <table style="width: 100%">
+                <tr>
+                    <th>Hole 1</th>
+                    <th>Hole 2</th>
+                    <th>Hole 3</th>
+                    <th>Hole 4</th>
+                    <th>Hole 5</th>
+                    <th>Hole 6</th>
+                    <th>Hole 7</th>
+                    <th>Hole 8</th>
+                    <th>Hole 9</th>
+                </tr>
+                <tr>
+                    <th>Tequila</th>
+                    <th>Beer</th>
+                    <th>Wine</th>
+                    <th>Cider</th>
+                    <th>Cocktail</th>
+                    <th>Spirit & Mixer</th>
+                    <th>Guiness</th>
+                    <th>Jagerbomb</th>
+                    <th>VK</th>
+                    <th>Total</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>4</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td style="color: #8bc34a;">18</td>
+                </tr>
+            </table>
+            <br>
+            <hr>
+            <br>
+            <h3>Alternate Pars</h3>
+            <table style="width: 100%">
+                <tr>
+                    <th>Hole 1</th>
+                    <th>Hole 2</th>
+                    <th>Hole 3</th>
+                    <th>Hole 4</th>
+                    <th>Hole 5</th>
+                    <th>Hole 6</th>
+                    <th>Hole 7</th>
+                    <th>Hole 8</th>
+                    <th>Hole 9</th>
+                </tr>
+                <tr>
+                    <th>Sambuca</th>
+                    <th>Double Vodka & Mixer</th>
+                    <th>Gin & Mixer</th>
+                    <th>Rum & Mixer</th>
+                    <th>Cocktail</th>
+                    <th>Whisky & Mixer </th>
+                    <th>Double Spirit & Mixer + Shot</th>
+                    <th>Jagerbomb</th>
+                    <th>VK</th>
+                    <th>Total</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>4</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td style="color: #8bc34a;">18</td>
+                </tr>
+            </table>
+            <br>
+            <hr>
+            <br>
+            <h3>Rules</h3>
+            <h4>1. Vomitting <b style="color: gray">+10 Points</b>.</h4>
+            <h4>2. Skipping a hole <b style="color: gray"> +10 Points</b>.</h4>
+            <h4>3. Doing 2 drinks <b style="color: gray">-1 Point</b>.</h4>
+            <h4>4. A <b style="color: gray">Sip</b> lasts <b style="color: gray">1</b> Minute.</h4>
+            <h4>5. If it stops touching your lip it stops being <b style="color: gray">a</b> sip.</h4>
         </form>
     </div>
 </div>

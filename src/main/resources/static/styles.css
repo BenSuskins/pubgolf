@@ -28,6 +28,14 @@ body {
     flex-direction: column;
 }
 
+.hidden-container {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 select {
     border: medium 1 !important;
     margin: 0 0 10px;
@@ -38,7 +46,7 @@ select {
     font: 400 12px/16px "Roboto", Helvetica, Arial, sans-serif;
 }
 
-.container2 {
+.container {
     max-width: 95%;
     width: 100%;
     margin-top: 2.5%;
@@ -67,7 +75,7 @@ h4 {
     color: whitesmoke;
     margin: 5px 0 15px;
     display: block;
-    font-size: 35px;
+    font-size: 25px;
     font-weight: 400;
     line-height: 20px;
 }
@@ -84,6 +92,7 @@ a {
 
 
 th {
+    width: 10%;
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
