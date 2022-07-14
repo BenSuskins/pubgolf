@@ -21,14 +21,10 @@ public class WebSecurityConfig  {
                     .cors().and()
                     .csrf().disable()
                     .authorizeRequests()
-                    .antMatchers("/").authenticated()
+                    .antMatchers("/").permitAll()
                     .antMatchers("/csrf").permitAll()
                     .antMatchers("/**").permitAll()
                     .antMatchers("/v2/api-docs", "/swagger-ui/").permitAll()
-                    .and()
-                    .oauth2Login()
-                    .and()
-                    .httpBasic()
                     .and()
                     .logout().disable();
         }

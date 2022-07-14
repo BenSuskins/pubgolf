@@ -1,11 +1,11 @@
 # Pubgolf
 Pubgolf Leaderboard Application.
 
-Developed in Java 8 with Spring Boot using Spring Security for Facebook login.
+Developed in Java 11 with Spring Boot.
 
 Backed by H2 database which stores leaderboard data.
 
-Users submit scores and their name is autofilled from the Facebook integration.
+Users submit scores and their name is autofilled from Local Storage.
 
 App runs within a Docker Container using the instructions below.
 
@@ -13,15 +13,6 @@ App runs within a Docker Container using the instructions below.
 ![alt text](docs/pubgolf.png?raw=true "PubGolf")
 
 ## Running the App
-Create Facebook App [here](https://developers.facebook.com/).
-
-Set the apps domain on Facebook and the OAUTH Redirect URL.
-
-Set the following env vars:
-
-- FACEBOOK_CLIENT_ID
-- FACEBOOK_CLIENT_SECRET
-
 Build the application
 
 ```
@@ -29,5 +20,11 @@ Build the application
 ```
 
 Run the docker container:
+
+```
+docker build pubgolf .
+docker run pubgolf
+```
+
 
 [Local App](http://localhost/)

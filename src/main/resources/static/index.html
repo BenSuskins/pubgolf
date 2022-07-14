@@ -17,6 +17,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
         function getScores() {
+            let name = localStorage.getItem("name");
+            if (!name) {
+                name =  prompt("Please enter your name", "");
+                localStorage.setItem("name", name);
+            }
+
             $.ajaxSetup({
                 cache: false
             });
@@ -41,11 +47,6 @@
                 }
             });
         }
-
-
-
-
-
     </script>
 
     <script>
@@ -57,17 +58,12 @@
                 x.style.display = "flex";
               }
         }
-
-
-
-
-
     </script>
 </head>
 
 <body onload="getScores()">
 <div class="flex-container">
-    <div class="container2">
+    <div class="container">
         <form id="pubgolf-div">
             <h3>Pub Golf</h3>
             <table id="scorestable" style="width: 100%">
@@ -78,7 +74,7 @@
 
 
 <div class="flex-container">
-    <div class="container2">
+    <div class="container">
         <form action="/score.html" id="pubgolf-div" method="get">
             <button type="submit">Submit Score</button>
         </form>
@@ -86,7 +82,7 @@
 </div>
 
 <div class="flex-container">
-    <div class="container2">
+    <div class="container">
         <form action="javascript:showOrHide()" id="pubgolf-div" method="get">
             <button type="submit">Info</button>
         </form>
@@ -94,7 +90,7 @@
 </div>
 
 <div class="hidden-container" id="hidden-container">
-    <div class="container2">
+    <div class="container">
         <form id="pubgolf-div">
             <h3>Pars</h3>
             <table id="myTable2" style="width: 100%">
@@ -135,6 +131,8 @@
                 </tr>
             </table>
             <br>
+            <hr>
+            <br>
             <h3>Alternate Pars</h3>
             <table id="myTable2" style="width: 100%">
                 <tr>
@@ -150,12 +148,12 @@
                 </tr>
                 <tr>
                     <th>Sambuca</th>
-                    <th>Vodka Lemondae</th>
-                    <th>Gin and Tonic</th>
-                    <th>Rum and Coke</th>
+                    <th>Double Vodka & Mixer</th>
+                    <th>Gin & Mixer</th>
+                    <th>Rum & Mixer</th>
                     <th>Cocktail</th>
-                    <th>JD and Coke</th>
-                    <th>Baby Guiness</th>
+                    <th>Whisky & Mixer </th>
+                    <th>Double Spirit & Mixer + Shot</th>
                     <th>Jagerbomb</th>
                     <th>VK</th>
                     <th>Total</th>
@@ -173,11 +171,9 @@
                     <td style="color: #8bc34a;">18</td>
                 </tr>
             </table>
-        </form>
-    </div>
-
-    <div class="container2">
-        <form id="pubgolf-div">
+            <br>
+            <hr>
+            <br>
             <h3>Rules</h3>
             <h4>1. Vomitting <b style="color: gray">+10 Points</b>.</h4>
             <h4>2. Skipping a hole <b style="color: gray"> +10 Points</b>.</h4>
