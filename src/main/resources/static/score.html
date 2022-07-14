@@ -27,7 +27,7 @@
     <script>
         function checkName() {
            let name = localStorage.getItem("name");
-            if (!name) {
+            if (!name | name === 'null) {
                 name =  prompt("Please enter your name", "");
                 localStorage.setItem("name", name);
             }
