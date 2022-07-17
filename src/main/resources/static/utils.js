@@ -5,9 +5,11 @@ function resetName() {
         success: function () {
            localStorage.setItem("name", "null");
            setName();
+           setNameField();
         },
-        error: function () {
-            alert("Error resetting name, please check network and try again.")
+        error: function (jqXHR, exception) {
+            console.log(jqXHR.responseJSON.message);
+            alert("Error resetting name, please check network and try again. " + jqXHR.responseJSON.message);
         }
     });
 }
@@ -16,7 +18,11 @@ function setName() {
    let name = localStorage.getItem("name");
     if (!name | name === 'null') {
         name =  prompt("Please enter your name", "");
-        localStorage.setItem("name", name);
+        if (!name.match(/^[a-zA-Z]+$/)) {
+            setName();
+        } else {
+            localStorage.setItem("name", name);
+        }
     }
 }
 
@@ -34,8 +40,9 @@ function submitScore() {
         success: function () {
             document.location.href = "/";
         },
-        error: function () {
-            alert("Error submitting score, please check input and try again.")
+        error: function (jqXHR, exception) {
+            console.log(jqXHR.responseJSON.message);
+            alert("Error submitting score, please check input and try again. " + jqXHR.responseJSON.message);
         }
     });
 }
@@ -63,6 +70,9 @@ function getScores() {
             });
             $('#scorestable').html(trHTML);
             setTimeout(getScores, 5000);
+        },
+        error: function (jqXHR, exception) {
+            console.log(jqXHR.responseJSON.message);
         }
     });
 }
