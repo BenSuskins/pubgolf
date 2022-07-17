@@ -19,11 +19,11 @@ Build the application
 ./gradlew clean build
 ```
 
-Run the docker container:
+Build and run the docker container on port 81:
 
 ```
 ./run.sh
 ```
 
 
-[Local App](http://localhost/)
+[Local App](http://localhost:8081)
