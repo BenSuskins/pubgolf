@@ -4,4 +4,4 @@
 
 docker build -t pubgolf .
 
-docker run -d -p 8081:8080 pubgolf
+docker run -d -p 8081:8080 --name pubgolf pubgolf
