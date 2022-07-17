@@ -9,50 +9,10 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script>
-        function submitScore() {
-            $.ajax({
-                url: '/api/v1/score',
-                type: 'post',
-                data: $('#pubgolf-score').serialize(),
-                success: function () {
-                    document.location.href = "/";
-                },
-                error: function () {
-                    alert("Error submitting score, please check input and try again.")
-                }
-            });
-        }
-    </script>
-    <script>
-        function checkName() {
-           let name = localStorage.getItem("name");
-            if (!name | name === 'null') {
-                name =  prompt("Please enter your name", "");
-                localStorage.setItem("name", name);
-            }
-            document.getElementById("name").value = name;
-        }
-    </script>
-    <script>
-        function resetName() {
-            $.ajax({
-                url: '/api/v1/score?name=' + localStorage.getItem("name"),
-                type: 'delete',
-                success: function () {
-                   localStorage.setItem("name", "null");
-                   checkName();
-                },
-                error: function () {
-                    alert("Error resetting name, please check network and try again.")
-                }
-            });
-        }
-    </script>
-
+    <script src="utils.js"></script>
 </head>
 
-<body onload="checkName();">
+<body onload="setNameField();">
 <div class="flex-container">
     <div class="container">
         <form id="pubgolf-score">
