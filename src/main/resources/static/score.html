@@ -36,13 +36,17 @@
     </script>
     <script>
         function resetName() {
-            localStorage.setItem("name", "null");
-           let name = localStorage.getItem("name");
-            if (!name | name === 'null') {
-                name =  prompt("Please enter your name", "");
-                localStorage.setItem("name", name);
-            }
-            document.getElementById("name").value = name;
+            $.ajax({
+                url: '/api/v1/score?name=' + localStorage.getItem("name"),
+                type: 'delete',
+                success: function () {
+                   localStorage.setItem("name", "null");
+                   checkName();
+                },
+                error: function () {
+                    alert("Error resetting name, please check network and try again.")
+                }
+            });
         }
     </script>
 

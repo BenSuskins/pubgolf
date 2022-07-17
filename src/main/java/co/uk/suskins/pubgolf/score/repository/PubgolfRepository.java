@@ -1,6 +1,6 @@
-package co.uk.suskins.pubgolf.repository;
+package co.uk.suskins.pubgolf.score.repository;
 
-import co.uk.suskins.pubgolf.entity.PubGolf;
+import co.uk.suskins.pubgolf.score.entity.PubGolf;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

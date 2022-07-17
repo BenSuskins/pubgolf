@@ -1,4 +1,4 @@
-package co.uk.suskins.pubgolf.entity;
+package co.uk.suskins.pubgolf.score.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

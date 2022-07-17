@@ -1,15 +1,15 @@
-package co.uk.suskins.pubgolf.controller;
+package co.uk.suskins.pubgolf.score.controller;
 
-import co.uk.suskins.pubgolf.entity.PubGolf;
-import co.uk.suskins.pubgolf.repository.PubgolfRepository;
+import co.uk.suskins.pubgolf.score.entity.PubGolf;
+import co.uk.suskins.pubgolf.score.repository.PubgolfRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +25,7 @@ public class ScoreController {
     }
 
     @GetMapping
-    public List<PubGolf> getScore(){
+    public List<PubGolf> getScore() {
         List<PubGolf> all = pubgolfRepository.findAll();
         Collections.sort(all);
         return all;
@@ -33,14 +33,12 @@ public class ScoreController {
 
     @PostMapping
     public void postScore(@RequestParam("name") String name,
-//            Principal principal,
-                            @RequestParam("hole") String hole,
-                            @RequestParam("par") Integer score) {
-//        String name = principal.getName();
+                          @RequestParam("hole") String hole,
+                          @RequestParam("par") Integer score) {
         PubGolf pubGolf = pubgolfRepository.findByName(name);
 
         // Create DB Entity if none
-        if (Objects.isNull(pubGolf)){
+        if (Objects.isNull(pubGolf)) {
             pubGolf = pubgolfRepository.save(PubGolf.builder()
                                                     .name(name)
                                                     .build());
@@ -79,5 +77,10 @@ public class ScoreController {
         pubGolf.updateScore();
 
         pubgolfRepository.save(pubGolf);
+    }
+
+    @DeleteMapping
+    public void deleteScore(@RequestParam("name") String name) {
+       pubgolfRepository.deleteById(name);
     }
 }
