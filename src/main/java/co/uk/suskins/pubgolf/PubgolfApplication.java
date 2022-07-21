@@ -4,7 +4,6 @@ import co.uk.suskins.pubgolf.config.SpringFoxConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
 @Import({SpringFoxConfig.class})

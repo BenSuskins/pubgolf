@@ -94,4 +94,9 @@ public class ScoreController {
             pubgolfRepository.deleteById(name);
         }
     }
+
+    @GetMapping("/reset")
+    public void reset() {
+        pubgolfRepository.deleteAll();
+    }
 }
