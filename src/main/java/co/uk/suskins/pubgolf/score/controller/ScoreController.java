@@ -43,7 +43,7 @@ public class ScoreController {
     @PostMapping
     public void postScore(@RequestParam("name") @Valid @Size(min = 2, max = 20) @NotNull @NotBlank @Pattern(regexp = "^[a-zA-Z]*$") String name,
                           @RequestParam("hole") @Valid @Min(1) @Max(9) @NotNull Integer hole,
-                          @RequestParam("par") @Valid @Min(-10) @Max(10) @NotNull Integer score) {
+                          @RequestParam("par") @Valid @Min(-10) @Max(20) @NotNull Integer score) {
         PubGolf pubGolf = pubgolfRepository.findByName(name);
 
         // Create DB Entity if none
