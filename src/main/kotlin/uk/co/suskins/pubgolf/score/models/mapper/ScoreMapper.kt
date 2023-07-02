@@ -7,7 +7,7 @@ import uk.co.suskins.pubgolf.score.models.entity.Score
 @Component
 class ScoreMapper {
 
-    fun toDtos(entities: List<Score>): List<ScoreDto> {
+    fun toDtos(entities: MutableIterable<Score>): List<ScoreDto> {
         return entities.map { entity -> toDto(entity) }
     }
 
