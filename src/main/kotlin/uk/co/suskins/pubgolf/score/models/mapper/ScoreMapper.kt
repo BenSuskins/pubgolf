@@ -9,27 +9,25 @@ import kotlin.streams.toList
 class ScoreMapper {
 
     fun toDtos(entities: List<Score>): List<ScoreDto> {
-        return entities.stream()
-            .map(this::toDto)
-            .toList();
+        return entities.map { entity -> toDto(entity) }
     }
 
     fun toDto(entity: Score): ScoreDto {
         return ScoreDto(
             entity.id, entity.holeOne, entity.holeTwo, entity.holeThree, entity.holeFour,
             entity.holeFive, entity.holeSix, entity.holeSeven, entity.holeEight, entity.holeNine, getTotal(entity)
-        );
+        )
     }
 
     private fun getTotal(entity: Score): Int {
         return entity.holeOne + entity.holeTwo + entity.holeThree + entity.holeFour +
-                entity.holeFive + entity.holeSix + entity.holeSeven + entity.holeEight + entity.holeNine;
+                entity.holeFive + entity.holeSix + entity.holeSeven + entity.holeEight + entity.holeNine
     }
 
     fun toEntity(dto: ScoreDto): Score {
         return Score(
             dto.id, dto.holeOne, dto.holeTwo, dto.holeThree, dto.holeFour,
             dto.holeFive, dto.holeSix, dto.holeSeven, dto.holeEight, dto.holeNine
-        );
+        )
     }
 }
