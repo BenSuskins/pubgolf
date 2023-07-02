@@ -3,7 +3,6 @@ package uk.co.suskins.pubgolf.score.models.mapper
 import org.springframework.stereotype.Component
 import uk.co.suskins.pubgolf.score.models.api.ScoreDto
 import uk.co.suskins.pubgolf.score.models.entity.Score
-import kotlin.streams.toList
 
 @Component
 class ScoreMapper {

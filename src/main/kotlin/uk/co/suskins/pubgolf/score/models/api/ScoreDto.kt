@@ -1,6 +1,5 @@
 package uk.co.suskins.pubgolf.score.models.api
 
-import jakarta.persistence.Id
 import java.util.*
 
 data class ScoreDto(

@@ -2,7 +2,7 @@ package uk.co.suskins.pubgolf.score.models.entity
 
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.util.UUID
+import java.util.*
 
 @Table(name = "score")
 data class Score(
