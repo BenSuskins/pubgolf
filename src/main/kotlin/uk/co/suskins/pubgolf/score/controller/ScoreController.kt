@@ -21,7 +21,7 @@ class ScoreController(val scoreService: ScoreService, val scoreMapper: ScoreMapp
     @PutMapping("/{id}")
     fun postScore(@PathVariable id: UUID, @RequestBody @Valid scoreDto: ScoreDto) {
         val entity = scoreMapper.toEntity(scoreDto);
-        scoreService.save(id, entity);
+        scoreService.update(id, entity);
     }
 
     @GetMapping("/reset")

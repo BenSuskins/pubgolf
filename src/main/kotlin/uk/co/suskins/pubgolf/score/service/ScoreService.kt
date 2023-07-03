@@ -11,24 +11,31 @@ class ScoreService(val scoreRepository: ScoreRepository) {
 
     fun getAll() = scoreRepository.findAll()
 
-    fun save(id: UUID, score: Score) {
-        if (scoreRepository.existsById(id)) {
-            scoreRepository.save(score)
-        } else {
-            throw PubGolfException("Resource not found")
+    fun update(id: UUID, updatedScore: Score) {
+        val score = scoreRepository.findById(id)
+            .orElseThrow { PubGolfException("Resource Not Found") }
 
-        }
+        score.holeOne = updatedScore.holeOne
+        score.holeTwo = updatedScore.holeTwo
+        score.holeThree = updatedScore.holeThree
+        score.holeFour = updatedScore.holeFour
+        score.holeFive = updatedScore.holeFive
+        score.holeSix = updatedScore.holeSix
+        score.holeSeven = updatedScore.holeSeven
+        score.holeEight = updatedScore.holeEight
+        score.holeNine = updatedScore.holeNine
+
+        scoreRepository.save(score)
     }
 
     fun reset() = scoreRepository.deleteAll()
 
     fun join(score: Score): UUID {
-        if (!scoreRepository.existsByName(score.name)) {
-            return scoreRepository.save(score).id
-        }else{
+        return if (!scoreRepository.existsByName(score.name)) {
+            scoreRepository.save(score).id
+        } else {
             throw PubGolfException("Name already exists")
         }
     }
-
 }
 
