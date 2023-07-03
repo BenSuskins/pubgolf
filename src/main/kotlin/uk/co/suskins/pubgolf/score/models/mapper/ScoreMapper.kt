@@ -13,7 +13,7 @@ class ScoreMapper {
 
     fun toDto(entity: Score): ScoreDto {
         return ScoreDto(
-            entity.id, entity.holeOne, entity.holeTwo, entity.holeThree, entity.holeFour,
+            entity.id, entity.name, entity.holeOne, entity.holeTwo, entity.holeThree, entity.holeFour,
             entity.holeFive, entity.holeSix, entity.holeSeven, entity.holeEight, entity.holeNine, getTotal(entity)
         )
     }
@@ -25,8 +25,14 @@ class ScoreMapper {
 
     fun toEntity(dto: ScoreDto): Score {
         return Score(
-            dto.id, dto.holeOne, dto.holeTwo, dto.holeThree, dto.holeFour,
+            dto.id, dto.name, dto.holeOne, dto.holeTwo, dto.holeThree, dto.holeFour,
             dto.holeFive, dto.holeSix, dto.holeSeven, dto.holeEight, dto.holeNine
         )
+    }
+
+    fun toEntity(name: String): Score {
+        val score = Score()
+        score.name = name
+        return score
     }
 }

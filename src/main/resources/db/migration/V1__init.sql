@@ -1,6 +1,6 @@
 CREATE TABLE score (
     id UUID,
-    player TEXT,
+    name TEXT,
     hole_one NUMERIC,
     hole_two NUMERIC,
     hole_three NUMERIC,

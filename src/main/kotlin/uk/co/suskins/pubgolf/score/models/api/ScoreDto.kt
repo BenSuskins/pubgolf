@@ -1,9 +1,44 @@
 package uk.co.suskins.pubgolf.score.models.api
 
+import jakarta.validation.constraints.*
 import java.util.*
 
 data class ScoreDto(
-    val id: UUID, val holeOne: Int, val holeTwo: Int,
-    val holeThree: Int, val holeFour: Int, val holeFive: Int, val holeSix: Int,
-    val holeSeven: Int, val holeEight: Int, val holeNine: Int, val total: Int
+    @NotNull
+    val id: UUID,
+    @Size(min = 2, max = 20)
+    @NotNull
+    @NotBlank
+    @Pattern(regexp = "^[a-zA-Z]*$")
+    val name: String,
+    @Min(-10)
+    @Max(10)
+    val holeOne: Int,
+    @Min(-10)
+    @Max(10)
+    val holeTwo: Int,
+    @Min(-10)
+    @Max(10)
+    val holeThree: Int,
+    @Min(-10)
+    @Max(10)
+    val holeFour: Int,
+    @Min(-10)
+    @Max(10)
+    val holeFive: Int,
+    @Min(-10)
+    @Max(10)
+    val holeSix: Int,
+    @Min(-10)
+    @Max(10)
+    val holeSeven: Int,
+    @Min(-10)
+    @Max(10)
+    val holeEight: Int,
+    @Min(-10)
+    @Max(10)
+    val holeNine: Int,
+    @Min(-10)
+    @Max(90)
+    val total: Int
 )

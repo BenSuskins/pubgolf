@@ -4,4 +4,6 @@ import org.springframework.data.repository.CrudRepository
 import uk.co.suskins.pubgolf.score.models.entity.Score
 import java.util.*
 
-interface ScoreRepository : CrudRepository<Score, UUID>
+interface ScoreRepository : CrudRepository<Score, UUID> {
+    fun existsByName(name: String): Boolean
+}
