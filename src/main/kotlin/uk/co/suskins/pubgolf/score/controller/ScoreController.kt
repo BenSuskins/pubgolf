@@ -1,8 +1,7 @@
 package uk.co.suskins.pubgolf.score.controller
 
-import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
-import uk.co.suskins.pubgolf.score.models.api.ScoreDto
+import uk.co.suskins.pubgolf.score.models.enums.Hole
 import uk.co.suskins.pubgolf.score.models.mapper.ScoreMapper
 import uk.co.suskins.pubgolf.score.service.ScoreService
 import java.util.*
@@ -18,10 +17,9 @@ class ScoreController(val scoreService: ScoreService, val scoreMapper: ScoreMapp
     fun join(@PathVariable name: String) = scoreService.join(scoreMapper.toEntity(name))
 
 
-    @PutMapping("/{id}")
-    fun postScore(@PathVariable id: UUID, @RequestBody @Valid scoreDto: ScoreDto) {
-        val entity = scoreMapper.toEntity(scoreDto);
-        scoreService.update(id, entity);
+    @PutMapping("/{id}/{hole}/{score}")
+    fun postScore(@PathVariable id: UUID, @PathVariable hole: Hole, @PathVariable score: Int) {
+        scoreService.updateScore(id, hole, score);
     }
 
     @GetMapping("/reset")
