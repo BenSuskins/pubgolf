@@ -18,12 +18,10 @@ class ScoreController(val scoreService: ScoreService, val scoreMapper: ScoreMapp
 
 
     @PutMapping("/{id}/{hole}/{score}")
-    fun postScore(@PathVariable id: UUID, @PathVariable hole: Hole, @PathVariable score: Int) {
+    fun postScore(@PathVariable id: UUID, @PathVariable hole: Hole, @PathVariable score: Int) =
         scoreService.updateScore(id, hole, score);
-    }
+
 
     @GetMapping("/reset")
-    fun reset() {
-        scoreService.reset()
-    }
+    fun reset() = scoreService.reset()
 }
