@@ -8,7 +8,7 @@ import uk.co.suskins.pubgolf.score.models.entity.Score
 class ScoreMapper {
 
     fun toDtos(entities: MutableIterable<Score>): List<ScoreDto> {
-        return entities.map { entity -> toDto(entity) }
+        return entities.map { entity -> toDto(entity) }.sortedBy { it.total }
     }
 
     fun toDto(entity: Score): ScoreDto {
