@@ -17,7 +17,7 @@ class WebSecurityConfig {
             authorizeRequests {
                 authorize(anyRequest, permitAll)
             }
-            cors {  }
+            cors { }
             csrf { disable() }
         }
         return http.build()
@@ -26,7 +26,8 @@ class WebSecurityConfig {
     @Bean
     open fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("http://localhost:3000/","https://pubgolf.suskins.co.uk/" )
+        configuration.allowedOrigins =
+            listOf("http://192.168.0.120:3000/", "http://localhost:3000/", "https://pubgolf.suskins.co.uk/")
         configuration.allowedMethods = listOf("GET", "POST", "PUT")
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
