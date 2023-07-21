@@ -1,13 +1,13 @@
-CREATE TABLE pub_golf (
-    name varchar(128),
-    hole_one integer,
-    hole_two integer,
-    hole_three integer,
-    hole_four integer,
-    hole_five integer,
-    hole_six integer,
-    hole_seven integer,
-    hole_eight integer,
-    hole_nine integer,
-    score integer
+CREATE TABLE score (
+    id UUID,
+    name TEXT,
+    hole_one NUMERIC,
+    hole_two NUMERIC,
+    hole_three NUMERIC,
+    hole_four NUMERIC,
+    hole_five NUMERIC,
+    hole_six NUMERIC,
+    hole_seven NUMERIC,
+    hole_eight NUMERIC,
+    hole_nine NUMERIC
 );
