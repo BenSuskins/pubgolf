@@ -1,7 +1,7 @@
 # Pubgolf
 Pubgolf Leaderboard Application.
 
-Developed in Java 11 with Spring Boot.
+Developed in Kotlin with Spring Boot.
 
 Backed by H2 database which stores leaderboard data.
 
