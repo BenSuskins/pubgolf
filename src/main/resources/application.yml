@@ -15,3 +15,6 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+application:
+  origins: http://localhost:3000, https://pubgolf.suskins.co.uk
