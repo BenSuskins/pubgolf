@@ -22,9 +22,11 @@ class GameService(
 
     fun joinGame(identifier: String, name: String): PlayerDto {
         val game = findGame(identifier)
+        validatePlayerInGame(game, name)
         val player = Player(name = name, game = game)
         return playerRepository.save(player).toDto()
     }
+
 
     fun getAllPlayers(identifier: String): List<PlayerDto> {
         val game = findGame(identifier)
@@ -57,6 +59,12 @@ class GameService(
         val player = playerRepository.findByGameAndName(game, playerName)
             ?: throw IllegalArgumentException("Player not found in the specified game")
         return player
+    }
+
+    private fun validatePlayerInGame(game: Game, name: String) {
+        playerRepository.findByGameAndName(game, name)?.let {
+            throw IllegalStateException("Player with name $name already exists in this game")
+        }
     }
 
     private fun findGame(identifier: String) =

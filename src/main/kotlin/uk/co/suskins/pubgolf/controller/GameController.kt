@@ -29,7 +29,10 @@ class GameController(private val gameService: GameService) {
 
     @PostMapping("/{identifier}/join")
     @ResponseStatus(HttpStatus.CREATED)
-    fun joinGame(@PathVariable identifier: String, @RequestParam name: String): PlayerDto {
+    fun joinGame(
+        @PathVariable identifier: String,
+        @RequestParam name: String
+    ): PlayerDto {
         return gameService.joinGame(identifier, name)
     }
 
