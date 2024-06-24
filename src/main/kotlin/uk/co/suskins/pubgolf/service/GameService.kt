@@ -21,33 +21,44 @@ class GameService(
     }
 
     fun joinGame(identifier: String, name: String): PlayerDto {
-        val game = gameRepository.findByIdentifier(identifier) ?: throw IllegalArgumentException("Game not found")
+        val game = findGame(identifier)
         val player = Player(name = name, game = game)
         return playerRepository.save(player).toDto()
     }
 
     fun getAllPlayers(identifier: String): List<PlayerDto> {
-        val game = gameRepository.findByIdentifier(identifier) ?: throw IllegalArgumentException("Game not found")
+        val game = findGame(identifier)
         return playerRepository.findByGame(game).map { it.toDto() }.sortedBy { it.totalScore }
     }
 
     fun updateScore(identifier: String, playerName: String, hole: Int, score: Int) {
-        val game = gameRepository.findByIdentifier(identifier) ?: throw IllegalArgumentException("Game not found")
-        val player = playerRepository.findByGameAndName(game, playerName)
-            ?: throw IllegalArgumentException("Player not found in the specified game")
-
+        val player = findPlayer(identifier, playerName)
         val scores = player.getScoresList()
         scores[hole - 1] = score
         player.setScoresList(scores)
         playerRepository.save(player)
     }
 
-    fun deletePlayer(playerId: Long) {
-        playerRepository.deleteById(playerId)
+    fun deletePlayer(
+        identifier: String,
+        playerName: String
+    ) {
+        val player = findPlayer(identifier, playerName)
+        playerRepository.delete(player)
     }
 
-    fun deleteAllPlayers(gameId: Long) {
-        val game = gameRepository.findById(gameId).orElseThrow { IllegalArgumentException("Game not found") }
-        playerRepository.findByGame(game).forEach { playerRepository.delete(it) }
+    fun deleteGame(identifier: String) {
+        val game = findGame(identifier)
+        gameRepository.delete(game)
     }
+
+    private fun findPlayer(identifier: String, playerName: String): Player {
+        val game = findGame(identifier)
+        val player = playerRepository.findByGameAndName(game, playerName)
+            ?: throw IllegalArgumentException("Player not found in the specified game")
+        return player
+    }
+
+    private fun findGame(identifier: String) =
+        gameRepository.findByIdentifier(identifier) ?: throw IllegalArgumentException("Game not found")
 }

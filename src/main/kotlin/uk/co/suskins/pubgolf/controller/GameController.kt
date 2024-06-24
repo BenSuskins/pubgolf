@@ -49,15 +49,18 @@ class GameController(private val gameService: GameService) {
     }
 
     // ADMIN Functions
-    @DeleteMapping("/players/{playerId}")
+    @DeleteMapping("/{identifier}/players/{playerName}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deletePlayer(@PathVariable playerId: Long) {
-        gameService.deletePlayer(playerId)
+    fun deletePlayer(
+        @PathVariable identifier: String,
+        @PathVariable playerName: String
+    ) {
+        gameService.deletePlayer(identifier, playerName)
     }
 
-    @DeleteMapping("/{gameId}/players")
+    @DeleteMapping("/{identifier}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteAllPlayers(@PathVariable gameId: Long) {
-        gameService.deleteAllPlayers(gameId)
+    fun deleteGame(@PathVariable identifier: String) {
+        gameService.deleteGame(identifier)
     }
 }
