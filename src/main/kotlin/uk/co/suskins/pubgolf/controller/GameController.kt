@@ -1,19 +1,19 @@
 package uk.co.suskins.pubgolf.controller
 
-import jakarta.validation.constraints.Max
-import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.co.suskins.pubgolf.api.GameDto
 import uk.co.suskins.pubgolf.api.PlayerDto
+import uk.co.suskins.pubgolf.api.ScoreSubmissionDto
 import uk.co.suskins.pubgolf.service.GameService
 
 @Validated
@@ -42,13 +42,13 @@ class GameController(private val gameService: GameService) {
     }
 
     @PostMapping("/{identifier}/players/{playerName}/score")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     fun submitScore(
         @PathVariable identifier: String,
         @PathVariable playerName: String,
-        @RequestParam hole: Int,
-        @RequestParam @Min(-10) @Max(10) score: Int
+        @RequestBody scoreSubmission: ScoreSubmissionDto
     ) {
-        gameService.updateScore(identifier, playerName, hole, score)
+        gameService.updateScore(identifier, playerName, scoreSubmission)
     }
 
     // ADMIN Functions

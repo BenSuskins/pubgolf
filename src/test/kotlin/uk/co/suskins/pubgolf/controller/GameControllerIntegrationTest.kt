@@ -1,19 +1,25 @@
 package uk.co.suskins.pubgolf.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.co.suskins.pubgolf.api.ScoreSubmissionDto
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class GameControllerIntegrationTests {
+
+    @Autowired
+    private lateinit var jsonMapper: ObjectMapper
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -41,8 +47,8 @@ class GameControllerIntegrationTests {
         joinGame(identifier, playerName)
         mockMvc.perform(
             post("/api/games/$identifier/players/$playerName/score")
-                .param("hole", "1")
-                .param("score", "5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(ScoreSubmissionDto(3, 5)))
         ).andExpect(status().isAccepted)
         mockMvc.perform(get("/api/games/$identifier/players"))
             .andExpect(status().isOk)
@@ -73,8 +79,8 @@ class GameControllerIntegrationTests {
     private fun submitScore(identifier: String, playerName: String, hole: Int, score: Int) {
         mockMvc.perform(
             post("/api/games/$identifier/players/$playerName/score")
-                .param("hole", hole.toString())
-                .param("score", score.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(ScoreSubmissionDto(3, 5)))
         )
             .andReturn()
     }
