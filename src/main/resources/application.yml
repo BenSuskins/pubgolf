@@ -17,4 +17,4 @@ spring:
     locations: classpath:db/migration
 
 application:
-  origins: http://localhost:3000, https://pubgolf.suskins.co.uk
+  origins: http://192.168.0.135:3000, http://localhost:3000, https://pubgolf.suskins.co.uk

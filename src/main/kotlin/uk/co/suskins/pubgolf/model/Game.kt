@@ -27,7 +27,7 @@ data class Game(
 ) {
     companion object {
         fun generateRandomPhrase(): String {
-            val words = listOf("Eagle", "Birdie", "Par", "Bogey", "Ace", "Albatross")
+            val words = listOf("Eagle", "Birdie", "Par", "Bogey", "Ace")
             return words[Random.nextInt(words.size)] + Random.nextInt(10, 99)
         }
     }
