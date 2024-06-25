@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.co.suskins.pubgolf.api.JoinGameDto
 import uk.co.suskins.pubgolf.api.ScoreSubmissionDto
 
 @SpringBootTest
@@ -36,8 +37,11 @@ class GameControllerIntegrationTests {
     @Test
     fun `Join Game Test`() {
         val identifier = createGameAndGetIdentifier()
-        mockMvc.perform(post("/api/games/$identifier/join").param("name", playerName))
-            .andExpect(status().isCreated)
+        mockMvc.perform(
+            post("/api/games/$identifier/join")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(JoinGameDto(playerName)))
+        ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.name").value(playerName))
     }
 
@@ -72,8 +76,10 @@ class GameControllerIntegrationTests {
     }
 
     private fun joinGame(identifier: String, playerName: String) {
-        mockMvc.perform(post("/api/games/$identifier/join").param("name", playerName))
-            .andReturn()
+        mockMvc.perform(
+            post("/api/games/$identifier/join").contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(JoinGameDto(playerName)))
+        ).andReturn()
     }
 
     private fun submitScore(identifier: String, playerName: String, hole: Int, score: Int) {
