@@ -2,6 +2,8 @@
 
 docker stop pubgolf
 
+docker rm pubgolf
+
 ./gradlew clean build
 
 docker build -t pubgolf .
