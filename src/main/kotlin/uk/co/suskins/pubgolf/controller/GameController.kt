@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.co.suskins.pubgolf.api.GameDto
+import uk.co.suskins.pubgolf.api.JoinGameDto
 import uk.co.suskins.pubgolf.api.PlayerDto
 import uk.co.suskins.pubgolf.api.ScoreSubmissionDto
 import uk.co.suskins.pubgolf.service.GameService
@@ -31,9 +31,9 @@ class GameController(private val gameService: GameService) {
     @ResponseStatus(HttpStatus.CREATED)
     fun joinGame(
         @PathVariable identifier: String,
-        @RequestParam name: String
+        @RequestBody joinGameDto: JoinGameDto
     ): PlayerDto {
-        return gameService.joinGame(identifier, name)
+        return gameService.joinGame(identifier, joinGameDto)
     }
 
     @GetMapping("/{identifier}/players")

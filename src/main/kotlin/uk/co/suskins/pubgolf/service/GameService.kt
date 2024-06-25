@@ -3,6 +3,7 @@ package uk.co.suskins.pubgolf.service
 import uk.co.suskins.pubgolf.model.Game
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.api.GameDto
+import uk.co.suskins.pubgolf.api.JoinGameDto
 import uk.co.suskins.pubgolf.api.PlayerDto
 import uk.co.suskins.pubgolf.api.ScoreSubmissionDto
 import uk.co.suskins.pubgolf.model.Player
@@ -21,10 +22,10 @@ class GameService(
         return gameRepository.save(game).toDto()
     }
 
-    fun joinGame(identifier: String, name: String): PlayerDto {
+    fun joinGame(identifier: String, joinGameDto: JoinGameDto): PlayerDto {
         val game = findGame(identifier)
-        validatePlayerInGame(game, name)
-        val player = Player(name = name, game = game)
+        validatePlayerInGame(game, joinGameDto.name)
+        val player = Player(name = joinGameDto.name, game = game)
         return playerRepository.save(player).toDto()
     }
 
