@@ -6,6 +6,6 @@ spring:
 
 
 application:
-  origins: https://pubgolf.suskins.co.uk
+  origins: https://pubgolf.suskins.co.uk, https://api.suskins.co.uk
   server: https://api.suskins.co.uk
 
