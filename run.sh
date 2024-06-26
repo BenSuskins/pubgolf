@@ -8,4 +8,4 @@ docker rm pubgolf
 
 docker build -t pubgolf .
 
-docker run -d -p 8080:8080 --name pubgolf pubgolf
+docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE='prod' --name pubgolf pubgolf
