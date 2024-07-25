@@ -13,7 +13,7 @@ class WebConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
             .allowedOrigins(*origins)
-            .allowedMethods("GET", "POST", "OPTIONS")
+            .allowedMethods("GET", "POST", "OPTIONS", "DELETE")
             .allowedHeaders("*")
             .allowCredentials(true)
             .maxAge(3600)  // 1 hour max age
