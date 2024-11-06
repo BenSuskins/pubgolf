@@ -9,9 +9,6 @@ Users submit scores and their name is autofilled from Local Storage.
 
 App runs within a Docker Container using the instructions below.
 
-## Screenshot
-![alt text](docs/pubgolf.png?raw=true "PubGolf")
-
 ## Running the App
 Build the application
 
@@ -19,11 +16,8 @@ Build the application
 ./gradlew clean build
 ```
 
-Build and run the docker container on port 81:
+Build and run the docker container on port 8080:
 
 ```
 ./run.sh
 ```
-
-
-[Local App](http://localhost:8081)
