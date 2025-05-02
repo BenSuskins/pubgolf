@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class PubgolfApplication
 
 fun main(args: Array<String>) {
-    runApplication<PubgolfApplication>(*args)
+	runApplication<PubgolfApplication>(*args)
 }
