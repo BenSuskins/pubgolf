@@ -39,7 +39,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
     implementation("dev.forkhandles:result4k")
-    implementation(platform("dev.forkhandles:forkhandles-bom:${property("forkhandlesVersion")}"))
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -56,6 +55,7 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+        mavenBom("dev.forkhandles:forkhandles-bom:${property("forkhandlesVersion")}")
     }
 }
 
