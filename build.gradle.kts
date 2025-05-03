@@ -52,6 +52,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("com.natpryce:hamkrest:1.8.0.1")
+    testImplementation("com.approvaltests:approvaltests:18.0.0")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
