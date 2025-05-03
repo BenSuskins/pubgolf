@@ -77,3 +77,13 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+openApi {
+    apiDocsUrl.set("http://localhost:8080/v3/api-docs")
+    outputDir.set(file("$buildDir/docs"))
+    outputFileName.set("openapi.json")
+    waitTimeInSeconds.set(10)
+    customBootRun {
+        args.set(listOf("--spring.profiles.active=local"))
+    }
+}
