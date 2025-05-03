@@ -1,4 +1,4 @@
-package uk.co.suskins.pubgolf
+package uk.co.suskins.pubgolf.approvals
 
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.Test
