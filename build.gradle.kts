@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
+    kotlin("jvm") version "2.1.0"
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
@@ -26,6 +26,7 @@ repositories {
 }
 
 extra["springCloudVersion"] = "2024.0.1"
+extra["forkhandlesVersion"] = "2.22.3.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -37,7 +38,8 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    implementation("dev.forkhandles:values4k:2.22.3.0")
+    implementation("dev.forkhandles:result4k")
+    implementation(platform("dev.forkhandles:forkhandles-bom:${property("forkhandlesVersion")}"))
 
     compileOnly("org.projectlombok:lombok")
 
