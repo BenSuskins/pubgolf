@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
 }
 
 group = "uk.co.suskins"
@@ -27,6 +28,7 @@ repositories {
 
 extra["springCloudVersion"] = "2024.0.1"
 extra["forkhandlesVersion"] = "2.22.3.0"
+extra["springDocVersion"] = "2.8.6"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -39,6 +41,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
     implementation("dev.forkhandles:result4k")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springDocVersion")}")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
