@@ -2,12 +2,4 @@
 
 Pubgolf Leaderboard Application.
 
-Developed in Kotlin with Spring Boot.
-
-## Running the App
-
-Build the application
-
-```
-./gradlew clean build
-```
+Developed in Kotlin with Spring Boot for the Backend and Next.Js for the Frontend.
