@@ -4,6 +4,16 @@
 
 Pub Golf Leaderboard Application.
 
+## 🌍 Live Demo
+
+You can try out the Pub Golf app live:
+
+👉 [Here](https://pubgolf.suskins.co.uk)
+
+Create a game, join with friends, and track scores through the leaderboard!
+
+---
+
 ## 🚀 Getting Started
 
 This is a monorepo for Pub Golf, containing:
@@ -16,7 +26,7 @@ This is a monorepo for Pub Golf, containing:
 
 ### 📦 Prerequisites
 
-Make sure you have the fol1lowing installed:
+Make sure you have the following installed:
 
 - [JDK 17+](https://adoptium.net/)
 - [Node.js (v18+)](https://nodejs.org/)
