@@ -6,7 +6,7 @@ on:
       - 'apps/backend/**'
       - '.github/workflows/backend.yml'
     branches:
-      - new-for-2025
+      - main
 
 jobs:
   build:
