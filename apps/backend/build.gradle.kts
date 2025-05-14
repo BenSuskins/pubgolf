@@ -5,7 +5,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
-    id("com.google.cloud.tools.jib") version "3.4.5"
 }
 
 group = "uk.co.suskins"
