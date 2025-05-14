@@ -1,2 +1,1 @@
 # Pub Golf Frontend
-
