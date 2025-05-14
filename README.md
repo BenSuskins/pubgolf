@@ -28,7 +28,7 @@ This is a monorepo for Pub Golf, containing:
 
 Make sure you have the following installed:
 
-- [JDK 17+](https://adoptium.net/)
+- [JDK 21+](https://adoptium.net/)
 - [Node.js (v18+)](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 - [Make](https://www.gnu.org/software/make/) (comes preinstalled on macOS and most Linux distros)
