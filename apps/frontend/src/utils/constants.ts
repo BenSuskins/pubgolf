@@ -22,7 +22,8 @@ export const drinks: DrinkInfo[] = [
     { pub: 'Sebright Arms', drinkA: 'VK', drinkB: 'Smirnoff', par: 1, lat: 51.532039688673585, lng: -0.06306789819191375 },
 ];
 
-export const baseURL = 'https://api.suskins.co.uk/api';
+export const baseURL = 'http://localhost:8080/api';
+// TODO make this an env var
 
 export const routes = {
     HOME: "/home",
