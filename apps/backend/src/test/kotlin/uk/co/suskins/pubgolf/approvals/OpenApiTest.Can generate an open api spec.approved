@@ -1,0 +1,30 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Pub Golf",
+    "description" : "API's to power Pub Golf Application",
+    "contact" : {
+      "name" : "Ben Suskins",
+      "email" : "devleopment@suskins.co.uk"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Generated server url"
+  } ],
+  "paths" : {
+    "/api/v1/games" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "createGame",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    }
+  },
+  "components" : { }
+}
