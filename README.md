@@ -16,7 +16,7 @@ This is a monorepo for Pub Golf, containing:
 
 ### 📦 Prerequisites
 
-Make sure you have the following installed:
+Make sure you have the fol1lowing installed:
 
 - [JDK 17+](https://adoptium.net/)
 - [Node.js (v18+)](https://nodejs.org/)
