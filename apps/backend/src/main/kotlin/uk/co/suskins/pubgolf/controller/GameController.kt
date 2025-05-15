@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 class GameController {
 
     @PostMapping("/api/v1/games")
-    fun createGame() {
-        return
+    fun createGame(): String {
+        return "{}"
     }
 }

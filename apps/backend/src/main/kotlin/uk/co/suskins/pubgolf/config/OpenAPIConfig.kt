@@ -14,7 +14,7 @@ class OpenAPIConfig {
             .info(
                 Info().title("Pub Golf")
                     .version("1.0.0")
-                    .contact(Contact().name("Ben Suskins").email("devleopment@suskins.co.uk"))
+                    .contact(Contact().name("Ben Suskins").email("development@suskins.co.uk"))
                     .description("API's to power Pub Golf Application")
             )
     }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.web.client.RestTemplate
+import uk.co.suskins.pubgolf.scenarios.asPrettyJson
 import java.io.File
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -24,9 +25,4 @@ class OpenApiTest {
         val restTemplate = RestTemplate()
         return restTemplate.getForObject("http://localhost:8080/v3/api-docs", String::class.java)
     }
-}
-
-private fun String?.asPrettyJson(): String {
-    val mapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-    return mapper.writeValueAsString(mapper.readTree(this))
 }
