@@ -8,6 +8,10 @@ class GameController {
 
     @PostMapping("/api/v1/games")
     fun createGame(): String {
-        return "{}"
+        return """
+                { 
+                "identifier": "an identifier"
+                }
+                """.trimMargin()
     }
 }
