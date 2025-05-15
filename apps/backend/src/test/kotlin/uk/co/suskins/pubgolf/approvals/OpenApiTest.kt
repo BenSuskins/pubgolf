@@ -1,7 +1,5 @@
 package uk.co.suskins.pubgolf.approvals
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.oneeyedmen.okeydoke.Approver
 import com.oneeyedmen.okeydoke.junit5.ApprovalsExtension
 import org.junit.jupiter.api.Test
