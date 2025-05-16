@@ -14,7 +14,7 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
-    "/api/v1/game" : {
+    "/api/v1/games" : {
       "post" : {
         "tags" : [ "game-controller" ],
         "operationId" : "createGame",
@@ -42,7 +42,7 @@
         }
       }
     },
-    "/api/v1/game/{gameCode}/join" : {
+    "/api/v1/games/{gameCode}/join" : {
       "post" : {
         "tags" : [ "game-controller" ],
         "operationId" : "joinGame",
