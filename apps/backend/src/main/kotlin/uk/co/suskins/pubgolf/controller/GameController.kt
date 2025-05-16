@@ -33,6 +33,25 @@ class GameController {
                 }
                 """.trimMargin()
     }
+
+    @GetMapping("/api/v1/games/{gameCode}")
+    fun gameState(@PathVariable("gameCode") gameCode: String): String {
+        if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
+
+        return """
+                {
+                  "gameId": "game-abc123",
+                  "gameCode": "ABC123",
+                  "players": [
+                    {
+                      "playerId": "player-xyz789",
+                      "name": "Ben",
+                      "scores": [0, 2, 1, 0, 0, 0, 0, 0, 0]
+                    }
+                  ]
+                }
+                """.trimMargin()
+    }
 }
 
 class GameNotFoundException(override val message: String?) : Exception()
