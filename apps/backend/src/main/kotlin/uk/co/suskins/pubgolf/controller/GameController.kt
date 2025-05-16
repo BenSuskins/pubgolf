@@ -22,28 +22,20 @@ class GameController {
     }
 
     @GetMapping("/api/v1/games/{gameCode}")
-    fun gameState(@PathVariable("gameCode") gameCode: String): String {
+    fun gameState(@PathVariable("gameCode") gameCode: String): GameState {
         if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
-
-        return """
-                {
-                  "gameId": "game-abc123",
-                  "gameCode": "ABC123",
-                  "players": [
-                    {
-                      "playerId": "player-xyz789",
-                      "name": "Ben",
-                      "scores": [0, 2, 1, 0, 0, 0, 0, 0, 0]
-                    }
-                  ]
-                }
-                """.trimMargin()
+        return GameState(
+            "game-abc123",
+            gameCode,
+            listOf(Player("player-xyz789", "Player", listOf(0, 0, 0, 0, 0, 0, 0, 0, 0)))
+        )
     }
 }
 
 class GameNotFoundException(override val message: String?) : Exception()
 
 data class GameRequest(val host: String)
-data class Game(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
-
 data class GameJoinRequest(val name: String)
+data class Game(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
+data class GameState(val gameId: String, val gameCode: String, val players: List<Player>)
+data class Player(val id: String, val name: String, val scores: List<Int>)

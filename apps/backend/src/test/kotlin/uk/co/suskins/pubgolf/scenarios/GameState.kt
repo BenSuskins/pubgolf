@@ -38,9 +38,9 @@ class GameState : ScenarioTest() {
                           "gameCode": "ABC123",
                           "players": [
                             {
-                              "playerId": "player-xyz789",
-                              "name": "Ben",
-                              "scores": [0, 2, 1, 0, 0, 0, 0, 0, 0]
+                              "id": "player-xyz789",
+                              "name": "Player",
+                              "scores": [0, 0, 0, 0, 0, 0, 0, 0, 0]
                             }
                           ]
                         }

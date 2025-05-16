@@ -96,7 +96,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "type" : "string"
+                  "$ref" : "#/components/schemas/GameState"
                 }
               }
             }
@@ -142,6 +142,43 @@
           }
         },
         "required" : [ "name" ]
+      },
+      "GameState" : {
+        "type" : "object",
+        "properties" : {
+          "gameId" : {
+            "type" : "string"
+          },
+          "gameCode" : {
+            "type" : "string"
+          },
+          "players" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Player"
+            }
+          }
+        },
+        "required" : [ "gameCode", "gameId", "players" ]
+      },
+      "Player" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "scores" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          }
+        },
+        "required" : [ "id", "name", "scores" ]
       }
     }
   }
