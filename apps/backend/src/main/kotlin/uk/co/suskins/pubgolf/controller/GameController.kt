@@ -1,13 +1,13 @@
 package uk.co.suskins.pubgolf.controller
 
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class GameController {
 
-    @PostMapping("/api/v1/games")
+    @PostMapping("/api/v1/game")
+    @ResponseStatus(HttpStatus.CREATED)
     fun createGame(@RequestBody gameRequest: GameRequest): String {
         return """
                 {
@@ -18,6 +18,20 @@ class GameController {
                 }
                 """.trimMargin()
     }
+
+    @PostMapping("/api/v1/game/{gameCode}/join")
+    fun joinGame(
+        @PathVariable("gameCode") gameCode: String,
+        @RequestBody gameJoinRequest: GameJoinRequest
+    ): String {
+        return """
+                {
+                  "gameId": "game-abc123",
+                  "playerId": "player-xyz789"
+                }
+                """.trimMargin()
+    }
 }
 
 data class GameRequest(val host: String)
+data class GameJoinRequest(val name: String)

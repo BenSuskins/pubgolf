@@ -5,8 +5,8 @@ import com.natpryce.hamkrest.equalTo
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import kotlin.test.assertTrue
 
 class JoinGame : ScenarioTest() {
     @Test
@@ -18,7 +18,7 @@ class JoinGame : ScenarioTest() {
     }
 
     private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>) {
-        assertTrue(response.valueOrNull()!!.statusCode.is2xxSuccessful)
+        assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.OK))
         assertThat(
             response.valueOrNull()!!.body.asPrettyJson(), equalTo(
                 """

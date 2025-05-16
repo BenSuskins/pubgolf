@@ -6,6 +6,7 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
@@ -28,7 +29,7 @@ class GameCreation : ScenarioTest() {
     }
 
     private fun gameCreationSuccessful(response: Result<ResponseEntity<String>, Exception>, host: String) {
-        assertTrue(response.valueOrNull()!!.statusCode.is2xxSuccessful)
+        assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.CREATED))
         assertThat(
             response.valueOrNull()!!.body.asPrettyJson(), equalTo(
                 """

@@ -5,7 +5,7 @@
     "description" : "API's to power Pub Golf Application",
     "contact" : {
       "name" : "Ben Suskins",
-      "email" : "devleopment@suskins.co.uk"
+      "email" : "development@suskins.co.uk"
     },
     "version" : "1.0.0"
   },
@@ -14,17 +14,91 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
-    "/api/v1/games" : {
+    "/api/v1/game" : {
       "post" : {
         "tags" : [ "game-controller" ],
         "operationId" : "createGame",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GameRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/game/{gameCode}/join" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "joinGame",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GameJoinRequest"
+              }
+            }
+          },
+          "required" : true
+        },
         "responses" : {
           "200" : {
-            "description" : "OK"
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
           }
         }
       }
     }
   },
-  "components" : { }
+  "components" : {
+    "schemas" : {
+      "GameRequest" : {
+        "type" : "object",
+        "properties" : {
+          "host" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "host" ]
+      },
+      "GameJoinRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "name" ]
+      }
+    }
+  }
 }
