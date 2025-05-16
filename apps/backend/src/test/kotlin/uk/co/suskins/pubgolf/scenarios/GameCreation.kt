@@ -15,23 +15,22 @@ class GameCreation : ScenarioTest() {
     fun `Can successfully create a new game`() {
         val host = "Ben"
 
-        val gameResponse = createGame(host)
+        val response = createGame(host)
 
-        gameCreatedForHost(gameResponse, host)
+        gameCreationSuccessful(response, host)
     }
 
     @Test
     fun `Can't create a game without a host`() {
-        val gameResponse = createGame(null)
+        val response = createGame(null)
 
-        gameFailedToCreate(gameResponse)
+        gameCreationFailed(response)
     }
 
-    private fun gameCreatedForHost(gameResponse: Result<ResponseEntity<String>, Exception>, host: String) {
-        val response = gameResponse.valueOrNull()
-        assertTrue(response!!.statusCode.is2xxSuccessful)
+    private fun gameCreationSuccessful(response: Result<ResponseEntity<String>, Exception>, host: String) {
+        assertTrue(response.valueOrNull()!!.statusCode.is2xxSuccessful)
         assertThat(
-            response.body.asPrettyJson(), equalTo(
+            response.valueOrNull()!!.body.asPrettyJson(), equalTo(
                 """
                     {
                       "gameId": "game-abc123",
@@ -44,8 +43,7 @@ class GameCreation : ScenarioTest() {
         )
     }
 
-    private fun gameFailedToCreate(gameResponse: Result<ResponseEntity<String>, Exception>) {
-        val response = gameResponse.get() as RestClientException
-        assertTrue(response.message!!.contains("400 Bad Request"))
+    private fun gameCreationFailed(response: Result<ResponseEntity<String>, Exception>) {
+        assertTrue((response.get() as RestClientException).message!!.contains("400 Bad Request"))
     }
 }
