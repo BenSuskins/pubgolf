@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class GameController {
 
-    @PostMapping("/api/v1/game")
+    @PostMapping("/api/v1/games")
     @ResponseStatus(HttpStatus.CREATED)
     fun createGame(@RequestBody gameRequest: GameRequest): String {
         return """
@@ -19,7 +19,7 @@ class GameController {
                 """.trimMargin()
     }
 
-    @PostMapping("/api/v1/game/{gameCode}/join")
+    @PostMapping("/api/v1/games/{gameCode}/join")
     fun joinGame(
         @PathVariable("gameCode") gameCode: String,
         @RequestBody gameJoinRequest: GameJoinRequest

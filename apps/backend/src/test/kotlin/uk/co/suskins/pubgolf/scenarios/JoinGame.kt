@@ -15,7 +15,7 @@ class JoinGame : ScenarioTest() {
     @Test
     fun `Can successfully join a game`() {
         val gameResponse = createGame("Ben")
-        val response = joinGame(gameResponse.joinCode(), "Megan")
+        val response = joinGame(gameResponse.gameCode(), "Megan")
 
         joinedGameSuccessfully(response)
     }

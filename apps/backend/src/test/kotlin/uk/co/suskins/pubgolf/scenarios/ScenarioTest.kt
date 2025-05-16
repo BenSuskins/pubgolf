@@ -18,7 +18,7 @@ abstract class ScenarioTest {
     fun createGame(host: String?): Result<ResponseEntity<String>, Exception> {
         return resultFrom {
             restClient.post()
-                .uri("http://localhost:8080/api/v1/game")
+                .uri("http://localhost:8080/api/v1/games")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(host?.let { """{ "host": "$host"}""" } ?: "")
                 .retrieve()
@@ -29,7 +29,7 @@ abstract class ScenarioTest {
     fun joinGame(gameCode: String?, name: String?): Result<ResponseEntity<String>, Exception> {
         return resultFrom {
             restClient.post()
-                .uri("http://localhost:8080/api/v1/game/${gameCode}/join")
+                .uri("http://localhost:8080/api/v1/games/${gameCode}/join")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(name?.let { """{ "name": "$name"}""" } ?: "")
                 .retrieve()
@@ -37,7 +37,16 @@ abstract class ScenarioTest {
         }
     }
 
-    fun Result<ResponseEntity<String>, Exception>.joinCode() =
+    fun gameState(gameCode: String?): Result<ResponseEntity<String>, Exception> {
+        return resultFrom {
+            restClient.get()
+                .uri("http://localhost:8080/api/v1/games/${gameCode}")
+                .retrieve()
+                .toEntity(String::class.java)
+        }
+    }
+
+    fun Result<ResponseEntity<String>, Exception>.gameCode() =
         JSONObject(valueOrNull()!!.body).getString("gameCode")!!
 }
 
