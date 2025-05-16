@@ -10,8 +10,12 @@ import org.springframework.web.client.RestTemplate
 abstract class ScenarioTest {
     private val restTemplate = RestTemplate()
 
-    fun createGame(): ResponseEntity<String> {
-        return restTemplate.postForEntity("http://localhost:8080/api/v1/games", null, String::class.java)
+    fun createGame(host: String?): ResponseEntity<String> {
+        return restTemplate.postForEntity(
+            "http://localhost:8080/api/v1/games",
+            host?.let { """{ "host": $it}""" },
+            String::class.java
+        )
     }
 }
 
