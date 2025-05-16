@@ -8,23 +8,17 @@ class GameController {
 
     @PostMapping("/api/v1/games")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createGame(@RequestBody gameRequest: GameRequest): GameCreated {
-        return GameCreated("game-abc123", "ABC123", "player-xyz789", "Ben")
+    fun createGame(@RequestBody gameRequest: GameRequest): Game {
+        return Game("game-abc123", "ABC123", "player-xyz789", gameRequest.host)
     }
 
     @PostMapping("/api/v1/games/{gameCode}/join")
     fun joinGame(
         @PathVariable("gameCode") gameCode: String,
         @RequestBody gameJoinRequest: GameJoinRequest
-    ): String {
+    ): Game {
         if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
-
-        return """
-                {
-                  "gameId": "game-abc123",
-                  "playerId": "player-xyz789"
-                }
-                """.trimMargin()
+        return Game("game-abc123", "ABC123", "player-xyz789", gameJoinRequest.name)
     }
 
     @GetMapping("/api/v1/games/{gameCode}")
@@ -50,6 +44,6 @@ class GameController {
 class GameNotFoundException(override val message: String?) : Exception()
 
 data class GameRequest(val host: String)
-data class GameCreated(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
+data class Game(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
 
 data class GameJoinRequest(val name: String)

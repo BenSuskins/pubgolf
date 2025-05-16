@@ -15,9 +15,10 @@ class JoinGame : ScenarioTest() {
     @Test
     fun `Can successfully join a game`() {
         val gameResponse = createGame("Ben")
-        val response = joinGame(gameResponse.gameCode(), "Megan")
+        val name = "Megan"
+        val response = joinGame(gameResponse.gameCode(), name)
 
-        joinedGameSuccessfully(response)
+        joinedGameSuccessfully(response, name)
     }
 
     @Test
@@ -27,14 +28,16 @@ class JoinGame : ScenarioTest() {
         joinedGameFails(response)
     }
 
-    private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>) {
+    private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>, name: String) {
         assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.OK))
         assertThat(
             response.valueOrNull()!!.body.asPrettyJson(), equalTo(
                 """
-                    {
+                   {
                       "gameId": "game-abc123",
-                      "playerId": "player-xyz789"
+                      "gameCode": "ABC123",
+                      "playerId": "player-xyz789",
+                      "playerName": "$name"
                     }
                     """.trimMargin().asPrettyJson()
             )
