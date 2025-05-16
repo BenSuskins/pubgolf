@@ -40,8 +40,20 @@ abstract class ScenarioTest {
             .toEntity(String::class.java)
     }
 
+    fun submitScore(gameCode: String?, playerId: String?, hole: Int, score: Int) = resultFrom {
+        restClient.post()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/scores")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("""{"hole": $hole,"score": $score}""")
+            .retrieve()
+            .toEntity(String::class.java)
+    }
+
     fun Result<ResponseEntity<String>, Exception>.gameCode() =
         JSONObject(valueOrNull()!!.body).getString("gameCode")!!
+
+    fun Result<ResponseEntity<String>, Exception>.playerId() =
+        JSONObject(valueOrNull()!!.body).getString("playerId")!!
 }
 
 fun String?.asPrettyJson(): String {

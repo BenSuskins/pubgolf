@@ -14,9 +14,9 @@ import kotlin.test.assertTrue
 class JoinGame : ScenarioTest() {
     @Test
     fun `Can successfully join a game`() {
-        val gameResponse = createGame("Ben")
+        val game = createGame("Ben")
         val name = "Megan"
-        val response = joinGame(gameResponse.gameCode(), name)
+        val response = joinGame(game.gameCode(), name)
 
         joinedGameSuccessfully(response, name)
     }
