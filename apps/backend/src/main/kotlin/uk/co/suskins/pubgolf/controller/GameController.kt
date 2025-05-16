@@ -24,6 +24,8 @@ class GameController {
         @PathVariable("gameCode") gameCode: String,
         @RequestBody gameJoinRequest: GameJoinRequest
     ): String {
+        if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
+
         return """
                 {
                   "gameId": "game-abc123",
@@ -32,6 +34,8 @@ class GameController {
                 """.trimMargin()
     }
 }
+
+class GameNotFoundException(override val message: String?) : Exception()
 
 data class GameRequest(val host: String)
 data class GameJoinRequest(val name: String)
