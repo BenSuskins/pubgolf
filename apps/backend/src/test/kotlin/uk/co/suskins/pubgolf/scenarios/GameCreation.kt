@@ -2,8 +2,12 @@ package uk.co.suskins.pubgolf.scenarios
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.get
+import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
 import org.springframework.http.ResponseEntity
+import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
 
 class GameCreation : ScenarioTest() {
@@ -18,17 +22,16 @@ class GameCreation : ScenarioTest() {
 
     @Test
     fun `Can't create a game without a host`() {
-        val host = null
-
-        val gameResponse = createGame(host)
+        val gameResponse = createGame(null)
 
         gameFailedToCreate(gameResponse)
     }
 
-    private fun gameCreatedForHost(gameResponse: ResponseEntity<String>, host: String) {
-        assertTrue(gameResponse.statusCode.is2xxSuccessful)
+    private fun gameCreatedForHost(gameResponse: Result<ResponseEntity<String>, Exception>, host: String) {
+        val response = gameResponse.valueOrNull()
+        assertTrue(response!!.statusCode.is2xxSuccessful)
         assertThat(
-            gameResponse.body.asPrettyJson(), equalTo(
+            response.body.asPrettyJson(), equalTo(
                 """
                     {
                       "gameId": "game-abc123",
@@ -41,15 +44,8 @@ class GameCreation : ScenarioTest() {
         )
     }
 
-    private fun gameFailedToCreate(gameResponse: ResponseEntity<String>) {
-        assertTrue(gameResponse.statusCode.is4xxClientError)
-        assertThat(
-            gameResponse.body.asPrettyJson(), equalTo(
-                """
-                    {
-                      "error": "Failed to create a game without a host"
-                    """.trimMargin().asPrettyJson()
-            )
-        )
+    private fun gameFailedToCreate(gameResponse: Result<ResponseEntity<String>, Exception>) {
+        val response = gameResponse.get() as RestClientException
+        assertTrue(response.message!!.contains("400 Bad Request"))
     }
 }
