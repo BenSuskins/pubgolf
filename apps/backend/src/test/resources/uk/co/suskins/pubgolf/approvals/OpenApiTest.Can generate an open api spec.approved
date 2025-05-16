@@ -42,6 +42,42 @@
         }
       }
     },
+    "/api/v1/games/{gameCode}/players/{playerId}/scores" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "submitScore",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "playerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ScoreRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
     "/api/v1/games/{gameCode}/join" : {
       "post" : {
         "tags" : [ "game-controller" ],
@@ -133,6 +169,20 @@
           }
         },
         "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
+      },
+      "ScoreRequest" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "score" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "hole", "score" ]
       },
       "GameJoinRequest" : {
         "type" : "object",
