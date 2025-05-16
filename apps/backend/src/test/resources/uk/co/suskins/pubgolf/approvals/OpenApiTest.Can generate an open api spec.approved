@@ -34,7 +34,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "type" : "string"
+                  "$ref" : "#/components/schemas/GameCreated"
                 }
               }
             }
@@ -77,6 +77,32 @@
           }
         }
       }
+    },
+    "/api/v1/games/{gameCode}" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "gameState",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -89,6 +115,24 @@
           }
         },
         "required" : [ "host" ]
+      },
+      "GameCreated" : {
+        "type" : "object",
+        "properties" : {
+          "gameId" : {
+            "type" : "string"
+          },
+          "gameCode" : {
+            "type" : "string"
+          },
+          "playerId" : {
+            "type" : "string"
+          },
+          "playerName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
       },
       "GameJoinRequest" : {
         "type" : "object",
