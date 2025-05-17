@@ -36,7 +36,7 @@ class GameServiceTest {
         assertThat(host.name, equalTo("Ben"))
         assertThat(
             host.scores,
-            equalTo(mapOf(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0, 7 to 0, 8 to 0, 9 to 0))
+            equalTo((0..8).associateWith { 0 })
         )
     }
 }
