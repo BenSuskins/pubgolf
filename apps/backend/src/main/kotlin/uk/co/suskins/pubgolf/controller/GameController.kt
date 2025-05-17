@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.controller
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import uk.co.suskins.pubgolf.models.*
 
 @RestController
 class GameController {
@@ -46,10 +47,3 @@ class GameController {
 class GameNotFoundException(override val message: String?) : Exception()
 class PlayerNotFoundException(override val message: String?) : Exception()
 
-data class GameRequest(val host: String)
-data class GameJoinRequest(val name: String)
-data class ScoreRequest(val hole: Int, val score: Int)
-
-data class CreateGameResponse(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
-data class GameStateResponse(val gameId: String, val gameCode: String, val playerResponses: List<PlayerResponse>)
-data class PlayerResponse(val id: String, val name: String, val scores: List<Int>)

@@ -2,7 +2,7 @@ package uk.co.suskins.pubgolf.service
 
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.map
-import uk.co.suskins.pubgolf.controller.CreateGameResponse
+import uk.co.suskins.pubgolf.models.CreateGameResponse
 import java.util.*
 import kotlin.random.Random
 
@@ -13,7 +13,7 @@ class GameService(private val gameRepository: GameRepository) {
 
     fun createGame(name: String): Result<CreateGameResponse, PubGolfFailure> {
         val host = Player(UUID.randomUUID(), name)
-        val game = GameEntity(
+        val game = Game(
             id = UUID.randomUUID(),
             code = generateGameCode(),
             players = listOf(host)
@@ -28,7 +28,7 @@ class GameService(private val gameRepository: GameRepository) {
         "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
 }
 
-data class GameEntity(
+data class Game(
     val id: UUID,
     val code: String,
     val players: List<Player>
@@ -44,6 +44,6 @@ interface PubGolfFailure
 data class NotFoundFailure(val message: String) : PubGolfFailure
 
 interface GameRepository {
-    fun save(gameEntity: GameEntity): Result<GameEntity, PubGolfFailure>
-    fun findByCode(code: String): Result<GameEntity, PubGolfFailure>
+    fun save(game: Game): Result<Game, PubGolfFailure>
+    fun findByCode(code: String): Result<Game, PubGolfFailure>
 }
