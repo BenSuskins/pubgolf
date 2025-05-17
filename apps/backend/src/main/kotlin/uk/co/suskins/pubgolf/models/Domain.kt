@@ -15,4 +15,5 @@ data class Player(
 )
 
 sealed interface PubGolfFailure
-data class NotFoundFailure(val message: String) : PubGolfFailure
+data class GameNotFoundFailure(val message: String) : PubGolfFailure
+data class PlayerNotFoundFailure(val message: String) : PubGolfFailure

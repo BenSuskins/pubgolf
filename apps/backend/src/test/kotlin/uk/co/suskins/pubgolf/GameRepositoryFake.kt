@@ -4,7 +4,7 @@ import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Success
 import uk.co.suskins.pubgolf.models.Game
-import uk.co.suskins.pubgolf.models.NotFoundFailure
+import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.service.GameRepository
 
@@ -17,6 +17,6 @@ class GameRepositoryFake : GameRepository {
     }
 
     override fun findByCode(code: String): Result<Game, PubGolfFailure> {
-        return store[code]?.let { Success(it) } ?: Failure(NotFoundFailure("Game $code not found"))
+        return store[code]?.let { Success(it) } ?: Failure(GameNotFoundFailure("Game $code not found"))
     }
 }
