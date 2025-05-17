@@ -1,6 +1,7 @@
 package uk.co.suskins.pubgolf.service
 
 import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.Player
@@ -24,9 +25,17 @@ class GameService(private val gameRepository: GameRepository) {
 
     private fun generateGameCode() =
         "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
+
+    fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> {
+        return gameRepository.find(gameCode).flatMap { game ->
+            val player = Player(UUID.randomUUID(), name)
+            val updated = game.copy(players = game.players + player)
+            gameRepository.save(updated).map { it }
+        }
+    }
 }
 
 interface GameRepository {
     fun save(game: Game): Result<Game, PubGolfFailure>
-    fun findByCode(code: String): Result<Game, PubGolfFailure>
+    fun find(code: String): Result<Game, PubGolfFailure>
 }
