@@ -96,5 +96,12 @@ class GameServiceTest {
         val gameState = result.valueOrNull()!!
         assertThat(gameState, equalTo(game))
     }
+
+    @Test
+    fun `fail to get the state of a game that doesn't exist`() {
+        val result = service.gameState("ACE007")
+
+        assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
+    }
 }
 
