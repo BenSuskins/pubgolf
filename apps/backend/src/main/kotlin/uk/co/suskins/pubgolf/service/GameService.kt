@@ -4,10 +4,7 @@ import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
-import uk.co.suskins.pubgolf.models.Game
-import uk.co.suskins.pubgolf.models.Player
-import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
-import uk.co.suskins.pubgolf.models.PubGolfFailure
+import uk.co.suskins.pubgolf.models.*
 import java.util.*
 import kotlin.random.Random
 
@@ -28,7 +25,7 @@ class GameService(private val gameRepository: GameRepository) {
     fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> =
         gameRepository.find(gameCode).flatMap { game ->
             if (game.players.any { it.name.equals(name, ignoreCase = true) }) {
-                Failure(PlayerAlreadyExistsFailure("Player `$name` already exists for game `${gameCode}`."))
+                Failure(PlayerAlreadyExistsFailure("Player `$name` already exists for game `$gameCode`."))
             } else {
                 val player = Player(UUID.randomUUID(), name)
                 val updated = game.copy(players = game.players + player)
@@ -40,7 +37,24 @@ class GameService(private val gameRepository: GameRepository) {
         "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
 
     fun gameState(gameCode: String): Result<Game, PubGolfFailure> = gameRepository.find(gameCode)
+
+    fun submitScore(gameCode: String, playerId: UUID, hole: Int, score: Int): Result<Unit, PubGolfFailure> =
+        gameRepository.find(gameCode).flatMap { game ->
+            if (game.players.none { it.id == playerId }) {
+                Failure(PlayerNotFoundFailure("Player `$playerId` not found for game `$gameCode`."))
+            } else {
+                val updatedPlayers = game.players.map {
+                    if (it.id == playerId) {
+                        it.copy(scores = it.scores + (hole to score))
+                    } else {
+                        it
+                    }
+                }
+                gameRepository.save(game.copy(players = updatedPlayers)).map { Unit }
+            }
+        }
 }
+
 
 interface GameRepository {
     fun save(game: Game): Result<Game, PubGolfFailure>
