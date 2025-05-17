@@ -1,10 +1,12 @@
 package uk.co.suskins.pubgolf.service
 
+import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import java.util.*
 import kotlin.random.Random
@@ -28,9 +30,13 @@ class GameService(private val gameRepository: GameRepository) {
 
     fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> {
         return gameRepository.find(gameCode).flatMap { game ->
-            val player = Player(UUID.randomUUID(), name)
-            val updated = game.copy(players = game.players + player)
-            gameRepository.save(updated).map { it }
+            if (game.players.any { it.name.equals(name, ignoreCase = true) }) {
+                Failure(PlayerAlreadyExistsFailure("Player `$name` already exists for game `${gameCode}`."))
+            } else {
+                val player = Player(UUID.randomUUID(), name)
+                val updated = game.copy(players = game.players + player)
+                gameRepository.save(updated).map { it }
+            }
         }
     }
 }

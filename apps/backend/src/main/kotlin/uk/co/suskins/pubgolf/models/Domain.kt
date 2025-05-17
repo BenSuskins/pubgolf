@@ -18,4 +18,4 @@ fun initialScore() = (0..8).associateWith { 0 }
 
 sealed interface PubGolfFailure
 data class GameNotFoundFailure(val message: String) : PubGolfFailure
-data class PlayerNotFoundFailure(val message: String) : PubGolfFailure
+data class PlayerAlreadyExistsFailure(val message: String) : PubGolfFailure

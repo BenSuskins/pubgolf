@@ -12,6 +12,7 @@ import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import java.util.*
 
 class GameServiceTest {
@@ -64,6 +65,20 @@ class GameServiceTest {
         val result = service.joinGame("ACE007", "Megan")
 
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
+    }
+
+    @Test
+    fun `fail to join a game with a name that already exists`() {
+        val game = Game(
+            id = UUID.randomUUID(),
+            code = "ACE007",
+            players = listOf(Player(UUID.randomUUID(), "Ben"))
+        )
+        gameRepository.save(game)
+
+        val result = service.joinGame("ACE007", "Ben")
+
+        assertThat(result, isFailure(PlayerAlreadyExistsFailure("Player `Ben` already exists for game `ACE007`.")))
     }
 }
 
