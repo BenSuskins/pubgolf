@@ -10,9 +10,7 @@ import java.util.*
 import kotlin.random.Random
 
 class GameService(private val gameRepository: GameRepository) {
-    private val golfTerms = listOf(
-        "PAR", "BIRDIE", "BOGEY", "EAGLE", "ALBATROSS", "ACE", "FORE", "HOOK", "SLICE"
-    )
+    private val golfTerms = listOf("PAR", "BIRDIE", "BOGEY", "EAGLE", "ALBATROSS", "ACE", "FORE", "HOOK", "SLICE")
 
     fun createGame(name: String): Result<CreateGameResponse, PubGolfFailure> {
         val host = Player(UUID.randomUUID(), name)
