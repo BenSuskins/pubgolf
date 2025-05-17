@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import uk.co.suskins.pubgolf.controller.GameNotFoundException
+import uk.co.suskins.pubgolf.controller.PlayerNotFoundException
 
 @RestControllerAdvice
 class ExceptionHandler {
@@ -15,6 +16,11 @@ class ExceptionHandler {
 
     @ExceptionHandler(GameNotFoundException::class)
     fun handleGameNotFoundException(ex: GameNotFoundException): ResponseEntity<String> {
+        return ResponseEntity.status(404).body(ex.message)
+    }
+
+    @ExceptionHandler(PlayerNotFoundException::class)
+    fun handlePlayerNotFoundException(ex: PlayerNotFoundException): ResponseEntity<String> {
         return ResponseEntity.status(404).body(ex.message)
     }
 }

@@ -39,10 +39,12 @@ class GameController {
         @RequestBody scoreRequest: ScoreRequest
     ) {
         if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
+        if (playerId != "player-xyz789") throw PlayerNotFoundException("Player `$playerId` could not be found for game `$gameCode`.")
     }
 }
 
 class GameNotFoundException(override val message: String?) : Exception()
+class PlayerNotFoundException(override val message: String?) : Exception()
 
 data class GameRequest(val host: String)
 data class GameJoinRequest(val name: String)
