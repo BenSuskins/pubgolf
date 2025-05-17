@@ -19,9 +19,7 @@ class GameService(private val gameRepository: GameRepository) {
             players = listOf(host)
         )
 
-        return gameRepository.save(game).map {
-            it
-        }
+        return gameRepository.save(game).map { it }
     }
 
     private fun generateGameCode() =
