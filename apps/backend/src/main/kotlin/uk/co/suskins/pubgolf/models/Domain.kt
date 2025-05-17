@@ -11,8 +11,11 @@ data class Game(
 data class Player(
     val id: UUID,
     val name: String,
-    val scores: Map<Int, Int> = emptyMap()
+    val scores: Map<Int, Int> = initialScore()
 )
+
+fun initialScore() =
+    mapOf(0 to 0, 0 to 0, 0 to 0, 0 to 0, 0 to 0, 0 to 0, 0 to 0, 0 to 0, 0 to 0)
 
 sealed interface PubGolfFailure
 data class GameNotFoundFailure(val message: String) : PubGolfFailure
