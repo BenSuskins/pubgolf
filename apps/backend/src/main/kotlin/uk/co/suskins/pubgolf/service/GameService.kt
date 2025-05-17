@@ -25,9 +25,6 @@ class GameService(private val gameRepository: GameRepository) {
         return gameRepository.save(game).map { it }
     }
 
-    private fun generateGameCode() =
-        "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
-
     fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> =
         gameRepository.find(gameCode).flatMap { game ->
             if (game.players.any { it.name.equals(name, ignoreCase = true) }) {
@@ -38,6 +35,9 @@ class GameService(private val gameRepository: GameRepository) {
                 gameRepository.save(updated).map { it }
             }
         }
+
+    private fun generateGameCode() =
+        "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
 }
 
 interface GameRepository {
