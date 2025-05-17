@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import uk.co.suskins.pubgolf.GameRepositoryFake
 
-class GameServiceTest {
+class CreateGameResponseServiceTest {
     private val gameRepository: GameRepository = GameRepositoryFake()
     private val service: GameService = GameService(gameRepository)
 

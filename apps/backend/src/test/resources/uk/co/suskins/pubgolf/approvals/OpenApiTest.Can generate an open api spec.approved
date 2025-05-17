@@ -34,7 +34,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Game"
+                  "$ref" : "#/components/schemas/CreateGameResponse"
                 }
               }
             }
@@ -106,7 +106,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Game"
+                  "$ref" : "#/components/schemas/CreateGameResponse"
                 }
               }
             }
@@ -132,7 +132,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/GameState"
+                  "$ref" : "#/components/schemas/GameStateResponse"
                 }
               }
             }
@@ -152,7 +152,7 @@
         },
         "required" : [ "host" ]
       },
-      "Game" : {
+      "CreateGameResponse" : {
         "type" : "object",
         "properties" : {
           "gameId" : {
@@ -193,7 +193,7 @@
         },
         "required" : [ "name" ]
       },
-      "GameState" : {
+      "GameStateResponse" : {
         "type" : "object",
         "properties" : {
           "gameId" : {
@@ -202,16 +202,16 @@
           "gameCode" : {
             "type" : "string"
           },
-          "players" : {
+          "playerResponses" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/Player"
+              "$ref" : "#/components/schemas/PlayerResponse"
             }
           }
         },
-        "required" : [ "gameCode", "gameId", "players" ]
+        "required" : [ "gameCode", "gameId", "playerResponses" ]
       },
-      "Player" : {
+      "PlayerResponse" : {
         "type" : "object",
         "properties" : {
           "id" : {
