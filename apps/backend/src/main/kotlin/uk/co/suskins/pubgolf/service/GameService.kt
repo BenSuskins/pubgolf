@@ -28,8 +28,8 @@ class GameService(private val gameRepository: GameRepository) {
     private fun generateGameCode() =
         "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
 
-    fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> {
-        return gameRepository.find(gameCode).flatMap { game ->
+    fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> =
+        gameRepository.find(gameCode).flatMap { game ->
             if (game.players.any { it.name.equals(name, ignoreCase = true) }) {
                 Failure(PlayerAlreadyExistsFailure("Player `$name` already exists for game `${gameCode}`."))
             } else {
@@ -38,7 +38,6 @@ class GameService(private val gameRepository: GameRepository) {
                 gameRepository.save(updated).map { it }
             }
         }
-    }
 }
 
 interface GameRepository {
