@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
 
-class GameState : ScenarioTest() {
+class GameEntityState : ScenarioTest() {
     @Test
     fun `Can successfully get the current game state`() {
         val game = createGame("Ben")

@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
 
-class GameCreation : ScenarioTest() {
+class GameEntityCreation : ScenarioTest() {
     @Test
     fun `Can successfully create a new game`() {
         val host = "Ben"
