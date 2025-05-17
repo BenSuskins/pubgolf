@@ -80,5 +80,21 @@ class GameServiceTest {
 
         assertThat(result, isFailure(PlayerAlreadyExistsFailure("Player `Ben` already exists for game `ACE007`.")))
     }
+
+    @Test
+    fun `can get the state of a game`() {
+        val game = Game(
+            id = UUID.randomUUID(),
+            code = "ACE007",
+            players = listOf(Player(UUID.randomUUID(), "Ben"))
+        )
+        gameRepository.save(game)
+
+        val result = service.gameState("ACE007")
+
+        assertThat(result, isSuccess())
+        val gameState = result.valueOrNull()!!
+        assertThat(gameState, equalTo(game))
+    }
 }
 

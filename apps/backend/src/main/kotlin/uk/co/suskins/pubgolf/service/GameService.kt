@@ -38,6 +38,8 @@ class GameService(private val gameRepository: GameRepository) {
 
     private fun generateGameCode() =
         "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
+
+    fun gameState(gameCode: String): Result<Game, PubGolfFailure> = gameRepository.find(gameCode)
 }
 
 interface GameRepository {
