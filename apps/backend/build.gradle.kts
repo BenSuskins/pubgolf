@@ -6,6 +6,7 @@ plugins {
     kotlin("plugin.jpa") version "1.9.25"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
+    id("org.jetbrains.intellij.platform") version "2.6.0"
 }
 
 group = "uk.co.suskins"
