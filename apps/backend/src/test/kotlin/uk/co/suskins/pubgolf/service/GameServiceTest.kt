@@ -10,6 +10,7 @@ import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
 import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.*
+import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
 
 class GameServiceTest {

@@ -5,6 +5,7 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
 import uk.co.suskins.pubgolf.models.*
+import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
 import kotlin.random.Random
 
@@ -56,7 +57,3 @@ class GameService(private val gameRepository: GameRepository) {
 }
 
 
-interface GameRepository {
-    fun save(game: Game): Result<Game, PubGolfFailure>
-    fun find(code: String): Result<Game, PubGolfFailure>
-}
