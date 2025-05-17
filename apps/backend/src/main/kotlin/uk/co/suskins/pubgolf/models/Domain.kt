@@ -12,7 +12,14 @@ data class Player(
     val id: UUID,
     val name: String,
     val scores: Map<Int, Int> = initialScore()
-)
+) {
+    fun matches(playerId: UUID) = id == playerId
+    fun updateScore(
+        hole: Int,
+        score: Int
+    ) = copy(scores = scores + (hole to score))
+}
+
 
 fun initialScore() = (1..9).associateWith { 0 }
 

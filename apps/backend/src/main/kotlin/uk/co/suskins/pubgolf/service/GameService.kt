@@ -41,12 +41,12 @@ class GameService(private val gameRepository: GameRepository) {
 
     fun submitScore(gameCode: String, playerId: UUID, hole: Int, score: Int): Result<Unit, PubGolfFailure> =
         gameRepository.find(gameCode).flatMap { game ->
-            if (game.players.none { it.id == playerId }) {
+            if (game.players.none { it.matches(playerId) }) {
                 Failure(PlayerNotFoundFailure("Player `$playerId` not found for game `$gameCode`."))
             } else {
                 val updatedPlayers = game.players.map {
-                    if (it.id == playerId) {
-                        it.copy(scores = it.scores + (hole to score))
+                    if (it.matches(playerId)) {
+                        it.updateScore(hole, score)
                     } else {
                         it
                     }
