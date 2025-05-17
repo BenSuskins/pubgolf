@@ -3,7 +3,7 @@ package uk.co.suskins.pubgolf
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Success
-import uk.co.suskins.pubgolf.service.Game
+import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.service.GameRepository
 import uk.co.suskins.pubgolf.service.NotFoundFailure
 import uk.co.suskins.pubgolf.service.PubGolfFailure
