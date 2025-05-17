@@ -33,10 +33,7 @@ class GameServiceTest {
 
         assertThat(game.players.size, equalTo(1))
         assertThat(host.name, equalTo("Ben"))
-        assertThat(
-            host.scores,
-            equalTo((0..8).associateWith { 0 })
-        )
+        assertThat(host.scores, equalTo((0..8).associateWith { 0 }))
     }
 }
 
