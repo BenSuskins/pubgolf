@@ -4,11 +4,13 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isA
+import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
 import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.Game
+import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.Player
 import java.util.*
 
@@ -55,6 +57,13 @@ class GameServiceTest {
 
         val updatedGame = gameRepository.find("ACE007").valueOrNull()!!
         assertThat(updatedGame.players.map { it.name }, equalTo(listOf("Ben", "Megan")))
+    }
+
+    @Test
+    fun `fail to join a game that doesn't exist`() {
+        val result = service.joinGame("ACE007", "Megan")
+
+        assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
     }
 }
 

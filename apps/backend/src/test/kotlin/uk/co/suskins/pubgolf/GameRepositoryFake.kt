@@ -17,6 +17,6 @@ class GameRepositoryFake : GameRepository {
     }
 
     override fun find(code: String): Result<Game, PubGolfFailure> {
-        return store[code]?.let { Success(it) } ?: Failure(GameNotFoundFailure("Game $code not found"))
+        return store[code]?.let { Success(it) } ?: Failure(GameNotFoundFailure("Game `$code` not found."))
     }
 }
