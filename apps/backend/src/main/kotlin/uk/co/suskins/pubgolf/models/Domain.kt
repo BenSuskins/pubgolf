@@ -13,3 +13,6 @@ data class Player(
     val name: String,
     val scores: Map<Int, Int> = emptyMap()
 )
+
+sealed interface PubGolfFailure
+data class NotFoundFailure(val message: String) : PubGolfFailure

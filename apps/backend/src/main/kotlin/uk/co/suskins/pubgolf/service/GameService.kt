@@ -5,6 +5,7 @@ import dev.forkhandles.result4k.map
 import uk.co.suskins.pubgolf.models.CreateGameResponse
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.models.PubGolfFailure
 import java.util.*
 import kotlin.random.Random
 
@@ -29,9 +30,6 @@ class GameService(private val gameRepository: GameRepository) {
     private fun generateGameCode() =
         "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}".uppercase()
 }
-
-interface PubGolfFailure
-data class NotFoundFailure(val message: String) : PubGolfFailure
 
 interface GameRepository {
     fun save(game: Game): Result<Game, PubGolfFailure>
