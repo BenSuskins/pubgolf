@@ -202,14 +202,14 @@
           "gameCode" : {
             "type" : "string"
           },
-          "playerResponses" : {
+          "players" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/PlayerResponse"
             }
           }
         },
-        "required" : [ "gameCode", "gameId", "playerResponses" ]
+        "required" : [ "gameCode", "gameId", "players" ]
       },
       "PlayerResponse" : {
         "type" : "object",

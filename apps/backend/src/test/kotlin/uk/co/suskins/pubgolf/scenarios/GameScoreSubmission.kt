@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
 
-class SubmitScore : ScenarioTest() {
+class GameScoreSubmission : ScenarioTest() {
     @Test
     fun `Can successfully submit a score`() {
         val game = createGame("Ben")

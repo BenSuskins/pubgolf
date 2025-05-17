@@ -11,46 +11,40 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
 
-class CreateGameResponseEntityState : ScenarioTest() {
+class GameJoining : ScenarioTest() {
     @Test
-    fun `Can successfully get the current game state`() {
+    fun `Can successfully join a game`() {
         val game = createGame("Ben")
+        val name = "Megan"
+        val response = joinGame(game.gameCode(), name)
 
-        val response = gameState(game.gameCode())
-
-        gameStateValid(response)
+        joinedGameSuccessfully(response, name)
     }
 
     @Test
-    fun `Can't get game state for a game that doesn't exist`() {
-        val response = gameState("random-game-code")
+    fun `Can't join a game that doesn't exist`() {
+        val response = joinGame("random-game-code", "Megan")
 
-        gameStateFails(response)
+        joinedGameFails(response)
     }
 
-    private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>) {
+    private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>, name: String) {
         assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.OK))
         assertThat(
             response.valueOrNull()!!.body.asPrettyJson(), equalTo(
                 """
-                        {
-                          "gameId": "game-abc123",
-                          "gameCode": "ABC123",
-                          "players": [
-                            {
-                              "id": "player-xyz789",
-                              "name": "Player",
-                              "scores": [0, 0, 0, 0, 0, 0, 0, 0, 0]
-                            }
-                          ]
-                        }
+                   {
+                      "gameId": "game-abc123",
+                      "gameCode": "ABC123",
+                      "playerId": "player-xyz789",
+                      "playerName": "$name"
+                    }
                     """.trimMargin().asPrettyJson()
             )
         )
     }
 
-
-    private fun gameStateFails(response: Result<ResponseEntity<String>, Exception>) {
+    private fun joinedGameFails(response: Result<ResponseEntity<String>, Exception>) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
         assertTrue(restClientException.message!!.contains("Game `random-game-code` could not be found."))
