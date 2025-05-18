@@ -34,6 +34,15 @@ class GameController(private val gameService: GameService) {
                 ]
             ),
             ApiResponse(
+                responseCode = "400", description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
                 responseCode = "500",
                 content = [
                     Content(
@@ -69,6 +78,15 @@ class GameController(private val gameService: GameService) {
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = JoinGameResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "400", description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
                     )
                 ]
             ),
@@ -124,6 +142,15 @@ class GameController(private val gameService: GameService) {
                 ]
             ),
             ApiResponse(
+                responseCode = "400", description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
                 responseCode = "404", description = "Game not found",
                 content = [
                     Content(
@@ -163,6 +190,15 @@ class GameController(private val gameService: GameService) {
         value = [
             ApiResponse(
                 responseCode = "204", description = "Score submitted"
+            ),
+            ApiResponse(
+                responseCode = "400", description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
             ),
             ApiResponse(
                 responseCode = "404", description = "Game or Player not found",

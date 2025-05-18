@@ -39,6 +39,16 @@
               }
             }
           },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Internal Server Error",
             "content" : {
@@ -88,6 +98,16 @@
               "*/*" : {
                 "schema" : {
                   "type" : "object"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -148,6 +168,16 @@
               }
             }
           },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Game not found",
             "content" : {
@@ -190,6 +220,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
