@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import uk.co.suskins.pubgolf.models.*
@@ -63,7 +63,7 @@ class GameController(private val gameService: GameService) {
                     it.players[0].name
                 )
             }.map {
-                ResponseEntity.status(HttpStatus.CREATED).body(it)
+                ResponseEntity.status(CREATED).body(it)
             }.mapFailure {
                 resolveFailure(it)
             }.get()
@@ -123,7 +123,7 @@ class GameController(private val gameService: GameService) {
                     it.players[0].name
                 )
             }.map {
-                ResponseEntity.status(HttpStatus.OK).body(it)
+                ResponseEntity.status(OK).body(it)
             }.mapFailure {
                 resolveFailure(it)
             }.get()
@@ -179,7 +179,7 @@ class GameController(private val gameService: GameService) {
                     it.players.map { PlayerResponse(it.id.toString(), it.name, it.scores.map { it.value }) }
                 )
             }.map {
-                ResponseEntity.status(HttpStatus.OK).body(it)
+                ResponseEntity.status(OK).body(it)
             }.mapFailure {
                 resolveFailure(it)
             }.get()
@@ -226,7 +226,7 @@ class GameController(private val gameService: GameService) {
         @Valid @RequestBody scoreRequest: ScoreRequest
     ): ResponseEntity<*> {
         return gameService.submitScore(gameCode, UUID.fromString(playerId), scoreRequest.hole, scoreRequest.score)
-            .map { ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) }
+            .map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
             }.get()
@@ -235,10 +235,10 @@ class GameController(private val gameService: GameService) {
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")
         return when (it) {
-            is GameNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
-            is PlayerNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
-            is PlayerAlreadyExistsFailure -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(it.asErrorResponse())
-            else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
+            is GameNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
+            is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
+            is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
+            else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }
 }

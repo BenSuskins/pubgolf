@@ -1,5 +1,6 @@
 package uk.co.suskins.pubgolf.scenarios
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import dev.forkhandles.result4k.Result
@@ -16,6 +17,9 @@ import org.springframework.web.client.RestClient
 @ActiveProfiles("test")
 abstract class ScenarioTest {
     private val restClient = RestClient.create()
+
+    val uuidPattern = Regex("[a-f0-9\\-]{36}", RegexOption.IGNORE_CASE)
+    val gameCodePattern = Regex("[A-Z]+\\d{3}")
 
     fun createGame(host: String?) = resultFrom {
         restClient.post()
@@ -56,6 +60,9 @@ abstract class ScenarioTest {
 
     fun Result<ResponseEntity<String>, Exception>.playerId() =
         JSONObject(valueOrNull()!!.body).getString("playerId")!!
+
+    fun String.asJsonMap(): Map<String, Any> =
+        ObjectMapper().readValue(this, object : TypeReference<Map<String, Any>>() {})
 }
 
 fun String?.asPrettyJson(): String {

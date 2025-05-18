@@ -6,7 +6,7 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import java.util.*
@@ -50,7 +50,7 @@ class GameScoreSubmission : ScenarioTest() {
     }
 
     private fun scoreSubmittedSuccessfully(response: Result<ResponseEntity<String>, Exception>) {
-        assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.NO_CONTENT))
+        assertThat(response.valueOrNull()!!.statusCode, equalTo(NO_CONTENT))
     }
 
     private fun submitScoreGameDoesNotExist(response: Result<ResponseEntity<String>, Exception>) {

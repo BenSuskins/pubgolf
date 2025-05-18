@@ -6,7 +6,7 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import kotlin.test.assertTrue
@@ -29,7 +29,7 @@ class GameState : ScenarioTest() {
     }
 
     private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>) {
-        assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.OK))
+        assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
         assertThat(
             response.valueOrNull()!!.body.asPrettyJson(), equalTo(
                 """
