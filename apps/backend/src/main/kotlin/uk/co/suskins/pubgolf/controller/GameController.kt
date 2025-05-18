@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -15,9 +16,10 @@ import uk.co.suskins.pubgolf.service.GameService
 import java.util.*
 
 @RestController
+@RequestMapping("/api/v1/games")
 class GameController(private val gameService: GameService) {
 
-    @PostMapping("/api/v1/games")
+    @PostMapping
     @ApiResponses(
         value = [
             ApiResponse(
@@ -40,7 +42,7 @@ class GameController(private val gameService: GameService) {
             )
         ]
     )
-    fun createGame(@RequestBody gameRequest: GameRequest): ResponseEntity<*> {
+    fun createGame(@Valid @RequestBody gameRequest: GameRequest): ResponseEntity<*> {
         return gameService.createGame(gameRequest.host)
             .map {
                 CreateGameResponse(
@@ -56,7 +58,7 @@ class GameController(private val gameService: GameService) {
             }.get()
     }
 
-    @PostMapping("/api/v1/games/{gameCode}/join")
+    @PostMapping("/{gameCode}/join")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -65,6 +67,15 @@ class GameController(private val gameService: GameService) {
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = JoinGameResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "404", description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
                     )
                 ]
             ),
@@ -81,7 +92,7 @@ class GameController(private val gameService: GameService) {
     )
     fun joinGame(
         @PathVariable("gameCode") gameCode: String,
-        @RequestBody gameJoinRequest: GameJoinRequest
+        @Valid @RequestBody gameJoinRequest: GameJoinRequest
     ): ResponseEntity<*> {
         return gameService.joinGame(gameCode, gameJoinRequest.name)
             .map {
@@ -98,7 +109,7 @@ class GameController(private val gameService: GameService) {
             }.get()
     }
 
-    @GetMapping("/api/v1/games/{gameCode}")
+    @GetMapping("/{gameCode}")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -107,6 +118,15 @@ class GameController(private val gameService: GameService) {
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = GameStateResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "404", description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
                     )
                 ]
             ),
@@ -136,11 +156,20 @@ class GameController(private val gameService: GameService) {
             }.get()
     }
 
-    @PostMapping("/api/v1/games/{gameCode}/players/{playerId}/scores")
+    @PostMapping("/{gameCode}/players/{playerId}/scores")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "204", description = "Score submitted"
+            ),
+            ApiResponse(
+                responseCode = "404", description = "Game or Player not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
             ),
             ApiResponse(
                 responseCode = "500",
@@ -156,7 +185,7 @@ class GameController(private val gameService: GameService) {
     fun submitScore(
         @PathVariable("gameCode") gameCode: String,
         @PathVariable("playerId") playerId: String,
-        @RequestBody scoreRequest: ScoreRequest
+        @Valid @RequestBody scoreRequest: ScoreRequest
     ): ResponseEntity<*> {
         return gameService.submitScore(gameCode, UUID.fromString(playerId), scoreRequest.hole, scoreRequest.score)
             .map { ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) }

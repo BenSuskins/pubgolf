@@ -92,6 +92,16 @@
               }
             }
           },
+          "404" : {
+            "description" : "Game or Player not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Internal Server Error",
             "content" : {
@@ -138,6 +148,16 @@
               }
             }
           },
+          "404" : {
+            "description" : "Game not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Internal Server Error",
             "content" : {
@@ -174,6 +194,16 @@
               }
             }
           },
+          "404" : {
+            "description" : "Game not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Internal Server Error",
             "content" : {
@@ -194,7 +224,8 @@
         "type" : "object",
         "properties" : {
           "host" : {
-            "type" : "string"
+            "type" : "string",
+            "minLength" : 1
           }
         },
         "required" : [ "host" ]
@@ -231,11 +262,15 @@
         "properties" : {
           "hole" : {
             "type" : "integer",
-            "format" : "int32"
+            "format" : "int32",
+            "maximum" : 9,
+            "minimum" : 1
           },
           "score" : {
             "type" : "integer",
-            "format" : "int32"
+            "format" : "int32",
+            "maximum" : 10,
+            "minimum" : -10
           }
         },
         "required" : [ "hole", "score" ]
@@ -244,7 +279,8 @@
         "type" : "object",
         "properties" : {
           "name" : {
-            "type" : "string"
+            "type" : "string",
+            "minLength" : 1
           }
         },
         "required" : [ "name" ]

@@ -17,14 +17,14 @@ class GameScoreSubmission : ScenarioTest() {
     fun `Can successfully submit a score`() {
         val game = createGame("Ben")
 
-        val response = submitScore(game.gameCode(), game.playerId(), 0, 1)
+        val response = submitScore(game.gameCode(), game.playerId(), 1, 1)
 
         scoreSubmittedSuccessfully(response)
     }
 
     @Test
     fun `Can't submit a score for a game that doesn't exist`() {
-        val response = submitScore("random-game-code", UUID.randomUUID().toString(), 0, 1)
+        val response = submitScore("random-game-code", UUID.randomUUID().toString(), 1, 1)
 
         submitScoreGameDoesNotExist(response)
     }
@@ -34,7 +34,7 @@ class GameScoreSubmission : ScenarioTest() {
         val game = createGame("Ben")
         val playerId = UUID.randomUUID().toString()
 
-        val response = submitScore(game.gameCode(), playerId, 0, 1)
+        val response = submitScore(game.gameCode(), playerId, 1, 1)
 
         submitScorePlayerDoesNotExist(response, playerId, game.gameCode())
     }

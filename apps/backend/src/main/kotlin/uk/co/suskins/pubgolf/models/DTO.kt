@@ -1,8 +1,27 @@
 package uk.co.suskins.pubgolf.models
 
-data class GameRequest(val host: String)
-data class GameJoinRequest(val name: String)
-data class ScoreRequest(val hole: Int, val score: Int)
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+
+data class GameRequest(
+    @field:NotBlank(message = "Host name must not be blank")
+    val host: String
+)
+
+data class GameJoinRequest(
+    @field:NotBlank(message = "Name must not be blank")
+    val name: String
+)
+
+data class ScoreRequest(
+    @field:Max(value = 9)
+    @field:Min(value = 1)
+    val hole: Int,
+    @field:Max(value = 10)
+    @field:Min(value = -10)
+    val score: Int
+)
 
 data class CreateGameResponse(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
 data class JoinGameResponse(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
