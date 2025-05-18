@@ -45,6 +45,7 @@ class GameState : ScenarioTest() {
         assertThat(player["id"] as String, matches(uuidPattern))
         assertThat(player["name"], equalTo(host))
         assertThat(player["scores"], equalTo(List(9) { 0 }))
+        assertThat(player["totalScore"], equalTo(0))
     }
 
 

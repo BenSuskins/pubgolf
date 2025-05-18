@@ -26,5 +26,5 @@ data class ScoreRequest(
 data class CreateGameResponse(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
 data class JoinGameResponse(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)
 data class GameStateResponse(val gameId: String, val gameCode: String, val players: List<PlayerResponse>)
-data class PlayerResponse(val id: String, val name: String, val scores: List<Int>)
+data class PlayerResponse(val id: String, val name: String, val scores: List<Int>, val totalScore: Int)
 data class ErrorResponse(val message: String)

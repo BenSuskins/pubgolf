@@ -50,6 +50,6 @@ export const submitScore = async (hole: number, score: number) => {
 
 export const getPlayers = async () => {
   const identifier = getGameIdentifier();
-  const response = await api.get(`/games/${identifier}/players`);
+  const response = await api.get(`/games/${identifier}`);
   return response.data;
 };

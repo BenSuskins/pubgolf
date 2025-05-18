@@ -176,7 +176,14 @@ class GameController(private val gameService: GameService) {
                 GameStateResponse(
                     it.id.toString(),
                     it.code,
-                    it.players.map { PlayerResponse(it.id.toString(), it.name, it.scores.map { it.value }) }
+                    it.players.map {
+                        PlayerResponse(
+                            it.id.toString(),
+                            it.name,
+                            it.scores.map { it.value },
+                            it.scores.map { it.value }.sum()
+                        )
+                    }
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)

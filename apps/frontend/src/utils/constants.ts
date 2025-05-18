@@ -22,7 +22,7 @@ export const drinks: DrinkInfo[] = [
     {  drinkA: 'VK', drinkB: 'Smirnoff', par: 1 },
 ];
 
-export const baseURL = 'http://localhost:8080/api';
+export const baseURL = 'http://localhost:8080/api/v1';
 // TODO make this an env var
 
 export const routes = {

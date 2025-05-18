@@ -376,9 +376,13 @@
               "type" : "integer",
               "format" : "int32"
             }
+          },
+          "totalScore" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         },
-        "required" : [ "id", "name", "scores" ]
+        "required" : [ "id", "name", "scores", "totalScore" ]
       }
     }
   }
