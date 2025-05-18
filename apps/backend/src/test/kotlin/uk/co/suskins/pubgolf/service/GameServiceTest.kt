@@ -35,11 +35,11 @@ class GameServiceTest {
         val result = service.createGame(host)
 
         val game = result.valueOrNull()!!
-        val host = game.players.first()
+        val hostPlayer = game.players.first()
 
         assertThat(game.players.size, equalTo(1))
-        assertThat(host.name, equalTo(host))
-        assertThat(host.scores, equalTo((1..9).associateWith { 0 }))
+        assertThat(hostPlayer.name, equalTo(host))
+        assertThat(hostPlayer.scores, equalTo((1..9).associateWith { 0 }))
     }
 
     @Test
