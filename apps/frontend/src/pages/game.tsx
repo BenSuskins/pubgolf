@@ -23,7 +23,7 @@ const GamePage = () => {
     const fetchPlayers = async () => {
         try {
             const playersData = await getPlayers();
-            setPlayers(playersData);
+            setPlayers(playersData.players);
         } catch (error) {
             console.error('Failed load players:', error);
         }
