@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.scenarios
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.matches
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
@@ -14,11 +15,12 @@ import kotlin.test.assertTrue
 class GameState : ScenarioTest() {
     @Test
     fun `Can successfully get the current game state`() {
-        val game = createGame("Ben")
+        val host = "Ben"
+        val game = createGame(host)
 
         val response = gameState(game.gameCode())
 
-        gameStateValid(response)
+        gameStateValid(response, host)
     }
 
     @Test
@@ -28,25 +30,21 @@ class GameState : ScenarioTest() {
         gameStateFails(response)
     }
 
-    private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>) {
+    private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>, host: String) {
+        val body = response.valueOrNull()!!.body!!.asJsonMap()
+
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
-        assertThat(
-            response.valueOrNull()!!.body.asPrettyJson(), equalTo(
-                """
-                        {
-                          "gameId": "game-abc123",
-                          "gameCode": "ABC123",
-                          "players": [
-                            {
-                              "id": "player-xyz789",
-                              "name": "Player",
-                              "scores": [0, 0, 0, 0, 0, 0, 0, 0, 0]
-                            }
-                          ]
-                        }
-                    """.trimMargin().asPrettyJson()
-            )
-        )
+
+        assertThat(body["gameId"] as String, matches(uuidPattern))
+        assertThat(body["gameCode"] as String, matches(gameCodePattern))
+
+        val players = body["players"] as List<*>
+        assertThat(players.size, equalTo(1))
+
+        val player = players[0] as Map<*, *>
+        assertThat(player["id"] as String, matches(uuidPattern))
+        assertThat(player["name"], equalTo(host))
+        assertThat(player["scores"], equalTo(List(9) { 0 }))
     }
 
 

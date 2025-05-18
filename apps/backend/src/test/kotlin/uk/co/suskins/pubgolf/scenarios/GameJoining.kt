@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.scenarios
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.matches
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
@@ -39,19 +40,14 @@ class GameJoining : ScenarioTest() {
     }
 
     private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>, name: String) {
+        val body = response.valueOrNull()!!.body!!.asJsonMap()
+
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
-        assertThat(
-            response.valueOrNull()!!.body.asPrettyJson(), equalTo(
-                """
-                   {
-                      "gameId": "game-abc123",
-                      "gameCode": "ABC123",
-                      "playerId": "player-xyz789",
-                      "playerName": "$name"
-                    }
-                    """.trimMargin().asPrettyJson()
-            )
-        )
+
+        assertThat(body["playerName"], equalTo(name))
+        assertThat(body["gameCode"] as String, matches(gameCodePattern))
+        assertThat(body["gameId"] as String, matches(uuidPattern))
+        assertThat(body["playerId"] as String, matches(uuidPattern))
     }
 
     private fun joinedGameFails(response: Result<ResponseEntity<String>, Exception>) {

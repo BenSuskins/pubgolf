@@ -33,6 +33,7 @@ class GameCreation : ScenarioTest() {
         val body = response.valueOrNull()!!.body!!.asJsonMap()
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(CREATED))
+
         assertThat(body["playerName"], equalTo(host))
         assertThat(body["gameCode"] as String, matches(gameCodePattern))
         assertThat(body["gameId"] as String, matches(uuidPattern))
