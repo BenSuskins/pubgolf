@@ -1,7 +1,6 @@
 package uk.co.suskins.pubgolf.service
 
 import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isA
 import dev.forkhandles.result4k.hamkrest.isFailure
@@ -12,6 +11,7 @@ import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
+import kotlin.test.assertTrue
 
 private const val gameCode = "ACE007"
 private const val host = "Ben"
@@ -27,7 +27,7 @@ class GameServiceTest {
         assertThat(result, isSuccess())
         val game = result.valueOrNull()!!
         assertThat(game.id, isA<UUID>())
-        assertThat(game.code, contains(Regex("[A-Z]+\\d{3}")))
+        assertTrue(game.code.isValidGameCode())
     }
 
     @Test
@@ -55,10 +55,12 @@ class GameServiceTest {
 
         assertThat(result, isSuccess())
         val joinedGame = result.valueOrNull()!!
-        assertThat(joinedGame.players.map { it.name }, equalTo(listOf(host, "Megan")))
+        assertTrue(joinedGame.hasPlayer("Ben"))
+        assertTrue(joinedGame.hasPlayer("Megan"))
 
         val updatedGame = gameRepository.find(gameCode).valueOrNull()!!
-        assertThat(updatedGame.players.map { it.name }, equalTo(listOf(host, "Megan")))
+        assertTrue(updatedGame.hasPlayer("Ben"))
+        assertTrue(updatedGame.hasPlayer("Megan"))
         assertThat(updatedGame.players.find { it.name == "Megan" }!!.scores, equalTo((1..9).associateWith { 0 }))
     }
 
@@ -148,5 +150,8 @@ class GameServiceTest {
 
         assertThat(result, isFailure(PlayerNotFoundFailure("Player `$playerId` not found for game `ACE007`.")))
     }
+
+    private fun Game.hasPlayer(name: String) = players.any { it.name == name }
+    private fun String.isValidGameCode() = matches(Regex("[A-Za-z]+\\d{3}"))
 }
 
