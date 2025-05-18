@@ -15,11 +15,12 @@ import kotlin.test.assertTrue
 class GameJoining : ScenarioTest() {
     @Test
     fun `Can successfully join a game`() {
-        val game = createGame("Ben")
+        val host = "Ben"
+        val game = createGame(host)
         val name = "Megan"
         val response = joinGame(game.gameCode(), name)
 
-        joinedGameSuccessfully(response, name)
+        joinedGameSuccessfully(response, host)
     }
 
     @Test

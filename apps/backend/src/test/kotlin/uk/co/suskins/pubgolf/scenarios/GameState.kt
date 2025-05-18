@@ -39,7 +39,7 @@ class GameState : ScenarioTest() {
         assertThat(body["gameCode"] as String, matches(gameCodePattern))
 
         val players = body["players"] as List<*>
-        assertThat(players.size, equalTo(11))
+        assertThat(players.size, equalTo(10))
 
         val player = players[0] as Map<*, *>
         assertThat(player["id"] as String, matches(uuidPattern))
