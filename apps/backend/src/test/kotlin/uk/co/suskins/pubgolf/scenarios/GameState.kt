@@ -24,6 +24,17 @@ class GameState : ScenarioTest() {
     }
 
     @Test
+    fun `The players are ordered by score`() {
+        val host = "Ben"
+        val game = gameOfTenPlayers(host)
+        submitScore(game.gameCode(), game.playerId(), 1, -10)
+
+        val response = gameState(game.gameCode())
+
+        gameStateValid(response, host)
+    }
+
+    @Test
     fun `Can't get game state for a game that doesn't exist`() {
         val response = gameState("random-game-code")
 

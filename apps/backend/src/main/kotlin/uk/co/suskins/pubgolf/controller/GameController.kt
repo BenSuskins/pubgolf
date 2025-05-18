@@ -116,11 +116,12 @@ class GameController(private val gameService: GameService) {
     ): ResponseEntity<*> {
         return gameService.joinGame(gameCode, gameJoinRequest.name)
             .map {
+                val player = it.players.find { it.name == gameJoinRequest.name }
                 JoinGameResponse(
                     it.id.toString(),
                     it.code,
-                    it.players[0].id.toString(),
-                    it.players[0].name
+                    player!!.id.toString(), // todo fix me in the morning
+                    player.name
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -183,7 +184,7 @@ class GameController(private val gameService: GameService) {
                             it.scores.map { it.value },
                             it.scores.map { it.value }.sum()
                         )
-                    }
+                    }.sortedBy { it.totalScore }
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
