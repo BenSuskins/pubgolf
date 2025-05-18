@@ -40,7 +40,7 @@ class GameJoining : ScenarioTest() {
     }
 
     private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>, name: String) {
-        val body = response.valueOrNull()!!.body!!.asJsonMap()
+        val body = response.bodyString().asJsonMap()
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
 

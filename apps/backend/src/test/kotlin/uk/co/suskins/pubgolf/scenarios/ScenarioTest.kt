@@ -55,11 +55,22 @@ abstract class ScenarioTest {
             .toEntity(String::class.java)
     }
 
+    fun gameOfTenPlayers(host: String): Result<ResponseEntity<String>, Exception> {
+        val game = createGame(host)
+        for (i in 1..9) {
+            joinGame(game.gameCode(), "$host$i")
+        }
+        return game
+    }
+
+    fun Result<ResponseEntity<String>, Exception>.bodyString() =
+        valueOrNull()!!.body as String
+
     fun Result<ResponseEntity<String>, Exception>.gameCode() =
-        JSONObject(valueOrNull()!!.body).getString("gameCode")!!
+        JSONObject(bodyString()).getString("gameCode")!!
 
     fun Result<ResponseEntity<String>, Exception>.playerId() =
-        JSONObject(valueOrNull()!!.body).getString("playerId")!!
+        JSONObject(bodyString()).getString("playerId")!!
 
     fun String.asJsonMap(): Map<String, Any> =
         ObjectMapper().readValue(this, object : TypeReference<Map<String, Any>>() {})

@@ -16,10 +16,7 @@ class GameState : ScenarioTest() {
     @Test
     fun `Can successfully get the current game state`() {
         val host = "Ben"
-        val game = createGame(host)
-        for (i in 1..10) {
-            joinGame(game.gameCode(), "Ben$i")
-        }
+        val game = gameOfTenPlayers(host)
 
         val response = gameState(game.gameCode())
 
@@ -34,7 +31,7 @@ class GameState : ScenarioTest() {
     }
 
     private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>, host: String) {
-        val body = response.valueOrNull()!!.body!!.asJsonMap()
+        val body = response.bodyString().asJsonMap()
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
 

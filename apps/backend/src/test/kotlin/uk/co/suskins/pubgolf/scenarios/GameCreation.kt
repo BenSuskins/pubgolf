@@ -30,7 +30,7 @@ class GameCreation : ScenarioTest() {
     }
 
     private fun gameCreationSuccessful(response: Result<ResponseEntity<String>, Exception>, host: String) {
-        val body = response.valueOrNull()!!.body!!.asJsonMap()
+        val body = response.bodyString().asJsonMap()
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(CREATED))
 
