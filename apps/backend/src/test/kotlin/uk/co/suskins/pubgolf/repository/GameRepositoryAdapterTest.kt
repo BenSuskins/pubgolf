@@ -10,9 +10,12 @@ import org.springframework.test.context.ActiveProfiles
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.service.hasInitialScore
+import uk.co.suskins.pubgolf.service.hasPlayer
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -39,11 +42,18 @@ class GameRepositoryAdapterTest {
         )
 
         val saved = adapter.save(game).valueOrNull()!!
-        val found = adapter.find("ACE007").valueOrNull()!!
+        validate(saved, game)
 
-        assertThat(found.id, equalTo(saved.id))
-        assertThat(found.players.size, equalTo(1))
-        assertThat(found.players.first().name, equalTo("Ben"))
+        val found = adapter.find("ACE007").valueOrNull()!!
+        validate(found, game)
+    }
+
+    private fun validate(persistedGame: Game, originalGame: Game) {
+        assertThat(persistedGame, equalTo(originalGame))
+        assertThat(persistedGame.id, equalTo(originalGame.id))
+        assertThat(persistedGame.players.size, equalTo(1))
+        assertTrue(persistedGame.hasPlayer("Ben"))
+        assertTrue(persistedGame.players.find { it.name == "Ben" }!!.hasInitialScore())
     }
 
     @Test

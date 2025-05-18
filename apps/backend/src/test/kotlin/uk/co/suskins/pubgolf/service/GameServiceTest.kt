@@ -39,7 +39,7 @@ class GameServiceTest {
 
         assertThat(game.players.size, equalTo(1))
         assertThat(hostPlayer.name, equalTo(host))
-        assertThat(hostPlayer.scores, equalTo((1..9).associateWith { 0 }))
+        assertTrue(hostPlayer.hasInitialScore())
     }
 
     @Test
@@ -61,7 +61,8 @@ class GameServiceTest {
         val updatedGame = gameRepository.find(gameCode).valueOrNull()!!
         assertTrue(updatedGame.hasPlayer("Ben"))
         assertTrue(updatedGame.hasPlayer("Megan"))
-        assertThat(updatedGame.players.find { it.name == "Megan" }!!.scores, equalTo((1..9).associateWith { 0 }))
+        assertTrue(updatedGame.players.find { it.name == "Ben" }!!.hasInitialScore())
+        assertTrue(updatedGame.players.find { it.name == "Megan" }!!.hasInitialScore())
     }
 
     @Test
@@ -150,8 +151,8 @@ class GameServiceTest {
 
         assertThat(result, isFailure(PlayerNotFoundFailure("Player `$playerId` not found for game `ACE007`.")))
     }
-
-    private fun Game.hasPlayer(name: String) = players.any { it.name == name }
-    private fun String.isValidGameCode() = matches(Regex("[A-Za-z]+\\d{3}"))
 }
 
+fun Game.hasPlayer(name: String) = players.any { it.name == name }
+fun Player.hasInitialScore() = scores == (1..9).associateWith { 0 }
+private fun String.isValidGameCode() = matches(Regex("[A-Za-z]+\\d{3}"))
