@@ -57,7 +57,7 @@ const HowToPlayPage = () => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <StyledTableCell>Pub</StyledTableCell>
+                                <StyledTableCell>Drink #</StyledTableCell>
                                 <StyledTableCell>Drink A</StyledTableCell>
                                 <StyledTableCell>Drink B</StyledTableCell>
                                 <StyledTableCell>Par</StyledTableCell>
@@ -66,7 +66,7 @@ const HowToPlayPage = () => {
                         <TableBody>
                             {drinks.map((drink, index) => (
                                 <TableRow key={index}>
-                                    <TableCell sx={{ color: '#fff' }}>{drink.pub}</TableCell>
+                                    <TableCell sx={{ color: '#fff' }}>{index + 1}</TableCell>
                                     <TableCell sx={{ color: '#fff' }}>{drink.drinkA}</TableCell>
                                     <TableCell sx={{ color: '#fff' }}>{drink.drinkB}</TableCell>
                                     <TableCell sx={{ color: '#fff' }}>{drink.par}</TableCell>
