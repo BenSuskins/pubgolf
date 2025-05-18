@@ -23,6 +23,16 @@ class GameScoreSubmission : ScenarioTest() {
     }
 
     @Test
+    fun `Can't submit a score outside of the input validations`() {
+        val game = createGame("Ben")
+
+        scoreSubmittedFailed(submitScore(game.gameCode(), game.playerId(), 0, 1))
+        scoreSubmittedFailed(submitScore(game.gameCode(), game.playerId(), 10, 1))
+        scoreSubmittedFailed(submitScore(game.gameCode(), game.playerId(), 1, -11))
+        scoreSubmittedFailed(submitScore(game.gameCode(), game.playerId(), 1, 11))
+    }
+
+    @Test
     fun `Can't submit a score for a game that doesn't exist`() {
         val response = submitScore("random-game-code", UUID.randomUUID().toString(), 1, 1)
 
@@ -57,5 +67,10 @@ class GameScoreSubmission : ScenarioTest() {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
         assertTrue(restClientException.message!!.contains("Player `$playerId` not found for game `$gameCode`."))
+    }
+
+    private fun scoreSubmittedFailed(response: Result<ResponseEntity<String>, Exception>) {
+        val restClientException = response.get() as RestClientException
+        assertTrue(restClientException.message!!.contains("400 Bad Request"))
     }
 }
