@@ -13,13 +13,16 @@ import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
 
+private const val gameCode = "ACE007"
+private const val host = "Ben"
+
 class GameServiceTest {
     private val gameRepository: GameRepository = GameRepositoryFake()
     private val service: GameService = GameService(gameRepository)
 
     @Test
     fun `can create game`() {
-        val result = service.createGame("Ben")
+        val result = service.createGame(host)
 
         assertThat(result, isSuccess())
         val game = result.valueOrNull()!!
@@ -29,13 +32,13 @@ class GameServiceTest {
 
     @Test
     fun `can create game with a host`() {
-        val result = service.createGame("Ben")
+        val result = service.createGame(host)
 
         val game = result.valueOrNull()!!
         val host = game.players.first()
 
         assertThat(game.players.size, equalTo(1))
-        assertThat(host.name, equalTo("Ben"))
+        assertThat(host.name, equalTo(host))
         assertThat(host.scores, equalTo((1..9).associateWith { 0 }))
     }
 
@@ -43,25 +46,25 @@ class GameServiceTest {
     fun `can join a game`() {
         val game = Game(
             id = UUID.randomUUID(),
-            code = "ACE007",
-            players = listOf(Player(UUID.randomUUID(), "Ben"))
+            code = gameCode,
+            players = listOf(Player(UUID.randomUUID(), host))
         )
         gameRepository.save(game)
 
-        val result = service.joinGame("ACE007", "Megan")
+        val result = service.joinGame(gameCode, "Megan")
 
         assertThat(result, isSuccess())
         val joinedGame = result.valueOrNull()!!
-        assertThat(joinedGame.players.map { it.name }, equalTo(listOf("Ben", "Megan")))
+        assertThat(joinedGame.players.map { it.name }, equalTo(listOf(host, "Megan")))
 
-        val updatedGame = gameRepository.find("ACE007").valueOrNull()!!
-        assertThat(updatedGame.players.map { it.name }, equalTo(listOf("Ben", "Megan")))
+        val updatedGame = gameRepository.find(gameCode).valueOrNull()!!
+        assertThat(updatedGame.players.map { it.name }, equalTo(listOf(host, "Megan")))
         assertThat(updatedGame.players.find { it.name == "Megan" }!!.scores, equalTo((1..9).associateWith { 0 }))
     }
 
     @Test
     fun `fail to join a game that doesn't exist`() {
-        val result = service.joinGame("ACE007", "Megan")
+        val result = service.joinGame(gameCode, "Megan")
 
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
     }
@@ -70,12 +73,12 @@ class GameServiceTest {
     fun `fail to join a game with a name that already exists`() {
         val game = Game(
             id = UUID.randomUUID(),
-            code = "ACE007",
-            players = listOf(Player(UUID.randomUUID(), "Ben"))
+            code = gameCode,
+            players = listOf(Player(UUID.randomUUID(), host))
         )
         gameRepository.save(game)
 
-        val result = service.joinGame("ACE007", "Ben")
+        val result = service.joinGame(gameCode, host)
 
         assertThat(result, isFailure(PlayerAlreadyExistsFailure("Player `Ben` already exists for game `ACE007`.")))
     }
@@ -84,12 +87,12 @@ class GameServiceTest {
     fun `can get the state of a game`() {
         val game = Game(
             id = UUID.randomUUID(),
-            code = "ACE007",
-            players = listOf(Player(UUID.randomUUID(), "Ben"))
+            code = gameCode,
+            players = listOf(Player(UUID.randomUUID(), host))
         )
         gameRepository.save(game)
 
-        val result = service.gameState("ACE007")
+        val result = service.gameState(gameCode)
 
         assertThat(result, isSuccess())
         val gameState = result.valueOrNull()!!
@@ -98,50 +101,50 @@ class GameServiceTest {
 
     @Test
     fun `fail to get the state of a game that doesn't exist`() {
-        val result = service.gameState("ACE007")
+        val result = service.gameState(gameCode)
 
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
     }
 
     @Test
     fun `can submit a score`() {
-        val player = Player(UUID.randomUUID(), "Ben")
+        val player = Player(UUID.randomUUID(), host)
         val game = Game(
             id = UUID.randomUUID(),
-            code = "ACE007",
+            code = gameCode,
             players = listOf(player)
         )
         gameRepository.save(game)
 
-        val result = service.submitScore("ACE007", player.id, 2, 4)
+        val result = service.submitScore(gameCode, player.id, 2, 4)
 
         assertThat(result, isSuccess())
 
-        val updatedGame = gameRepository.find("ACE007").valueOrNull()!!
+        val updatedGame = gameRepository.find(gameCode).valueOrNull()!!
         assertThat(
-            updatedGame.players.find { it.name == "Ben" }!!.scores,
+            updatedGame.players.find { it.name == host }!!.scores,
             equalTo(mapOf(1 to 0, 2 to 4, 3 to 0, 4 to 0, 5 to 0, 6 to 0, 7 to 0, 8 to 0, 9 to 0))
         )
     }
 
     @Test
     fun `fail to get submit a score for a game that doesn't exist`() {
-        val result = service.submitScore("ACE007", UUID.randomUUID(), 2, 4)
+        val result = service.submitScore(gameCode, UUID.randomUUID(), 2, 4)
 
-        assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
+        assertThat(result, isFailure(GameNotFoundFailure("Game `$gameCode` not found.")))
     }
 
     @Test
     fun `fail to get submit a score for a player that doesn't exist`() {
         val game = Game(
             id = UUID.randomUUID(),
-            code = "ACE007",
-            players = listOf(Player(UUID.randomUUID(), "Ben"))
+            code = gameCode,
+            players = listOf(Player(UUID.randomUUID(), host))
         )
         gameRepository.save(game)
 
         val playerId = UUID.randomUUID()
-        val result = service.submitScore("ACE007", playerId, 2, 4)
+        val result = service.submitScore(gameCode, playerId, 2, 4)
 
         assertThat(result, isFailure(PlayerNotFoundFailure("Player `$playerId` not found for game `ACE007`.")))
     }
