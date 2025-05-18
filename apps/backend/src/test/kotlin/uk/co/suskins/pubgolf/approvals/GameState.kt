@@ -17,9 +17,9 @@ class GameState : ScenarioTest() {
     var approvals: ApprovalsExtension = ApprovalsExtension(File("./src/test/resources"))
 
     @Test
-    fun `Game State`(approver: Approver) {
+    fun `Game State for 10 players`(approver: Approver) {
         val game = gameOfTenPlayers("Ben")
 
-        approver.assertApproved(gameState(game.gameCode()).asPrettyJson())
+        approver.assertApproved(gameState(game.gameCode()).bodyString().asPrettyJson())
     }
 }
