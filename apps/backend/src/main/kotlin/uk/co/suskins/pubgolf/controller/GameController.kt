@@ -168,6 +168,7 @@ class GameController(private val gameService: GameService) {
     private fun resolveFailure(it: PubGolfFailure) = when (it) {
         is GameNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
         is PlayerNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
+        is PlayerAlreadyExistsFailure -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(it.asErrorResponse())
         else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
     }
 }

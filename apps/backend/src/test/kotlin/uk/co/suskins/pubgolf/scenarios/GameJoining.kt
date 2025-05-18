@@ -28,6 +28,16 @@ class GameJoining : ScenarioTest() {
         joinedGameFails(response)
     }
 
+    @Test
+    fun `Can't join a game with the same name as another playe`() {
+        val name = "Ben"
+        val game = createGame(name)
+
+        val response = joinGame(game.gameCode(), name)
+
+        joinedGameFailsSameName(response, name, game.gameCode())
+    }
+
     private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>, name: String) {
         assertThat(response.valueOrNull()!!.statusCode, equalTo(HttpStatus.OK))
         assertThat(
@@ -47,6 +57,16 @@ class GameJoining : ScenarioTest() {
     private fun joinedGameFails(response: Result<ResponseEntity<String>, Exception>) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
-        assertTrue(restClientException.message!!.contains("Game `random-game-code` could not be found."))
+        assertTrue(restClientException.message!!.contains("Game `random-game-code` not found."))
+    }
+
+    private fun joinedGameFailsSameName(
+        response: Result<ResponseEntity<String>, Exception>,
+        name: String,
+        gameCode: String
+    ) {
+        val restClientException = response.get() as RestClientException
+        assertTrue(restClientException.message!!.contains("400 Bad Request"))
+        assertTrue(restClientException.message!!.contains("Player `$name` already exists for game `$gameCode`."))
     }
 }
