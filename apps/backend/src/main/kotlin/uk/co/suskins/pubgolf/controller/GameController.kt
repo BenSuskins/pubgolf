@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -18,6 +19,7 @@ import java.util.*
 @RestController
 @RequestMapping("/api/v1/games")
 class GameController(private val gameService: GameService) {
+    private val logger = LoggerFactory.getLogger(GameController::class.java)
 
     @PostMapping
     @ApiResponses(
@@ -194,11 +196,14 @@ class GameController(private val gameService: GameService) {
             }.get()
     }
 
-    private fun resolveFailure(it: PubGolfFailure) = when (it) {
-        is GameNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
-        is PlayerNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
-        is PlayerAlreadyExistsFailure -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(it.asErrorResponse())
-        else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
+    private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
+        logger.error("Failure `${it.message}` occurred.")
+        return when (it) {
+            is GameNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
+            is PlayerNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
+            is PlayerAlreadyExistsFailure -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(it.asErrorResponse())
+            else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
+        }
     }
 }
 

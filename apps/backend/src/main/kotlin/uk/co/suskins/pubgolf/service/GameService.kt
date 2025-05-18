@@ -1,9 +1,7 @@
 package uk.co.suskins.pubgolf.service
 
-import dev.forkhandles.result4k.Failure
-import dev.forkhandles.result4k.Result
-import dev.forkhandles.result4k.flatMap
-import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.*
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.repository.GameRepository
@@ -12,6 +10,7 @@ import kotlin.random.Random
 
 @Service
 class GameService(private val gameRepository: GameRepository) {
+    private val logger = LoggerFactory.getLogger(GameService::class.java)
     private val golfTerms = listOf("PAR", "BIRDIE", "BOGEY", "EAGLE", "ALBATROSS", "ACE", "FORE", "HOOK", "SLICE")
 
     fun createGame(name: String): Result<Game, PubGolfFailure> {
@@ -23,6 +22,7 @@ class GameService(private val gameRepository: GameRepository) {
         )
 
         return gameRepository.save(game).map { it }
+            .peek { logger.info("Game ${it.code} created.") }
     }
 
     fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> =
@@ -35,9 +35,6 @@ class GameService(private val gameRepository: GameRepository) {
                 gameRepository.save(updated).map { it }
             }
         }
-
-    private fun generateGameCode() =
-        "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}"
 
     fun gameState(gameCode: String): Result<Game, PubGolfFailure> = gameRepository.find(gameCode)
 
@@ -56,6 +53,9 @@ class GameService(private val gameRepository: GameRepository) {
                 gameRepository.save(game.copy(players = updatedPlayers)).map { Unit }
             }
         }
+
+    private fun generateGameCode() =
+        "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}"
 }
 
 
