@@ -30,11 +30,21 @@
         },
         "responses" : {
           "201" : {
-            "description" : "Created",
+            "description" : "Game created",
             "content" : {
-              "*/*" : {
+              "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/CreateGameResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -169,6 +179,15 @@
           }
         },
         "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
+      },
+      "ErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ]
       },
       "ScoreRequest" : {
         "type" : "object",

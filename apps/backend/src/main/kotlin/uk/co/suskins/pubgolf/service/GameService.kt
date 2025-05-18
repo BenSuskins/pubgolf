@@ -4,11 +4,13 @@ import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
+import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
 import kotlin.random.Random
 
+@Service
 class GameService(private val gameRepository: GameRepository) {
     private val golfTerms = listOf("PAR", "BIRDIE", "BOGEY", "EAGLE", "ALBATROSS", "ACE", "FORE", "HOOK", "SLICE")
 

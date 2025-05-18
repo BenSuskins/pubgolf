@@ -1,16 +1,58 @@
 package uk.co.suskins.pubgolf.controller
 
+import dev.forkhandles.result4k.get
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.mapFailure
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import uk.co.suskins.pubgolf.models.*
+import uk.co.suskins.pubgolf.service.GameService
 
 @RestController
-class GameController {
+class GameController(private val gameService: GameService) {
 
     @PostMapping("/api/v1/games")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createGame(@RequestBody gameRequest: GameRequest): CreateGameResponse {
-        return CreateGameResponse("game-abc123", "ABC123", "player-xyz789", gameRequest.host)
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201", description = "Game created",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = CreateGameResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
+        ]
+    )
+    fun createGame(@RequestBody gameRequest: GameRequest): ResponseEntity<*> {
+        return gameService.createGame(gameRequest.host)
+            .map {
+                CreateGameResponse(
+                    it.id.toString(),
+                    it.code,
+                    it.players[0].id.toString(),
+                    it.players[0].name
+                )
+            }.map {
+                ResponseEntity.status(HttpStatus.CREATED).body(it)
+            }.mapFailure {
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
+            }.get()
     }
 
     @PostMapping("/api/v1/games/{gameCode}/join")

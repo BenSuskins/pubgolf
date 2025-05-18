@@ -22,11 +22,15 @@ data class Player(
 
 fun initialScore() = (1..9).associateWith { 0 }
 
-sealed interface PubGolfFailure
-data class GameNotFoundFailure(val message: String) : PubGolfFailure
-data class PlayerAlreadyExistsFailure(val message: String) : PubGolfFailure
-data class PlayerNotFoundFailure(val message: String) : PubGolfFailure
-data class PersistenceFailure(val message: String) : PubGolfFailure
+sealed interface PubGolfFailure {
+    val message: String
+    fun asErrorResponse() = ErrorResponse(message)
+}
+
+data class GameNotFoundFailure(override val message: String) : PubGolfFailure
+data class PlayerAlreadyExistsFailure(override val message: String) : PubGolfFailure
+data class PlayerNotFoundFailure(override val message: String) : PubGolfFailure
+data class PersistenceFailure(override val message: String) : PubGolfFailure
 
 
 fun Game.toJpa(): GameEntity {
