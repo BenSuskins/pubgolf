@@ -173,6 +173,3 @@ class GameController(private val gameService: GameService) {
     }
 }
 
-class GameNotFoundException(override val message: String?) : Exception()
-class PlayerNotFoundException(override val message: String?) : Exception()
-
