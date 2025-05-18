@@ -29,10 +29,8 @@ data class PlayerNotFoundFailure(val message: String) : PubGolfFailure
 data class PersistenceFailure(val message: String) : PubGolfFailure
 
 
-fun Game.toJpa(): GameEntity = GameEntity(
-    id = id,
-    code = code,
-    players = players.map {
-        PlayerEntity(id = it.id, name = it.name, scores = it.scores.toMutableMap())
-    }.toMutableList()
-)
+fun Game.toJpa(): GameEntity {
+    val gameEntity = GameEntity(id, code)
+    players.forEach { gameEntity.addPlayer(PlayerEntity(it.id, it.name, gameEntity, it.scores.toMutableMap())) }
+    return gameEntity
+}

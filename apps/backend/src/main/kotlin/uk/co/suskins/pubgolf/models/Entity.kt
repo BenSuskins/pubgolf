@@ -12,7 +12,11 @@ data class GameEntity(
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
     val players: MutableList<PlayerEntity> = mutableListOf()
-)
+) {
+    fun addPlayer(playerEntity: PlayerEntity) {
+        this.players.add(playerEntity)
+    }
+}
 
 @Entity
 @Table(name = "players")
@@ -20,6 +24,9 @@ data class PlayerEntity(
     @Id
     val id: UUID,
     val name: String,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id", nullable = false)
+    var game: GameEntity,
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "scores", joinColumns = [JoinColumn(name = "player_id")])
     @MapKeyColumn(name = "hole")
