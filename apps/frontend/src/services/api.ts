@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearLocalStorage, getGameIdentifier, getPlayerName, setGameIdentifier, setPlayerName } from '@/utils/utils';
+import { clearLocalStorage, getGameIdentifier, getPlayerName, setGameIdentifier, setPlayerName, setPlayerid, getPlayerId} from '@/utils/utils';
 import { baseURL } from '@/utils/constants';
 
 const api = axios.create({
@@ -19,10 +19,12 @@ api.interceptors.response.use(response => {
   return Promise.reject(error);
 });
 
-export const createGame = async () => {
+export const createGame = async (name: string) => {
   clearLocalStorage()
-  const response = await api.post('/games');
-  setGameIdentifier(response.data.identifier);
+  const response = await api.post('/games', {
+      host: name
+    });
+  setGameIdentifier(response.data.gameCode);
   return response.data;
 };
 
@@ -32,13 +34,14 @@ export const joinGame = async (identifier: string, name: string) => {
   });
   setGameIdentifier(identifier);
   setPlayerName(name);
+  setPlayerId(reject.data.playerId);
   return response.data;
 };
 
 export const submitScore = async (hole: number, score: number) => {
   const identifier = getGameIdentifier();
-  const playerName = getPlayerName();
-  const response = await api.post(`/games/${identifier}/players/${playerName}/score`, {
+  const playerId = getPlayerId();
+  const response = await api.post(`/games/${identifier}/players/${playerId}/score`, {
     hole: hole,
     score: score
   });

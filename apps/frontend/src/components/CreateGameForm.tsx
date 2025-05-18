@@ -13,15 +13,13 @@ const CreateGameForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
-  const handleCreateAndJoinGame = async (event: React.FormEvent) => {
+  const handleCreateGame = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
       if (!validateName(name)) {
         return;
       }
-      const game = await createGame();
-      await joinGame(game.identifier, name);
-      setGameIdentifier(game.identifier);
+      const game = await createGame(name);
       setShowDialog(true);
     } catch (error) {
       console.error('Failed to create and join game:', error);
@@ -65,7 +63,7 @@ const CreateGameForm = () => {
         {showForm ? 'Back' : 'Create Game'}
       </Button>
       <Collapse in={showForm}>
-        <Box component="form" onSubmit={handleCreateAndJoinGame} noValidate sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
+        <Box component="form" onSubmit={handleCreateGame} noValidate sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
           <TextField
             margin="normal"
             required
