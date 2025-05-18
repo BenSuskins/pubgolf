@@ -83,7 +83,24 @@
         },
         "responses" : {
           "204" : {
-            "description" : "No Content"
+            "description" : "Score submitted",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -112,11 +129,21 @@
         },
         "responses" : {
           "200" : {
-            "description" : "OK",
+            "description" : "Game joined",
             "content" : {
-              "*/*" : {
+              "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/CreateGameResponse"
+                  "$ref" : "#/components/schemas/JoinGameResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -138,11 +165,21 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "OK",
+            "description" : "Game state",
             "content" : {
-              "*/*" : {
+              "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -211,6 +248,24 @@
           }
         },
         "required" : [ "name" ]
+      },
+      "JoinGameResponse" : {
+        "type" : "object",
+        "properties" : {
+          "gameId" : {
+            "type" : "string"
+          },
+          "gameCode" : {
+            "type" : "string"
+          },
+          "playerId" : {
+            "type" : "string"
+          },
+          "playerName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
       },
       "GameStateResponse" : {
         "type" : "object",
