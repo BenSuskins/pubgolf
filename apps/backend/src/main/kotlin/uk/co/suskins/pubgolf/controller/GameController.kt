@@ -51,17 +51,50 @@ class GameController(private val gameService: GameService) {
             }.map {
                 ResponseEntity.status(HttpStatus.CREATED).body(it)
             }.mapFailure {
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
+                resolveFailure(it)
             }.get()
     }
 
     @PostMapping("/api/v1/games/{gameCode}/join")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "Game joined",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = JoinGameResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
+        ]
+    )
     fun joinGame(
         @PathVariable("gameCode") gameCode: String,
         @RequestBody gameJoinRequest: GameJoinRequest
-    ): CreateGameResponse {
-        if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
-        return CreateGameResponse("game-abc123", "ABC123", "player-xyz789", gameJoinRequest.name)
+    ): ResponseEntity<*> {
+        return gameService.joinGame(gameCode, gameJoinRequest.name)
+            .map {
+                JoinGameResponse(
+                    it.id.toString(),
+                    it.code,
+                    it.players[0].id.toString(),
+                    it.players[0].name
+                )
+            }.map {
+                ResponseEntity.status(HttpStatus.OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
     }
 
     @GetMapping("/api/v1/games/{gameCode}")
@@ -83,6 +116,11 @@ class GameController(private val gameService: GameService) {
     ) {
         if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
         if (playerId != "player-xyz789") throw PlayerNotFoundException("Player `$playerId` could not be found for game `$gameCode`.")
+    }
+
+    private fun resolveFailure(it: PubGolfFailure) = when (it) {
+        is GameNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
+        else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
     }
 }
 
