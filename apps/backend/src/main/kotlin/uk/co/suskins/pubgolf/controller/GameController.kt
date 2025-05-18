@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.service.GameService
+import java.util.*
 
 @RestController
 class GameController(private val gameService: GameService) {
@@ -136,18 +137,37 @@ class GameController(private val gameService: GameService) {
     }
 
     @PostMapping("/api/v1/games/{gameCode}/players/{playerId}/scores")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204", description = "Score submitted"
+            ),
+            ApiResponse(
+                responseCode = "500",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
+        ]
+    )
     fun submitScore(
         @PathVariable("gameCode") gameCode: String,
         @PathVariable("playerId") playerId: String,
         @RequestBody scoreRequest: ScoreRequest
-    ) {
-        if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
-        if (playerId != "player-xyz789") throw PlayerNotFoundException("Player `$playerId` could not be found for game `$gameCode`.")
+    ): ResponseEntity<*> {
+        return gameService.submitScore(gameCode, UUID.fromString(playerId), scoreRequest.hole, scoreRequest.score)
+            .map { ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) }
+            .mapFailure {
+                resolveFailure(it)
+            }.get()
     }
 
     private fun resolveFailure(it: PubGolfFailure) = when (it) {
         is GameNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
+        is PlayerNotFoundFailure -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(it.asErrorResponse())
         else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
     }
 }

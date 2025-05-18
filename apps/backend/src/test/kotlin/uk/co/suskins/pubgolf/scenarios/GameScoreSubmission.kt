@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
+import java.util.*
 import kotlin.test.assertTrue
 
 class GameScoreSubmission : ScenarioTest() {
@@ -23,7 +24,7 @@ class GameScoreSubmission : ScenarioTest() {
 
     @Test
     fun `Can't submit a score for a game that doesn't exist`() {
-        val response = submitScore("random-game-code", "random-player-id", 0, 1)
+        val response = submitScore("random-game-code", UUID.randomUUID().toString(), 0, 1)
 
         submitScoreGameDoesNotExist(response)
     }
@@ -31,10 +32,11 @@ class GameScoreSubmission : ScenarioTest() {
     @Test
     fun `Can't submit a score for a player that doesn't exist`() {
         val game = createGame("Ben")
+        val playerId = UUID.randomUUID().toString()
 
-        val response = submitScore(game.gameCode(), "random-player-id", 0, 1)
+        val response = submitScore(game.gameCode(), playerId, 0, 1)
 
-        submitScorePlayerDoesNotExist(response)
+        submitScorePlayerDoesNotExist(response, playerId, game.gameCode())
     }
 
     private fun scoreSubmittedSuccessfully(response: Result<ResponseEntity<String>, Exception>) {
@@ -44,12 +46,16 @@ class GameScoreSubmission : ScenarioTest() {
     private fun submitScoreGameDoesNotExist(response: Result<ResponseEntity<String>, Exception>) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
-        assertTrue(restClientException.message!!.contains("Game `random-game-code` could not be found."))
+        assertTrue(restClientException.message!!.contains("Game `random-game-code` not found."))
     }
 
-    private fun submitScorePlayerDoesNotExist(response: Result<ResponseEntity<String>, Exception>) {
+    private fun submitScorePlayerDoesNotExist(
+        response: Result<ResponseEntity<String>, Exception>,
+        playerId: String,
+        gameCode: String
+    ) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
-        assertTrue(restClientException.message!!.contains("Player `random-player-id` could not be found for game `ABC123`."))
+        assertTrue(restClientException.message!!.contains("Player `$playerId` not found for game `$gameCode`."))
     }
 }
