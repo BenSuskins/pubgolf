@@ -53,6 +53,6 @@ class GameState : ScenarioTest() {
     private fun gameStateFails(response: Result<ResponseEntity<String>, Exception>) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
-        assertTrue(restClientException.message!!.contains("Game `random-game-code` could not be found."))
+        assertTrue(restClientException.message!!.contains("Game `random-game-code` not found."))
     }
 }

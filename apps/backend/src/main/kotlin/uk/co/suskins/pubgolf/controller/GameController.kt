@@ -98,13 +98,41 @@ class GameController(private val gameService: GameService) {
     }
 
     @GetMapping("/api/v1/games/{gameCode}")
-    fun gameState(@PathVariable("gameCode") gameCode: String): GameStateResponse {
-        if (gameCode != "ABC123") throw GameNotFoundException("Game `$gameCode` could not be found.")
-        return GameStateResponse(
-            "game-abc123",
-            gameCode,
-            listOf(PlayerResponse("player-xyz789", "Player", listOf(0, 0, 0, 0, 0, 0, 0, 0, 0)))
-        )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "Game state",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = GameStateResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
+        ]
+    )
+    fun gameState(@PathVariable("gameCode") gameCode: String): ResponseEntity<*> {
+        return gameService.gameState(gameCode)
+            .map {
+                GameStateResponse(
+                    it.id.toString(),
+                    it.code,
+                    it.players.map { PlayerResponse(it.id.toString(), it.name, it.scores.map { it.value }) }
+                )
+            }.map {
+                ResponseEntity.status(HttpStatus.OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
     }
 
     @PostMapping("/api/v1/games/{gameCode}/players/{playerId}/scores")
