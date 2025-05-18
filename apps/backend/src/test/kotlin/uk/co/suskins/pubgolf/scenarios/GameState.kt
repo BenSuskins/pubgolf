@@ -17,6 +17,9 @@ class GameState : ScenarioTest() {
     fun `Can successfully get the current game state`() {
         val host = "Ben"
         val game = createGame(host)
+        for (i in 1..10) {
+            joinGame(game.gameCode(), "Ben$i")
+        }
 
         val response = gameState(game.gameCode())
 
@@ -39,7 +42,7 @@ class GameState : ScenarioTest() {
         assertThat(body["gameCode"] as String, matches(gameCodePattern))
 
         val players = body["players"] as List<*>
-        assertThat(players.size, equalTo(1))
+        assertThat(players.size, equalTo(11))
 
         val player = players[0] as Map<*, *>
         assertThat(player["id"] as String, matches(uuidPattern))
