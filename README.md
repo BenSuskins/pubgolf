@@ -124,12 +124,6 @@ Planned enhancements and production improvements.
 
 ---
 
-## 🤝 Community & Showcase
-
-- [ ] Interactive public demo at [https://pubgolf.suskins.co.uk](https://pubgolf.suskins.co.uk)
-
----
-
 ## 🤝 Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
