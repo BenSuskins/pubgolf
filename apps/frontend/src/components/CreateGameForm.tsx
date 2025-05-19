@@ -20,6 +20,7 @@ const CreateGameForm = () => {
         return;
       }
       const game = await createGame(name);
+      setGameIdentifier(game.gameCode)
       setShowDialog(true);
     } catch (error) {
       console.error('Failed to create and join game:', error);
