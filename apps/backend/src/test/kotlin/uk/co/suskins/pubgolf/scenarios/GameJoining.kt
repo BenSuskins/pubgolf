@@ -20,7 +20,7 @@ class GameJoining : ScenarioTest() {
         val name = "Megan"
         val response = joinGame(game.gameCode(), name)
 
-        joinedGameSuccessfully(response, host)
+        joinedGameSuccessfully(response, name)
     }
 
     @Test
@@ -31,7 +31,7 @@ class GameJoining : ScenarioTest() {
     }
 
     @Test
-    fun `Can't join a game with the same name as another playe`() {
+    fun `Can't join a game with the same name as another player`() {
         val name = "Ben"
         val game = createGame(name)
 

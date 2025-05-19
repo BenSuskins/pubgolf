@@ -32,7 +32,8 @@ class GameService(private val gameRepository: GameRepository) {
             } else {
                 val player = Player(UUID.randomUUID(), name)
                 val updated = game.copy(players = game.players + player)
-                gameRepository.save(updated).map { it }
+                gameRepository.save(updated)
+                    .map { game.copy(players = listOf(player)) }
             }
         }
 
