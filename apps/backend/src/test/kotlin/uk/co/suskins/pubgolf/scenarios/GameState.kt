@@ -55,8 +55,8 @@ class GameState : ScenarioTest() {
         val player = players[0] as Map<*, *>
         assertThat(player["id"] as String, matches(uuidPattern))
         assertThat(player["name"], equalTo(host))
-        assertThat(player["scores"], equalTo(List(9) { 0 }))
-        assertThat(player["totalScore"], equalTo(0))
+        assertThat(player["scores"], equalTo(listOf(-10, 0, 0, 0, 0, 0, 0, 0, 0)))
+        assertThat(player["totalScore"], equalTo(-10))
     }
 
 
