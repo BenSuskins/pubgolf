@@ -116,12 +116,11 @@ class GameController(private val gameService: GameService) {
     ): ResponseEntity<*> {
         return gameService.joinGame(gameCode, gameJoinRequest.name)
             .map {
-                val player = it.players.find { it.name == gameJoinRequest.name }
                 JoinGameResponse(
                     it.id.toString(),
                     it.code,
-                    player!!.id.toString(), // todo fix me in the morning
-                    player.name
+                    it.players[0].id.toString(),
+                    it.players[0].name
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
