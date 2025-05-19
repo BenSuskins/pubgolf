@@ -11,15 +11,15 @@ export const rules = [
 ];
 
 export const drinks: DrinkInfo[] = [
-    {  drinkA: 'Tequila', drinkB: 'Sambuca', par: 1 },
+    { drinkA: 'Tequila', drinkB: 'Sambuca', par: 1 },
     { drinkA: 'Beer', drinkB: 'Double Vodka & Single Vodka w/ Mixer', par: 3 },
     { drinkA: 'Wine', drinkB: 'Double Gin', par: 2 },
     { drinkA: 'Cider', drinkB: 'Double Rum w/ Mixer', par: 2 },
-    {  drinkA: 'Cocktail', drinkB: 'Cocktail', par: 2 },
-    {drinkA: 'Spirit Mixer', drinkB: 'Any Spirit w/ Mixer'},
-    { drinkA: 'Guiness', drinkB: '2 x Double Whiskey w/ Mixer' },
-    {  drinkA: 'Jagerbomb', drinkB: 'Jagerbomb', par: 1 },
-    {  drinkA: 'VK', drinkB: 'Smirnoff', par: 1 },
+    { drinkA: 'Cocktail', drinkB: 'Cocktail', par: 2 },
+    { drinkA: 'Spirit Mixer', drinkB: 'Any Spirit w/ Mixer', par: 2},
+    { drinkA: 'Guiness', drinkB: '2 x Double Whiskey w/ Mixer', par: 4 },
+    { drinkA: 'Jagerbomb', drinkB: 'Jagerbomb', par: 1 },
+    { drinkA: 'VK', drinkB: 'Smirnoff', par: 1 },
 ];
 
 export const baseURL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'http://localhost:8080';

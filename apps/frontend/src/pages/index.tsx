@@ -65,10 +65,10 @@ const Home: NextPage = () => {
         </Typography>
         <Box sx={{ my: 4 }}>
           <Image
-            src="/pub-golf-theme2.webp"
+            src="/homepage.png"
             alt="Pub Golf"
-            width={isMobile ? 300 : 600}
-            height={isMobile ? 300 : 600}
+            width={isMobile ? 300 : 500}
+            height={isMobile ? 300 : 500}
           />
         </Box>
         <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
