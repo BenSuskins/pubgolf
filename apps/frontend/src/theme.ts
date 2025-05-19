@@ -54,7 +54,7 @@ const theme = createTheme({
       MuiAlert: {
           styleOverrides: {
               filledSuccess: {
-                  backgroundColor: '#45a049',
+                  backgroundColor: '#389e5c',
                   color: '#fff'
               },
           },
