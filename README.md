@@ -94,13 +94,14 @@ Planned enhancements and production improvements.
 - [ ] Final scorecard export (JSON or styled PDF)
 - [ ] Game state tracking: In Progress / Finished
 - [x] QR code for joining games
-- [ ] Bonus/penalty rule system (e.g., “Drink left-handed = +1 stroke”)
+- [ ] Bonus/penalty rule system
 
 ---
 
 ## 🧪 Developer & DX Improvements
 
-- [ ] Feature toggles for WIP functionality (`Unleash`, `Togglz`)
+- [ ] Feature toggles for WIP functionality
+- [ ] Linting
 
 ---
 
