@@ -21,7 +21,7 @@ api.interceptors.response.use(response => {
 
 export const createGame = async (name: string) => {
   clearLocalStorage()
-  const response = await api.post('/games', {
+  const response = await api.post('/api/v1/games', {
       host: name
     });
   setGameIdentifier(response.data.gameCode);
@@ -31,7 +31,7 @@ export const createGame = async (name: string) => {
 };
 
 export const joinGame = async (identifier: string, name: string) => {
-  const response = await api.post(`/games/${identifier}/join`, {
+  const response = await api.post(`/api/v1/games/${identifier}/join`, {
     name: name
   });
   setGameIdentifier(identifier);
@@ -43,7 +43,7 @@ export const joinGame = async (identifier: string, name: string) => {
 export const submitScore = async (hole: number, score: number) => {
   const identifier = getGameIdentifier();
   const playerId = getPlayerId();
-  const response = await api.post(`/games/${identifier}/players/${playerId}/scores`, {
+  const response = await api.post(`/api/v1/games/${identifier}/players/${playerId}/scores`, {
     hole: hole,
     score: score
   });
@@ -52,6 +52,6 @@ export const submitScore = async (hole: number, score: number) => {
 
 export const getPlayers = async () => {
   const identifier = getGameIdentifier();
-  const response = await api.get(`/games/${identifier}`);
+  const response = await api.get(`/api/v1/games/${identifier}`);
   return response.data;
 };
