@@ -59,7 +59,6 @@ class GameState : ScenarioTest() {
         assertThat(player["totalScore"], equalTo(-10))
     }
 
-
     private fun gameStateFails(response: Result<ResponseEntity<String>, Exception>) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))
