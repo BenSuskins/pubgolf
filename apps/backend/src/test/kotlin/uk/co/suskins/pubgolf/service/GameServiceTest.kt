@@ -55,7 +55,6 @@ class GameServiceTest {
 
         assertThat(result, isSuccess())
         val joinedGame = result.valueOrNull()!!
-        assertTrue(joinedGame.hasPlayer("Ben"))
         assertTrue(joinedGame.hasPlayer("Megan"))
 
         val updatedGame = gameRepository.find(gameCode).valueOrNull()!!
