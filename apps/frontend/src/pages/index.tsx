@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { Box, Typography, Paper, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, IconButton } from '@mui/material';
+import { Box, Typography, Paper, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, IconButton, Link } from '@mui/material';
 import CreateGameForm from '../components/CreateGameForm';
 import JoinGameForm from '../components/JoinGameForm';
 import { useRouter } from 'next/router';
@@ -98,7 +98,7 @@ const Home: NextPage = () => {
         </DialogActions>
       </Dialog>
       <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
-          Run into an issue? Check out our <a href="https://github.com/BenSuskins/pubgolf/issues/new/choose" target="_blank" rel="noopener noreferrer">GitHub Issues</a> page to report it.
+          Run into an issue? Report it <Link href="https://github.com/BenSuskins/pubgolf/issues/new/choose" target="_blank" rel="noopener noreferrer">here</Link>.
         </Typography>
     </Box>
   );
