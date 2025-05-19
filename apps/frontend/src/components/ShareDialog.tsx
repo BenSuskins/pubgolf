@@ -47,8 +47,8 @@ const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameIdentifie
                         <QRCode size={256}
                             style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                             value={getShareLink()}
-                            bgColor="#FFF"
-                            fgColor="#000"
+                            bgColor="#3b454a"
+                            fgColor="#FFF"
                             viewBox={`0 0 256 256`} />
                     </Box>
                     <Button
