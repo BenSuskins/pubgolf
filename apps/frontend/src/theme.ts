@@ -51,6 +51,14 @@ const theme = createTheme({
     },
   },
   components: {
+      MuiAlert: {
+          styleOverrides: {
+              filledSuccess: {
+                  backgroundColor: '#45a049',
+                  color: '#fff'
+              },
+          },
+      },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
