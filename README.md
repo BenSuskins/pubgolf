@@ -1,23 +1,94 @@
-# Pubgolf
-Pubgolf Leaderboard Application.
+# 🍻⛳️ Pub Golf
 
-Developed in Kotlin with Spring Boot.
+![Pub Golf Home Page](docs/home.png?raw=true "Home Page")
 
-Backed by H2 database which stores leaderboard data.
+Pub Golf Leaderboard Application.
 
-Users submit scores and their name is autofilled from Local Storage.
+## 🌍 Live Demo
 
-App runs within a Docker Container using the instructions below.
+You can try out the Pub Golf app live:
 
-## Running the App
-Build the application
+👉 [Here](https://pubgolf.suskins.co.uk)
+
+Create a game, join with friends, and track scores through the leaderboard!
+
+---
+
+## 🚀 Getting Started
+
+This is a monorepo for Pub Golf, containing:
+
+- 🧠 **Backend**: Kotlin + Spring Boot (`apps/backend`)
+- 💅 **Frontend**: Next.js (`apps/frontend`)
+- 🛠️ Task automation: [`make`](https://www.gnu.org/software/make/) for local dev tasks
+
+---
+
+### 📦 Prerequisites
+
+Make sure you have the following installed:
+
+- [JDK 21+](https://adoptium.net/)
+- [Node.js (v18+)](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
+- [Make](https://www.gnu.org/software/make/) (comes preinstalled on macOS and most Linux distros)
+
+---
+
+### 🛠 Setup
+
+From the root of the repo, run:
+
+```bash
+make setup
+```
+
+This command will:
+
+- Build the backend using Gradle (`./gradlew clean build`)
+- Install frontend dependencies (`npm install` in `apps/frontend`)
+
+---
+
+### 🧪 Running the App
+
+#### 🔁 Backend (Spring Boot)
+
+```bash
+make backend
+```
+
+Runs the backend at [http://localhost:8080](http://localhost:8080)
+
+#### 💻 Frontend (Next.js)
+
+```bash
+make frontend
+```
+
+Runs the frontend at [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 📁 Project Structure
 
 ```
-./gradlew clean build
+pubgolf/
+├── apps/
+│   ├── backend/         # Spring Boot backend
+│   └── frontend/        # Next.js frontend
+├── Makefile             # Task automation
+├── README.md            # Project documentation
 ```
 
-Build and run the docker container on port 8080:
+---
 
-```
-./run.sh
-```
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.

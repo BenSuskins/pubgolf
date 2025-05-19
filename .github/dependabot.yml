@@ -5,7 +5,26 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gradle" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Backend
+  - package-ecosystem: "gradle"
+    directory: "/apps/backend"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps-backend)"
+    labels:
+      - "dependencies"
+      - "backend"
+
+  # Frontend
+  - package-ecosystem: "npm"
+    directory: "/apps/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps-frontend)"
+    labels:
+      - "dependencies"
+      - "frontend"
