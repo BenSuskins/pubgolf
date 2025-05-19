@@ -31,7 +31,7 @@ class GameState : ScenarioTest() {
 
         val response = gameState(game.gameCode())
 
-        gameStateValid(response, host)
+        gameStateValidScore(response, host)
     }
 
     @Test
@@ -42,6 +42,24 @@ class GameState : ScenarioTest() {
     }
 
     private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>, host: String) {
+        val body = response.bodyString().asJsonMap()
+
+        assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
+
+        assertThat(body["gameId"] as String, matches(uuidPattern))
+        assertThat(body["gameCode"] as String, matches(gameCodePattern))
+
+        val players = body["players"] as List<*>
+        assertThat(players.size, equalTo(10))
+
+        val player = players[0] as Map<*, *>
+        assertThat(player["id"] as String, matches(uuidPattern))
+        assertThat(player["name"], equalTo(host))
+        assertThat(player["scores"], equalTo(listOf(0, 0, 0, 0, 0, 0, 0, 0, 0)))
+        assertThat(player["totalScore"], equalTo(0))
+    }
+
+    private fun gameStateValidScore(response: Result<ResponseEntity<String>, Exception>, host: String) {
         val body = response.bodyString().asJsonMap()
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
