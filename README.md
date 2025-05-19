@@ -83,6 +83,52 @@ pubgolf/
 
 ---
 
+# 🧭 Pub Golf – Roadmap & Future Plans
+
+Planned enhancements and production improvements.
+
+---
+
+## 🚀 Features in Progress
+
+- [ ] Final scorecard export (JSON or styled PDF)
+- [ ] Game state tracking: In Progress / Finished
+- [x] QR code for joining games
+- [ ] Bonus/penalty rule system (e.g., “Drink left-handed = +1 stroke”)
+
+---
+
+## 🧪 Developer & DX Improvements
+
+- [ ] Feature toggles for WIP functionality (`Unleash`, `Togglz`)
+
+---
+
+## 📈 Observability & Production Hardening
+
+- [ ] Prometheus metrics
+- [ ] Structured JSON logs
+- [ ] Grafana dashboards
+- [ ] Rate limiting
+- [ ] Slow request logging / tracing
+- [ ] Alerting
+
+---
+
+## 🛠 Infrastructure & Code Architecture
+
+- [ ] Admin endpoints for game reset and cleanup
+- [ ] Multi-stage Docker builds with non-root users
+- [ ] Deployment manifests for Docker Compose / K8s
+
+---
+
+## 🤝 Community & Showcase
+
+- [ ] Interactive public demo at [https://pubgolf.suskins.co.uk](https://pubgolf.suskins.co.uk)
+
+---
+
 ## 🤝 Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
