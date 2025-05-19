@@ -11,3 +11,7 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor: TRACE
+
+application:
+  origins:
+    - http://localhost:3000
