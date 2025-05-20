@@ -89,7 +89,7 @@ Planned enhancements and production improvements.
 
 ---
 
-## 🚀 Features in Progress
+## 🚀 New Features
 
 - [ ] Final scorecard export (JSON or styled PDF)
 - [ ] Game state tracking: In Progress / Finished
@@ -98,14 +98,7 @@ Planned enhancements and production improvements.
 
 ---
 
-## 🧪 Developer & DX Improvements
-
-- [ ] Feature toggles for WIP functionality
-- [ ] Linting
-
----
-
-## 📈 Observability & Production Hardening
+## 📈 Observability & Productionisation
 
 - [ ] Prometheus metrics
 - [ ] Structured JSON logs
@@ -121,6 +114,8 @@ Planned enhancements and production improvements.
 - [ ] Admin endpoints for game reset and cleanup
 - [ ] Multi-stage Docker builds with non-root users
 - [ ] Deployment manifests for Docker Compose / K8s
+- [ ] Feature toggles for WIP functionality
+- [ ] Linting
 
 ---
 
