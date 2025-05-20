@@ -117,6 +117,7 @@ Planned enhancements and production improvements.
 - [ ] Feature toggles for WIP functionality
 - [ ] Linting
 - [ ] Tiny Types
+- [ ] Pass environment variables via Docker to frontend
 
 ---
 
