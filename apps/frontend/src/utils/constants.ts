@@ -1,3 +1,5 @@
+import { env } from 'next-runtime-env';
+
 export const rules = [
     "Each player must drink the designated drink at each stop.",
     "The par score for each drink represents the expected number of sips to finish the drink.",
@@ -22,7 +24,7 @@ export const drinks: DrinkInfo[] = [
     { drinkA: 'VK', drinkB: 'Smirnoff', par: 1 },
 ];
 
-export const baseURL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'http://localhost:8080';
+export const baseURL = env('NEXT_PUBLIC_API_URL') ? env('NEXT_PUBLIC_API_URL') : 'http://localhost:8080';
 
 export const routes = {
     HOME: "/home",
