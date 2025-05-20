@@ -116,6 +116,7 @@ Planned enhancements and production improvements.
 - [ ] Deployment manifests for Docker Compose / K8s
 - [ ] Feature toggles for WIP functionality
 - [ ] Linting
+- [ ] Tiny Types
 
 ---
 
