@@ -1,6 +1,6 @@
 # 🍻⛳️ Pub Golf
 
-![Pub Golf Home Page](docs/home.png?raw=true "Home Page")
+![Pub Golf Mockups](docs/Mockups.png?raw=true "Mockups")
 
 Pub Golf Leaderboard Application.
 
