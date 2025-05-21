@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, T
 import ShareIcon from '@mui/icons-material/Share';
 import CloseIcon from '@mui/icons-material/Close';
 import QRCode from "react-qr-code";
-import { getShareLink } from '@/utils/utils';
+import { getShareLink, capitalizeGameIdentifier } from '@/utils/utils';
 
 const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameIdentifier, buttonText }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -41,7 +41,7 @@ const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameIdentifie
                         Share this link to invite others:
                     </DialogContentText>
                     <Typography variant="h6" sx={{ mt: 1, bgcolor: 'background.paper', borderRadius: 1, textAlign: 'center', wordBreak: 'break-all' }}>
-                        {`${gameIdentifier}`}
+                        {`${capitalizeGameIdentifier(gameIdentifier)}`}
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <QRCode size={256}

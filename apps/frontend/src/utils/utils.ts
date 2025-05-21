@@ -48,3 +48,8 @@ export const getShareLink = (): string => {
   }
   return '';
 };
+
+export function capitalizeGameIdentifier(identifier: string): string {
+    if (!identifier) return '';
+    return identifier[0].toUpperCase() + identifier.slice(1).toLowerCase();
+}

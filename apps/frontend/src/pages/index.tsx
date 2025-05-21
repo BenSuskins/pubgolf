@@ -6,7 +6,7 @@ import CreateGameForm from '../components/CreateGameForm';
 import JoinGameForm from '../components/JoinGameForm';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { getPlayers } from '@/services/api'; // Make sure this path is correct
+import { getPlayers } from '@/services/api';
 import { getPlayerName } from '@/utils/utils';
 
 const Home: NextPage = () => {
@@ -53,7 +53,7 @@ const Home: NextPage = () => {
         mx: 'auto',
         my: 2,
         maxWidth: '1000px',
-        backgroundColor: '#4a555a', // Dark background to match the theme
+        backgroundColor: '#4a555a',
         borderRadius: 2,
         boxShadow: 5,
       }}>

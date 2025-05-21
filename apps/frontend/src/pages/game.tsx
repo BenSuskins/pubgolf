@@ -6,7 +6,8 @@ import { getGameIdentifier } from '@/utils/utils';
 import ScoreboardTable from '../components/ScoreboardTable';
 import { routes } from '@/utils/constants';
 import ShareIcon from '@mui/icons-material/Share';
-import ShareDialog from '../components/ShareDialog'; // Import ShareDialog
+import ShareDialog from '../components/ShareDialog';
+import { capitalizeGameIdentifier } from '@/utils/utils';
 
 interface Player {
     name: string;
@@ -72,7 +73,7 @@ const GamePage = () => {
             mx: 'auto',
             my: 2,
             maxWidth: '.95',
-            backgroundColor: '#4a555a', // Dark background to match the theme
+            backgroundColor: '#4a555a',
             borderRadius: 2,
             boxShadow: 5,
         }}>
@@ -81,7 +82,7 @@ const GamePage = () => {
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
-                    <em>Game - {gameIdentifier}</em>
+                    <em>Game - {capitalizeGameIdentifier(gameIdentifier)}</em>
                 </Typography>
                 <IconButton onClick={handleShare} color="primary" size="small" sx={{ mt: -.6 }}>
                     <ShareIcon />

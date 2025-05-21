@@ -2,15 +2,15 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
-    primary: { main: '#389e5c' }, // Green color
-    secondary: { main: '#ffd700' }, // Gold color
+    primary: { main: '#389e5c' },
+    secondary: { main: '#ffd700' },
     background: {
-      default: '#2b363b', // Background color matching the logo
-      paper: '#3b454a', // Slightly lighter for paper elements
+      default: '#2b363b',
+      paper: '#3b454a',
     },
     text: {
-      primary: '#ffffff', // White text for good contrast
-      secondary: '#bbbbbb', // Light grey for secondary text
+      primary: '#ffffff',
+      secondary: '#bbbbbb',
     },
   },
   typography: {

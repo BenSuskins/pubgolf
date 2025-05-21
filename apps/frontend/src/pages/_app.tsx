@@ -1,4 +1,3 @@
-// pages/_app.tsx
 import { useMemo, useState, useEffect } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from '../theme';
