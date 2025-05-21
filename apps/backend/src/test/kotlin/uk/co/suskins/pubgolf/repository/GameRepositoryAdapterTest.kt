@@ -44,7 +44,7 @@ class GameRepositoryAdapterTest {
         val saved = adapter.save(game).valueOrNull()!!
         validate(saved, game)
 
-        val found = adapter.find("ACE007").valueOrNull()!!
+        val found = adapter.findByCodeIgnoreCase("ACE007").valueOrNull()!!
         validate(found, game)
     }
 
@@ -58,7 +58,7 @@ class GameRepositoryAdapterTest {
 
     @Test
     fun `returns failure if game code not found`() {
-        val result = adapter.find("ACE007")
+        val result = adapter.findByCodeIgnoreCase("ACE007")
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
     }
 }

@@ -12,11 +12,11 @@ class GameRepositoryFake : GameRepository {
     private val store = mutableMapOf<String, Game>()
 
     override fun save(game: Game): Result<Game, PubGolfFailure> {
-        store[game.code] = game
+        store[game.code.uppercase()] = game
         return Success(game)
     }
 
-    override fun find(code: String): Result<Game, PubGolfFailure> {
-        return store[code]?.let { Success(it) } ?: Failure(GameNotFoundFailure("Game `$code` not found."))
+    override fun findByCodeIgnoreCase(code: String): Result<Game, PubGolfFailure> {
+        return store[code.uppercase()]?.let { Success(it) } ?: Failure(GameNotFoundFailure("Game `$code` not found."))
     }
 }

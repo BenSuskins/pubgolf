@@ -26,7 +26,7 @@ class GameService(private val gameRepository: GameRepository) {
     }
 
     fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> =
-        gameRepository.find(gameCode).flatMap { game ->
+        gameRepository.findByCodeIgnoreCase(gameCode).flatMap { game ->
             if (game.players.any { it.name.equals(name, ignoreCase = true) }) {
                 Failure(PlayerAlreadyExistsFailure("Player `$name` already exists for game `$gameCode`."))
             } else {
@@ -37,10 +37,10 @@ class GameService(private val gameRepository: GameRepository) {
             }
         }
 
-    fun gameState(gameCode: String): Result<Game, PubGolfFailure> = gameRepository.find(gameCode)
+    fun gameState(gameCode: String): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
 
     fun submitScore(gameCode: String, playerId: UUID, hole: Int, score: Int): Result<Unit, PubGolfFailure> =
-        gameRepository.find(gameCode).flatMap { game ->
+        gameRepository.findByCodeIgnoreCase(gameCode).flatMap { game ->
             if (game.players.none { it.matches(playerId) }) {
                 Failure(PlayerNotFoundFailure("Player `$playerId` not found for game `$gameCode`."))
             } else {

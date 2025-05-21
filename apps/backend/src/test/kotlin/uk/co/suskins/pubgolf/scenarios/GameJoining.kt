@@ -18,9 +18,17 @@ class GameJoining : ScenarioTest() {
         val host = "Ben"
         val game = createGame(host)
         val name = "Megan"
-        val response = joinGame(game.gameCode(), name)
+        var response = joinGame(game.gameCode(), name)
 
         joinedGameSuccessfully(response, name)
+
+        response = joinGame(game.gameCode().lowercase(), "Steve")
+
+        joinedGameSuccessfully(response, "Steve")
+
+        response = joinGame(game.gameCode().uppercase(), "John")
+
+        joinedGameSuccessfully(response, "John")
     }
 
     @Test

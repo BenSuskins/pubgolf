@@ -5,5 +5,5 @@ import uk.co.suskins.pubgolf.models.GameEntity
 import java.util.*
 
 interface GameJpaRepository : JpaRepository<GameEntity, UUID> {
-    fun findByCode(code: String): GameEntity?
+    fun findByCodeIgnoreCase(code: String): GameEntity?
 }

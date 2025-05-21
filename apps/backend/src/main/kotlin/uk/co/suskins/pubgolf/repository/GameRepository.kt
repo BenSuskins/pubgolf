@@ -6,5 +6,5 @@ import uk.co.suskins.pubgolf.models.PubGolfFailure
 
 interface GameRepository {
     fun save(game: Game): Result<Game, PubGolfFailure>
-    fun find(code: String): Result<Game, PubGolfFailure>
+    fun findByCodeIgnoreCase(code: String): Result<Game, PubGolfFailure>
 }

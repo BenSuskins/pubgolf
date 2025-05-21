@@ -20,8 +20,8 @@ class GameRepositoryAdapter(private val store: GameJpaRepository) : GameReposito
         }
     }
 
-    override fun find(code: String): Result<Game, PubGolfFailure> {
-        return store.findByCode(code)?.toDomain()?.let { Success(it) }
+    override fun findByCodeIgnoreCase(code: String): Result<Game, PubGolfFailure> {
+        return store.findByCodeIgnoreCase(code)?.toDomain()?.let { Success(it) }
             ?: Failure(GameNotFoundFailure("Game `$code` not found."))
     }
 }
