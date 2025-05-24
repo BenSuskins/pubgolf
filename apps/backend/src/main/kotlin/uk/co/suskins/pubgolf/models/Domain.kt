@@ -19,9 +19,11 @@ data class Player(
         hole: Int,
         score: Int
     ) = copy(scores = scores + (hole to score))
-}
 
-fun initialScore() = (1..9).associateWith { 0 }
+    companion object {
+        fun initialScore() = (1..9).associateWith { 0 }
+    }
+}
 
 sealed interface PubGolfFailure {
     val message: String
@@ -32,7 +34,6 @@ data class GameNotFoundFailure(override val message: String) : PubGolfFailure
 data class PlayerAlreadyExistsFailure(override val message: String) : PubGolfFailure
 data class PlayerNotFoundFailure(override val message: String) : PubGolfFailure
 data class PersistenceFailure(override val message: String) : PubGolfFailure
-
 
 fun Game.toJpa(): GameEntity {
     val gameEntity = GameEntity(id, code)
