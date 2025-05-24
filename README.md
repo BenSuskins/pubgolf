@@ -116,7 +116,7 @@ Planned enhancements and production improvements.
 - [ ] Deployment manifests for Docker Compose / K8s
 - [ ] Feature toggles for WIP functionality
 - [ ] Linting
-- [ ] Tiny Types
+- [x] Tiny Types
 - [x] Pass environment variables via Docker to frontend
 
 ---
