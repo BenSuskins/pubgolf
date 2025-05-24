@@ -13,8 +13,8 @@ import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
 import kotlin.test.assertTrue
 
-private const val gameCode = "ACE007"
-private const val host = "Ben"
+private val gameCode = GameCode("ACE007")
+private val host = PlayerName("Ben")
 
 class GameServiceTest {
     private val gameRepository: GameRepository = GameRepositoryFake()
@@ -26,7 +26,7 @@ class GameServiceTest {
 
         assertThat(result, isSuccess())
         val game = result.valueOrNull()!!
-        assertThat(game.id, isA<UUID>())
+        assertThat(game.id.value, isA<UUID>())
         assertTrue(game.code.isValidGameCode())
     }
 
@@ -45,13 +45,13 @@ class GameServiceTest {
     @Test
     fun `can join a game`() {
         val game = Game(
-            id = UUID.randomUUID(),
+            id = GameId.random(),
             code = gameCode,
-            players = listOf(Player(UUID.randomUUID(), host))
+            players = listOf(Player(PlayerId.random(), host))
         )
         gameRepository.save(game)
 
-        val result = service.joinGame(gameCode, "Megan")
+        val result = service.joinGame(gameCode, PlayerName("Megan"))
 
         assertThat(result, isSuccess())
         val joinedGame = result.valueOrNull()!!
@@ -60,13 +60,13 @@ class GameServiceTest {
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
         assertTrue(updatedGame.hasPlayer("Ben"))
         assertTrue(updatedGame.hasPlayer("Megan"))
-        assertTrue(updatedGame.players.find { it.name == "Ben" }!!.hasInitialScore())
-        assertTrue(updatedGame.players.find { it.name == "Megan" }!!.hasInitialScore())
+        assertTrue(updatedGame.players.find { it.name.value == "Ben" }!!.hasInitialScore())
+        assertTrue(updatedGame.players.find { it.name.value == "Megan" }!!.hasInitialScore())
     }
 
     @Test
     fun `fail to join a game that doesn't exist`() {
-        val result = service.joinGame(gameCode, "Megan")
+        val result = service.joinGame(gameCode, PlayerName("Megan"))
 
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
     }
@@ -74,9 +74,9 @@ class GameServiceTest {
     @Test
     fun `fail to join a game with a name that already exists`() {
         val game = Game(
-            id = UUID.randomUUID(),
+            id = GameId.random(),
             code = gameCode,
-            players = listOf(Player(UUID.randomUUID(), host))
+            players = listOf(Player(PlayerId.random(), host))
         )
         gameRepository.save(game)
 
@@ -88,9 +88,9 @@ class GameServiceTest {
     @Test
     fun `can get the state of a game`() {
         val game = Game(
-            id = UUID.randomUUID(),
+            id = GameId.random(),
             code = gameCode,
-            players = listOf(Player(UUID.randomUUID(), host))
+            players = listOf(Player(PlayerId.random(), host))
         )
         gameRepository.save(game)
 
@@ -110,48 +110,63 @@ class GameServiceTest {
 
     @Test
     fun `can submit a score`() {
-        val player = Player(UUID.randomUUID(), host)
+        val player = Player(PlayerId.random(), host)
         val game = Game(
-            id = UUID.randomUUID(),
+            id = GameId.random(),
             code = gameCode,
             players = listOf(player)
         )
         gameRepository.save(game)
 
-        val result = service.submitScore(gameCode, player.id, 2, 4)
+        val result = service.submitScore(gameCode, player.id, Hole(2), Score(4))
 
         assertThat(result, isSuccess())
 
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
         assertThat(
             updatedGame.players.find { it.name == host }!!.scores,
-            equalTo(mapOf(1 to 0, 2 to 4, 3 to 0, 4 to 0, 5 to 0, 6 to 0, 7 to 0, 8 to 0, 9 to 0))
+            equalTo(
+                mapOf(
+                    Hole(1) to Score(0),
+                    Hole(2) to Score(4),
+                    Hole(3) to Score(0),
+                    Hole(4) to Score(0),
+                    Hole(5) to Score(0),
+                    Hole(6) to Score(0),
+                    Hole(7) to Score(0),
+                    Hole(8) to Score(0),
+                    Hole(9) to Score(0)
+                )
+            )
         )
     }
 
     @Test
     fun `fail to get submit a score for a game that doesn't exist`() {
-        val result = service.submitScore(gameCode, UUID.randomUUID(), 2, 4)
+        val result = service.submitScore(gameCode, PlayerId.random(), Hole(2), Score(4))
 
-        assertThat(result, isFailure(GameNotFoundFailure("Game `$gameCode` not found.")))
+        assertThat(result, isFailure(GameNotFoundFailure("Game `${gameCode.value}` not found.")))
     }
 
     @Test
     fun `fail to get submit a score for a player that doesn't exist`() {
         val game = Game(
-            id = UUID.randomUUID(),
+            id = GameId.random(),
             code = gameCode,
-            players = listOf(Player(UUID.randomUUID(), host))
+            players = listOf(Player(PlayerId.random(), host))
         )
         gameRepository.save(game)
 
-        val playerId = UUID.randomUUID()
-        val result = service.submitScore(gameCode, playerId, 2, 4)
+        val playerId = PlayerId.random()
+        val result = service.submitScore(gameCode, playerId, Hole(2), Score(4))
 
-        assertThat(result, isFailure(PlayerNotFoundFailure("Player `$playerId` not found for game `ACE007`.")))
+        assertThat(result, isFailure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `ACE007`.")))
     }
 }
 
-fun Game.hasPlayer(name: String) = players.any { it.name == name }
-fun Player.hasInitialScore() = scores == (1..9).associateWith { 0 }
-private fun String.isValidGameCode() = matches(Regex("[A-Za-z]+\\d{3}"))
+fun Game.hasPlayer(name: String) = players.any { it.name.value == name }
+
+fun Player.hasInitialScore() =
+    scores == (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { Score(it.value) }
+
+private fun GameCode.isValidGameCode() = value.matches(Regex("[A-Za-z]+\\d{3}"))

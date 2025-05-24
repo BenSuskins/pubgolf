@@ -35,9 +35,12 @@ data class PlayerEntity(
 )
 
 fun GameEntity.toDomain(): Game = Game(
-    id = id,
-    code = code,
+    id = GameId(id),
+    code = GameCode(code),
     players = players.map {
-        Player(id = it.id, name = it.name, scores = it.scores)
+        Player(
+            id = PlayerId(it.id),
+            name = PlayerName(it.name),
+            scores = it.scores.mapKeys { Hole(it.key) }.mapValues { Score(it.value) })
     }
 )

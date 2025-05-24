@@ -1,27 +1,25 @@
 package uk.co.suskins.pubgolf.models
 
-import java.util.*
-
 data class Game(
-    val id: UUID,
-    val code: String,
+    val id: GameId,
+    val code: GameCode,
     val players: List<Player>
 )
 
 data class Player(
-    val id: UUID,
-    val name: String,
-    val scores: Map<Int, Int> = initialScore()
+    val id: PlayerId,
+    val name: PlayerName,
+    val scores: Map<Hole, Score> = initialScore()
 ) {
-    fun matches(playerId: UUID) = id == playerId
+    fun matches(playerId: PlayerId) = id.value == playerId.value
 
     fun updateScore(
-        hole: Int,
-        score: Int
+        hole: Hole,
+        score: Score
     ) = copy(scores = scores + (hole to score))
 
     companion object {
-        fun initialScore() = (1..9).associateWith { 0 }
+        fun initialScore() = (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { Score(it.value) }
     }
 }
 
@@ -36,7 +34,16 @@ data class PlayerNotFoundFailure(override val message: String) : PubGolfFailure
 data class PersistenceFailure(override val message: String) : PubGolfFailure
 
 fun Game.toJpa(): GameEntity {
-    val gameEntity = GameEntity(id, code)
-    players.forEach { gameEntity.addPlayer(PlayerEntity(it.id, it.name, gameEntity, it.scores.toMutableMap())) }
+    val gameEntity = GameEntity(id.value, code.value)
+    players.forEach {
+        gameEntity.addPlayer(
+            PlayerEntity(
+                it.id.value,
+                it.name.value,
+                gameEntity,
+                it.scores.mapKeys { it.key.value }.mapValues { it.value.value }.toMutableMap()
+            )
+        )
+    }
     return gameEntity
 }

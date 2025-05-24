@@ -6,21 +6,21 @@ import jakarta.validation.constraints.NotBlank
 
 data class GameRequest(
     @field:NotBlank(message = "Host name must not be blank")
-    val host: String
+    val host: PlayerName
 )
 
 data class GameJoinRequest(
     @field:NotBlank(message = "Name must not be blank")
-    val name: String
+    val name: PlayerName
 )
 
 data class ScoreRequest(
     @field:Max(value = 9)
     @field:Min(value = 1)
-    val hole: Int,
+    val hole: Hole,
     @field:Max(value = 10)
     @field:Min(value = -10)
-    val score: Int
+    val score: Score
 )
 
 data class CreateGameResponse(val gameId: String, val gameCode: String, val playerId: String, val playerName: String)

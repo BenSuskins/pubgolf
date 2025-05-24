@@ -14,14 +14,14 @@ class GameRepositoryAdapter(private val store: GameJpaRepository) : GameReposito
             val saved = store.save(entity)
             saved.toDomain()
         }.peekFailure {
-            logger.error("Error saving game `${game.code}.", it)
+            logger.error("Error saving game `${game.code.value}.", it)
         }.mapFailure {
             PersistenceFailure(it.message ?: "Save failed")
         }
     }
 
-    override fun findByCodeIgnoreCase(code: String): Result<Game, PubGolfFailure> {
-        return store.findByCodeIgnoreCase(code)?.toDomain()?.let { Success(it) }
-            ?: Failure(GameNotFoundFailure("Game `$code` not found."))
+    override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> {
+        return store.findByCodeIgnoreCase(code.value)?.toDomain()?.let { Success(it) }
+            ?: Failure(GameNotFoundFailure("Game `${code.value}` not found."))
     }
 }

@@ -65,7 +65,7 @@
     "/api/v1/games/{gameCode}/players/{playerId}/scores" : {
       "post" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "submitScore",
+        "operationId" : "submitScore-_YZ3NN4",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -78,7 +78,8 @@
           "in" : "path",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "string",
+            "format" : "uuid"
           }
         } ],
         "requestBody" : {
@@ -138,7 +139,7 @@
     "/api/v1/games/{gameCode}/join" : {
       "post" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "joinGame",
+        "operationId" : "joinGame-fOdNj2Q",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -204,7 +205,7 @@
     "/api/v1/games/{gameCode}" : {
       "get" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "gameState",
+        "operationId" : "gameState-L7I0Y1Y",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",

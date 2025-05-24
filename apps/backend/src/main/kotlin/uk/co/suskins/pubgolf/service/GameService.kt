@@ -5,44 +5,41 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.repository.GameRepository
-import java.util.*
-import kotlin.random.Random
 
 @Service
 class GameService(private val gameRepository: GameRepository) {
     private val logger = LoggerFactory.getLogger(GameService::class.java)
-    private val golfTerms = listOf("PAR", "BIRDIE", "BOGEY", "EAGLE", "ALBATROSS", "ACE", "FORE", "HOOK", "SLICE")
 
-    fun createGame(name: String): Result<Game, PubGolfFailure> {
-        val host = Player(UUID.randomUUID(), name)
+    fun createGame(name: PlayerName): Result<Game, PubGolfFailure> {
+        val host = Player(PlayerId.random(), name)
         val game = Game(
-            id = UUID.randomUUID(),
-            code = generateGameCode(),
+            id = GameId.random(),
+            code = GameCode.random(),
             players = listOf(host)
         )
 
         return gameRepository.save(game).map { it }
-            .peek { logger.info("Game ${it.code} created.") }
+            .peek { logger.info("Game ${it.code.value} created.") }
     }
 
-    fun joinGame(gameCode: String, name: String): Result<Game, PubGolfFailure> =
+    fun joinGame(gameCode: GameCode, name: PlayerName): Result<Game, PubGolfFailure> =
         gameRepository.findByCodeIgnoreCase(gameCode).flatMap { game ->
-            if (game.players.any { it.name.equals(name, ignoreCase = true) }) {
-                Failure(PlayerAlreadyExistsFailure("Player `$name` already exists for game `$gameCode`."))
+            if (game.players.any { it.name.value.equals(name.value, ignoreCase = true) }) {
+                Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${gameCode.value}`."))
             } else {
-                val player = Player(UUID.randomUUID(), name)
+                val player = Player(PlayerId.random(), name)
                 val updated = game.copy(players = game.players + player)
                 gameRepository.save(updated)
                     .map { game.copy(players = listOf(player)) }
             }
         }
 
-    fun gameState(gameCode: String): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
+    fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
 
-    fun submitScore(gameCode: String, playerId: UUID, hole: Int, score: Int): Result<Unit, PubGolfFailure> =
+    fun submitScore(gameCode: GameCode, playerId: PlayerId, hole: Hole, score: Score): Result<Unit, PubGolfFailure> =
         gameRepository.findByCodeIgnoreCase(gameCode).flatMap { game ->
             if (game.players.none { it.matches(playerId) }) {
-                Failure(PlayerNotFoundFailure("Player `$playerId` not found for game `$gameCode`."))
+                Failure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `${gameCode.value}`."))
             } else {
                 val updatedPlayers = game.players.map {
                     if (it.matches(playerId)) {
@@ -54,9 +51,4 @@ class GameService(private val gameRepository: GameRepository) {
                 gameRepository.save(game.copy(players = updatedPlayers)).map { Unit }
             }
         }
-
-    private fun generateGameCode() =
-        "${golfTerms.random()}${Random.nextInt(0, 1000).toString().padStart(3, '0')}"
 }
-
-

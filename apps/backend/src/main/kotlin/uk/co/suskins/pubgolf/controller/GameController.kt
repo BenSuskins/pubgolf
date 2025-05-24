@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.service.GameService
-import java.util.*
 
 @RestController
 @RequestMapping("/api/v1/games")
@@ -57,10 +56,10 @@ class GameController(private val gameService: GameService) {
         return gameService.createGame(gameRequest.host)
             .map {
                 CreateGameResponse(
-                    it.id.toString(),
-                    it.code,
-                    it.players[0].id.toString(),
-                    it.players[0].name
+                    it.id.value.toString(),
+                    it.code.value,
+                    it.players[0].id.value.toString(),
+                    it.players[0].name.value
                 )
             }.map {
                 ResponseEntity.status(CREATED).body(it)
@@ -111,16 +110,16 @@ class GameController(private val gameService: GameService) {
         ]
     )
     fun joinGame(
-        @PathVariable("gameCode") gameCode: String,
+        @PathVariable("gameCode") gameCode: GameCode,
         @Valid @RequestBody gameJoinRequest: GameJoinRequest
     ): ResponseEntity<*> {
         return gameService.joinGame(gameCode, gameJoinRequest.name)
             .map {
                 JoinGameResponse(
-                    it.id.toString(),
-                    it.code,
-                    it.players[0].id.toString(),
-                    it.players[0].name
+                    it.id.value.toString(),
+                    it.code.value,
+                    it.players[0].id.value.toString(),
+                    it.players[0].name.value
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -170,18 +169,18 @@ class GameController(private val gameService: GameService) {
             )
         ]
     )
-    fun gameState(@PathVariable("gameCode") gameCode: String): ResponseEntity<*> {
+    fun gameState(@PathVariable("gameCode") gameCode: GameCode): ResponseEntity<*> {
         return gameService.gameState(gameCode)
             .map {
                 GameStateResponse(
-                    it.id.toString(),
-                    it.code,
+                    it.id.value.toString(),
+                    it.code.value,
                     it.players.map {
                         PlayerResponse(
-                            it.id.toString(),
-                            it.name,
-                            it.scores.map { it.value },
-                            it.scores.map { it.value }.sum()
+                            it.id.value.toString(),
+                            it.name.value,
+                            it.scores.map { it.value.value },
+                            it.scores.map { it.value.value }.sum()
                         )
                     }.sortedBy { it.totalScore }
                 )
@@ -228,11 +227,11 @@ class GameController(private val gameService: GameService) {
         ]
     )
     fun submitScore(
-        @PathVariable("gameCode") gameCode: String,
-        @PathVariable("playerId") playerId: String,
+        @PathVariable("gameCode") gameCode: GameCode,
+        @PathVariable("playerId") playerId: PlayerId,
         @Valid @RequestBody scoreRequest: ScoreRequest
     ): ResponseEntity<*> {
-        return gameService.submitScore(gameCode, UUID.fromString(playerId), scoreRequest.hole, scoreRequest.score)
+        return gameService.submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score)
             .map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
