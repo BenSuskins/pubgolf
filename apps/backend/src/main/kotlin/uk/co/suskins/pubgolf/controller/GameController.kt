@@ -56,10 +56,10 @@ class GameController(private val gameService: GameService) {
         return gameService.createGame(gameRequest.host)
             .map {
                 CreateGameResponse(
-                    it.id.value.toString(),
-                    it.code.value,
-                    it.players[0].id.value.toString(),
-                    it.players[0].name.value
+                    it.id,
+                    it.code,
+                    it.players[0].id,
+                    it.players[0].name
                 )
             }.map {
                 ResponseEntity.status(CREATED).body(it)
@@ -116,10 +116,10 @@ class GameController(private val gameService: GameService) {
         return gameService.joinGame(gameCode, gameJoinRequest.name)
             .map {
                 JoinGameResponse(
-                    it.id.value.toString(),
-                    it.code.value,
-                    it.players[0].id.value.toString(),
-                    it.players[0].name.value
+                    it.id,
+                    it.code,
+                    it.players[0].id,
+                    it.players[0].name
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -173,13 +173,13 @@ class GameController(private val gameService: GameService) {
         return gameService.gameState(gameCode)
             .map {
                 GameStateResponse(
-                    it.id.value.toString(),
-                    it.code.value,
+                    it.id,
+                    it.code,
                     it.players.map {
                         PlayerResponse(
-                            it.id.value.toString(),
-                            it.name.value,
-                            it.scores.map { it.value.value },
+                            it.id,
+                            it.name,
+                            it.scores.map { it.value },
                             it.scores.map { it.value.value }.sum()
                         )
                     }.sortedBy { it.totalScore }
