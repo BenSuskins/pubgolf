@@ -7,7 +7,7 @@ import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.repository.GameRepository
 
 @Service
-class GameService(private val gameRepository: GameRepository) {
+class GameService(private val gameRepository: GameRepository, private val gameMetrics: GameMetrics) {
     private val logger = LoggerFactory.getLogger(GameService::class.java)
 
     fun createGame(name: PlayerName): Result<Game, PubGolfFailure> {
@@ -20,6 +20,7 @@ class GameService(private val gameRepository: GameRepository) {
 
         return gameRepository.save(game).map { it }
             .peek { logger.info("Game ${it.code.value} created.") }
+            .also { gameMetrics.gameCreated() }
     }
 
     fun joinGame(gameCode: GameCode, name: PlayerName): Result<Game, PubGolfFailure> =
@@ -31,6 +32,7 @@ class GameService(private val gameRepository: GameRepository) {
                 val updated = game.copy(players = game.players + player)
                 gameRepository.save(updated)
                     .map { game.copy(players = listOf(player)) }
+                    .also { gameMetrics.playerJoined() }
             }
         }
 
@@ -49,6 +51,7 @@ class GameService(private val gameRepository: GameRepository) {
                     }
                 }
                 gameRepository.save(game.copy(players = updatedPlayers)).map { Unit }
+                    .also { gameMetrics.scoreSubmitted(hole) }
             }
         }
 }

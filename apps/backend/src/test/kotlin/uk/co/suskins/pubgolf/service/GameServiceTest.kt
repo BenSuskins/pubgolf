@@ -6,10 +6,10 @@ import com.natpryce.hamkrest.isA
 import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
 import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.*
-import uk.co.suskins.pubgolf.repository.GameRepository
 import java.util.*
 import kotlin.test.assertTrue
 
@@ -17,8 +17,9 @@ private val gameCode = GameCode("ACE007")
 private val host = PlayerName("Ben")
 
 class GameServiceTest {
-    private val gameRepository: GameRepository = GameRepositoryFake()
-    private val service: GameService = GameService(gameRepository)
+    private val gameRepository = GameRepositoryFake()
+    private val gameMetrics = GameMetrics(SimpleMeterRegistry())
+    private val service = GameService(gameRepository, gameMetrics)
 
     @Test
     fun `can create game`() {

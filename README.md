@@ -100,7 +100,7 @@ Planned enhancements and production improvements.
 
 ## 📈 Observability & Productionisation
 
-- [ ] Prometheus metrics
+- [x] Prometheus metrics
 - [ ] Structured JSON logs
 - [ ] Grafana dashboards
 - [ ] Rate limiting

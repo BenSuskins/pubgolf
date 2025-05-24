@@ -8,3 +8,7 @@ spring:
 application:
   origins:
     - https://pubgolf.suskins.co.uk
+
+management:
+  server:
+    port: 8081

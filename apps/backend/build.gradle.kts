@@ -45,6 +45,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
     implementation("dev.forkhandles:result4k")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springDocVersion")}")
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
