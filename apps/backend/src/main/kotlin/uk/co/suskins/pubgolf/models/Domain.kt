@@ -14,6 +14,7 @@ data class Player(
     val scores: Map<Int, Int> = initialScore()
 ) {
     fun matches(playerId: UUID) = id == playerId
+
     fun updateScore(
         hole: Int,
         score: Int
