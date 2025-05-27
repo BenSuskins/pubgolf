@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.1.21"
     kotlin("plugin.spring") version "2.1.21"
-    id("org.springframework.boot") version "3.4.5"
+    id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.1.21"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
@@ -27,7 +27,6 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2024.0.1"
 extra["forkhandlesVersion"] = "2.22.3.0"
 extra["springDocVersion"] = "2.8.6"
 extra["hamkrestVersion"] = "1.8.0.1"
@@ -42,7 +41,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
     implementation("dev.forkhandles:result4k")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springDocVersion")}")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -63,7 +61,6 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
         mavenBom("dev.forkhandles:forkhandles-bom:${property("forkhandlesVersion")}")
     }
 }
