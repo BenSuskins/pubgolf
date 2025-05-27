@@ -1,0 +1,24 @@
+name: Build Backend
+
+on:
+  pull_request:
+    paths:
+      - 'apps/backend/**'
+      - '.github/workflows/backend.yml'
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build application
+        run: |
+          ./gradlew apps:backend:build --no-build-cache --no-daemon
