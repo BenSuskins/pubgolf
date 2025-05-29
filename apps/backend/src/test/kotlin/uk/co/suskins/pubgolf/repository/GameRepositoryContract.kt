@@ -7,26 +7,15 @@ import dev.forkhandles.result4k.valueOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
+import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.service.hasInitialScore
 import uk.co.suskins.pubgolf.service.hasPlayer
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-@DataJpaTest
-@ActiveProfiles("test")
-class GameRepositoryAdapterTest {
-
-    @Autowired
-    lateinit var store: GameJpaRepository
-
-    private lateinit var adapter: GameRepository
-
-    @BeforeTest
-    fun setup() {
-        adapter = GameRepositoryAdapter(store)
-    }
+interface GameRepositoryContract {
+    val gameRepository: GameRepository
 
     @Test
     fun `can save and find a game with players`() {
@@ -38,10 +27,10 @@ class GameRepositoryAdapterTest {
             )
         )
 
-        val saved = adapter.save(game).valueOrNull()!!
+        val saved = gameRepository.save(game).valueOrNull()!!
         validate(saved, game)
 
-        val found = adapter.findByCodeIgnoreCase(GameCode("ACE007")).valueOrNull()!!
+        val found = gameRepository.findByCodeIgnoreCase(GameCode("ACE007")).valueOrNull()!!
         validate(found, game)
     }
 
@@ -55,7 +44,22 @@ class GameRepositoryAdapterTest {
 
     @Test
     fun `returns failure if game code not found`() {
-        val result = adapter.findByCodeIgnoreCase(GameCode("ACE007"))
+        val result = gameRepository.findByCodeIgnoreCase(GameCode("ACE007"))
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
     }
+}
+
+@DataJpaTest
+@ActiveProfiles("test")
+class GameRepositoryAdapterTest : GameRepositoryContract {
+    @Autowired
+    lateinit var store: GameJpaRepository
+    override val gameRepository: GameRepository
+        get() {
+            return GameRepositoryAdapter(store)
+        }
+}
+
+class GameRepositoryFakeTest : GameRepositoryContract {
+    override val gameRepository = GameRepositoryFake()
 }
