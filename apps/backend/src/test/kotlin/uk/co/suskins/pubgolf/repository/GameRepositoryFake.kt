@@ -1,4 +1,4 @@
-package uk.co.suskins.pubgolf
+package uk.co.suskins.pubgolf.repository
 
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
@@ -7,7 +7,6 @@ import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
-import uk.co.suskins.pubgolf.repository.GameRepository
 
 class GameRepositoryFake : GameRepository {
     private val store = mutableMapOf<GameCode, Game>()

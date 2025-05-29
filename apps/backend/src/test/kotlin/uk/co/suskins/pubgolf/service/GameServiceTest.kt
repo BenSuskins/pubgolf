@@ -8,8 +8,8 @@ import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
-import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.*
+import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import java.util.*
 import kotlin.test.assertTrue
 

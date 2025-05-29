@@ -7,7 +7,6 @@ import dev.forkhandles.result4k.valueOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
-import uk.co.suskins.pubgolf.GameRepositoryFake
 import uk.co.suskins.pubgolf.models.*
 import uk.co.suskins.pubgolf.service.hasInitialScore
 import uk.co.suskins.pubgolf.service.hasPlayer
