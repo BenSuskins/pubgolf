@@ -17,9 +17,9 @@ export const drinks: DrinkInfo[] = [
     { drinkA: 'Cider', drinkB: 'Double Rum w/ Mixer', par: 2 },
     { drinkA: 'Cocktail', drinkB: 'Cocktail', par: 2 },
     { drinkA: 'Spirit w/ Mixer', drinkB: 'Spirit w/ Mixer', par: 2},
-    { drinkA: 'Guiness', drinkB: '2 x Double Whiskey w/ Mixer', par: 4 },
-    { drinkA: 'Jagerbomb', drinkB: 'Jagerbomb', par: 1 },
-    { drinkA: 'VK', drinkB: 'Smirnoff', par: 1 },
+    { drinkA: 'Guinness', drinkB: '2 x Double Whiskey w/ Mixer', par: 4 },
+    { drinkA: 'Jägerbomb', drinkB: 'Jagerbomb', par: 1 },
+    { drinkA: 'VK', drinkB: 'Smirnoff Ice', par: 1 },
 ];
 
 export const routes = {
