@@ -8,3 +8,5 @@ spring:
 application:
   origins:
     - https://pubgolf.suskins.co.uk
+    - https://www.pubgolf.me
+    - https://pubgolf.me
