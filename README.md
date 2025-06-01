@@ -8,7 +8,7 @@ Pub Golf Leaderboard Application.
 
 You can try out the Pub Golf app live:
 
-👉 [Here](https://pubgolf.suskins.co.uk)
+👉 [Here](https://pubgolf.me)
 
 Create a game, join with friends, and track scores through the leaderboard!
 
