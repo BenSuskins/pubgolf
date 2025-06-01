@@ -97,9 +97,6 @@ const Home: NextPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
-          Run into an issue? Report it <Link href="https://github.com/BenSuskins/pubgolf/issues/new/choose" target="_blank" rel="noopener noreferrer">here</Link>.
-        </Typography>
     </Box>
   );
 };
