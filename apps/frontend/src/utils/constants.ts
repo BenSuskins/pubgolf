@@ -13,7 +13,7 @@ export const rules = [
 export const drinks: DrinkInfo[] = [
     { drinkA: 'Tequila', drinkB: 'Sambuca', par: 1 },
     { drinkA: 'Beer', drinkB: 'Double Vodka & Single Vodka w/ Mixer', par: 3 },
-    { drinkA: 'Wine', drinkB: 'Double Gin', par: 2 },
+    { drinkA: 'Wine', drinkB: 'Double Gin w/ Mixer', par: 2 },
     { drinkA: 'Cider', drinkB: 'Double Rum w/ Mixer', par: 2 },
     { drinkA: 'Cocktail', drinkB: 'Cocktail', par: 2 },
     { drinkA: 'Spirit Mixer', drinkB: 'Any Spirit w/ Mixer', par: 2},
