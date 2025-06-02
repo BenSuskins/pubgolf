@@ -18,7 +18,7 @@ export const drinks: DrinkInfo[] = [
     { drinkA: 'Cocktail', drinkB: 'Cocktail', par: 2 },
     { drinkA: 'Spirit w/ Mixer', drinkB: 'Spirit w/ Mixer', par: 2},
     { drinkA: 'Guinness', drinkB: '2 x Double Whiskey w/ Mixer', par: 4 },
-    { drinkA: 'Jägerbomb', drinkB: 'Jagerbomb', par: 1 },
+    { drinkA: 'Jägerbomb', drinkB: 'Jägerbomb', par: 1 },
     { drinkA: 'VK', drinkB: 'Smirnoff Ice', par: 1 },
 ];
 
