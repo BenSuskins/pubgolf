@@ -21,7 +21,7 @@ module.exports = withSentryConfig(
     // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
     org: "suskinsdevelopment",
-    project: "javascript-nextjs",
+    project: "pubgolf",
 
     // Only print logs for uploading source maps in CI
     silent: !process.env.CI,
