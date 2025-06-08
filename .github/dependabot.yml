@@ -16,8 +16,6 @@ updates:
     labels:
       - "dependencies"
       - "backend"
-    reviewers:
-      - "BenSuskins"
 
   # Frontend
   - package-ecosystem: "npm"
@@ -30,7 +28,4 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
-    reviewers:
-      - "my-org/team-name"
-      - "octocat"
 
