@@ -2,7 +2,9 @@
 
 ![Pub Golf Mockups](docs/Mockups.png?raw=true "Mockups")
 
-Pub Golf Leaderboard App.
+A Pub Golf Leaderboard App, to track scores.
+
+---
 
 Check it out here:
 
