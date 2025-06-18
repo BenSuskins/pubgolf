@@ -4,6 +4,10 @@
 
 Pub Golf Leaderboard App.
 
+Check it out here:
+
+👉 [Here](https://pubgolf.me)
+
 ---
 
 ## ✨ Features
@@ -17,14 +21,6 @@ This Monorepo contains:
 - 🧠 **Backend**: Kotlin + Spring Boot (`apps/backend`)
 - 💅 **Frontend**: Next.js (`apps/frontend`)
 - 🛠️ Task automation: [`make`](https://www.gnu.org/software/make/) for local dev tasks
-
----
-
-## 🌍 Live Demo
-
-You can try it out live here:
-
-👉 [Here](https://pubgolf.me)
 
 ---
 
@@ -71,19 +67,6 @@ make frontend
 ```
 
 Runs the frontend at [http://localhost:3000](http://localhost:3000)
-
----
-
-## 📁 Project Structure
-
-```
-pubgolf/
-├── apps/
-│   ├── backend/         # Spring Boot backend
-│   └── frontend/        # Next.js frontend
-├── Makefile             # Automations
-├── README.md            # Project documentation
-```
 
 ---
 
