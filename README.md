@@ -35,7 +35,7 @@ Make sure you have the following installed:
 - [JDK 21+](https://adoptium.net/)
 - [Node.js (v18+)](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
-- [Make](https://www.gnu.org/software/make/) (comes preinstalled on macOS and most Linux distros)
+- [Make](https://www.gnu.org/software/make/)
 
 ---
 
@@ -81,7 +81,7 @@ pubgolf/
 ├── apps/
 │   ├── backend/         # Spring Boot backend
 │   └── frontend/        # Next.js frontend
-├── Makefile             # Task automation
+├── Makefile             # Automations
 ├── README.md            # Project documentation
 ```
 
