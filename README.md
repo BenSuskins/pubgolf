@@ -2,25 +2,29 @@
 
 ![Pub Golf Mockups](docs/Mockups.png?raw=true "Mockups")
 
-Pub Golf Leaderboard Application.
-
-## 🌍 Live Demo
-
-You can try out the Pub Golf app live:
-
-👉 [Here](https://pubgolf.me)
-
-Create a game, join with friends, and track scores through the leaderboard!
+Pub Golf Leaderboard App.
 
 ---
 
-## 🚀 Getting Started
+## ✨ Features
 
-This is a monorepo for Pub Golf, containing:
+- 📊 Pub Golf Leaderboard.
+- 🕹️ Create custom games with your friends.
+- 📷 Share game invites with QR Codes.
+- ⚙️ Game Rules.
 
+This Monorepo contains:
 - 🧠 **Backend**: Kotlin + Spring Boot (`apps/backend`)
 - 💅 **Frontend**: Next.js (`apps/frontend`)
 - 🛠️ Task automation: [`make`](https://www.gnu.org/software/make/) for local dev tasks
+
+---
+
+## 🌍 Live Demo
+
+You can try it out live here:
+
+👉 [Here](https://pubgolf.me)
 
 ---
 
