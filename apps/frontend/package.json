@@ -18,7 +18,7 @@
     "next-runtime-env": "1.8.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-qr-code": "2.0.15"
+    "react-qr-code": "2.0.16"
   },
   "devDependencies": {
     "@types/node": "22.15.22",
