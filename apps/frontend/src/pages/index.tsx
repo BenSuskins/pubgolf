@@ -19,8 +19,8 @@ const Home: NextPage = () => {
   useEffect(() => {
     const checkExistingGame = async () => {
       try {
-        const playersData = await getGame();
-        if (playersData.length > 0 && getPlayerName()) {
+        const gameData = await getGame();
+        if (gameData) {
           setOpenDialog(true);
         }
       } catch (error) {
