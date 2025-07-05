@@ -1,6 +1,7 @@
 package uk.co.suskins.pubgolf.models
 
 import jakarta.persistence.*
+import java.time.Instant
 import java.util.*
 
 @Entity
@@ -32,6 +33,32 @@ data class PlayerEntity(
     @MapKeyColumn(name = "hole")
     @Column(name = "score")
     val scores: MutableMap<Int, Int> = mutableMapOf(),
+    @OneToOne(mappedBy = "player", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    var lucky: PlayerLuckyEntity? = null
+)
+
+@Entity
+@Table(name = "player_lucky")
+data class PlayerLuckyEntity(
+    @Id
+    val id: UUID = UUID.randomUUID(),
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id", nullable = false)
+    val game: GameEntity,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "player_id", nullable = false)
+    val player: PlayerEntity,
+
+    @Column(name = "hole", nullable = false)
+    val hole: Int,
+
+    @Column(name = "outcome", nullable = false)
+    val outcome: String,
+
+    @Column(name = "created", nullable = false)
+    val created: Instant = Instant.now()
 )
 
 fun GameEntity.toDomain(): Game = Game(
@@ -41,6 +68,13 @@ fun GameEntity.toDomain(): Game = Game(
         Player(
             id = PlayerId(it.id),
             name = PlayerName(it.name),
+            lucky = it.lucky?.let { luckyEntity ->
+                Lucky(
+                    hole = Hole(luckyEntity.hole),
+                    result = Outcomes.valueOf(luckyEntity.outcome)
+                )
+            },
             scores = it.scores.mapKeys { Hole(it.key) }.mapValues { Score(it.value) })
+
     }
 )

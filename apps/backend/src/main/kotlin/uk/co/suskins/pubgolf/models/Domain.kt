@@ -87,15 +87,23 @@ data class PersistenceFailure(override val message: String) : PubGolfFailure
 
 fun Game.toJpa(): GameEntity {
     val gameEntity = GameEntity(id.value, code.value)
-    players.forEach {
-        gameEntity.addPlayer(
-            PlayerEntity(
-                it.id.value,
-                it.name.value,
-                gameEntity,
-                it.scores.mapKeys { it.key.value }.mapValues { it.value.value }.toMutableMap()
-            )
+    players.forEach { player ->
+        val playerEntity = PlayerEntity(
+            player.id.value,
+            player.name.value,
+            gameEntity,
+            player.scores.mapKeys { it.key.value }.mapValues { it.value.value }.toMutableMap(),
         )
+        player.lucky?.let { lucky ->
+            val luckyEntity = PlayerLuckyEntity(
+                game = gameEntity,
+                player = playerEntity,
+                hole = lucky.hole.value,
+                outcome = lucky.result.name,
+            )
+            playerEntity.lucky = luckyEntity
+        }
+        gameEntity.addPlayer(playerEntity)
     }
     return gameEntity
 }
