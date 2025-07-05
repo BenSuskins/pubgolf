@@ -180,7 +180,10 @@ class GameController(private val gameService: GameService) {
                             it.id,
                             it.name,
                             it.scores.map { it.value },
-                            it.scores.map { it.value.value }.sum()
+                            it.scores.map { it.value.value }.sum(),
+                            it.lucky?.let {
+                                LuckyResponse(it.hole, it.result.label)
+                            }
                         )
                     }.sortedBy { it.totalScore }
                 )

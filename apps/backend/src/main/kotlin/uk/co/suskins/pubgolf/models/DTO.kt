@@ -39,5 +39,13 @@ data class JoinGameResponse(
 
 data class GameStateResponse(val gameId: GameId, val gameCode: GameCode, val players: List<PlayerResponse>)
 data class ImFeelingLuckyResponse(val result: String, val hole: Hole, val outcomes: List<String>)
-data class PlayerResponse(val id: PlayerId, val name: PlayerName, val scores: List<Score>, val totalScore: Int)
+data class PlayerResponse(
+    val id: PlayerId,
+    val name: PlayerName,
+    val scores: List<Score>,
+    val totalScore: Int,
+    val lucky: LuckyResponse?
+)
+
+data class LuckyResponse(val hole: Hole, val result: String)
 data class ErrorResponse(val message: String)

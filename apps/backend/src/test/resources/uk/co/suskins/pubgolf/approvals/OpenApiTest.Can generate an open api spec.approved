@@ -460,6 +460,19 @@
         },
         "required" : [ "gameCode", "gameId", "players" ]
       },
+      "LuckyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "result" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "hole", "result" ]
+      },
       "PlayerResponse" : {
         "type" : "object",
         "properties" : {
@@ -479,6 +492,9 @@
           "totalScore" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "lucky" : {
+            "$ref" : "#/components/schemas/LuckyResponse"
           }
         },
         "required" : [ "id", "name", "scores", "totalScore" ]
