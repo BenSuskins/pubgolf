@@ -40,23 +40,24 @@ const Home: NextPage = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3, textAlign: 'center' }}>
+    <Box>
       <Head>
         <title>Welcome to Pub Golf</title>
       </Head>
-      <Box sx={{
-        mt: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        p: 3,
-        mx: 'auto',
-        my: 2,
-        maxWidth: '1000px',
-        backgroundColor: '#4a555a',
-        borderRadius: 2,
-        boxShadow: 5,
-      }}>
+        <Box sx={{
+            mt: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            p: 3,
+            mx: 'auto',
+            my: 2,
+            maxWidth: '.95',
+            backgroundColor: '#4a555a',
+            borderRadius: 2,
+            boxShadow: 5,
+            textAlign: 'center'
+        }}>
         <Typography variant="h2" gutterBottom component="h1">
           Welcome to Pub Golf!
         </Typography>

@@ -79,6 +79,7 @@ const GamePage = () => {
             backgroundColor: '#4a555a',
             borderRadius: 2,
             boxShadow: 5,
+            textAlign: 'center'
         }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
                 Scores

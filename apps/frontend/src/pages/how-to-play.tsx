@@ -26,10 +26,11 @@ const HowToPlayPage = () => {
             p: 3,
             mx: 'auto',
             my: 2,
-            maxWidth: '800px',
+            maxWidth: '.95',
             backgroundColor: '#4a555a',
             borderRadius: 2,
             boxShadow: 5,
+            textAlign: 'center'
         }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#fff' }}>
                 How to Play

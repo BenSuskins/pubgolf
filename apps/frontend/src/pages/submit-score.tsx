@@ -40,23 +40,20 @@ const SubmitScorePage = () => {
     };
 
     return (
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{
-                mt: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                p: 3,
-                mx: 'auto',
-                my: 2,
-                maxWidth: '1000px',
-                backgroundColor: '#4a555a',
-                borderRadius: 2,
-                boxShadow: 5,
-            }}
-        >
+        <Box sx={{
+            mt: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            p: 3,
+            mx: 'auto',
+            my: 2,
+            maxWidth: '.95',
+            backgroundColor: '#4a555a',
+            borderRadius: 2,
+            boxShadow: 5,
+            textAlign: 'center'
+        }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#fff', mb: 2 }}>
                 Submit Your Score
             </Typography>
