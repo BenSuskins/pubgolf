@@ -31,6 +31,9 @@ const getScoreColor = (score: number, par: number): string => {
     if (score > par) {
         return '#f44336';
     }
+    if (score < par) {
+        return '#008000';
+    }
     return '#fff';
 };
 
