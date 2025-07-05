@@ -31,7 +31,7 @@ data class PlayerEntity(
     @CollectionTable(name = "scores", joinColumns = [JoinColumn(name = "player_id")])
     @MapKeyColumn(name = "hole")
     @Column(name = "score")
-    val scores: MutableMap<Int, Int> = mutableMapOf()
+    val scores: MutableMap<Int, Int> = mutableMapOf(),
 )
 
 fun GameEntity.toDomain(): Game = Game(

@@ -18,4 +18,8 @@ class GameMetrics(private val registry: MeterRegistry) {
     fun scoreSubmitted(hole: Hole) {
         registry.counter("pubgolf.score.submitted", "hole", hole.value.toString()).increment()
     }
+
+    fun imFeelingLuckyUsed() {
+        registry.counter("pubgolf.game.lucky").increment()
+    }
 }

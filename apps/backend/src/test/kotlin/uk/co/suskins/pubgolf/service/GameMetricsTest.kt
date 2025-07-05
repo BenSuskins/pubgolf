@@ -32,4 +32,11 @@ class GameMetricsTest {
         assertThat(metric.counter().count(), equalTo(1.0))
         assertThat(metric.tags("hole", "1").counter().count(), equalTo(1.0))
     }
+
+    @Test
+    fun `Can increment lucky counter`() {
+        gameMetrics.imFeelingLuckyUsed()
+
+        assertThat(registry.get("pubgolf.game.lucky").counter().count(), equalTo(1.0))
+    }
 }

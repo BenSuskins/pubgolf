@@ -136,6 +136,80 @@
         }
       }
     },
+    "/api/v1/games/{gameCode}/players/{playerId}/lucky" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "imFeelingLucky-EHXYgIk",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "playerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Game state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImFeelingLuckyResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game or Player not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "You've already used this",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/{gameCode}/join" : {
       "post" : {
         "tags" : [ "game-controller" ],
@@ -317,6 +391,25 @@
           }
         },
         "required" : [ "hole", "score" ]
+      },
+      "ImFeelingLuckyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "result" : {
+            "type" : "string"
+          },
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "outcomes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "hole", "outcomes", "result" ]
       },
       "GameJoinRequest" : {
         "type" : "object",

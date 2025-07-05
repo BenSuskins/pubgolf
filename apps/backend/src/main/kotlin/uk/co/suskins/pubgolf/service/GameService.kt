@@ -39,10 +39,9 @@ class GameService(private val gameRepository: GameRepository, private val gameMe
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
 
     fun submitScore(gameCode: GameCode, playerId: PlayerId, hole: Hole, score: Score): Result<Unit, PubGolfFailure> =
-        gameRepository.findByCodeIgnoreCase(gameCode).flatMap { game ->
-            if (game.players.none { it.matches(playerId) }) {
-                Failure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `${gameCode.value}`."))
-            } else {
+        gameRepository.findByCodeIgnoreCase(gameCode)
+            .flatMap { hasPlayer(it, playerId) }
+            .flatMap { game ->
                 val updatedPlayers = game.players.map {
                     if (it.matches(playerId)) {
                         it.updateScore(hole, score)
@@ -50,8 +49,45 @@ class GameService(private val gameRepository: GameRepository, private val gameMe
                         it
                     }
                 }
-                gameRepository.save(game.copy(players = updatedPlayers)).map { Unit }
+                gameRepository.save(game.copy(players = updatedPlayers)).map { }
                     .also { gameMetrics.scoreSubmitted(hole) }
             }
+
+    fun imFeelingLucky(gameCode: GameCode, playerId: PlayerId): Result<ImFeelingLucky, PubGolfFailure> =
+        gameRepository.findByCodeIgnoreCase(gameCode)
+            .flatMap { hasPlayer(it, playerId) }
+            .flatMap { game ->
+                generateResult(playerId, game)
+            }
+
+    private fun hasPlayer(game: Game, playerId: PlayerId): Result<Game, PubGolfFailure> =
+        if (game.players.none { it.matches(playerId) }) {
+            Failure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `${game.code.value}`."))
+        } else {
+            Success(game)
         }
+
+    private fun generateResult(playerId: PlayerId, game: Game): Result<ImFeelingLucky, PubGolfFailure> {
+        val lastHole = Hole(1) //todo this
+        val luckyHole = Hole(lastHole.value + 1)
+
+        val outcome = Outcomes.random()
+
+        val updatedPlayers = game.players.map {
+            if (it.matches(playerId)) {
+                it.updateLucky(luckyHole, outcome)
+            } else {
+                it
+            }
+        }
+        gameRepository.save(game.copy(players = updatedPlayers))
+
+        return Success(
+            ImFeelingLucky(
+                result = outcome.label,
+                hole = luckyHole,
+                outcomes = Outcomes.entries
+            )
+        ).also { gameMetrics.imFeelingLuckyUsed() }
+    }
 }

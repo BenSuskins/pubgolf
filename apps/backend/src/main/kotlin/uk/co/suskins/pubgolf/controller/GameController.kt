@@ -241,15 +241,15 @@ class GameController(private val gameService: GameService) {
     @PostMapping("/{gameCode}/players/{playerId}/lucky")
     @ApiResponses(
         value = [
-//            ApiResponse(
-//                responseCode = "200", description = "Game state",
-//                content = [
-//                    Content(
-//                        mediaType = "application/json",
-//                        schema = Schema(implementation = GameStateResponse::class)
-//                    )
-//                ]
-//            ),
+            ApiResponse(
+                responseCode = "200", description = "Game state",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ImFeelingLuckyResponse::class)
+                    )
+                ]
+            ),
             ApiResponse(
                 responseCode = "400", description = "Invalid argument",
                 content = [
@@ -261,6 +261,15 @@ class GameController(private val gameService: GameService) {
             ),
             ApiResponse(
                 responseCode = "404", description = "Game or Player not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "409", description = "You've already used this",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -283,26 +292,18 @@ class GameController(private val gameService: GameService) {
         @PathVariable("gameCode") gameCode: GameCode,
         @PathVariable("playerId") playerId: PlayerId,
     ): ResponseEntity<*> {
-        return ResponseEntity.ok(
-            """{
-                "result": "Hole 4 - Double Drink",
-                "outcomes" : [
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink",
-                    "Double Drink"
-                ]               
-            }""".trimIndent()
-        )
+        return gameService.imFeelingLucky(gameCode, playerId)
+            .map {
+                ImFeelingLuckyResponse(
+                    it.result,
+                    it.hole,
+                    it.outcomes.map { it.label }
+                )
+            }.map {
+                ResponseEntity.status(OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
     }
 
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
@@ -311,6 +312,7 @@ class GameController(private val gameService: GameService) {
             is GameNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
+            is ImFeelingLuckyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }

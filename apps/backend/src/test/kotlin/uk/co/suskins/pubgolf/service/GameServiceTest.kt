@@ -163,6 +163,48 @@ class GameServiceTest {
 
         assertThat(result, isFailure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `ACE007`.")))
     }
+
+
+    @Test
+    fun `can use I'm Feeling Lucky`() {
+        val player = Player(PlayerId.random(), host)
+        val game = Game(
+            id = GameId.random(),
+            code = gameCode,
+            players = listOf(player)
+        )
+        gameRepository.save(game)
+        service.submitScore(gameCode, player.id, Hole(1), Score(5))
+
+        val result = service.imFeelingLucky(gameCode, player.id)
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        val lucky = updatedGame.players.find { it.name == host }!!.lucky
+        assertThat(lucky!!.hole, equalTo(Hole(2)))
+    }
+
+    @Test
+    fun `fail to use I'm Feeling Lucky for a game that doesn't exist`() {
+        val result = service.imFeelingLucky(gameCode, PlayerId.random())
+
+        assertThat(result, isFailure(GameNotFoundFailure("Game `${gameCode.value}` not found.")))
+    }
+
+    @Test
+    fun `fail to use I'm Feeling Lucky for a player that doesn't exist`() {
+        val game = Game(
+            id = GameId.random(),
+            code = gameCode,
+            players = listOf(Player(PlayerId.random(), host))
+        )
+        gameRepository.save(game)
+
+        val playerId = PlayerId.random()
+        val result = service.imFeelingLucky(gameCode, playerId)
+
+        assertThat(result, isFailure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `ACE007`.")))
+    }
 }
 
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }
