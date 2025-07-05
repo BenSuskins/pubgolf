@@ -77,7 +77,7 @@ const Home: NextPage = () => {
         </Typography>
         <Paper sx={{ mt: 4, p: 3, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 3 }}>
           <CreateGameForm />
-          <JoinGameForm gameGameCode={gameCode as string} />
+          <JoinGameForm gameCode={gameCode as string} />
         </Paper>
       </Box>
       <Dialog open={openDialog} onClose={handleCloseDialog}>

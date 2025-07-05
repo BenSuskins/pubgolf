@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Typography, Button, Paper, Snackbar, IconButton, Alert } from '@mui/material';
 import { getGame } from '../services/api';
-import { getGameGameCode } from '@/utils/utils';
+import { getGameCode } from '@/utils/utils';
 import ScoreboardTable from '../components/ScoreboardTable';
 import { routes } from '@/utils/constants';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import ShareDialog from '../components/ShareDialog';
-import { capitalizeGameGameCode } from '@/utils/utils';
+import { capitalizeGameCode } from '@/utils/utils';
 
 interface Player {
     name: string;
@@ -18,7 +18,7 @@ interface Player {
 const GamePage = () => {
     const router = useRouter();
     const [players, setPlayers] = useState<Player[]>([]);
-    const [gameGameCode, setGameGameCode] = useState('');
+    const [gameCode, setGameCode] = useState('');
     const [showDialog, setShowDialog] = useState(false);
     const [luckyEnabled, setLuckyEnabled] = useState(false);
 
@@ -31,9 +31,9 @@ const GamePage = () => {
         }
     };
 
-    const fetchGameGameCode = async () => {
-        const gameCode = getGameGameCode();
-        setGameGameCode(gameCode);
+    const fetchGameCode = async () => {
+        const gameCode = getGameCode();
+        setGameCode(gameCode);
     };
 
     const handleScoreSubmit = () => {
@@ -56,14 +56,14 @@ const GamePage = () => {
         const flag = localStorage.getItem('lucky');
         setLuckyEnabled(flag === 'true');
         fetchPlayers();
-        getGameGameCode();
+        getGameCode();
         const interval = setInterval(fetchPlayers, 30000);
 
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
-        fetchGameGameCode();
+        fetchGameCode();
     }, []);
 
     return (
@@ -86,7 +86,7 @@ const GamePage = () => {
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
-                    <em>Game - {capitalizeGameGameCode(gameGameCode)}</em>
+                    <em>Game - {capitalizeGameCode(gameCode)}</em>
                 </Typography>
                 <IconButton onClick={handleShare} color="primary" size="small" sx={{ mt: -.6 }}>
                     <IosShareIcon />
@@ -122,7 +122,7 @@ const GamePage = () => {
                 open={showDialog}
                 onClose={handleCloseDialog}
                 title="Share Game"
-                gameGameCode={gameGameCode}
+                gameCode={gameCode}
                 buttonText='Close'
             />
         </Box>

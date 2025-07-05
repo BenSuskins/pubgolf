@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearLocalStorage, getGameGameCode, getPlayerName, setGameGameCode, setPlayerName, setPlayerId, getPlayerId} from '@/utils/utils';
+import { clearLocalStorage, getGameCode, getPlayerName, setGameCode, setPlayerName, setPlayerId, getPlayerId} from '@/utils/utils';
 import { env } from 'next-runtime-env';
 
 const getBaseURL = () => {
@@ -19,7 +19,7 @@ export const createGame = async (name: string) => {
   const response = await api().post('/api/v1/games', {
       host: name
     });
-  setGameGameCode(response.data.gameCode);
+  setGameCode(response.data.gameCode);
   setPlayerName(name);
   setPlayerId(response.data.playerId);
   return response.data;
@@ -29,14 +29,14 @@ export const joinGame = async (gameCode: string, name: string) => {
   const response = await api().post(`/api/v1/games/${gameCode}/join`, {
     name: name
   });
-  setGameGameCode(gameCode);
+  setGameCode(gameCode);
   setPlayerName(name);
   setPlayerId(response.data.playerId);
   return response.data;
 };
 
 export const submitScore = async (hole: number, score: number) => {
-  const gameCode = getGameGameCode();
+  const gameCode = getGameCode();
   const playerId = getPlayerId();
   const response = await api().post(`/api/v1/games/${gameCode}/players/${playerId}/scores`, {
     hole: hole,
@@ -46,7 +46,7 @@ export const submitScore = async (hole: number, score: number) => {
 };
 
 export const getGame = async () => {
-  const gameCode = getGameGameCode();
+  const gameCode = getGameCode();
   const response = await api().get(`/api/v1/games/${gameCode}`);
   return response.data;
 };

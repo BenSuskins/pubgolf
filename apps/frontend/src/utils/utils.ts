@@ -1,8 +1,8 @@
-export const getGameGameCode = (): string => {
-  const gameCode = localStorage.getItem('gameGameCode');
+export const getGameCode = (): string => {
+  const gameCode = localStorage.getItem('gameCode');
   if (!gameCode) {
-    console.warn('No game gameCode found in local storage.');
-    throw new Error('Game gameCode not found.');
+    console.warn('No game code found in local storage.');
+    throw new Error('Game code not found.');
   }
   return gameCode;
 };
@@ -38,18 +38,18 @@ export const setPlayerId = (playerId: string) => {
   localStorage.setItem('playerId', playerId);
 }
 
-export const setGameGameCode = (gameGameCode: string) => {
-  localStorage.setItem('gameGameCode', gameGameCode);
+export const setGameCode = (gameCode: string) => {
+  localStorage.setItem('gameCode', gameCode);
 }
 
 export const getShareLink = (): string => {
-  if (typeof window !== 'undefined' && localStorage.getItem('gameGameCode')) {
-    return `${window.location.protocol}//${window.location.host}?gameCode=${getGameGameCode()}`;
+  if (typeof window !== 'undefined' && localStorage.getItem('gameCode')) {
+    return `${window.location.protocol}//${window.location.host}?gameCode=${getGameCode()}`;
   }
   return '';
 };
 
-export function capitalizeGameGameCode(gameCode: string): string {
+export function capitalizeGameCode(gameCode: string): string {
     if (!gameCode) return '';
     return gameCode[0].toUpperCase() + gameCode.slice(1).toLowerCase();
 }

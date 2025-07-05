@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import { joinGame } from '@/services/api';
 import { routes } from '@/utils/constants';
 
-const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameGameCode }) => {
-  const [gameCode, setGameCode] = useState('');
+const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameCode }) => {
+  const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [gameError, setGameError] = useState('');
@@ -13,11 +13,11 @@ const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameGameCode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (gameGameCode) {
-      setGameCode(gameGameCode);
+    if (gameCode) {
+      setCode(gameCode);
       setShowForm(true)
     }
-  }, [gameGameCode]);
+  }, [gameCode]);
 
   const handleJoinGame = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -75,10 +75,10 @@ const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameGameCode }) => {
             margin="normal"
             required
             id="gameCode"
-            label="Game GameCode"
+            label="Game Code"
             name="gameCode"
             value={gameCode}
-            onChange={(e) => setGameCode(e.target.value)}
+            onChange={(e) => setCode(e.target.value)}
             sx={{ borderRadius: 1, width: '300px' }}
             error={!!gameError}
             helperText={gameError}

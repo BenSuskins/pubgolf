@@ -3,9 +3,9 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, T
 import IosShareIcon from '@mui/icons-material/IosShare';
 import CloseIcon from '@mui/icons-material/Close';
 import QRCode from "react-qr-code";
-import { getShareLink, capitalizeGameGameCode } from '@/utils/utils';
+import { getShareLink, capitalizeGameCode } from '@/utils/utils';
 
-const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameGameCode, buttonText }) => {
+const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameCode, buttonText }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const handleCopyToClipboard = () => {
@@ -41,7 +41,7 @@ const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameGameCode,
                         Share this link to invite others:
                     </DialogContentText>
                     <Typography variant="h6" sx={{ mt: 1, bgcolor: 'background.paper', borderRadius: 1, textAlign: 'center', wordBreak: 'break-all' }}>
-                        {`${capitalizeGameGameCode(gameGameCode)}`}
+                        {`${capitalizeGameCode(gameCode)}`}
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <QRCode size={256}

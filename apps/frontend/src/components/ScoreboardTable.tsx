@@ -86,7 +86,7 @@ const ScoreboardTable: React.FC<ScoreboardTableProps> = ({ players }) => {
                             )}
                             </StickyTableCell>
                             {player.scores.map((score, i) => (
-                                <TableCell key={i} align="right" sx={{ color: getScoreColor(score, drinks[i].par) }}>
+                                <TableCell key={i} align="center" sx={{ color: getScoreColor(score, drinks[i].par) }}>
                                     {score}
                                 </TableCell>
                             ))}

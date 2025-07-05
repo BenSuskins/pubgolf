@@ -17,7 +17,7 @@ interface Lucky {
 }
 
 interface JoinGameFormProps {
-    gameGameCode: string;
+    gameCode: string;
 };
 
 interface ScoreboardTableProps {
@@ -28,6 +28,6 @@ interface ShareDialogProps {
     open: boolean;
     onClose: () => void;
     title: string;
-    gameGameCode: string;
+    gameCode: string;
     buttonText: string;
 }
