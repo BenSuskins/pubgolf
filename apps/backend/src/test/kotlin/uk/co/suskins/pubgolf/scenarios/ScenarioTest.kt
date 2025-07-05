@@ -46,6 +46,14 @@ abstract class ScenarioTest {
             .toEntity(String::class.java)
     }
 
+    fun imFeelingLucky(gameCode: String?, playerId: String?) = resultFrom {
+        restClient.post()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/lucky")
+            .contentType(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .toEntity(String::class.java)
+    }
+
     fun submitScore(gameCode: String?, playerId: String?, hole: Int, score: Int) = resultFrom {
         restClient.post()
             .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/scores")

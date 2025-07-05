@@ -238,6 +238,73 @@ class GameController(private val gameService: GameService) {
             }.get()
     }
 
+    @PostMapping("/{gameCode}/players/{playerId}/lucky")
+    @ApiResponses(
+        value = [
+//            ApiResponse(
+//                responseCode = "200", description = "Game state",
+//                content = [
+//                    Content(
+//                        mediaType = "application/json",
+//                        schema = Schema(implementation = GameStateResponse::class)
+//                    )
+//                ]
+//            ),
+            ApiResponse(
+                responseCode = "400", description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "404", description = "Game or Player not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class)
+                    )
+                ]
+            )
+        ]
+    )
+    fun imFeelingLucky(
+        @PathVariable("gameCode") gameCode: GameCode,
+        @PathVariable("playerId") playerId: PlayerId,
+    ): ResponseEntity<*> {
+        return ResponseEntity.ok(
+            """{
+                "result": "Hole 4 - Double Drink",
+                "outcomes" : [
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink",
+                    "Double Drink"
+                ]               
+            }""".trimIndent()
+        )
+    }
+
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")
         return when (it) {
