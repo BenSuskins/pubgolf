@@ -5,7 +5,7 @@ setup:
 	cd apps/frontend && npm i
 
 backend:
-	./gradlew apps:backend:bootRun
+	./gradlew apps:backend:bootRun --args='--spring.profiles.active=local'
 
 backend-test:
 	./gradlew test
