@@ -96,6 +96,7 @@ fun Game.toJpa(): GameEntity {
         )
         player.lucky?.let { lucky ->
             val luckyEntity = PlayerLuckyEntity(
+                id = PlayerLuckyId(gameEntity.id, player.id.value),
                 game = gameEntity,
                 player = playerEntity,
                 hole = lucky.hole.value,

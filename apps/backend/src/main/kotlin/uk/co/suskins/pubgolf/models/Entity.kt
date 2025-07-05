@@ -1,6 +1,7 @@
 package uk.co.suskins.pubgolf.models
 
 import jakarta.persistence.*
+import java.io.Serializable
 import java.time.Instant
 import java.util.*
 
@@ -37,17 +38,25 @@ data class PlayerEntity(
     var lucky: PlayerLuckyEntity? = null
 )
 
+@Embeddable
+data class PlayerLuckyId(
+    val gameId: UUID = UUID.randomUUID(),
+    val playerId: UUID = UUID.randomUUID()
+) : Serializable
+
 @Entity
 @Table(name = "player_lucky")
 data class PlayerLuckyEntity(
-    @Id
-    val id: UUID = UUID.randomUUID(),
+    @EmbeddedId
+    val id: PlayerLuckyId,
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("gameId")
     @JoinColumn(name = "game_id", nullable = false)
     val game: GameEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("playerId")
     @JoinColumn(name = "player_id", nullable = false)
     val player: PlayerEntity,
 

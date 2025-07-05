@@ -20,7 +20,8 @@ abstract class ScenarioTest {
 
     val uuidPattern = Regex("[a-f0-9\\-]{36}", RegexOption.IGNORE_CASE)
     val gameCodePattern = Regex("[A-Z]+\\d{3}")
-    val resultPattern = Regex("^[\\p{L} .'/äöüÄÖÜßéÉáÁíÍóÓúÚñÑ-]+$")
+    val resultPattern =
+        Regex("^(Double Drink|Half Score|Double Score|Free Choice|Tequila|Beer|Wine|Cider|Cocktail|Spirit w/ Mixer|Guinness|Jägerbomb|VK)\$")
 
     fun createGame(host: String?) = resultFrom {
         restClient.post()

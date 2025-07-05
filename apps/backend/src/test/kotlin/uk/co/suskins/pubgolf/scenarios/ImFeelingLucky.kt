@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.scenarios
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.matches
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
@@ -17,7 +18,6 @@ import kotlin.test.assertTrue
 class ImFeelingLucky : ScenarioTest() {
 
     @Test
-    @Disabled
     fun `Can hit the I'm Feeling Lucky Button`() {
         val game = createGame("Ben")
         submitScore(game.gameCode(), game.playerId(), 1, 0)
@@ -64,7 +64,7 @@ class ImFeelingLucky : ScenarioTest() {
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
 
-        assertThat(body["result"], equalTo(""))
+        assertThat(body["result"] as String, matches(resultPattern))
         assertThat(body["hole"], equalTo(2))
 
         val outcomes = body["outcomes"] as List<String>
