@@ -24,17 +24,15 @@ class GameService(private val gameRepository: GameRepository, private val gameMe
     }
 
     fun joinGame(gameCode: GameCode, name: PlayerName): Result<Game, PubGolfFailure> =
-        gameRepository.findByCodeIgnoreCase(gameCode).flatMap { game ->
-            if (game.players.any { it.name.value.equals(name.value, ignoreCase = true) }) {
-                Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${gameCode.value}`."))
-            } else {
+        gameRepository.findByCodeIgnoreCase(gameCode)
+            .flatMap { hasPlayer(it, name) }
+            .flatMap { game ->
                 val player = Player(PlayerId.random(), name)
                 val updated = game.copy(players = game.players + player)
                 gameRepository.save(updated)
                     .map { game.copy(players = listOf(player)) }
                     .also { gameMetrics.playerJoined() }
             }
-        }
 
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
 
@@ -49,7 +47,8 @@ class GameService(private val gameRepository: GameRepository, private val gameMe
                         it
                     }
                 }
-                gameRepository.save(game.copy(players = updatedPlayers)).map { }
+                gameRepository.save(game.copy(players = updatedPlayers))
+                    .map { }
                     .also { gameMetrics.scoreSubmitted(hole) }
             }
 
@@ -63,6 +62,13 @@ class GameService(private val gameRepository: GameRepository, private val gameMe
     private fun hasPlayer(game: Game, playerId: PlayerId): Result<Game, PubGolfFailure> =
         if (game.players.none { it.matches(playerId) }) {
             Failure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `${game.code.value}`."))
+        } else {
+            Success(game)
+        }
+
+    private fun hasPlayer(game: Game, name: PlayerName): Result<Game, PubGolfFailure> =
+        if (game.players.any { it.name.value.equals(name.value, ignoreCase = true) }) {
+            Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${game.code.value}`."))
         } else {
             Success(game)
         }
