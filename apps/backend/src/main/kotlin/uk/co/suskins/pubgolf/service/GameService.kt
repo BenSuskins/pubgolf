@@ -80,14 +80,14 @@ class GameService(private val gameRepository: GameRepository, private val gameMe
                 it
             }
         }
-        gameRepository.save(game.copy(players = updatedPlayers))
-
-        return Success(
-            ImFeelingLucky(
-                result = outcome.label,
-                hole = luckyHole,
-                outcomes = Outcomes.entries
-            )
-        ).also { gameMetrics.imFeelingLuckyUsed() }
+        return gameRepository.save(game.copy(players = updatedPlayers)).flatMap {
+            Success(
+                ImFeelingLucky(
+                    result = outcome.label,
+                    hole = luckyHole,
+                    outcomes = Outcomes.entries
+                )
+            ).also { gameMetrics.imFeelingLuckyUsed() }
+        }
     }
 }
