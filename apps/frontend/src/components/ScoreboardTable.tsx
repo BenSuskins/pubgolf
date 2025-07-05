@@ -77,7 +77,13 @@ const ScoreboardTable: React.FC<ScoreboardTableProps> = ({ players }) => {
                                 component="th"
                                 scope="row"
                             >
-                            {player.name}
+                            <div>{player.name}</div>
+                            {player.lucky && (
+                                <Box sx={{ fontSize: 12, color: 'text.secondary', mt: 0.5 }}>
+                                    Hole: {player.lucky.hole} <br />
+                                    {player.lucky.result}
+                                </Box>
+                            )}
                             </StickyTableCell>
                             {player.scores.map((score, i) => (
                                 <TableCell key={i} align="right" sx={{ color: getScoreColor(score, drinks[i].par) }}>
