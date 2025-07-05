@@ -40,7 +40,10 @@ const SubmitScorePage = () => {
     };
 
     return (
-        <Box sx={{
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
             mt: 1,
             display: 'flex',
             flexDirection: 'column',
