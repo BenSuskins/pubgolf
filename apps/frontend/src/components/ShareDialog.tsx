@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Typography, Button, IconButton, Box, Snackbar, Alert } from '@mui/material';
-import ShareIcon from '@mui/icons-material/Share';
+import IosShareIcon from '@mui/icons-material/IosShare';
 import CloseIcon from '@mui/icons-material/Close';
 import QRCode from "react-qr-code";
 import { getShareLink, capitalizeGameIdentifier } from '@/utils/utils';
@@ -55,7 +55,7 @@ const ShareDialog: FC<ShareDialogProps> = ({ open, onClose, title, gameIdentifie
                         onClick={handleCopyToClipboard}
                         variant="outlined"
                         color="primary"
-                        startIcon={<ShareIcon />}
+                        startIcon={<IosShareIcon />}
                         sx={{ mt: 2 }}
                         fullWidth
                     >

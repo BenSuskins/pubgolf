@@ -5,7 +5,7 @@ import { getPlayers } from '../services/api';
 import { getGameIdentifier } from '@/utils/utils';
 import ScoreboardTable from '../components/ScoreboardTable';
 import { routes } from '@/utils/constants';
-import ShareIcon from '@mui/icons-material/Share';
+import IosShareIcon from '@mui/icons-material/IosShare';
 import ShareDialog from '../components/ShareDialog';
 import { capitalizeGameIdentifier } from '@/utils/utils';
 
@@ -89,7 +89,7 @@ const GamePage = () => {
                     <em>Game - {capitalizeGameIdentifier(gameIdentifier)}</em>
                 </Typography>
                 <IconButton onClick={handleShare} color="primary" size="small" sx={{ mt: -.6 }}>
-                    <ShareIcon />
+                    <IosShareIcon />
                 </IconButton>
             </Box>
             <ScoreboardTable players={players} />
