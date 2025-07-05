@@ -68,7 +68,8 @@ const ScoreboardTable: React.FC<ScoreboardTableProps> = ({ players }) => {
                         <StyledTableRow key={index}>
                             <StickyTableCell
                                 sx={{
-                                    zIndex: 1
+                                    zIndex: 1,
+                                    wordBreak: 'break-all',
                                 }}
                                 component="th"
                                 scope="row"
