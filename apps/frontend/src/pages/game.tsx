@@ -20,6 +20,7 @@ const GamePage = () => {
     const [players, setPlayers] = useState<Player[]>([]);
     const [gameIdentifier, setGameIdentifier] = useState('');
     const [showDialog, setShowDialog] = useState(false);
+    const [luckyEnabled, setLuckyEnabled] = useState(false);
 
     const fetchPlayers = async () => {
         try {
@@ -52,6 +53,8 @@ const GamePage = () => {
     };
 
     useEffect(() => {
+        const flag = localStorage.getItem('lucky');
+        setLuckyEnabled(flag === 'true');
         fetchPlayers();
         getGameIdentifier();
         const interval = setInterval(fetchPlayers, 30000);
@@ -97,6 +100,15 @@ const GamePage = () => {
                 >
                     Submit Score
                 </Button>
+                {luckyEnabled && (
+                    <Button
+                        variant="contained"
+                        sx={{ mb: 2, bgcolor: '#389e5c', '&:hover': { bgcolor: '#45a049' }, width: '200px' }}
+                        onClick={handleHowToPlay}
+                    >
+                        I'm Feeling Lucky
+                    </Button>
+                )}
                 <Button
                     variant="contained"
                     sx={{ bgcolor: '#389e5c', '&:hover': { bgcolor: '#45a049' }, width: '200px' }}
