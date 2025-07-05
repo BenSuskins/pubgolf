@@ -34,6 +34,7 @@ Make sure you have the following installed:
 - [Node.js (v18+)](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 - [Make](https://www.gnu.org/software/make/)
+- [Podman](https://podman.io) (For local database)
 
 ---
 
