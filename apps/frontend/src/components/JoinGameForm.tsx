@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import { joinGame } from '@/services/api';
 import { routes } from '@/utils/constants';
 
-const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameIdentifier }) => {
-  const [identifier, setIdentifier] = useState('');
+const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameGameCode }) => {
+  const [gameCode, setGameCode] = useState('');
   const [name, setName] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [gameError, setGameError] = useState('');
@@ -13,11 +13,11 @@ const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameIdentifier }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (gameIdentifier) {
-      setIdentifier(gameIdentifier);
+    if (gameGameCode) {
+      setGameCode(gameGameCode);
       setShowForm(true)
     }
-  }, [gameIdentifier]);
+  }, [gameGameCode]);
 
   const handleJoinGame = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -25,11 +25,11 @@ const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameIdentifier }) => {
       if (!validateName(name)) {
         return;
       }
-      await joinGame(identifier, name);
+      await joinGame(gameCode, name);
       router.push(routes.GAME);
     } catch (error) {
       console.error('Failed to join game:', error);
-      setGameError('Failed to join game. Please check the identifier and try again.');
+      setGameError('Failed to join game. Please check the gameCode and try again.');
     }
   };
 
@@ -74,11 +74,11 @@ const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameIdentifier }) => {
           <TextField
             margin="normal"
             required
-            id="identifier"
-            label="Game Identifier"
-            name="identifier"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            id="gameCode"
+            label="Game GameCode"
+            name="gameCode"
+            value={gameCode}
+            onChange={(e) => setGameCode(e.target.value)}
             sx={{ borderRadius: 1, width: '300px' }}
             error={!!gameError}
             helperText={gameError}

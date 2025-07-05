@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearLocalStorage, getGameIdentifier, getPlayerName, setGameIdentifier, setPlayerName, setPlayerId, getPlayerId} from '@/utils/utils';
+import { clearLocalStorage, getGameGameCode, getPlayerName, setGameGameCode, setPlayerName, setPlayerId, getPlayerId} from '@/utils/utils';
 import { env } from 'next-runtime-env';
 
 const getBaseURL = () => {
@@ -19,34 +19,34 @@ export const createGame = async (name: string) => {
   const response = await api().post('/api/v1/games', {
       host: name
     });
-  setGameIdentifier(response.data.gameCode);
+  setGameGameCode(response.data.gameCode);
   setPlayerName(name);
   setPlayerId(response.data.playerId);
   return response.data;
 };
 
-export const joinGame = async (identifier: string, name: string) => {
-  const response = await api().post(`/api/v1/games/${identifier}/join`, {
+export const joinGame = async (gameCode: string, name: string) => {
+  const response = await api().post(`/api/v1/games/${gameCode}/join`, {
     name: name
   });
-  setGameIdentifier(identifier);
+  setGameGameCode(gameCode);
   setPlayerName(name);
   setPlayerId(response.data.playerId);
   return response.data;
 };
 
 export const submitScore = async (hole: number, score: number) => {
-  const identifier = getGameIdentifier();
+  const gameCode = getGameGameCode();
   const playerId = getPlayerId();
-  const response = await api().post(`/api/v1/games/${identifier}/players/${playerId}/scores`, {
+  const response = await api().post(`/api/v1/games/${gameCode}/players/${playerId}/scores`, {
     hole: hole,
     score: score
   });
   return response.data;
 };
 
-export const getPlayers = async () => {
-  const identifier = getGameIdentifier();
-  const response = await api().get(`/api/v1/games/${identifier}`);
+export const getGame = async () => {
+  const gameCode = getGameGameCode();
+  const response = await api().get(`/api/v1/games/${gameCode}`);
   return response.data;
 };

@@ -8,10 +8,16 @@ interface Player {
     name: string;
     scores: number[];
     totalScore: number
+    lucky: Lucky
+}
+
+interface Lucky {
+    hole: number;
+    result: string
 }
 
 interface JoinGameFormProps {
-    gameIdentifier: string;
+    gameGameCode: string;
 };
 
 interface ScoreboardTableProps {
@@ -22,6 +28,6 @@ interface ShareDialogProps {
     open: boolean;
     onClose: () => void;
     title: string;
-    gameIdentifier: string;
+    gameGameCode: string;
     buttonText: string;
 }

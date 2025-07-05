@@ -6,12 +6,12 @@ import CreateGameForm from '../components/CreateGameForm';
 import JoinGameForm from '../components/JoinGameForm';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { getPlayers } from '@/services/api';
+import { getGame } from '@/services/api';
 import { getPlayerName } from '@/utils/utils';
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { identifier } = router.query;
+  const { gameCode } = router.query;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [openDialog, setOpenDialog] = useState(false);
@@ -19,7 +19,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     const checkExistingGame = async () => {
       try {
-        const playersData = await getPlayers();
+        const playersData = await getGame();
         if (playersData.length > 0 && getPlayerName()) {
           setOpenDialog(true);
         }
@@ -73,11 +73,11 @@ const Home: NextPage = () => {
           />
         </Box>
         <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
-          To get started, create a new game or join an existing game by entering the game identifier below.
+          To get started, create a new game or join an existing game by entering the game gameCode below.
         </Typography>
         <Paper sx={{ mt: 4, p: 3, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 3 }}>
           <CreateGameForm />
-          <JoinGameForm gameIdentifier={identifier as string} />
+          <JoinGameForm gameGameCode={gameCode as string} />
         </Paper>
       </Box>
       <Dialog open={openDialog} onClose={handleCloseDialog}>

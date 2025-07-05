@@ -1,10 +1,10 @@
-export const getGameIdentifier = (): string => {
-  const identifier = localStorage.getItem('gameIdentifier');
-  if (!identifier) {
-    console.warn('No game identifier found in local storage.');
-    throw new Error('Game identifier not found.');
+export const getGameGameCode = (): string => {
+  const gameCode = localStorage.getItem('gameGameCode');
+  if (!gameCode) {
+    console.warn('No game gameCode found in local storage.');
+    throw new Error('Game gameCode not found.');
   }
-  return identifier;
+  return gameCode;
 };
 
 export const getPlayerName = (): string => {
@@ -38,18 +38,18 @@ export const setPlayerId = (playerId: string) => {
   localStorage.setItem('playerId', playerId);
 }
 
-export const setGameIdentifier = (gameIdentifier: string) => {
-  localStorage.setItem('gameIdentifier', gameIdentifier);
+export const setGameGameCode = (gameGameCode: string) => {
+  localStorage.setItem('gameGameCode', gameGameCode);
 }
 
 export const getShareLink = (): string => {
-  if (typeof window !== 'undefined' && localStorage.getItem('gameIdentifier')) {
-    return `${window.location.protocol}//${window.location.host}?identifier=${getGameIdentifier()}`;
+  if (typeof window !== 'undefined' && localStorage.getItem('gameGameCode')) {
+    return `${window.location.protocol}//${window.location.host}?gameCode=${getGameGameCode()}`;
   }
   return '';
 };
 
-export function capitalizeGameIdentifier(identifier: string): string {
-    if (!identifier) return '';
-    return identifier[0].toUpperCase() + identifier.slice(1).toLowerCase();
+export function capitalizeGameGameCode(gameCode: string): string {
+    if (!gameCode) return '';
+    return gameCode[0].toUpperCase() + gameCode.slice(1).toLowerCase();
 }

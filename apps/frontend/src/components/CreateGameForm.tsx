@@ -8,7 +8,7 @@ import ShareDialog from './ShareDialog';
 const CreateGameForm = () => {
   const [name, setName] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [gameIdentifier, setGameIdentifier] = useState('');
+  const [gameGameCode, setGameGameCode] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
@@ -20,7 +20,7 @@ const CreateGameForm = () => {
         return;
       }
       const game = await createGame(name);
-      setGameIdentifier(game.gameCode)
+      setGameGameCode(game.gameCode)
       setShowDialog(true);
     } catch (error) {
       console.error('Failed to create and join game:', error);
@@ -51,7 +51,7 @@ const CreateGameForm = () => {
         open={showDialog}
         onClose={handleCloseDialog}
         title="Game Created"
-        gameIdentifier={gameIdentifier}
+        gameGameCode={gameGameCode}
         buttonText='Play!'
       />
       <Button

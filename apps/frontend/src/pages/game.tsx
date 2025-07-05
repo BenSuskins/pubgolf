@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Typography, Button, Paper, Snackbar, IconButton, Alert } from '@mui/material';
-import { getPlayers } from '../services/api';
-import { getGameIdentifier } from '@/utils/utils';
+import { getGame } from '../services/api';
+import { getGameGameCode } from '@/utils/utils';
 import ScoreboardTable from '../components/ScoreboardTable';
 import { routes } from '@/utils/constants';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import ShareDialog from '../components/ShareDialog';
-import { capitalizeGameIdentifier } from '@/utils/utils';
+import { capitalizeGameGameCode } from '@/utils/utils';
 
 interface Player {
     name: string;
@@ -18,22 +18,22 @@ interface Player {
 const GamePage = () => {
     const router = useRouter();
     const [players, setPlayers] = useState<Player[]>([]);
-    const [gameIdentifier, setGameIdentifier] = useState('');
+    const [gameGameCode, setGameGameCode] = useState('');
     const [showDialog, setShowDialog] = useState(false);
     const [luckyEnabled, setLuckyEnabled] = useState(false);
 
     const fetchPlayers = async () => {
         try {
-            const playersData = await getPlayers();
+            const playersData = await getGame();
             setPlayers(playersData.players);
         } catch (error) {
             console.error('Failed load players:', error);
         }
     };
 
-    const fetchGameIdentifier = async () => {
-        const identifier = getGameIdentifier();
-        setGameIdentifier(identifier);
+    const fetchGameGameCode = async () => {
+        const gameCode = getGameGameCode();
+        setGameGameCode(gameCode);
     };
 
     const handleScoreSubmit = () => {
@@ -56,14 +56,14 @@ const GamePage = () => {
         const flag = localStorage.getItem('lucky');
         setLuckyEnabled(flag === 'true');
         fetchPlayers();
-        getGameIdentifier();
+        getGameGameCode();
         const interval = setInterval(fetchPlayers, 30000);
 
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
-        fetchGameIdentifier();
+        fetchGameGameCode();
     }, []);
 
     return (
@@ -86,7 +86,7 @@ const GamePage = () => {
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
-                    <em>Game - {capitalizeGameIdentifier(gameIdentifier)}</em>
+                    <em>Game - {capitalizeGameGameCode(gameGameCode)}</em>
                 </Typography>
                 <IconButton onClick={handleShare} color="primary" size="small" sx={{ mt: -.6 }}>
                     <IosShareIcon />
@@ -122,7 +122,7 @@ const GamePage = () => {
                 open={showDialog}
                 onClose={handleCloseDialog}
                 title="Share Game"
-                gameIdentifier={gameIdentifier}
+                gameGameCode={gameGameCode}
                 buttonText='Close'
             />
         </Box>
