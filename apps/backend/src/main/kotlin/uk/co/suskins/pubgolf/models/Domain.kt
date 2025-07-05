@@ -46,17 +46,17 @@ enum class Outcomes(
     val weight: Int,
     val description: String
 ) {
-    DOUBLE_DRINK("Double Drink", 6, "Do double the current hole's drink"),
+    DOUBLE_DRINK("Double Drink", 4, "Do double the current hole's drink"),
     HALF_SCORE("Half Score", 2, "Score half of what you actually got"),
-    DOUBLE_SCORE("Double Score", 5, "Score double what you actually got"),
-    FREE_CHOICE("Free Choice", 2, "Pick an alcoholic drink of your choosing"),
+    DOUBLE_SCORE("Double Score", 3, "Score double what you actually got"),
+    FREE_CHOICE("Free Choice", 1, "Pick an alcoholic drink of your choosing"),
     TEQUILA("Tequila", 5, "Drink a shot of tequila"),
     BEER("Beer", 5, "Drink a beer"),
     WINE("Wine", 5, "Drink a glass of wine"),
     CIDER("Cider", 5, "Drink a cider"),
     COCKTAIL("Cocktail", 5, "Drink a cocktail"),
     SPIRIT_MIXER("Spirit w/ Mixer", 5, "Drink a Spirit w/ Mixer"),
-    GUINNESS("Guinness", 6, "Drink a Guinness"),
+    GUINNESS("Guinness", 5, "Drink a Guinness"),
     JAGERBOMB("Jägerbomb", 5, "Drink a Jägerbomb"),
     VK("VK", 5, "Drink a VK");
 
