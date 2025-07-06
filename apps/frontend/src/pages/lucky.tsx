@@ -33,24 +33,35 @@ export default function LuckyPage() {
   const [hasSpun, setHasSpun] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSpin = async () => {
-    setError(null);
-    try {
-      const data = await lucky();
-      const index = hardcodedLabels.findIndex((label) => label === data.result);
+const handleSpin = async () => {
+  setError(null);
+  try {
+    const data = await lucky();
 
-      if (index === -1) throw new Error(`Result "${data.result}" not found in outcomes`);
+    const hardcodedLabels = [
+      "Double Drink", "Half Score", "Double Score", "Free Choice",
+      "Tequila", "Beer", "Wine", "Cider", "Cocktail",
+      "Spirit w/ Mixer", "Guinness", "Jägerbomb", "VK"
+    ];
+    const outcomeList = hardcodedLabels.map(label => ({ option: label }));
+    const index = hardcodedLabels.findIndex(label => label === data.result);
 
-      setPrizeIndex(index);
-      setHole(data.hole);
-      setResult(data.result);
+    if (index === -1) throw new Error(`Result "${data.result}" not found in outcomes`);
 
-      requestAnimationFrame(() => setMustSpin(true));
-    } catch (err: any) {
-      console.error(err);
+    setPrizeIndex(index);
+    setResult(data.result);
+    setHole(data.hole);
+    requestAnimationFrame(() => setMustSpin(true));
+  } catch (err: any) {
+    console.error(err);
+    if (err?.response?.status === 409) {
+      setError('You have already used your spin.');
+      setHasSpun(true);
+    } else {
       setError(err.message || 'Something went wrong');
     }
-  };
+  }
+};
 
   const handleBack = () => {
     router.push(routes.GAME);
@@ -126,14 +137,14 @@ export default function LuckyPage() {
         )}
       </Paper>
       <Paper sx={{ mt: 4, p: 3, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 3 }}>
-          <Button
+            <Button
               onClick={handleSpin}
-              disabled={mustSpin || hasSpun}
+              disabled={mustSpin || hasSpun || error === 'You have already used your spin.'}
               variant="contained"
               sx={{ mb: 2, bgcolor: '#389e5c', width: '200px' }}
-          >
-                Spin the Wheel
-          </Button>
+            >
+              Spin the Wheel
+            </Button>
           <Button
               variant="outlined"
               onClick={handleBack}
