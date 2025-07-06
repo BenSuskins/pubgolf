@@ -9,6 +9,7 @@ export default function LuckyPage() {
   const router = useRouter();
   const [outcomes, setOutcomes] = useState<{ option: string }[]>([]);
   const [result, setResult] = useState<string | null>(null);
+  const [hole, setHole] = useState(null);
   const [prizeIndex, setPrizeIndex] = useState<number | null>(null);
   const [mustSpin, setMustSpin] = useState(false);
   const [hasSpun, setHasSpun] = useState(false);
@@ -25,6 +26,7 @@ export default function LuckyPage() {
 
       setOutcomes(outcomeList);
       setPrizeIndex(index);
+      setHole(data.hole);
       setResult(data.result);
 
       requestAnimationFrame(() => setMustSpin(true));
@@ -63,14 +65,10 @@ export default function LuckyPage() {
           flexDirection: 'column',
           alignItems: 'center',
           boxShadow: 3,
-          backgroundColor: '#fff',
         }}
       >
         <Typography variant="h3" gutterBottom>
-          Lucky Wheel
-        </Typography>
-        <Typography variant="subtitle1" sx={{ color: '#555', mb: 3 }}>
-          Feeling lucky?
+            Feeling lucky?
         </Typography>
 
         {outcomes.length > 0 && typeof prizeIndex === 'number' && (
@@ -95,7 +93,7 @@ export default function LuckyPage() {
 
         {hasSpun && result && (
           <Typography variant="h5" sx={{ mt: 4, fontWeight: 'bold', color: 'primary.main' }}>
-            🎉 You got: <span style={{ textDecoration: 'underline' }}>{result}</span>!
+            🎉 You got: <span style={{ textDecoration: 'underline' }}>{result}</span> for Hole {hole}!
           </Typography>
         )}
 
