@@ -1,10 +1,12 @@
-'use client';
-
 import { useState } from 'react';
 import { Wheel } from 'react-custom-roulette';
 import { lucky } from '../services/api';
+import { Box, Paper, Typography, Button, Alert } from '@mui/material';
+import { useRouter } from 'next/router';
+import { routes } from '@/utils/constants';
 
 export default function LuckyPage() {
+  const router = useRouter();
   const [outcomes, setOutcomes] = useState<{ option: string }[]>([]);
   const [result, setResult] = useState<string | null>(null);
   const [prizeIndex, setPrizeIndex] = useState<number | null>(null);
@@ -25,7 +27,6 @@ export default function LuckyPage() {
       setPrizeIndex(index);
       setResult(data.result);
 
-      // Spin on next frame to avoid render issues
       requestAnimationFrame(() => setMustSpin(true));
     } catch (err: any) {
       console.error(err);
@@ -33,43 +34,94 @@ export default function LuckyPage() {
     }
   };
 
+  const handleBack = () => {
+    router.push(routes.GAME);
+  };
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4 bg-gray-100">
-      {outcomes.length > 0 && typeof prizeIndex === 'number' && (
-        <Wheel
-          mustStartSpinning={mustSpin}
-          prizeNumber={prizeIndex}
-          data={outcomes}
-          backgroundColors={['#facc15', '#4ade80']}
-          textColors={['#1f2937']}
-          spinDuration={0.9}
-          radiusLineColor="#e5e7eb"
-          outerBorderColor="#000000"
-          fontSize={16}
-          onStopSpinning={() => {
-            setMustSpin(false);
-            setHasSpun(true);
-          }}
-        />
-      )}
+    <Box
+      sx={{
+        mt: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        p: 3,
+        mx: 'auto',
+        my: 2,
+        maxWidth: '.95',
+        backgroundColor: '#4a555a',
+        borderRadius: 2,
+        boxShadow: 5,
+        textAlign: 'center'
+      }}
+    >
+      <Paper
+        sx={{
+          p: 4,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxShadow: 3,
+          backgroundColor: '#fff',
+        }}
+      >
+        <Typography variant="h3" gutterBottom>
+          Lucky Wheel
+        </Typography>
+        <Typography variant="subtitle1" sx={{ color: '#555', mb: 3 }}>
+          Feeling lucky?
+        </Typography>
 
-      {!hasSpun && (
-        <button
-          onClick={handleSpin}
-          disabled={mustSpin}
-          className="px-6 py-3 bg-indigo-600 text-white rounded-lg text-lg hover:bg-indigo-700 disabled:opacity-50"
-        >
-          Spin the Wheel
-        </button>
-      )}
+        {outcomes.length > 0 && typeof prizeIndex === 'number' && (
+          <Box sx={{ my: 3 }}>
+            <Wheel
+              mustStartSpinning={mustSpin}
+              prizeNumber={prizeIndex}
+              data={outcomes}
+              backgroundColors={['#facc15', '#4ade80']}
+              textColors={['#1f2937']}
+              spinDuration={0.9}
+              radiusLineColor="#e5e7eb"
+              outerBorderColor="#000000"
+              fontSize={16}
+              onStopSpinning={() => {
+                setMustSpin(false);
+                setHasSpun(true);
+              }}
+            />
+          </Box>
+        )}
 
-      {hasSpun && result && (
-        <div className="text-2xl mt-6 font-bold text-center text-purple-700">
-          🎉 You got: <span className="underline">{result}</span>!
-        </div>
-      )}
+        {hasSpun && result && (
+          <Typography variant="h5" sx={{ mt: 4, fontWeight: 'bold', color: 'primary.main' }}>
+            🎉 You got: <span style={{ textDecoration: 'underline' }}>{result}</span>!
+          </Typography>
+        )}
 
-      {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-    </main>
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+      </Paper>
+      <Paper sx={{ mt: 4, p: 3, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 3 }}>
+          <Button
+              onClick={handleSpin}
+              disabled={mustSpin || hasSpun}
+              variant="contained"
+              sx={{ mb: 2, bgcolor: '#389e5c', width: '200px' }}
+          >
+                Spin the Wheel
+          </Button>
+          <Button
+              variant="outlined"
+              onClick={handleBack}
+              sx={{ borderColor: '#389e5c', width: '200px' }}
+          >
+              Back
+          </Button>
+      </Paper>
+    </Box>
   );
 }
