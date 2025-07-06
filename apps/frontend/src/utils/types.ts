@@ -1,27 +1,27 @@
 interface DrinkInfo {
-    drinkA: string;
-    drinkB: string;
-    par: number;
-};
+  drinkA: string;
+  drinkB: string;
+  par: number;
+}
 
 interface Player {
-    name: string;
-    scores: number[];
-    totalScore: number
-    lucky: Lucky
+  name: string;
+  scores: number[];
+  totalScore: number;
+  lucky: Lucky;
 }
 
 interface Lucky {
-    hole: number;
-    result: string
+  hole: number;
+  result: string;
 }
 
 interface JoinGameFormProps {
-    gameCode: string;
-};
+  gameCode: string;
+}
 
 interface ScoreboardTableProps {
-    players: Player[];
+  players: Player[];
 }
 
 type LuckyResponse = {
@@ -31,9 +31,9 @@ type LuckyResponse = {
 };
 
 interface ShareDialogProps {
-    open: boolean;
-    onClose: () => void;
-    title: string;
-    gameCode: string;
-    buttonText: string;
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  gameCode: string;
+  buttonText: string;
 }

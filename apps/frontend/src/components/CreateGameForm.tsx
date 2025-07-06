@@ -1,16 +1,23 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { Button, TextField, Box, Collapse, Typography, Alert } from '@mui/material';
-import { createGame, joinGame } from '@/services/api';
-import { routes } from '@/utils/constants';
-import ShareDialog from './ShareDialog';
+import { useState } from "react";
+import { useRouter } from "next/router";
+import {
+  Button,
+  TextField,
+  Box,
+  Collapse,
+  Typography,
+  Alert,
+} from "@mui/material";
+import { createGame, joinGame } from "@/services/api";
+import { routes } from "@/utils/constants";
+import ShareDialog from "./ShareDialog";
 
 const CreateGameForm = () => {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [showDialog, setShowDialog] = useState(false);
-  const [gameCode, setGameCode] = useState('');
+  const [gameCode, setGameCode] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
   const handleCreateGame = async (event: React.FormEvent) => {
@@ -20,19 +27,19 @@ const CreateGameForm = () => {
         return;
       }
       const game = await createGame(name);
-      setGameCode(game.gameCode)
+      setGameCode(game.gameCode);
       setShowDialog(true);
     } catch (error) {
-      console.error('Failed to create and join game:', error);
+      console.error("Failed to create and join game:", error);
     }
   };
 
   const validateName = (name: string) => {
     if (name.length < 2) {
-      setErrorMessage('Name must be greater than 2 characters.');
+      setErrorMessage("Name must be greater than 2 characters.");
       return false;
     }
-    setErrorMessage('');
+    setErrorMessage("");
     return true;
   };
 
@@ -52,19 +59,30 @@ const CreateGameForm = () => {
         onClose={handleCloseDialog}
         title="Game Created"
         gameCode={gameCode}
-        buttonText='Play!'
+        buttonText="Play!"
       />
       <Button
         type="submit"
         onClick={toggleFormVisibility}
-        variant={showForm ? 'outlined' : 'contained'}
+        variant={showForm ? "outlined" : "contained"}
         color="primary"
-        sx={{ width: '200px' }}
+        sx={{ width: "200px" }}
       >
-        {showForm ? 'Back' : 'Create Game'}
+        {showForm ? "Back" : "Create Game"}
       </Button>
       <Collapse in={showForm}>
-        <Box component="form" onSubmit={handleCreateGame} noValidate sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
+        <Box
+          component="form"
+          onSubmit={handleCreateGame}
+          noValidate
+          sx={{
+            mt: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
           <TextField
             margin="normal"
             required
@@ -73,7 +91,7 @@ const CreateGameForm = () => {
             name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            sx={{ borderRadius: 1, width: '300px' }}
+            sx={{ borderRadius: 1, width: "300px" }}
             error={!!errorMessage}
             helperText={errorMessage}
           />
@@ -81,7 +99,7 @@ const CreateGameForm = () => {
             type="submit"
             variant="contained"
             color="primary"
-            sx={{ mt: 3, mb: 3, width: '200px' }}
+            sx={{ mt: 3, mb: 3, width: "200px" }}
           >
             Create
           </Button>

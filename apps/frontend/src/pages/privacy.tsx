@@ -1,13 +1,18 @@
 const PrivacyPolicy = () => (
   <main>
     <h1>Privacy Policy</h1>
-    <p><strong>Last Updated:</strong> June 1, 2025</p>
+    <p>
+      <strong>Last Updated:</strong> June 1, 2025
+    </p>
 
     <h2>What We Collect</h2>
     <p>We collect:</p>
     <ul>
       <li>A nickname or name, submitted voluntarily when playing.</li>
-      <li>Your IP address, which may be logged by our servers for traffic and security monitoring.</li>
+      <li>
+        Your IP address, which may be logged by our servers for traffic and
+        security monitoring.
+      </li>
     </ul>
     <p>We do not collect emails, accounts, or login credentials.</p>
 
@@ -18,7 +23,10 @@ const PrivacyPolicy = () => (
     </ul>
 
     <h2>Cookies</h2>
-    <p>Only essential cookies are used to support gameplay functionality. We do not use third-party tracking or analytics cookies.</p>
+    <p>
+      Only essential cookies are used to support gameplay functionality. We do
+      not use third-party tracking or analytics cookies.
+    </p>
 
     <h2>Data Sharing</h2>
     <p>We do not sell or share your data with third parties.</p>
@@ -29,10 +37,17 @@ const PrivacyPolicy = () => (
       <li>View the information we store (if any)</li>
       <li>Have your submitted name removed</li>
     </ul>
-    <p>Contact us at <a href="mailto:development@suskins.co.uk">development@suskins.co.uk</a> to make a request.</p>
+    <p>
+      Contact us at{" "}
+      <a href="mailto:development@suskins.co.uk">development@suskins.co.uk</a>{" "}
+      to make a request.
+    </p>
 
     <h2>Changes</h2>
-    <p>We may update this policy. The latest version will always be available on this page.</p>
+    <p>
+      We may update this policy. The latest version will always be available on
+      this page.
+    </p>
   </main>
 );
 
