@@ -11,6 +11,7 @@ import {
   Paper,
 } from "@mui/material";
 import { drinks } from "@/utils/constants";
+import { ScoreboardTableProps } from "@/utils/types";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: theme.palette.primary.dark,

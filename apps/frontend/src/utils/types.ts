@@ -1,36 +1,41 @@
-interface DrinkInfo {
+export interface DrinkInfo {
   drinkA: string;
   drinkB: string;
   par: number;
 }
 
-interface Player {
+export interface Player {
   name: string;
   scores: number[];
   totalScore: number;
   lucky: Lucky;
 }
 
-interface Lucky {
+export interface Lucky {
   hole: number;
   result: string;
 }
 
-interface JoinGameFormProps {
+export interface Options {
+  option: string;
+  optionSize: number;
+}
+
+export interface JoinGameFormProps {
   gameCode: string;
 }
 
-interface ScoreboardTableProps {
+export interface ScoreboardTableProps {
   players: Player[];
 }
 
-type LuckyResponse = {
+export type LuckyResponse = {
   result: string;
   hole: number;
   outcomes: string[];
 };
 
-interface ShareDialogProps {
+export interface ShareDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;

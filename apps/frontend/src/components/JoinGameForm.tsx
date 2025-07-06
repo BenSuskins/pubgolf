@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { joinGame } from "@/services/api";
 import { routes } from "@/utils/constants";
+import { JoinGameFormProps } from "@/utils/types";
 
 const JoinGameForm: React.FC<JoinGameFormProps> = ({ gameCode }) => {
   const [code, setCode] = useState("");

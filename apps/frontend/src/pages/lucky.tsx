@@ -7,12 +7,13 @@ import { lucky, wheelOptions } from "../services/api";
 import { Box, Paper, Typography, Button, Alert } from "@mui/material";
 import { useRouter } from "next/router";
 import { routes } from "@/utils/constants";
+import { Options } from "@/utils/types";
 import dynamic from "next/dynamic";
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
 export default function LuckyPage() {
   const router = useRouter();
-  const [outcomes, setOutcomes] = useState(null);
+  const [outcomes, setOutcomes] = useState<Options[]>([]);
   const [result, setResult] = useState(null);
   const [hole, setHole] = useState(null);
   const [prizeIndex, setPrizeIndex] = useState(0);
@@ -25,9 +26,7 @@ export default function LuckyPage() {
     try {
       const data = await lucky();
 
-      const index = outcomes.findIndex(
-        (label) => label.option === data.result,
-      );
+      const index = outcomes.findIndex((label) => label.option === data.result);
 
       if (index === -1)
         throw new Error(`Result "${data.result}" not found in outcomes`);
@@ -94,7 +93,7 @@ export default function LuckyPage() {
         <Typography variant="subtitle1" gutterBottom sx={{ color: "#bbbbbb" }}>
           You only get one spin, make it count
         </Typography>
-        {outcomes && (
+        {outcomes.length > 0 && (
           <Box sx={{ my: 3 }}>
             <Wheel
               mustStartSpinning={mustSpin}

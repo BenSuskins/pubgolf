@@ -16,6 +16,7 @@ import IosShareIcon from "@mui/icons-material/IosShare";
 import CloseIcon from "@mui/icons-material/Close";
 import QRCode from "react-qr-code";
 import { getShareLink, capitalizeGameCode } from "@/utils/utils";
+import { ShareDialogProps } from "@/utils/types";
 
 const ShareDialog: FC<ShareDialogProps> = ({
   open,

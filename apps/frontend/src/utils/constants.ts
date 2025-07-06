@@ -1,3 +1,5 @@
+import { DrinkInfo } from "./types";
+
 export const rules = [
   "Each player must drink the designated drink at each stop.",
   "The par score for each drink represents the expected number of sips to finish the drink.",

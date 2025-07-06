@@ -16,6 +16,7 @@ import { routes } from "@/utils/constants";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import ShareDialog from "../components/ShareDialog";
 import { capitalizeGameCode } from "@/utils/utils";
+import { Player } from "@/utils/types";
 
 const GamePage = () => {
   const router = useRouter();
