@@ -70,3 +70,8 @@ export const getGame = async () => {
   const response = await api().get(`/api/v1/games/${gameCode}`);
   return response.data;
 };
+
+export const wheelOptions = async () => {
+  const response = await api().get(`/api/v1/games/wheel-options`);
+  return response.data;
+};

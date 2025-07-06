@@ -1,35 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
   { ssr: false },
 );
-import { lucky } from "../services/api";
+import { lucky, wheelOptions } from "../services/api";
 import { Box, Paper, Typography, Button, Alert } from "@mui/material";
 import { useRouter } from "next/router";
 import { routes } from "@/utils/constants";
 import dynamic from "next/dynamic";
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
-const hardcodedLabels = [
-  "Double Drink",
-  "Half Score",
-  "Double Score",
-  "Free Choice",
-  "Tequila",
-  "Beer",
-  "Wine",
-  "Cider",
-  "Cocktail",
-  "Spirit w/ Mixer",
-  "Guinness",
-  "Jägerbomb",
-  "VK",
-];
-const outcomeList = hardcodedLabels.map((label) => ({ option: label }));
-
 export default function LuckyPage() {
   const router = useRouter();
-  const [outcomes] = useState(outcomeList);
+  const [outcomes, setOutcomes] = useState(null);
   const [result, setResult] = useState(null);
   const [hole, setHole] = useState(null);
   const [prizeIndex, setPrizeIndex] = useState(0);
@@ -42,7 +25,9 @@ export default function LuckyPage() {
     try {
       const data = await lucky();
 
-      const index = hardcodedLabels.findIndex((label) => label === data.result);
+      const index = hardcodedLabels.findIndex(
+        (label) => label.option === data.result,
+      );
 
       if (index === -1)
         throw new Error(`Result "${data.result}" not found in outcomes`);
@@ -65,6 +50,16 @@ export default function LuckyPage() {
   const handleBack = () => {
     router.push(routes.GAME);
   };
+
+  const fetchOptions = async () => {
+    const data = await wheelOptions();
+    console.log(data);
+    setOutcomes(data.options);
+  };
+
+  useEffect(() => {
+    fetchOptions();
+  }, []);
 
   return (
     <Box
@@ -99,24 +94,25 @@ export default function LuckyPage() {
         <Typography variant="subtitle1" gutterBottom sx={{ color: "#bbbbbb" }}>
           You only get one spin, make it count
         </Typography>
-        <Box sx={{ my: 3 }}>
-          <Wheel
-            mustStartSpinning={mustSpin}
-            prizeNumber={prizeIndex}
-            data={outcomes}
-            backgroundColors={["#389e5c", "#4a555a"]}
-            textColors={["#fff"]}
-            spinDuration={0.9}
-            radiusLineColor="#fff"
-            outerBorderColor="#389e5c"
-            fontSize={16}
-            onStopSpinning={() => {
-              setMustSpin(false);
-              setHasSpun(true);
-            }}
-          />
-        </Box>
-
+        {outcomes && (
+          <Box sx={{ my: 3 }}>
+            <Wheel
+              mustStartSpinning={mustSpin}
+              prizeNumber={prizeIndex}
+              data={outcomes}
+              backgroundColors={["#389e5c", "#4a555a"]}
+              textColors={["#fff"]}
+              spinDuration={0.9}
+              radiusLineColor="#fff"
+              outerBorderColor="#389e5c"
+              fontSize={16}
+              onStopSpinning={() => {
+                setMustSpin(false);
+                setHasSpun(true);
+              }}
+            />
+          </Box>
+        )}
         {hasSpun && result && (
           <div>
             <Typography
