@@ -86,7 +86,9 @@ export default function LuckyPage() {
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
             Feeling lucky?
         </Typography>
-
+        <Typography variant="subtitle1" gutterBottom sx={{ color: '#bbbbbb' }}>
+                   You only get one spin, make it count
+            </Typography>
           <Box sx={{ my: 3 }}>
             <Wheel
               mustStartSpinning={mustSpin}
@@ -106,9 +108,15 @@ export default function LuckyPage() {
           </Box>
 
         {hasSpun && result && (
+            <div>
           <Typography variant="h5" sx={{ mt: 4, fontWeight: 'bold', color: 'primary.main' }}>
-            🎉 You got: <span style={{ textDecoration: 'underline' }}>{result}</span> for Hole {hole}!
+            You got: {result} for Hole {hole}!
           </Typography>
+          <Confetti
+            numberOfPieces={500}
+            recycle={false}
+            />
+          </div>
         )}
 
         {error && (
