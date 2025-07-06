@@ -6,32 +6,15 @@ import { useRouter } from 'next/router';
 import { routes } from '@/utils/constants';
 import Confetti from 'react-confetti'
 
-const hardcodedLabels = [
-  "Double Drink",
-  "Half Score",
-  "Double Score",
-  "Free Choice",
-  "Tequila",
-  "Beer",
-  "Wine",
-  "Cider",
-  "Cocktail",
-  "Spirit w/ Mixer",
-  "Guinness",
-  "Jägerbomb",
-  "VK"
-];
-const outcomeList = hardcodedLabels.map(label => ({ option: label }));
-
 export default function LuckyPage() {
   const router = useRouter();
-  const [outcomes] = useState<{ option: string }[]>(outcomeList);
-  const [result, setResult] = useState<string | null>(null);
+  const [outcomes] = useState(outcomeList);
+  const [result, setResult] = useState(null);
   const [hole, setHole] = useState(null);
-  const [prizeIndex, setPrizeIndex] = useState<number | null>(null);
+  const [prizeIndex, setPrizeIndex] = useState(null);
   const [mustSpin, setMustSpin] = useState(false);
   const [hasSpun, setHasSpun] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
 const handleSpin = async () => {
   setError(null);
