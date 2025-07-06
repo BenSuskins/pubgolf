@@ -6,6 +6,23 @@ import { useRouter } from 'next/router';
 import { routes } from '@/utils/constants';
 import Confetti from 'react-confetti'
 
+const hardcodedLabels = [
+  "Double Drink",
+  "Half Score",
+  "Double Score",
+  "Free Choice",
+  "Tequila",
+  "Beer",
+  "Wine",
+  "Cider",
+  "Cocktail",
+  "Spirit w/ Mixer",
+  "Guinness",
+  "Jägerbomb",
+  "VK"
+];
+const outcomeList = hardcodedLabels.map(label => ({ option: label }));
+
 export default function LuckyPage() {
   const router = useRouter();
   const [outcomes] = useState(outcomeList);
@@ -21,12 +38,6 @@ const handleSpin = async () => {
   try {
     const data = await lucky();
 
-    const hardcodedLabels = [
-      "Double Drink", "Half Score", "Double Score", "Free Choice",
-      "Tequila", "Beer", "Wine", "Cider", "Cocktail",
-      "Spirit w/ Mixer", "Guinness", "Jägerbomb", "VK"
-    ];
-    const outcomeList = hardcodedLabels.map(label => ({ option: label }));
     const index = hardcodedLabels.findIndex(label => label === data.result);
 
     if (index === -1) throw new Error(`Result "${data.result}" not found in outcomes`);
