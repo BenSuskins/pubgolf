@@ -16,6 +16,19 @@ import java.util.*
 import kotlin.test.assertTrue
 
 class ImFeelingLucky : ScenarioTest() {
+    @Test
+    fun `Can get wheel options`() {
+        val response = wheelOptions()
+
+        val body = response.bodyString().asJsonMap()
+        val outcomes = body["options"] as List<String>
+        assertThat(
+            outcomes.size,
+            equalTo(
+                13
+            )
+        )
+    }
 
     @Test
     fun `Can hit the I'm Feeling Lucky Button`() {
@@ -66,27 +79,5 @@ class ImFeelingLucky : ScenarioTest() {
 
         assertThat(body["result"] as String, matches(resultPattern))
         assertThat(body["hole"], equalTo(2))
-
-        val outcomes = body["outcomes"] as List<String>
-        assertThat(
-            outcomes,
-            equalTo(
-                listOf(
-                    "Double Drink",
-                    "Half Score",
-                    "Double Score",
-                    "Free Choice",
-                    "Tequila",
-                    "Beer",
-                    "Wine",
-                    "Cider",
-                    "Cocktail",
-                    "Spirit w/ Mixer",
-                    "Guinness",
-                    "Jägerbomb",
-                    "VK"
-                )
-            )
-        )
     }
 }

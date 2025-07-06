@@ -245,7 +245,7 @@ class GameController(private val gameService: GameService) {
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "200", description = "Game state",
+                responseCode = "200", description = "Lucky result",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -300,7 +300,6 @@ class GameController(private val gameService: GameService) {
                 ImFeelingLuckyResponse(
                     it.result,
                     it.hole,
-                    it.outcomes.map { it.label }
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -308,6 +307,26 @@ class GameController(private val gameService: GameService) {
                 resolveFailure(it)
             }.get()
     }
+
+    @GetMapping("/wheel-options")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "Wheel options",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = OutcomesResponse::class)
+                    )
+                ]
+            )
+        ]
+    )
+    fun wheelOptions(): ResponseEntity<*> {
+        return ResponseEntity.status(OK)
+            .body(OutcomesResponse(Outcomes.entries.map { OutcomeResponse(it.label, it.weight) }))
+    }
+
 
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")

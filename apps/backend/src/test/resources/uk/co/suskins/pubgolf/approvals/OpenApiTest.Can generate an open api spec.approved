@@ -158,7 +158,7 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Game state",
+            "description" : "Lucky result",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -331,6 +331,24 @@
           }
         }
       }
+    },
+    "/api/v1/games/wheel-options" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "wheelOptions",
+        "responses" : {
+          "200" : {
+            "description" : "Wheel options",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OutcomesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -401,15 +419,9 @@
           "hole" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "outcomes" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
           }
         },
-        "required" : [ "hole", "outcomes", "result" ]
+        "required" : [ "hole", "result" ]
       },
       "GameJoinRequest" : {
         "type" : "object",
@@ -508,6 +520,31 @@
           }
         },
         "required" : [ "value" ]
+      },
+      "OutcomeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "option" : {
+            "type" : "string"
+          },
+          "optionSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "option", "optionSize" ]
+      },
+      "OutcomesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OutcomeResponse"
+            }
+          }
+        },
+        "required" : [ "options" ]
       }
     }
   }

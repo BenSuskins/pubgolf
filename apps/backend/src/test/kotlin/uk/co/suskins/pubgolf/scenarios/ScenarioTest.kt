@@ -56,6 +56,13 @@ abstract class ScenarioTest {
             .toEntity(String::class.java)
     }
 
+    fun wheelOptions() = resultFrom {
+        restClient.get()
+            .uri("http://localhost:8080/api/v1/games/wheel-options")
+            .retrieve()
+            .toEntity(String::class.java)
+    }
+
     fun submitScore(gameCode: String?, playerId: String?, hole: Int, score: Int) = resultFrom {
         restClient.post()
             .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/scores")
