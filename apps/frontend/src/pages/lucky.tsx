@@ -79,11 +79,11 @@ export default function LuckyPage() {
               mustStartSpinning={mustSpin}
               prizeNumber={prizeIndex}
               data={outcomes}
-              backgroundColors={['#facc15', '#4ade80']}
-              textColors={['#1f2937']}
+              backgroundColors={['#389e5c', '#4a555a']}
+              textColors={['#fff']}
               spinDuration={0.9}
-              radiusLineColor="#e5e7eb"
-              outerBorderColor="#000000"
+              radiusLineColor="#fff"
+              outerBorderColor="#389e5c"
               fontSize={16}
               onStopSpinning={() => {
                 setMustSpin(false);
