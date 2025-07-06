@@ -105,7 +105,7 @@ const GamePage = () => {
                         sx={{ mb: 2, bgcolor: '#389e5c', '&:hover': { bgcolor: '#45a049' }, width: '200px' }}
                         onClick={handleLucky}
                     >
-                        I'm Feeling Lucky
+                        I&apos;m Feeling Lucky
                     </Button>
                 )}
                 <Button

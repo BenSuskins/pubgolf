@@ -28,10 +28,10 @@ export default function LuckyPage() {
   const [outcomes] = useState(outcomeList);
   const [result, setResult] = useState(null);
   const [hole, setHole] = useState(null);
-  const [prizeIndex, setPrizeIndex] = useState(null);
+  const [prizeIndex, setPrizeIndex] = useState(0);
   const [mustSpin, setMustSpin] = useState(false);
   const [hasSpun, setHasSpun] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
 const handleSpin = async () => {
   setError(null);
