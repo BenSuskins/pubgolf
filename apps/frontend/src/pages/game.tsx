@@ -9,12 +9,6 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import ShareDialog from '../components/ShareDialog';
 import { capitalizeGameCode } from '@/utils/utils';
 
-interface Player {
-    name: string;
-    scores: number[];
-    totalScore: number;
-}
-
 const GamePage = () => {
     const router = useRouter();
     const [players, setPlayers] = useState<Player[]>([]);
@@ -42,6 +36,10 @@ const GamePage = () => {
 
     const handleHowToPlay = () => {
         router.push(routes.RULES);
+    };
+
+    const handleLucky = () => {
+        router.push(routes.LUCKY);
     };
 
     const handleShare = () => {
@@ -105,7 +103,7 @@ const GamePage = () => {
                     <Button
                         variant="contained"
                         sx={{ mb: 2, bgcolor: '#389e5c', '&:hover': { bgcolor: '#45a049' }, width: '200px' }}
-                        onClick={handleHowToPlay}
+                        onClick={handleLucky}
                     >
                         I'm Feeling Lucky
                     </Button>

@@ -45,6 +45,13 @@ export const submitScore = async (hole: number, score: number) => {
   return response.data;
 };
 
+export const lucky = async () => {
+  const gameCode = getGameCode();
+  const playerId = getPlayerId();
+  const response = await api().post(`/api/v1/games/${gameCode}/players/${playerId}/lucky`);
+  return response.data;
+};
+
 export const getGame = async () => {
   const gameCode = getGameCode();
   const response = await api().get(`/api/v1/games/${gameCode}`);

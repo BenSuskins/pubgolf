@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Box, Typography, Paper, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, IconButton, Link } from '@mui/material';
 import CreateGameForm from '../components/CreateGameForm';
 import JoinGameForm from '../components/JoinGameForm';
+import { routes } from '@/utils/constants';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { getGame } from '@/services/api';
@@ -36,7 +37,7 @@ const Home: NextPage = () => {
   };
 
   const handleRejoinGame = () => {
-    router.push('/game');
+    router.push(routes.GAME);
   };
 
   return (

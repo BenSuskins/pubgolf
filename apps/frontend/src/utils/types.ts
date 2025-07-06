@@ -24,6 +24,12 @@ interface ScoreboardTableProps {
     players: Player[];
 }
 
+type LuckyResponse = {
+  result: string;
+  hole: number;
+  outcomes: string[];
+};
+
 interface ShareDialogProps {
     open: boolean;
     onClose: () => void;

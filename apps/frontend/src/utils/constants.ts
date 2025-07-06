@@ -29,4 +29,5 @@ export const routes = {
     GAME: "/game",
     SUBMIT: "/submit-score",
     RULES: "/how-to-play",
+    LUCKY: "/lucky",
 };
