@@ -25,7 +25,7 @@ export default function LuckyPage() {
     try {
       const data = await lucky();
 
-      const index = hardcodedLabels.findIndex(
+      const index = outcomes.findIndex(
         (label) => label.option === data.result,
       );
 
