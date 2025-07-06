@@ -4,10 +4,28 @@ import { lucky } from '../services/api';
 import { Box, Paper, Typography, Button, Alert } from '@mui/material';
 import { useRouter } from 'next/router';
 import { routes } from '@/utils/constants';
+import Confetti from 'react-confetti'
+
+const hardcodedLabels = [
+  "Double Drink",
+  "Half Score",
+  "Double Score",
+  "Free Choice",
+  "Tequila",
+  "Beer",
+  "Wine",
+  "Cider",
+  "Cocktail",
+  "Spirit w/ Mixer",
+  "Guinness",
+  "Jägerbomb",
+  "VK"
+];
+const outcomeList = hardcodedLabels.map(label => ({ option: label }));
 
 export default function LuckyPage() {
   const router = useRouter();
-  const [outcomes, setOutcomes] = useState<{ option: string }[]>([]);
+  const [outcomes] = useState<{ option: string }[]>(outcomeList);
   const [result, setResult] = useState<string | null>(null);
   const [hole, setHole] = useState(null);
   const [prizeIndex, setPrizeIndex] = useState<number | null>(null);
@@ -19,12 +37,10 @@ export default function LuckyPage() {
     setError(null);
     try {
       const data = await lucky();
-      const outcomeList = data.outcomes.map((label: string) => ({ option: label }));
-      const index = data.outcomes.findIndex((label: string) => label === data.result);
+      const index = hardcodedLabels.findIndex((label) => label === data.result);
 
       if (index === -1) throw new Error(`Result "${data.result}" not found in outcomes`);
 
-      setOutcomes(outcomeList);
       setPrizeIndex(index);
       setHole(data.hole);
       setResult(data.result);
@@ -67,11 +83,10 @@ export default function LuckyPage() {
           boxShadow: 3,
         }}
       >
-        <Typography variant="h3" gutterBottom>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
             Feeling lucky?
         </Typography>
 
-        {outcomes.length > 0 && typeof prizeIndex === 'number' && (
           <Box sx={{ my: 3 }}>
             <Wheel
               mustStartSpinning={mustSpin}
@@ -89,7 +104,6 @@ export default function LuckyPage() {
               }}
             />
           </Box>
-        )}
 
         {hasSpun && result && (
           <Typography variant="h5" sx={{ mt: 4, fontWeight: 'bold', color: 'primary.main' }}>
