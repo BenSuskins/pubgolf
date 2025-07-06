@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Wheel } from 'react-custom-roulette';
+const Wheel = dynamic(() => import('react-custom-roulette').then(mod => mod.Wheel), { ssr: false });
 import { lucky } from '../services/api';
 import { Box, Paper, Typography, Button, Alert } from '@mui/material';
 import { useRouter } from 'next/router';
 import { routes } from '@/utils/constants';
-import Confetti from 'react-confetti'
+import dynamic from 'next/dynamic';
+const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 const hardcodedLabels = [
   "Double Drink",
