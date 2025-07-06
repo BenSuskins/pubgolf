@@ -20,7 +20,7 @@
     "react-confetti": "^6.4.0",
     "react-custom-roulette": "^1.4.1",
     "react-dom": "19.1.0",
-    "react-qr-code": "2.0.15"
+    "react-qr-code": "2.0.17"
   },
   "devDependencies": {
     "@types/node": "22.15.22",
