@@ -225,7 +225,6 @@ class GameServiceTest {
 
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }
 
-fun Player.hasInitialScore() =
-    scores == (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { Score(it.value) }
+fun Player.hasInitialScore() = scores == (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { Score(it.value) }
 
 private fun GameCode.isValidGameCode() = value.matches(Regex("[A-Za-z]+\\d{3}"))

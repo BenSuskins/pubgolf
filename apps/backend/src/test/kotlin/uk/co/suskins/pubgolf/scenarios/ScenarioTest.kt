@@ -108,8 +108,7 @@ abstract class ScenarioTest {
 
     fun Result<ResponseEntity<String>, Exception>.playerId() = JSONObject(bodyString()).getString("playerId")!!
 
-    fun String.asJsonMap(): Map<String, Any> =
-        ObjectMapper().readValue(this, object : TypeReference<Map<String, Any>>() {})
+    fun String.asJsonMap(): Map<String, Any> = ObjectMapper().readValue(this, object : TypeReference<Map<String, Any>>() {})
 }
 
 fun String?.asPrettyJson(): String {
