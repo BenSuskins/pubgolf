@@ -102,17 +102,27 @@ data class PersistenceFailure(
 
 fun Game.toJpa(): GameEntity {
     val gameEntity = GameEntity(id.value, code.value)
+
     players.forEach { player ->
         val playerEntity =
             PlayerEntity(
-                player.id.value,
-                player.name.value,
-                gameEntity,
-                player.scores
-                    .mapKeys { it.key.value }
-                    .mapValues { it.value.value }
-                    .toMutableMap(),
+                id = player.id.value,
+                name = player.name.value,
+                game = gameEntity,
             )
+
+        val scoreEntities =
+            player.scores
+                .map { (hole, score) ->
+                    ScoreEntity(
+                        id = ScoreId(playerId = player.id.value, hole = hole.value),
+                        player = playerEntity,
+                        score = score.value,
+                    )
+                }.toMutableList()
+
+        playerEntity.scores.addAll(scoreEntities)
+
         player.lucky?.let { lucky ->
             val luckyEntity =
                 PlayerLuckyEntity(

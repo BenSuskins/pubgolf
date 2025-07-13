@@ -1,9 +1,7 @@
 package uk.co.suskins.pubgolf.models
 
 import jakarta.persistence.CascadeType
-import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
-import jakarta.persistence.ElementCollection
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -11,7 +9,6 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.MapKeyColumn
 import jakarta.persistence.MapsId
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
@@ -44,11 +41,8 @@ data class PlayerEntity(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", nullable = false)
     var game: GameEntity,
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "scores", joinColumns = [JoinColumn(name = "player_id")])
-    @MapKeyColumn(name = "hole")
-    @Column(name = "score")
-    val scores: MutableMap<Int, Int> = mutableMapOf(),
+    @OneToMany(mappedBy = "player", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    val scores: MutableList<ScoreEntity> = mutableListOf(),
     @OneToOne(mappedBy = "player", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var lucky: PlayerLuckyEntity? = null,
 )
@@ -80,6 +74,29 @@ data class PlayerLuckyEntity(
     val created: Instant = Instant.now(),
 )
 
+@Entity
+@Table(name = "scores")
+data class ScoreEntity(
+    @EmbeddedId
+    val id: ScoreId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("playerId")
+    @JoinColumn(name = "player_id")
+    val player: PlayerEntity,
+    @Column(name = "score", nullable = false)
+    val score: Int,
+    @Column(name = "modified", nullable = false, insertable = false, updatable = false)
+    val modified: Instant? = null,
+)
+
+@Embeddable
+data class ScoreId(
+    @Column(name = "player_id")
+    val playerId: UUID,
+    @Column(name = "hole")
+    val hole: Int,
+) : Serializable
+
 fun GameEntity.toDomain(): Game =
     Game(
         id = GameId(id),
@@ -96,7 +113,7 @@ fun GameEntity.toDomain(): Game =
                                 result = Outcomes.valueOf(luckyEntity.outcome),
                             )
                         },
-                    scores = it.scores.mapKeys { Hole(it.key) }.mapValues { Score(it.value) },
+                    scores = it.scores.associate { Hole(it.id.hole) to Score(it.score) },
                 )
             },
     )
