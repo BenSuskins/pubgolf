@@ -7,7 +7,13 @@ import dev.forkhandles.result4k.valueOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
-import uk.co.suskins.pubgolf.models.*
+import uk.co.suskins.pubgolf.models.Game
+import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameId
+import uk.co.suskins.pubgolf.models.GameNotFoundFailure
+import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.models.PlayerId
+import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.service.hasInitialScore
 import uk.co.suskins.pubgolf.service.hasPlayer
 import kotlin.test.Test
@@ -18,13 +24,15 @@ interface GameRepositoryContract {
 
     @Test
     fun `can save and find a game with players`() {
-        val game = Game(
-            id = GameId.random(),
-            code = GameCode("ACE007"),
-            players = listOf(
-                Player(PlayerId.random(), PlayerName("Ben"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players =
+                    listOf(
+                        Player(PlayerId.random(), PlayerName("Ben")),
+                    ),
             )
-        )
 
         val saved = gameRepository.save(game).valueOrNull()!!
         validate(saved, game)
@@ -33,7 +41,10 @@ interface GameRepositoryContract {
         validate(found, game)
     }
 
-    private fun validate(persistedGame: Game, originalGame: Game) {
+    private fun validate(
+        persistedGame: Game,
+        originalGame: Game,
+    ) {
         assertThat(persistedGame, equalTo(originalGame))
         assertThat(persistedGame.id, equalTo(originalGame.id))
         assertThat(persistedGame.players.size, equalTo(1))

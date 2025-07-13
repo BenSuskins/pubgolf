@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertTrue
 
 class GameScoreSubmission : ScenarioTest() {
@@ -62,7 +62,7 @@ class GameScoreSubmission : ScenarioTest() {
     private fun submitScorePlayerDoesNotExist(
         response: Result<ResponseEntity<String>, Exception>,
         playerId: String,
-        gameCode: String
+        gameCode: String,
     ) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("404 Not Found"))

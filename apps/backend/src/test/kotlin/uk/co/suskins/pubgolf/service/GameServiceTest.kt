@@ -8,9 +8,19 @@ import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
-import uk.co.suskins.pubgolf.models.*
+import uk.co.suskins.pubgolf.models.Game
+import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameId
+import uk.co.suskins.pubgolf.models.GameNotFoundFailure
+import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
+import uk.co.suskins.pubgolf.models.PlayerId
+import uk.co.suskins.pubgolf.models.PlayerName
+import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
+import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertTrue
 
 private val gameCode = GameCode("ACE007")
@@ -45,11 +55,12 @@ class GameServiceTest {
 
     @Test
     fun `can join a game`() {
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(Player(PlayerId.random(), host))
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
         gameRepository.save(game)
 
         val result = service.joinGame(gameCode, PlayerName("Megan"))
@@ -74,11 +85,12 @@ class GameServiceTest {
 
     @Test
     fun `fail to join a game with a name that already exists`() {
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(Player(PlayerId.random(), host))
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
         gameRepository.save(game)
 
         val result = service.joinGame(gameCode, host)
@@ -88,11 +100,12 @@ class GameServiceTest {
 
     @Test
     fun `can get the state of a game`() {
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(Player(PlayerId.random(), host))
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
         gameRepository.save(game)
 
         val result = service.gameState(gameCode)
@@ -112,11 +125,12 @@ class GameServiceTest {
     @Test
     fun `can submit a score`() {
         val player = Player(PlayerId.random(), host)
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(player)
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(player),
+            )
         gameRepository.save(game)
 
         val result = service.submitScore(gameCode, player.id, Hole(2), Score(4))
@@ -136,9 +150,9 @@ class GameServiceTest {
                     Hole(6) to Score(0),
                     Hole(7) to Score(0),
                     Hole(8) to Score(0),
-                    Hole(9) to Score(0)
-                )
-            )
+                    Hole(9) to Score(0),
+                ),
+            ),
         )
     }
 
@@ -151,11 +165,12 @@ class GameServiceTest {
 
     @Test
     fun `fail to get submit a score for a player that doesn't exist`() {
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(Player(PlayerId.random(), host))
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
         gameRepository.save(game)
 
         val playerId = PlayerId.random()
@@ -164,15 +179,15 @@ class GameServiceTest {
         assertThat(result, isFailure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `ACE007`.")))
     }
 
-
     @Test
     fun `can use I'm Feeling Lucky`() {
         val player = Player(PlayerId.random(), host)
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(player)
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(player),
+            )
         gameRepository.save(game)
         service.submitScore(gameCode, player.id, Hole(1), Score(5))
 
@@ -193,11 +208,12 @@ class GameServiceTest {
 
     @Test
     fun `fail to use I'm Feeling Lucky for a player that doesn't exist`() {
-        val game = Game(
-            id = GameId.random(),
-            code = gameCode,
-            players = listOf(Player(PlayerId.random(), host))
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
         gameRepository.save(game)
 
         val playerId = PlayerId.random()

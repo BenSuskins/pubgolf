@@ -9,13 +9,13 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class OpenAPIConfig {
     @Bean
-    fun configureSwagger(): OpenAPI {
-        return OpenAPI()
+    fun configureSwagger(): OpenAPI =
+        OpenAPI()
             .info(
-                Info().title("Pub Golf")
+                Info()
+                    .title("Pub Golf")
                     .version("1.0.0")
                     .contact(Contact().name("Ben Suskins").email("development@suskins.co.uk"))
-                    .description("API's to power Pub Golf Application")
+                    .description("API's to power Pub Golf Application"),
             )
-    }
 }

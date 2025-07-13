@@ -60,7 +60,7 @@ class GameState : ScenarioTest() {
 
     private fun validateGame(
         response: Result<ResponseEntity<String>, Exception>,
-        body: Map<String, Any>
+        body: Map<String, Any>,
     ) {
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
 
@@ -71,7 +71,10 @@ class GameState : ScenarioTest() {
         assertThat(players.size, equalTo(10))
     }
 
-    private fun gameStateValid(response: Result<ResponseEntity<String>, Exception>, host: String) {
+    private fun gameStateValid(
+        response: Result<ResponseEntity<String>, Exception>,
+        host: String,
+    ) {
         val body = response.bodyString().asJsonMap()
 
         validateGame(response, body)
@@ -84,7 +87,10 @@ class GameState : ScenarioTest() {
         assertThat(player["totalScore"], equalTo(0))
     }
 
-    private fun gameStateValidScore(response: Result<ResponseEntity<String>, Exception>, host: String) {
+    private fun gameStateValidScore(
+        response: Result<ResponseEntity<String>, Exception>,
+        host: String,
+    ) {
         val body = response.bodyString().asJsonMap()
 
         validateGame(response, body)

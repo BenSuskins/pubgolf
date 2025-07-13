@@ -5,8 +5,9 @@ import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.Hole
 
 @Service
-class GameMetrics(private val registry: MeterRegistry) {
-
+class GameMetrics(
+    private val registry: MeterRegistry,
+) {
     fun gameCreated() {
         registry.counter("pubgolf.game.created").increment()
     }

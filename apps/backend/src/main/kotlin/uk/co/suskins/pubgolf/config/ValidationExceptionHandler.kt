@@ -10,9 +10,10 @@ import uk.co.suskins.pubgolf.models.ErrorResponse
 class ValidationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-        val message = e.bindingResult
-            .fieldErrors
-            .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+        val message =
+            e.bindingResult
+                .fieldErrors
+                .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
 
         return ResponseEntity
             .badRequest()

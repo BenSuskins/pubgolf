@@ -1,9 +1,24 @@
 package uk.co.suskins.pubgolf.models
 
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.CollectionTable
+import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Embeddable
+import jakarta.persistence.EmbeddedId
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.MapKeyColumn
+import jakarta.persistence.MapsId
+import jakarta.persistence.OneToMany
+import jakarta.persistence.OneToOne
+import jakarta.persistence.Table
 import java.io.Serializable
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 @Entity
 @Table(name = "games")
@@ -13,7 +28,7 @@ data class GameEntity(
     val code: String,
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
-    val players: MutableList<PlayerEntity> = mutableListOf()
+    val players: MutableList<PlayerEntity> = mutableListOf(),
 ) {
     fun addPlayer(playerEntity: PlayerEntity) {
         this.players.add(playerEntity)
@@ -35,13 +50,13 @@ data class PlayerEntity(
     @Column(name = "score")
     val scores: MutableMap<Int, Int> = mutableMapOf(),
     @OneToOne(mappedBy = "player", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var lucky: PlayerLuckyEntity? = null
+    var lucky: PlayerLuckyEntity? = null,
 )
 
 @Embeddable
 data class PlayerLuckyId(
     val gameId: UUID = UUID.randomUUID(),
-    val playerId: UUID = UUID.randomUUID()
+    val playerId: UUID = UUID.randomUUID(),
 ) : Serializable
 
 @Entity
@@ -49,41 +64,39 @@ data class PlayerLuckyId(
 data class PlayerLuckyEntity(
     @EmbeddedId
     val id: PlayerLuckyId,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("gameId")
     @JoinColumn(name = "game_id", nullable = false)
     val game: GameEntity,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("playerId")
     @JoinColumn(name = "player_id", nullable = false)
     val player: PlayerEntity,
-
     @Column(name = "hole", nullable = false)
     val hole: Int,
-
     @Column(name = "outcome", nullable = false)
     val outcome: String,
-
     @Column(name = "created", nullable = false)
-    val created: Instant = Instant.now()
+    val created: Instant = Instant.now(),
 )
 
-fun GameEntity.toDomain(): Game = Game(
-    id = GameId(id),
-    code = GameCode(code),
-    players = players.map {
-        Player(
-            id = PlayerId(it.id),
-            name = PlayerName(it.name),
-            lucky = it.lucky?.let { luckyEntity ->
-                Lucky(
-                    hole = Hole(luckyEntity.hole),
-                    result = Outcomes.valueOf(luckyEntity.outcome)
+fun GameEntity.toDomain(): Game =
+    Game(
+        id = GameId(id),
+        code = GameCode(code),
+        players =
+            players.map {
+                Player(
+                    id = PlayerId(it.id),
+                    name = PlayerName(it.name),
+                    lucky =
+                        it.lucky?.let { luckyEntity ->
+                            Lucky(
+                                hole = Hole(luckyEntity.hole),
+                                result = Outcomes.valueOf(luckyEntity.outcome),
+                            )
+                        },
+                    scores = it.scores.mapKeys { Hole(it.key) }.mapValues { Score(it.value) },
                 )
             },
-            scores = it.scores.mapKeys { Hole(it.key) }.mapValues { Score(it.value) })
-
-    }
-)
+    )

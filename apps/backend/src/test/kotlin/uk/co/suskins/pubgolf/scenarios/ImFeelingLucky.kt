@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertTrue
 
 class ImFeelingLucky : ScenarioTest() {
@@ -21,12 +21,12 @@ class ImFeelingLucky : ScenarioTest() {
         val response = wheelOptions()
 
         val body = response.bodyString().asJsonMap()
-        val outcomes = body["options"] as List<String>
+        val outcomes = body["options"] as List<*>
         assertThat(
             outcomes.size,
             equalTo(
-                13
-            )
+                13,
+            ),
         )
     }
 

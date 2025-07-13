@@ -16,7 +16,8 @@ class GameRepositoryFake : GameRepository {
         return Success(game)
     }
 
-    override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> {
-        return store[code]?.let { Success(it) } ?: Failure(GameNotFoundFailure("Game `${code.value}` not found."))
-    }
+    override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> =
+        store[code]?.let {
+            Success(it)
+        } ?: Failure(GameNotFoundFailure("Game `${code.value}` not found."))
 }

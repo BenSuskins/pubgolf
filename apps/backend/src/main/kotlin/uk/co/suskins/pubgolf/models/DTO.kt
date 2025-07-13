@@ -6,12 +6,12 @@ import jakarta.validation.constraints.NotBlank
 
 data class GameRequest(
     @field:NotBlank(message = "Host name must not be blank")
-    val host: PlayerName
+    val host: PlayerName,
 )
 
 data class GameJoinRequest(
     @field:NotBlank(message = "Name must not be blank")
-    val name: PlayerName
+    val name: PlayerName,
 )
 
 data class ScoreRequest(
@@ -20,34 +20,56 @@ data class ScoreRequest(
     val hole: Hole,
     @field:Max(value = 10)
     @field:Min(value = -10)
-    val score: Score
+    val score: Score,
 )
 
 data class CreateGameResponse(
     val gameId: GameId,
     val gameCode: GameCode,
     val playerId: PlayerId,
-    val playerName: PlayerName
+    val playerName: PlayerName,
 )
 
 data class JoinGameResponse(
     val gameId: GameId,
     val gameCode: GameCode,
     val playerId: PlayerId,
-    val playerName: PlayerName
+    val playerName: PlayerName,
 )
 
-data class GameStateResponse(val gameId: GameId, val gameCode: GameCode, val players: List<PlayerResponse>)
-data class ImFeelingLuckyResponse(val result: String, val hole: Hole)
-data class OutcomesResponse(val options: List<OutcomeResponse>)
-data class OutcomeResponse(val option: String, val optionSize: Int)
+data class GameStateResponse(
+    val gameId: GameId,
+    val gameCode: GameCode,
+    val players: List<PlayerResponse>,
+)
+
+data class ImFeelingLuckyResponse(
+    val result: String,
+    val hole: Hole,
+)
+
+data class OutcomesResponse(
+    val options: List<OutcomeResponse>,
+)
+
+data class OutcomeResponse(
+    val option: String,
+    val optionSize: Int,
+)
+
 data class PlayerResponse(
     val id: PlayerId,
     val name: PlayerName,
     val scores: List<Score>,
     val totalScore: Int,
-    val lucky: LuckyResponse?
+    val lucky: LuckyResponse?,
 )
 
-data class LuckyResponse(val hole: Hole, val result: String)
-data class ErrorResponse(val message: String)
+data class LuckyResponse(
+    val hole: Hole,
+    val result: String,
+)
+
+data class ErrorResponse(
+    val message: String,
+)

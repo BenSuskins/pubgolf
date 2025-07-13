@@ -48,7 +48,10 @@ class GameJoining : ScenarioTest() {
         joinedGameFailsSameName(response, name, game.gameCode())
     }
 
-    private fun joinedGameSuccessfully(response: Result<ResponseEntity<String>, Exception>, name: String) {
+    private fun joinedGameSuccessfully(
+        response: Result<ResponseEntity<String>, Exception>,
+        name: String,
+    ) {
         val body = response.bodyString().asJsonMap()
 
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
@@ -68,7 +71,7 @@ class GameJoining : ScenarioTest() {
     private fun joinedGameFailsSameName(
         response: Result<ResponseEntity<String>, Exception>,
         name: String,
-        gameCode: String
+        gameCode: String,
     ) {
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("400 Bad Request"))

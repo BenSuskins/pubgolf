@@ -21,50 +21,72 @@ abstract class ScenarioTest {
     val uuidPattern = Regex("[a-f0-9\\-]{36}", RegexOption.IGNORE_CASE)
     val gameCodePattern = Regex("[A-Z]+\\d{3}")
     val resultPattern =
-        Regex("^(Double Drink|Half Score|Double Score|Free Choice|Tequila|Beer|Wine|Cider|Cocktail|Spirit w/ Mixer|Guinness|Jägerbomb|VK)\$")
+        Regex(
+            "^(Double Drink|Half Score|Double Score|Free Choice|Tequila|Beer|Wine|Cider|Cocktail|Spirit w/ Mixer|Guinness|Jägerbomb|VK)\$",
+        )
 
-    fun createGame(host: String?) = resultFrom {
-        restClient.post()
-            .uri("http://localhost:8080/api/v1/games")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(host?.let { """{ "host": "$host"}""" } ?: "")
-            .retrieve()
-            .toEntity(String::class.java)
-    }
+    fun createGame(host: String?) =
+        resultFrom {
+            restClient
+                .post()
+                .uri("http://localhost:8080/api/v1/games")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(host?.let { """{ "host": "$host"}""" } ?: "")
+                .retrieve()
+                .toEntity(String::class.java)
+        }
 
-    fun joinGame(gameCode: String?, name: String?) = resultFrom {
-        restClient.post()
-            .uri("http://localhost:8080/api/v1/games/${gameCode}/join")
+    fun joinGame(
+        gameCode: String?,
+        name: String?,
+    ) = resultFrom {
+        restClient
+            .post()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/join")
             .contentType(MediaType.APPLICATION_JSON)
             .body(name?.let { """{ "name": "$name"}""" } ?: "")
             .retrieve()
             .toEntity(String::class.java)
     }
 
-    fun gameState(gameCode: String?) = resultFrom {
-        restClient.get()
-            .uri("http://localhost:8080/api/v1/games/${gameCode}")
-            .retrieve()
-            .toEntity(String::class.java)
-    }
+    fun gameState(gameCode: String?) =
+        resultFrom {
+            restClient
+                .get()
+                .uri("http://localhost:8080/api/v1/games/$gameCode")
+                .retrieve()
+                .toEntity(String::class.java)
+        }
 
-    fun imFeelingLucky(gameCode: String?, playerId: String?) = resultFrom {
-        restClient.post()
+    fun imFeelingLucky(
+        gameCode: String?,
+        playerId: String?,
+    ) = resultFrom {
+        restClient
+            .post()
             .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/lucky")
             .contentType(MediaType.APPLICATION_JSON)
             .retrieve()
             .toEntity(String::class.java)
     }
 
-    fun wheelOptions() = resultFrom {
-        restClient.get()
-            .uri("http://localhost:8080/api/v1/games/wheel-options")
-            .retrieve()
-            .toEntity(String::class.java)
-    }
+    fun wheelOptions() =
+        resultFrom {
+            restClient
+                .get()
+                .uri("http://localhost:8080/api/v1/games/wheel-options")
+                .retrieve()
+                .toEntity(String::class.java)
+        }
 
-    fun submitScore(gameCode: String?, playerId: String?, hole: Int, score: Int) = resultFrom {
-        restClient.post()
+    fun submitScore(
+        gameCode: String?,
+        playerId: String?,
+        hole: Int,
+        score: Int,
+    ) = resultFrom {
+        restClient
+            .post()
             .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/scores")
             .contentType(MediaType.APPLICATION_JSON)
             .body("""{"hole": $hole,"score": $score}""")
@@ -80,14 +102,11 @@ abstract class ScenarioTest {
         return game
     }
 
-    fun Result<ResponseEntity<String>, Exception>.bodyString() =
-        valueOrNull()!!.body as String
+    fun Result<ResponseEntity<String>, Exception>.bodyString() = valueOrNull()!!.body as String
 
-    fun Result<ResponseEntity<String>, Exception>.gameCode() =
-        JSONObject(bodyString()).getString("gameCode")!!
+    fun Result<ResponseEntity<String>, Exception>.gameCode() = JSONObject(bodyString()).getString("gameCode")!!
 
-    fun Result<ResponseEntity<String>, Exception>.playerId() =
-        JSONObject(bodyString()).getString("playerId")!!
+    fun Result<ResponseEntity<String>, Exception>.playerId() = JSONObject(bodyString()).getString("playerId")!!
 
     fun String.asJsonMap(): Map<String, Any> =
         ObjectMapper().readValue(this, object : TypeReference<Map<String, Any>>() {})

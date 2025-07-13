@@ -3,26 +3,25 @@ package uk.co.suskins.pubgolf.models
 data class Game(
     val id: GameId,
     val code: GameCode,
-    val players: List<Player>
+    val players: List<Player>,
 )
 
 data class Player(
     val id: PlayerId,
     val name: PlayerName,
     val scores: Map<Hole, Score> = initialScore(),
-    val lucky: Lucky? = null
-
+    val lucky: Lucky? = null,
 ) {
     fun matches(playerId: PlayerId) = id.value == playerId.value
 
     fun updateScore(
         hole: Hole,
-        score: Score
+        score: Score,
     ) = copy(scores = scores + (hole to score))
 
     fun updateLucky(
         hole: Hole,
-        result: Outcomes
+        result: Outcomes,
     ) = copy(lucky = Lucky(hole, result))
 
     companion object {
@@ -32,19 +31,19 @@ data class Player(
 
 data class Lucky(
     val hole: Hole,
-    val result: Outcomes
+    val result: Outcomes,
 )
 
 data class ImFeelingLucky(
     val result: String,
     val hole: Hole,
-    val outcomes: List<Outcomes>
+    val outcomes: List<Outcomes>,
 )
 
 enum class Outcomes(
     val label: String,
     val weight: Int,
-    val description: String
+    val description: String,
 ) {
     DOUBLE_DRINK("Double Drink", 4, "Do double the current hole's drink"),
     HALF_SCORE("Half Score", 2, "Score half of what you actually got"),
@@ -58,7 +57,8 @@ enum class Outcomes(
     SPIRIT_MIXER("Spirit w/ Mixer", 5, "Drink a Spirit w/ Mixer"),
     GUINNESS("Guinness", 5, "Drink a Guinness"),
     JAGERBOMB("Jägerbomb", 5, "Drink a Jägerbomb"),
-    VK("VK", 5, "Drink a VK");
+    VK("VK", 5, "Drink a VK"),
+    ;
 
     companion object {
         fun random(): Outcomes {
@@ -76,32 +76,52 @@ enum class Outcomes(
 
 sealed interface PubGolfFailure {
     val message: String
+
     fun asErrorResponse() = ErrorResponse(message)
 }
 
-data class GameNotFoundFailure(override val message: String) : PubGolfFailure
-data class PlayerAlreadyExistsFailure(override val message: String) : PubGolfFailure
-data class ImFeelingLuckyUsedFailure(override val message: String) : PubGolfFailure
-data class PlayerNotFoundFailure(override val message: String) : PubGolfFailure
-data class PersistenceFailure(override val message: String) : PubGolfFailure
+data class GameNotFoundFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class PlayerAlreadyExistsFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class ImFeelingLuckyUsedFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class PlayerNotFoundFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class PersistenceFailure(
+    override val message: String,
+) : PubGolfFailure
 
 fun Game.toJpa(): GameEntity {
     val gameEntity = GameEntity(id.value, code.value)
     players.forEach { player ->
-        val playerEntity = PlayerEntity(
-            player.id.value,
-            player.name.value,
-            gameEntity,
-            player.scores.mapKeys { it.key.value }.mapValues { it.value.value }.toMutableMap(),
-        )
-        player.lucky?.let { lucky ->
-            val luckyEntity = PlayerLuckyEntity(
-                id = PlayerLuckyId(gameEntity.id, player.id.value),
-                game = gameEntity,
-                player = playerEntity,
-                hole = lucky.hole.value,
-                outcome = lucky.result.name,
+        val playerEntity =
+            PlayerEntity(
+                player.id.value,
+                player.name.value,
+                gameEntity,
+                player.scores
+                    .mapKeys { it.key.value }
+                    .mapValues { it.value.value }
+                    .toMutableMap(),
             )
+        player.lucky?.let { lucky ->
+            val luckyEntity =
+                PlayerLuckyEntity(
+                    id = PlayerLuckyId(gameEntity.id, player.id.value),
+                    game = gameEntity,
+                    player = playerEntity,
+                    hole = lucky.hole.value,
+                    outcome = lucky.result.name,
+                )
             playerEntity.lucky = luckyEntity
         }
         gameEntity.addPlayer(playerEntity)
