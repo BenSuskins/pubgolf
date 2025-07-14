@@ -123,8 +123,7 @@ class GameService(
         playerId: PlayerId,
         game: Game,
     ): Result<ImFeelingLucky, PubGolfFailure> {
-        val lastHole = Hole(1) // todo this
-        val luckyHole = Hole(lastHole.value + 1)
+        val luckyHole = luckyHole(game)
 
         val outcome = Outcomes.random()
 
@@ -146,16 +145,20 @@ class GameService(
             ).also { gameMetrics.imFeelingLuckyUsed() }
         }
     }
-}
 
-private fun hasUsedLucky(
-    game: Game,
-    playerId: PlayerId,
-): Result<Game, PubGolfFailure> {
-    val find = game.players.find { it.id == playerId }
-    return if (find?.lucky == null) {
-        Success(game)
-    } else {
-        Failure(ImFeelingLuckyUsedFailure("ImFeelingLucky already used"))
+    private fun luckyHole(game: Game): Hole {
+        return Hole(2)
+    }
+
+    private fun hasUsedLucky(
+        game: Game,
+        playerId: PlayerId,
+    ): Result<Game, PubGolfFailure> {
+        val find = game.players.find { it.id == playerId }
+        return if (find?.lucky == null) {
+            Success(game)
+        } else {
+            Failure(ImFeelingLuckyUsedFailure("ImFeelingLucky already used"))
+        }
     }
 }
