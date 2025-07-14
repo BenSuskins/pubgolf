@@ -123,31 +123,33 @@ class GameService(
         playerId: PlayerId,
         game: Game,
     ): Result<ImFeelingLucky, PubGolfFailure> {
-        val luckyHole = luckyHole(game)
+        return luckyHole(game).flatMap { luckyHole ->
+            val outcome = Outcomes.random()
 
-        val outcome = Outcomes.random()
-
-        val updatedPlayers =
-            game.players.map {
-                if (it.matches(playerId)) {
-                    it.updateLucky(luckyHole, outcome)
-                } else {
-                    it
+            val updatedPlayers =
+                game.players.map {
+                    if (it.matches(playerId)) {
+                        it.updateLucky(luckyHole, outcome)
+                    } else {
+                        it
+                    }
                 }
+            return gameRepository.save(game.copy(players = updatedPlayers)).flatMap {
+                Success(
+                    ImFeelingLucky(
+                        result = outcome.label,
+                        hole = luckyHole,
+                        outcomes = Outcomes.entries,
+                    ),
+                ).also { gameMetrics.imFeelingLuckyUsed() }
             }
-        return gameRepository.save(game.copy(players = updatedPlayers)).flatMap {
-            Success(
-                ImFeelingLucky(
-                    result = outcome.label,
-                    hole = luckyHole,
-                    outcomes = Outcomes.entries,
-                ),
-            ).also { gameMetrics.imFeelingLuckyUsed() }
         }
     }
 
-    private fun luckyHole(game: Game): Hole {
-        return Hole(2)
+    private fun luckyHole(game: Game): Result<Hole, PubGolfFailure> {
+        // Find most recently updated Hole
+        // If it's 9, return a failure, else return the increment
+        return Success(Hole(2))
     }
 
     private fun hasUsedLucky(
