@@ -149,6 +149,7 @@ class GameService(
     private fun luckyHole(game: Game): Result<Hole, PubGolfFailure> {
         // Find most recently updated Hole
         // If it's 9, return a failure, else return the increment
+        // todo
         return Success(Hole(2))
     }
 
