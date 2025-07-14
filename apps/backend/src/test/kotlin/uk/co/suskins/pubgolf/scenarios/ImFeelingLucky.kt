@@ -6,9 +6,7 @@ import com.natpryce.hamkrest.matches
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
@@ -41,14 +39,15 @@ class ImFeelingLucky : ScenarioTest() {
     }
 
     @Test
-    @Disabled
     fun `Can only hit the I'm Feeling Lucky Button once`() {
         val game = createGame("Jake")
 
         imFeelingLucky(game.gameCode(), game.playerId())
         val response = imFeelingLucky(game.gameCode(), game.playerId())
 
-        assertThat(response.valueOrNull()!!.statusCode, equalTo(CONFLICT))
+        val restClientException = response.get() as RestClientException
+        assertTrue(restClientException.message!!.contains("409 Conflict"))
+        assertTrue(restClientException.message!!.contains("ImFeelingLucky already used"))
     }
 
     @Test

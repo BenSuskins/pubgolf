@@ -13,6 +13,7 @@ import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.ImFeelingLucky
+import uk.co.suskins.pubgolf.models.ImFeelingLuckyUsedFailure
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
@@ -95,9 +96,8 @@ class GameService(
         gameRepository
             .findByCodeIgnoreCase(gameCode)
             .flatMap { hasPlayer(it, playerId) }
-            .flatMap { game ->
-                generateResult(playerId, game)
-            }
+            .flatMap { hasUsedLucky(it, playerId) }
+            .flatMap { game -> generateResult(playerId, game) }
 
     private fun hasPlayer(
         game: Game,
@@ -145,5 +145,17 @@ class GameService(
                 ),
             ).also { gameMetrics.imFeelingLuckyUsed() }
         }
+    }
+}
+
+private fun hasUsedLucky(
+    game: Game,
+    playerId: PlayerId,
+): Result<Game, PubGolfFailure> {
+    val find = game.players.find { it.id == playerId }
+    return if (find?.lucky == null) {
+        Success(game)
+    } else {
+        Failure(ImFeelingLuckyUsedFailure("ImFeelingLucky already used"))
     }
 }
