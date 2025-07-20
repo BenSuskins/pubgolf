@@ -80,6 +80,26 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+tasks.test {
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+tasks.register<Test>("integrationTest") {
+    description = "Run integration tests"
+    group = "verification"
+
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+
+    shouldRunAfter("test")
 }
 
 openApi {

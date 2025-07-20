@@ -4,6 +4,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.valueOrNull
+import org.junit.jupiter.api.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
@@ -61,6 +62,7 @@ interface GameRepositoryContract {
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Tag("integration")
 class GameRepositoryAdapterTest : GameRepositoryContract {
     @Autowired
     lateinit var store: GameJpaRepository
