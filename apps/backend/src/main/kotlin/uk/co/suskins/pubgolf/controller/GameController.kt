@@ -225,8 +225,8 @@ class GameController(
                             PlayerResponse(
                                 it.id,
                                 it.name,
-                                it.scores.map { it.value },
-                                it.scores.map { it.value.value }.sum(),
+                                it.scores.map { it.value.score },
+                                it.scores.map { it.value.score.value }.sum(),
                                 it.lucky?.let {
                                     LuckyResponse(it.hole, it.result.label)
                                 },

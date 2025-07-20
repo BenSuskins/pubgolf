@@ -1,5 +1,7 @@
 package uk.co.suskins.pubgolf.models
 
+import java.time.Instant
+
 data class Game(
     val id: GameId,
     val code: GameCode,
@@ -9,7 +11,7 @@ data class Game(
 data class Player(
     val id: PlayerId,
     val name: PlayerName,
-    val scores: Map<Hole, Score> = initialScore(),
+    val scores: Map<Hole, ScoreWithTimestamp> = initialScore(),
     val lucky: Lucky? = null,
 ) {
     fun matches(playerId: PlayerId) = id.value == playerId.value
@@ -17,7 +19,7 @@ data class Player(
     fun updateScore(
         hole: Hole,
         score: Score,
-    ) = copy(scores = scores + (hole to score))
+    ) = copy(scores = scores + (hole to ScoreWithTimestamp(score)))
 
     fun updateLucky(
         hole: Hole,
@@ -25,9 +27,14 @@ data class Player(
     ) = copy(lucky = Lucky(hole, result))
 
     companion object {
-        fun initialScore() = (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { Score(it.value) }
+        fun initialScore() = (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { ScoreWithTimestamp(Score(it.value)) }
     }
 }
+
+data class ScoreWithTimestamp(
+    val score: Score,
+    val instant: Instant? = null,
+)
 
 data class Lucky(
     val hole: Hole,
@@ -117,7 +124,7 @@ fun Game.toJpa(): GameEntity {
                     ScoreEntity(
                         id = ScoreId(playerId = player.id.value, hole = hole.value),
                         player = playerEntity,
-                        score = score.value,
+                        score = score.score.value,
                     )
                 }.toMutableList()
 

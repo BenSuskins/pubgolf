@@ -113,7 +113,14 @@ fun GameEntity.toDomain(): Game =
                                 result = Outcomes.valueOf(luckyEntity.outcome),
                             )
                         },
-                    scores = it.scores.associate { Hole(it.id.hole) to Score(it.score) },
+                    scores =
+                        it.scores.associate {
+                            Hole(it.id.hole) to
+                                ScoreWithTimestamp(
+                                    Score(it.score),
+                                    it.modified,
+                                )
+                        },
                 )
             },
     )
