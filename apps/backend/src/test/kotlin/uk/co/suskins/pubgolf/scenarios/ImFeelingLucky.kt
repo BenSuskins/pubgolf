@@ -84,5 +84,4 @@ class ImFeelingLucky : ScenarioTest() {
         assertTrue(restClientException.message!!.contains("404 Not Found"))
         assertTrue(restClientException.message!!.contains("Player `$playerId` not found for game `${game.gameCode()}`."))
     }
-
 }
