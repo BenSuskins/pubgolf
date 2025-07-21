@@ -38,7 +38,8 @@ export default function LuckyPage() {
     } catch (err: any) {
       console.error(err);
       if (err?.response?.status === 409) {
-        setError("You have already used your spin.");
+        console.log(err)
+        setError(err.response.data.message);
         setHasSpun(true);
       } else {
         setError(err.message || "Something went wrong");
