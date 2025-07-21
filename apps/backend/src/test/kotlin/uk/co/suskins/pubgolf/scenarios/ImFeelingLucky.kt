@@ -47,6 +47,7 @@ class ImFeelingLucky : ScenarioTest() {
         val response = imFeelingLucky(game.gameCode(), game.playerId())
 
         val restClientException = response.get() as RestClientException
+        println(restClientException)
         assertTrue(restClientException.message!!.contains("409 Conflict"))
         assertTrue(restClientException.message!!.contains("ImFeelingLucky already used"))
     }
