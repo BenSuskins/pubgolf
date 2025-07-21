@@ -124,6 +124,8 @@ fun Game.toJpa(): GameEntity {
 
         val scoreEntities =
             player.scores
+                .toList()
+                .sortedBy { (hole, _) -> hole.value }
                 .map { (hole, score) ->
                     ScoreEntity(
                         id = ScoreId(playerId = player.id.value, hole = hole.value),
