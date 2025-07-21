@@ -156,7 +156,7 @@ class GameService(
 
         val mostRecentHole = mostRecent?.key!!
         return if (mostRecentHole.value == 9) {
-            Failure(ImFeelingLuckyUsedFailure("No holes left"))
+            Failure(ImFeelingLuckyUsedFailure("No more holes left"))
         } else {
             Success(Hole(mostRecentHole.value + 1))
         }

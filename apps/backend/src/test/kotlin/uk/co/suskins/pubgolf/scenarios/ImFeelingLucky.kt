@@ -52,6 +52,19 @@ class ImFeelingLucky : ScenarioTest() {
     }
 
     @Test
+    fun `Can't use the I'm Feeling Lucky Button when your last hole was 9`() {
+        val game = createGame("Jake")
+        submitScore(game.gameCode(), game.playerId(), 9, 2)
+
+        imFeelingLucky(game.gameCode(), game.playerId())
+        val response = imFeelingLucky(game.gameCode(), game.playerId())
+
+        val restClientException = response.get() as RestClientException
+        assertTrue(restClientException.message!!.contains("409 Conflict"))
+        assertTrue(restClientException.message!!.contains("No more holes left"))
+    }
+
+    @Test
     fun `Can't use I'm Feeling Lucky Button for a game that doesn't exist`() {
         val response = submitScore("random-game-code", UUID.randomUUID().toString(), 1, 1)
 
