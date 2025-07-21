@@ -3,12 +3,10 @@ package uk.co.suskins.pubgolf.scenarios
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.matches
-import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.OK
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestClientException
 import java.util.UUID
 import kotlin.test.assertTrue
@@ -31,11 +29,14 @@ class ImFeelingLucky : ScenarioTest() {
     @Test
     fun `Can hit the I'm Feeling Lucky Button`() {
         val game = createGame("Ben")
-        submitScore(game.gameCode(), game.playerId(), 1, 0)
+        submitScore(game.gameCode(), game.playerId(), 5, 0)
 
         val response = imFeelingLucky(game.gameCode(), game.playerId())
 
-        imFeelingLuckyValid(response)
+        val body = response.bodyString().asJsonMap()
+        assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
+        assertThat(body["result"] as String, matches(resultPattern))
+        assertThat(body["hole"], equalTo(6))
     }
 
     @Test
@@ -71,12 +72,4 @@ class ImFeelingLucky : ScenarioTest() {
         assertTrue(restClientException.message!!.contains("Player `$playerId` not found for game `${game.gameCode()}`."))
     }
 
-    private fun imFeelingLuckyValid(response: Result<ResponseEntity<String>, Exception>) {
-        val body = response.bodyString().asJsonMap()
-
-        assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
-
-        assertThat(body["result"] as String, matches(resultPattern))
-        assertThat(body["hole"], equalTo(2))
-    }
 }
