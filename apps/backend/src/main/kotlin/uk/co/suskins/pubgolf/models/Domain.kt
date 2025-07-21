@@ -19,7 +19,7 @@ data class Player(
     fun updateScore(
         hole: Hole,
         score: Score,
-    ) = copy(scores = scores + (hole to ScoreWithTimestamp(score)))
+    ) = copy(scores = scores + (hole to ScoreWithTimestamp(score, Instant.now())))
 
     fun updateLucky(
         hole: Hole,
@@ -27,13 +27,17 @@ data class Player(
     ) = copy(lucky = Lucky(hole, result))
 
     companion object {
-        fun initialScore() = (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { ScoreWithTimestamp(Score(it.value)) }
+        fun initialScore() =
+            (1..9)
+                .associateWith { 0 }
+                .mapKeys { Hole(it.key) }
+                .mapValues { ScoreWithTimestamp(Score(it.value), Instant.now()) }
     }
 }
 
 data class ScoreWithTimestamp(
     val score: Score,
-    val instant: Instant? = null,
+    var instant: Instant,
 )
 
 data class Lucky(
@@ -125,6 +129,7 @@ fun Game.toJpa(): GameEntity {
                         id = ScoreId(playerId = player.id.value, hole = hole.value),
                         player = playerEntity,
                         score = score.score.value,
+                        modified = score.instant,
                     )
                 }.toMutableList()
 

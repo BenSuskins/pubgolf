@@ -22,6 +22,7 @@ import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.Score
+import uk.co.suskins.pubgolf.models.ScoreWithTimestamp
 import uk.co.suskins.pubgolf.repository.GameRepository
 
 @Service
@@ -123,7 +124,7 @@ class GameService(
         playerId: PlayerId,
         game: Game,
     ): Result<ImFeelingLucky, PubGolfFailure> {
-        return luckyHole(game).flatMap { luckyHole ->
+        return luckyHole(game, playerId).flatMap { luckyHole ->
             val outcome = Outcomes.random()
 
             val updatedPlayers =
@@ -146,11 +147,23 @@ class GameService(
         }
     }
 
-    private fun luckyHole(game: Game): Result<Hole, PubGolfFailure> {
-        // Find most recently updated Hole
-        // If it's 9, return a failure, else return the increment
-        // todo
-        return Success(Hole(2))
+    private fun luckyHole(
+        game: Game,
+        playerId: PlayerId,
+    ): Result<Hole, PubGolfFailure> {
+        val scores = game.players.first { it.id == playerId }.scores
+
+        val mostRecent: Map.Entry<Hole, ScoreWithTimestamp>? =
+            scores
+                .filter { it.value.instant != null }
+                .maxByOrNull { it.value.instant!! }
+
+        val mostRecentHole = mostRecent?.key!!
+        return if (mostRecentHole.value == 9) {
+            Failure(ImFeelingLuckyUsedFailure("No holes left"))
+        } else {
+            Success(Hole(mostRecentHole.value + 1))
+        }
     }
 
     private fun hasUsedLucky(

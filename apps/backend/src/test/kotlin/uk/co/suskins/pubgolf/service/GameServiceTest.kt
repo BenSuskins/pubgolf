@@ -19,7 +19,6 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.Score
-import uk.co.suskins.pubgolf.models.ScoreWithTimestamp
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import java.util.UUID
 import kotlin.test.assertTrue
@@ -140,18 +139,21 @@ class GameServiceTest {
 
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
         assertThat(
-            updatedGame.players.find { it.name == host }!!.scores,
+            updatedGame.players
+                .find { it.name == host }!!
+                .scores
+                .mapValues { it.value.score },
             equalTo(
                 mapOf(
-                    Hole(1) to ScoreWithTimestamp(Score(0)),
-                    Hole(2) to ScoreWithTimestamp(Score(4)),
-                    Hole(3) to ScoreWithTimestamp(Score(0)),
-                    Hole(4) to ScoreWithTimestamp(Score(0)),
-                    Hole(5) to ScoreWithTimestamp(Score(0)),
-                    Hole(6) to ScoreWithTimestamp(Score(0)),
-                    Hole(7) to ScoreWithTimestamp(Score(0)),
-                    Hole(8) to ScoreWithTimestamp(Score(0)),
-                    Hole(9) to ScoreWithTimestamp(Score(0)),
+                    Hole(1) to Score(0),
+                    Hole(2) to Score(4),
+                    Hole(3) to Score(0),
+                    Hole(4) to Score(0),
+                    Hole(5) to Score(0),
+                    Hole(6) to Score(0),
+                    Hole(7) to Score(0),
+                    Hole(8) to Score(0),
+                    Hole(9) to Score(0),
                 ),
             ),
         )
@@ -227,6 +229,10 @@ class GameServiceTest {
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }
 
 fun Player.hasInitialScore() =
-    scores == (1..9).associateWith { 0 }.mapKeys { Hole(it.key) }.mapValues { ScoreWithTimestamp(Score(it.value)) }
+    scores.mapValues { it.value.score } ==
+        (1..9)
+            .associateWith { 0 }
+            .mapKeys { Hole(it.key) }
+            .mapValues { (Score(it.value)) }
 
 private fun GameCode.isValidGameCode() = value.matches(Regex("[A-Za-z]+\\d{3}"))

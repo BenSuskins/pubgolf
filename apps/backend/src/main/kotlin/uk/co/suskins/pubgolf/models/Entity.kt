@@ -85,8 +85,8 @@ data class ScoreEntity(
     val player: PlayerEntity,
     @Column(name = "score", nullable = false)
     val score: Int,
-    @Column(name = "modified", nullable = false, insertable = false, updatable = false)
-    val modified: Instant? = null,
+    @Column(name = "modified", nullable = false)
+    var modified: Instant,
 )
 
 @Embeddable
