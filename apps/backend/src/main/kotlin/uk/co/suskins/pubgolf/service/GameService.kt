@@ -22,7 +22,6 @@ import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.Score
-import uk.co.suskins.pubgolf.models.ScoreWithTimestamp
 import uk.co.suskins.pubgolf.repository.GameRepository
 
 @Service
@@ -153,10 +152,7 @@ class GameService(
     ): Result<Hole, PubGolfFailure> {
         val scores = game.players.first { it.id == playerId }.scores
 
-        val mostRecent: Map.Entry<Hole, ScoreWithTimestamp>? =
-            scores
-                .filter { it.value.instant != null }
-                .maxByOrNull { it.value.instant!! }
+        val mostRecent = scores.maxByOrNull { it.value.instant }
 
         val mostRecentHole = mostRecent?.key!!
         return if (mostRecentHole.value == 9) {
