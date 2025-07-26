@@ -26,10 +26,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build application
-        run: |
-          ./gradlew apps:backend:build --no-build-cache --no-daemon
-
       - name: Build and push Docker image
         run: |
           COMMIT_SHA=${GITHUB_SHA::7}
