@@ -28,7 +28,7 @@ jobs:
 
       - name: Build backend
         run: |
-            •/gradlew apps: backend:build --no-build-cache --no-daemon -X test
+            ./gradlew apps: backend:build --no-build-cache --no-daemon -X test
 
       - name: Build and push Docker image
         run: |
