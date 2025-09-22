@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.1.21"
     id("java-test-fixtures")
     kotlin("plugin.spring") version "2.1.21"
-    id("org.springframework.boot") version "3.5.3"
+    id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.1.21"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
