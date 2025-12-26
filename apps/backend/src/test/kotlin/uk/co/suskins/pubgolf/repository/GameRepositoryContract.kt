@@ -6,6 +6,7 @@ import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Tag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import uk.co.suskins.pubgolf.models.Game
@@ -61,6 +62,7 @@ interface GameRepositoryContract {
 }
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @Tag("integration")
 class GameRepositoryAdapterTest : GameRepositoryContract {
