@@ -11,7 +11,14 @@ class ApiError extends Error {
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const message = await response.text().catch(() => 'Request failed');
+    const text = await response.text().catch(() => '');
+    let message = 'Request failed';
+    try {
+      const json = JSON.parse(text);
+      message = json.message || text || 'Request failed';
+    } catch {
+      message = text || 'Request failed';
+    }
     throw new ApiError(response.status, message);
   }
 
