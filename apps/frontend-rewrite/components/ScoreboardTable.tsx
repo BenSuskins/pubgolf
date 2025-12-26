@@ -57,14 +57,27 @@ export function ScoreboardTable({ players }: ScoreboardTableProps) {
               <td className="sticky left-0 bg-[var(--color-surface)] px-3 py-2 font-medium">
                 {player.name}
               </td>
-              {player.scores.map((score, i) => (
-                <td
-                  key={i}
-                  className={`px-3 py-2 text-center ${getScoreColor(score, i)}`}
-                >
-                  {score ?? '-'}
-                </td>
-              ))}
+              {player.scores.map((score, i) => {
+                const isLuckyHole = player.lucky && player.lucky.hole === i + 1;
+                return (
+                  <td
+                    key={i}
+                    className={`px-3 py-2 text-center ${getScoreColor(score, i)}`}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {score ?? '-'}
+                      {isLuckyHole && (
+                        <span
+                          title={player.lucky!.result}
+                          className="cursor-help text-[var(--color-primary)]"
+                        >
+                          🎲
+                        </span>
+                      )}
+                    </span>
+                  </td>
+                );
+              })}
               <td className="px-3 py-2 text-center font-semibold">{player.totalScore}</td>
             </tr>
           ))}

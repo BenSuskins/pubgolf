@@ -1,8 +1,14 @@
+export interface Lucky {
+  hole: number;
+  result: string;
+}
+
 export interface Player {
   id: string;
   name: string;
   scores: (number | null)[];
   totalScore: number;
+  lucky: Lucky | null;
 }
 
 export interface GameState {
