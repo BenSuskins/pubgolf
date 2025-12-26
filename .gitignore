@@ -79,3 +79,4 @@ yarn-error.log*
 next-env.d.ts
 /apps/frontend/.next/
 /apps/frontend/public/__ENV.js
+CLAUDE.md
