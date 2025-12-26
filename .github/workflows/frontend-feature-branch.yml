@@ -22,10 +22,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Set up Node
         uses: oven-sh/setup-bun@v2
         with:
