@@ -80,7 +80,7 @@ export default function GamePage() {
               onClick={() => setShowShareModal(true)}
               className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors text-sm"
             >
-              Share Game Invite
+              Invite friends
             </button>
           </div>
         </header>
