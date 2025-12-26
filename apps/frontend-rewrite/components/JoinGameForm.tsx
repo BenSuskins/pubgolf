@@ -81,7 +81,7 @@ export function JoinGameForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium rounded-md transition-colors"
+        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
       >
         {loading ? 'Joining...' : 'Join Game'}
       </button>
