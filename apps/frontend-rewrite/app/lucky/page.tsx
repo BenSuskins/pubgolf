@@ -108,44 +108,48 @@ export default function LuckyPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-6 text-center">
-        <h1 className="text-2xl font-bold">I&apos;m Feeling Lucky</h1>
-        <p className="text-[var(--color-text-secondary)]">
-          Spin the wheel to get a random challenge!
-        </p>
-
-        <div className="flex justify-center">
-          <Wheel
-            mustStartSpinning={mustSpin}
-            prizeNumber={prizeIndex}
-            data={wheelData}
-            backgroundColors={['var(--color-primary)', '#4b5563']}
-            textColors={['#fff']}
-            spinDuration={0.9}
-            radiusLineColor="#fff"
-            outerBorderColor="var(--color-primary)"
-            fontSize={14}
-            onStopSpinning={() => {
-              setMustSpin(false);
-              setHasSpun(true);
-            }}
-          />
+      <div className="max-w-md w-full space-y-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">I&apos;m Feeling Lucky</h1>
+          <p className="text-[var(--color-text-secondary)]">
+            Spin the wheel to get a random challenge!
+          </p>
         </div>
 
-        {hasSpun && result && (
-          <div className="space-y-2">
-            <Confetti numberOfPieces={500} recycle={false} />
-            <p className="text-xl font-bold text-[var(--color-primary)]">
-              You got: {result} for Hole {hole}!
-            </p>
+        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6 space-y-6 text-center">
+          <div className="flex justify-center">
+            <Wheel
+              mustStartSpinning={mustSpin}
+              prizeNumber={prizeIndex}
+              data={wheelData}
+              backgroundColors={['var(--color-primary)', '#4b5563']}
+              textColors={['#fff']}
+              spinDuration={0.9}
+              radiusLineColor="#fff"
+              outerBorderColor="var(--color-primary)"
+              fontSize={14}
+              onStopSpinning={() => {
+                setMustSpin(false);
+                setHasSpun(true);
+              }}
+            />
           </div>
-        )}
 
-        {error && (
-          <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-md">
-            {error}
-          </div>
-        )}
+          {hasSpun && result && (
+            <div className="space-y-2">
+              <Confetti numberOfPieces={500} recycle={false} />
+              <p className="text-xl font-bold text-[var(--color-primary)]">
+                You got: {result} for Hole {hole}!
+              </p>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-md">
+              {error}
+            </div>
+          )}
+        </div>
 
         <div className="space-y-3">
           <button
