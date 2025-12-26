@@ -55,12 +55,12 @@ export default function SubmitScorePage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Submit Score</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-[var(--color-text-secondary)]">
             Record your score for a hole
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 p-6 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg">
           <div>
             <label htmlFor="hole" className="block text-sm font-medium mb-1">
               Hole
@@ -69,7 +69,7 @@ export default function SubmitScorePage() {
               id="hole"
               value={hole}
               onChange={(e) => setHole(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               disabled={loading}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((h) => (
@@ -92,27 +92,27 @@ export default function SubmitScorePage() {
               placeholder="Enter score"
               min={-10}
               max={10}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1">
               Score must be between -10 and 10
             </p>
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-[var(--color-error)] text-sm">{error}</p>}
 
           <div className="flex gap-3">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-md transition-colors"
+              className="flex-1 py-2 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-[var(--color-primary-disabled)] text-white font-medium rounded-md transition-colors"
             >
               {loading ? 'Submitting...' : 'Submit'}
             </button>
             <Link
               href="/game"
-              className="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 text-center font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="flex-1 py-2 px-4 bg-[var(--color-surface)] border border-[var(--color-border)] text-center font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
             >
               Cancel
             </Link>

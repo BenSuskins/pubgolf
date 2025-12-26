@@ -47,7 +47,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 space-y-4">
+      <div className="bg-[var(--color-surface)] rounded-lg p-6 max-w-sm w-full mx-4 space-y-4">
         <h2 className="text-xl font-bold text-center">Share Game</h2>
 
         <div className="flex justify-center">
@@ -62,20 +62,20 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Game Code</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Game Code</p>
           <p className="text-2xl font-bold tracking-wider">{gameCode.toUpperCase()}</p>
         </div>
 
         <div className="space-y-2">
           <button
             onClick={handleCopy}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+            className="w-full py-2 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-md transition-colors"
           >
             {copied ? 'Copied!' : 'Copy Invite Link'}
           </button>
           <button
             onClick={onClose}
-            className="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="w-full py-2 px-4 border border-[var(--color-border)] font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             Close
           </button>

@@ -49,7 +49,7 @@ export default function GamePage() {
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading game...</p>
+        <p className="text-[var(--color-text-secondary)]">Loading game...</p>
       </main>
     );
   }
@@ -57,8 +57,8 @@ export default function GamePage() {
   if (error) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-4">
-        <p className="text-red-500">{error}</p>
-        <Link href="/" className="text-blue-600 hover:underline">
+        <p className="text-[var(--color-error)]">{error}</p>
+        <Link href="/" className="text-[var(--color-primary)] hover:underline">
           Back to Home
         </Link>
       </main>
@@ -71,21 +71,21 @@ export default function GamePage() {
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Game: {gameCode.toUpperCase()}</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+            <p className="text-[var(--color-text-secondary)] text-sm">
               Share this code with friends to join
             </p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setShowShareModal(true)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm"
+              className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors text-sm"
             >
               Share Game Invite
             </button>
           </div>
         </header>
 
-        <section className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
           <ScoreboardTable players={players} />
         </section>
 
@@ -94,13 +94,13 @@ export default function GamePage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/submit-score"
-                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-md transition-colors"
+                className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
               >
                 Submit Score
               </Link>
               <Link
                 href="/lucky"
-                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-md transition-colors"
+                className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
               >
                 I&apos;m Feeling Lucky
               </Link>
@@ -108,7 +108,7 @@ export default function GamePage() {
           )}
           <Link
             href="/how-to-play"
-            className="block py-3 px-4 border border-gray-300 dark:border-gray-600 text-center font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="block py-3 px-4 bg-[var(--color-surface)] border border-[var(--color-border)] text-center font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             How to Play
           </Link>

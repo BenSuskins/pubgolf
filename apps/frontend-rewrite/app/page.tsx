@@ -21,16 +21,16 @@ function HomeContent() {
     <div className="w-full max-w-md space-y-8">
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-2">Pub Golf</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-[var(--color-text-secondary)]">
           Track your pub golf scores with friends
         </p>
       </div>
 
       <div className="space-y-3">
-        <section className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
           <button
             onClick={() => toggleSection('create')}
-            className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="w-full p-4 flex items-center justify-between text-left hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             <span className="text-xl font-semibold">Create a Game</span>
             <svg
@@ -43,7 +43,7 @@ function HomeContent() {
             </svg>
           </button>
           {activeSection === 'create' && (
-            <div className="p-4 pt-0 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 pt-0 border-t border-[var(--color-border)]">
               <div className="pt-4">
                 <CreateGameForm />
               </div>
@@ -51,10 +51,10 @@ function HomeContent() {
           )}
         </section>
 
-        <section className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
           <button
             onClick={() => toggleSection('join')}
-            className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="w-full p-4 flex items-center justify-between text-left hover:bg-[var(--color-surface-hover)] transition-colors"
           >
             <span className="text-xl font-semibold">Join a Game</span>
             <svg
@@ -67,7 +67,7 @@ function HomeContent() {
             </svg>
           </button>
           {activeSection === 'join' && (
-            <div className="p-4 pt-0 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 pt-0 border-t border-[var(--color-border)]">
               <div className="pt-4">
                 <JoinGameForm />
               </div>
@@ -76,11 +76,11 @@ function HomeContent() {
         </section>
       </div>
 
-      <hr className="border-gray-200 dark:border-gray-700" />
+      <hr className="border-[var(--color-border)]" />
 
       <Link
         href="/how-to-play"
-        className="block w-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg text-xl font-semibold text-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="block w-full p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-xl font-semibold text-center hover:bg-[var(--color-surface-hover)] transition-colors"
       >
         How to Play
       </Link>
@@ -91,7 +91,7 @@ function HomeContent() {
 export default function HomePage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4">
-      <Suspense fallback={<div className="text-gray-500">Loading...</div>}>
+      <Suspense fallback={<div className="text-[var(--color-text-secondary)]">Loading...</div>}>
         <HomeContent />
       </Suspense>
     </main>
