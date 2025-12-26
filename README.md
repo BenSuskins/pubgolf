@@ -81,7 +81,7 @@ Planned enhancements and production improvements.
 
 ## 🚀 New Features
 
-- [ ] Final scorecard export (JSON or styled PDF)
+- [ ] Final scorecard export image
 - [ ] Game state tracking: In Progress / Finished
 - [x] QR code for joining games
 - [ ] Bonus/penalty rule system
@@ -103,7 +103,6 @@ Planned enhancements and production improvements.
 
 - [ ] Admin endpoints for game reset and cleanup
 - [ ] Multi-stage Docker builds with non-root users
-- [ ] Deployment manifests for Docker Compose / K8s
 - [ ] Feature toggles for WIP functionality
 - [ ] Linting
 - [x] Tiny Types
