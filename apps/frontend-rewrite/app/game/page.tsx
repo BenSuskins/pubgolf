@@ -80,13 +80,7 @@ export default function GamePage() {
               }}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm"
             >
-              Copy Code
-            </button>
-            <button
-              onClick={fetchGame}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm"
-            >
-              Refresh
+              Share Game Invite
             </button>
           </div>
         </header>
