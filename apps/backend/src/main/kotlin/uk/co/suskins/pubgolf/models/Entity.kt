@@ -114,15 +114,15 @@ fun GameEntity.toDomain(): Game =
                             )
                         },
                     scores =
-										    it.scores
-										        .sortedBy { it.id.hole }
-										        .associateTo(LinkedHashMap()) {
-										            Hole(it.id.hole) to
-										                ScoreWithTimestamp(
-										                    Score(it.score),
-										                    it.modified,
-										                )
-										        },
+                        it.scores
+                            .sortedBy { it.id.hole }
+                            .associateTo(LinkedHashMap()) {
+                                Hole(it.id.hole) to
+                                    ScoreWithTimestamp(
+                                        Score(it.score),
+                                        it.modified,
+                                    )
+                            },
                 )
             },
     )
