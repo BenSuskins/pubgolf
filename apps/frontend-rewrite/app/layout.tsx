@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Pub Golf",
-  description: "Track your pub golf scores with friends",
+  description: "Track your Pub Golf scores here!",
 };
 
 export default function RootLayout({

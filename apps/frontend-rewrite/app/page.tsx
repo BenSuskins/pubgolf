@@ -22,7 +22,10 @@ function HomeContent() {
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-2">Pub Golf</h1>
         <p className="text-[var(--color-text-secondary)]">
-          Track your pub golf scores with friends
+          Track your Pub Golf scores here!
+        </p>
+        <p className="text-[var(--color-text-secondary)]">
+          Create or join a game to play
         </p>
       </div>
 
@@ -34,7 +37,7 @@ function HomeContent() {
           >
             <span className="text-xl font-semibold">Create a Game</span>
             <svg
-              className={`w-5 h-5 transition-transform ${activeSection === 'create' ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 transition-transform duration-200 ${activeSection === 'create' ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -42,13 +45,18 @@ function HomeContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          {activeSection === 'create' && (
-            <div className="p-4 pt-0 border-t border-[var(--color-border)]">
-              <div className="pt-4">
-                <CreateGameForm />
+          <div
+            className="grid transition-[grid-template-rows] duration-200 ease-out"
+            style={{ gridTemplateRows: activeSection === 'create' ? '1fr' : '0fr' }}
+          >
+            <div className="overflow-hidden">
+              <div className="p-4 pt-0 border-t border-[var(--color-border)]">
+                <div className="pt-4">
+                  <CreateGameForm />
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </section>
 
         <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
@@ -58,7 +66,7 @@ function HomeContent() {
           >
             <span className="text-xl font-semibold">Join a Game</span>
             <svg
-              className={`w-5 h-5 transition-transform ${activeSection === 'join' ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 transition-transform duration-200 ${activeSection === 'join' ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -66,13 +74,18 @@ function HomeContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          {activeSection === 'join' && (
-            <div className="p-4 pt-0 border-t border-[var(--color-border)]">
-              <div className="pt-4">
-                <JoinGameForm />
+          <div
+            className="grid transition-[grid-template-rows] duration-200 ease-out"
+            style={{ gridTemplateRows: activeSection === 'join' ? '1fr' : '0fr' }}
+          >
+            <div className="overflow-hidden">
+              <div className="p-4 pt-0 border-t border-[var(--color-border)]">
+                <div className="pt-4">
+                  <JoinGameForm />
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </section>
       </div>
 
