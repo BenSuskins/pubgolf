@@ -7,9 +7,6 @@ setup:
 backend:
 	./gradlew apps:backend:bootRun --args='--spring.profiles.active=local'
 
-database:
-	podman compose up -d db
-
 backend-test:
 	./gradlew test
 

@@ -1,22 +1,12 @@
 services:
-  db:
-    image: postgres:17
-    container_name: pubgolf-db
-    environment:
-      POSTGRES_USER: pubgolf
-      POSTGRES_PASSWORD: pubgolf
-      POSTGRES_DB: pubgolf
-    ports:
-      - "5432:5432"
-
   backend:
     build:
       context: ./apps/backend
     container_name: pubgolf-backend
     ports:
       - "8080:8080"
-    depends_on:
-      - db
+    volumes:
+      - pubgolf-data:/data
 
   frontend:
     build:
@@ -28,3 +18,6 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+
+volumes:
+  pubgolf-data:

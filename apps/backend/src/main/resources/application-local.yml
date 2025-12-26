@@ -2,10 +2,8 @@ spring:
   jpa:
     show-sql: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/pubgolf
-    username: pubgolf
-    password: pubgolf
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:sqlite:./pubgolf.db
+    driver-class-name: org.sqlite.JDBC
 
 logging:
   level:
@@ -15,3 +13,4 @@ logging:
 application:
   origins:
     - http://localhost:3000
+    - http://192.168.18.47:3000

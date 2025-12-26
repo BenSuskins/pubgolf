@@ -1,10 +1,10 @@
-ALTER TABLE scores ADD COLUMN modified TIMESTAMP NOT NULL DEFAULT now();
+ALTER TABLE scores ADD COLUMN modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 CREATE TABLE player_lucky (
-    game_id UUID NOT NULL REFERENCES games(id),
-    player_id UUID NOT NULL REFERENCES players(id),
+    game_id BLOB NOT NULL REFERENCES games(id),
+    player_id BLOB NOT NULL REFERENCES players(id),
     hole INTEGER NOT NULL,
     outcome TEXT NOT NULL,
-    created TIMESTAMP NOT NULL DEFAULT now(),
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (game_id, player_id)
 );
