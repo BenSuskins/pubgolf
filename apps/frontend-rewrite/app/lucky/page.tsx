@@ -89,7 +89,7 @@ export default function LuckyPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-full flex items-center justify-center">
         <p className="text-[var(--color-text-secondary)]">Loading wheel...</p>
       </main>
     );
@@ -97,7 +97,7 @@ export default function LuckyPage() {
 
   if (wheelData.length === 0) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-4">
+      <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
         <p className="text-[var(--color-error)]">{error || 'No wheel options available'}</p>
         <Link href="/game" className="text-[var(--color-primary)] hover:underline">
           Back to Game
@@ -107,7 +107,7 @@ export default function LuckyPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4">
+    <main className="min-h-full flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">I&apos;m Feeling Lucky</h1>

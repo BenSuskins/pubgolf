@@ -103,7 +103,7 @@ function HomeContent() {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4">
+    <main className="min-h-full flex flex-col items-center justify-center p-4">
       <Suspense fallback={<div className="text-[var(--color-text-secondary)]">Loading...</div>}>
         <HomeContent />
       </Suspense>

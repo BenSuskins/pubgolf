@@ -48,7 +48,7 @@ export default function GamePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-full flex items-center justify-center">
         <p className="text-[var(--color-text-secondary)]">Loading game...</p>
       </main>
     );
@@ -56,7 +56,7 @@ export default function GamePage() {
 
   if (error) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-4">
+      <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
         <p className="text-[var(--color-error)]">{error}</p>
         <Link href="/" className="text-[var(--color-primary)] hover:underline">
           Back to Home
@@ -66,7 +66,7 @@ export default function GamePage() {
   }
 
   return (
-    <main className="min-h-screen p-4">
+    <main className="p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         <header className="flex items-start justify-between gap-4">
           <div>
