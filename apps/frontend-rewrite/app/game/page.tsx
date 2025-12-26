@@ -68,21 +68,19 @@ export default function GamePage() {
   return (
     <main className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto space-y-6">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <header className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Game: {gameCode.toUpperCase()}</h1>
             <p className="text-[var(--color-text-secondary)] text-sm">
               Share this code with friends to join
             </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors text-sm"
-            >
-              Invite friends
-            </button>
-          </div>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors text-sm shrink-0"
+          >
+            Invite friends
+          </button>
         </header>
 
         <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">

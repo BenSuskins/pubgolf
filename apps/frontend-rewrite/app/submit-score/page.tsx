@@ -56,7 +56,7 @@ export default function SubmitScorePage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Submit Score</h1>
           <p className="text-[var(--color-text-secondary)]">
-            Record your score for a hole
+            How well did you do?
           </p>
         </div>
 
