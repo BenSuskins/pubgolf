@@ -64,3 +64,41 @@ export async function submitScore(
   );
   return handleResponse<void>(response);
 }
+
+export interface WheelOption {
+  option: string;
+  optionSize: number;
+}
+
+export interface WheelOptionsResponse {
+  options: WheelOption[];
+}
+
+export interface SpinWheelResponse {
+  result: string;
+  hole: number;
+}
+
+export async function getWheelOptions(): Promise<WheelOptionsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/wheel-options`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<WheelOptionsResponse>(response);
+}
+
+export async function spinWheel(
+  gameCode: string,
+  playerId: string
+): Promise<SpinWheelResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/games/${gameCode}/players/${playerId}/lucky`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+  return handleResponse<SpinWheelResponse>(response);
+}
+
+export { ApiError };

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { getGameState } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
+import { ShareModal } from '@/components/ShareModal';
 import { Player } from '@/lib/types';
 
 export default function GamePage() {
@@ -13,6 +14,7 @@ export default function GamePage() {
   const [gameCode, setGameCode] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
 
@@ -75,9 +77,7 @@ export default function GamePage() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                navigator.clipboard.writeText(gameCode.toUpperCase());
-              }}
+              onClick={() => setShowShareModal(true)}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm"
             >
               Share Game Invite
@@ -89,23 +89,38 @@ export default function GamePage() {
           <ScoreboardTable players={players} />
         </section>
 
-        <nav className="flex flex-col sm:flex-row gap-3">
+        <nav className="space-y-3">
           {playerId && (
-            <Link
-              href="/submit-score"
-              className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-md transition-colors"
-            >
-              Submit Score
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/submit-score"
+                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-md transition-colors"
+              >
+                Submit Score
+              </Link>
+              <Link
+                href="/lucky"
+                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded-md transition-colors"
+              >
+                I&apos;m Feeling Lucky
+              </Link>
+            </div>
           )}
           <Link
             href="/how-to-play"
-            className="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 text-center font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="block py-3 px-4 border border-gray-300 dark:border-gray-600 text-center font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             How to Play
           </Link>
         </nav>
       </div>
+
+      {showShareModal && (
+        <ShareModal
+          gameCode={gameCode}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </main>
   );
 }
