@@ -45,6 +45,8 @@ export default function GamePage() {
   }, [fetchGame]);
 
   const playerId = getPlayerId();
+  const currentPlayer = players.find(p => p.id === playerId);
+  const hasUsedLucky = currentPlayer?.lucky != null;
 
   if (loading) {
     return (
@@ -96,12 +98,18 @@ export default function GamePage() {
               >
                 Submit Score
               </Link>
-              <Link
-                href="/lucky"
-                className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
-              >
-                I&apos;m Feeling Lucky
-              </Link>
+              {hasUsedLucky ? (
+                <span className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-md cursor-not-allowed">
+                  I&apos;m Feeling Lucky
+                </span>
+              ) : (
+                <Link
+                  href="/lucky"
+                  className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
+                >
+                  I&apos;m Feeling Lucky
+                </Link>
+              )}
             </div>
           )}
           <Link
