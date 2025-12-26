@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'apps/backend/**'
-      - '.github/workflows/backend.yml'
+      - '.github/workflows/backend-feature-branch.yml'
     branches:
       - main
 
@@ -12,13 +12,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      packages: write
       contents: read
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Build application
-        run: |
-          ./gradlew apps:backend:build --no-build-cache --no-daemon
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Lint
+        run: ./gradlew apps:backend:ktlintCheck
+
+      - name: Build
+        run: ./gradlew apps:backend:assemble --no-daemon
+
+      - name: Unit Test
+        run: ./gradlew apps:backend:test --no-daemon
+
+      - name: Integration Test
+        run: ./gradlew apps:backend:integrationTest --no-daemon

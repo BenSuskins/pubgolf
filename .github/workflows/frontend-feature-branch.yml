@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'apps/frontend-rewrite/**'
-      - '.github/workflows/frontend.yml'
+      - '.github/workflows/frontend-feature-branch.yml'
     branches:
       - main
 
@@ -12,14 +12,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      packages: write
       contents: read
+
+    defaults:
+      run:
+        working-directory: apps/frontend-rewrite
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Build application
-        run: |
-          cd apps/frontend-rewrite
-          npm ci && npm run build
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: echo "No tests configured"
