@@ -64,17 +64,14 @@ export function ScoreboardTable({ players }: ScoreboardTableProps) {
                     key={i}
                     className={`px-3 py-2 text-center ${getScoreColor(score, i)}`}
                   >
-                    <span className="inline-flex items-center gap-1">
-                      {score ?? '-'}
+                    <div className="flex flex-col items-center">
+                      <span>{score ?? '-'}</span>
                       {isLuckyHole && (
-                        <span
-                          title={player.lucky!.result}
-                          className="cursor-help text-[var(--color-primary)]"
-                        >
-                          🎲
+                        <span className="text-xs text-[var(--color-primary)] whitespace-nowrap">
+                          {player.lucky!.result}
                         </span>
                       )}
-                    </span>
+                    </div>
                   </td>
                 );
               })}
