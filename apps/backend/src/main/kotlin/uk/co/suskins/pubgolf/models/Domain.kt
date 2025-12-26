@@ -27,11 +27,13 @@ data class Player(
     ) = copy(lucky = Lucky(hole, result))
 
     companion object {
-        fun initialScore() =
-            (1..9)
+        fun initialScore(): Map<Hole, ScoreWithTimestamp> {
+            val now = Instant.now()
+            return (1..9)
                 .associateWith { 0 }
                 .mapKeys { Hole(it.key) }
-                .mapValues { ScoreWithTimestamp(Score(it.value), Instant.now()) }
+                .mapValues { ScoreWithTimestamp(Score(it.value), now) }
+        }
     }
 }
 

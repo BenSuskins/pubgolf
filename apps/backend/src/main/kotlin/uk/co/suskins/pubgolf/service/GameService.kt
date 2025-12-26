@@ -152,9 +152,15 @@ class GameService(
     ): Result<Hole, PubGolfFailure> {
         val scores = game.players.first { it.id == playerId }.scores
 
-        val mostRecent = scores.maxByOrNull { it.value.instant }
+        // Check if all timestamps are the same (no scores actually submitted)
+        val timestamps = scores.values.map { it.instant }.toSet()
+        if (timestamps.size == 1) {
+            return Success(Hole(1))
+        }
 
+        val mostRecent = scores.maxByOrNull { it.value.instant }
         val mostRecentHole = mostRecent?.key!!
+
         return if (mostRecentHole.value == 9) {
             Failure(ImFeelingLuckyUsedFailure("No more holes left"))
         } else {
