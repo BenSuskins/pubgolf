@@ -10,7 +10,7 @@ services:
 
   frontend:
     build:
-      context: ./apps/frontend-rewrite
+      context: ./apps/frontend
     container_name: pubgolf-frontend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8080

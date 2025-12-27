@@ -19,7 +19,7 @@ updates:
 
   # Frontend
   - package-ecosystem: "npm"
-    directory: "/apps/frontend-rewrite"
+    directory: "/apps/frontend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5

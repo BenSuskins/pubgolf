@@ -3,7 +3,7 @@ name: Build & Push Frontend Image
 on:
   push:
     paths:
-      - 'apps/frontend-rewrite/**'
+      - 'apps/frontend/**'
       - '.github/workflows/frontend.yml'
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/frontend-rewrite
+        working-directory: apps/frontend
 
     steps:
       - name: Checkout code
@@ -62,6 +62,6 @@ jobs:
           COMMIT_SHA=${GITHUB_SHA::7}
           IMAGE_NAME=ghcr.io/bensuskins/pubgolf-frontend
 
-          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$COMMIT_SHA ./apps/frontend-rewrite
+          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$COMMIT_SHA ./apps/frontend
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:$COMMIT_SHA

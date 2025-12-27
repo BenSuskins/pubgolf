@@ -3,7 +3,7 @@ name: Build Frontend
 on:
   pull_request:
     paths:
-      - 'apps/frontend-rewrite/**'
+      - 'apps/frontend/**'
       - '.github/workflows/frontend-feature-branch.yml'
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/frontend-rewrite
+        working-directory: apps/frontend
 
     steps:
       - name: Checkout code
