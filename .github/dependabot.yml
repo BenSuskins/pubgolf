@@ -16,6 +16,11 @@ updates:
     labels:
       - "dependencies"
       - "backend"
+    groups:
+      backend-minor:
+        update-types:
+          - "minor"
+          - "patch"
 
   # Frontend
   - package-ecosystem: "npm"
@@ -28,4 +33,9 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    groups:
+      frontend-minor:
+        update-types:
+          - "minor"
+          - "patch"
 
