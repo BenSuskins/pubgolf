@@ -97,7 +97,7 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                       <div className="flex flex-col items-center">
                         <span>{score ?? '-'}</span>
                         {isLuckyHole && (
-                          <span className="text-xs text-[var(--color-primary)] whitespace-nowrap">
+                          <span className="text-xs text-[var(--color-primary)]">
                             {player.lucky!.result}
                           </span>
                         )}
