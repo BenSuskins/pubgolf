@@ -86,7 +86,7 @@ export default function GamePage() {
         </header>
 
         <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
-          <ScoreboardTable players={players} />
+          <ScoreboardTable players={players} currentPlayerId={playerId ?? undefined} />
         </section>
 
         <nav className="space-y-3">

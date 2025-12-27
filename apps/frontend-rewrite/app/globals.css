@@ -12,7 +12,7 @@
 
   /* Text */
   --color-text: #171717;
-  --color-text-secondary: #6b7280;
+  --color-text-secondary: #4b5563;
 
   /* Primary action */
   --color-primary: #2563eb;
@@ -24,6 +24,11 @@
   --color-error-bg: #fef2f2;
   --color-success: #16a34a;
   --color-danger: #dc2626;
+
+  /* Medals */
+  --color-gold: #eab308;
+  --color-silver: #9ca3af;
+  --color-bronze: #d97706;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -77,4 +82,20 @@ body {
   /* Use dvh to account for mobile browser chrome and safe areas */
   min-height: 100dvh;
   box-sizing: border-box;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
 }
