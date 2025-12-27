@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface SlotMachineProps {
   items: string[];
@@ -17,71 +17,74 @@ export function SlotMachine({
   onSpinEnd,
   spinDuration = 3,
 }: SlotMachineProps) {
-  const [offset, setOffset] = useState(0);
-  const [isIdle, setIsIdle] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
+  const offsetRef = useRef(0);
+  const hasSpunRef = useRef(false);
   const itemWidth = 120;
-  const visibleItems = 5;
 
   // Create repeated items for looping effect
   const repeatedItems = [...items, ...items, ...items, ...items, ...items, ...items, ...items, ...items];
   const totalWidth = items.length * itemWidth;
 
   // Idle animation - continuous scroll
-  const idleAnimate = useCallback(() => {
-    if (!isIdle) return;
-
-    setOffset((prev) => {
-      const next = prev + 2; // Speed of idle scroll
-      // Reset when we've scrolled through one set of items
-      if (next >= totalWidth) {
-        return 0;
-      }
-      return next;
-    });
-
-    animationRef.current = requestAnimationFrame(idleAnimate);
-  }, [isIdle, totalWidth]);
-
-  // Start idle animation on mount
   useEffect(() => {
-    if (isIdle && items.length > 0) {
-      animationRef.current = requestAnimationFrame(idleAnimate);
-    }
+    if (spinning || hasSpunRef.current || items.length === 0) return;
+
+    const animate = () => {
+      offsetRef.current += 2; // Speed of idle scroll
+      // Reset when we've scrolled through one set of items
+      if (offsetRef.current >= totalWidth) {
+        offsetRef.current = 0;
+      }
+
+      if (containerRef.current) {
+        containerRef.current.style.transform = `translateX(calc(50% - ${offsetRef.current + itemWidth / 2}px))`;
+      }
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isIdle, idleAnimate, items.length]);
+  }, [spinning, items.length, totalWidth]);
 
   // Handle spinning to winning index
   useEffect(() => {
     if (!spinning || winningIndex === null) return;
 
     // Stop idle animation
-    setIsIdle(false);
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
-    // Calculate final position to land on winning item
-    // Account for current position and ensure we spin through multiple loops
+    // Calculate target offset - must be done inside effect to access ref
     const targetForWinningItem = winningIndex * itemWidth;
     const minLoops = 3;
     const minDistanceToTravel = totalWidth * minLoops;
+    const currentOffset = offsetRef.current;
+    const minFinalOffset = currentOffset + minDistanceToTravel;
+    const loopsNeeded = Math.ceil((minFinalOffset - targetForWinningItem) / totalWidth);
+    const targetOffset = targetForWinningItem + loopsNeeded * totalWidth;
 
-    // Find finalOffset that lands on winning item and travels at least minLoops
-    setOffset((currentOffset) => {
-      const minFinalOffset = currentOffset + minDistanceToTravel;
-      const loopsNeeded = Math.ceil((minFinalOffset - targetForWinningItem) / totalWidth);
-      return targetForWinningItem + loopsNeeded * totalWidth;
-    });
+    // Apply the target offset with transition
+    offsetRef.current = targetOffset;
+    if (containerRef.current) {
+      containerRef.current.style.transition = `transform ${spinDuration}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+      containerRef.current.style.transform = `translateX(calc(50% - ${targetOffset + itemWidth / 2}px))`;
+    }
 
     // Call onSpinEnd after animation completes
     const timer = setTimeout(() => {
+      hasSpunRef.current = true;
+      if (containerRef.current) {
+        containerRef.current.style.transition = 'none';
+      }
       onSpinEnd();
     }, spinDuration * 1000);
 
@@ -102,10 +105,7 @@ export function SlotMachine({
         ref={containerRef}
         className="flex py-2"
         style={{
-          transform: `translateX(calc(50% - ${offset + itemWidth / 2}px))`,
-          transition: !isIdle && spinning
-            ? `transform ${spinDuration}s cubic-bezier(0.25, 0.1, 0.25, 1)`
-            : 'none',
+          transform: `translateX(calc(50% - ${itemWidth / 2}px))`,
         }}
       >
         {repeatedItems.map((item, index) => (
