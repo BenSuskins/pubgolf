@@ -97,6 +97,18 @@ function HomeContent() {
       >
         How to Play
       </Link>
+
+      <p className="text-center text-sm text-[var(--color-text-secondary)]">
+        Having issues?{' '}
+        <a
+          href="https://github.com/BenSuskins/pubgolf/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[var(--color-primary)] hover:underline"
+        >
+          Contact us on GitHub
+        </a>
+      </p>
     </div>
   );
 }
