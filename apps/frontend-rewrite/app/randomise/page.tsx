@@ -113,7 +113,7 @@ export default function LuckyPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Randomise</h1>
           <p className="text-[var(--color-text-secondary)]">
-            Spin to get a random challenge!
+            Want to switch up your drink?
           </p>
         </div>
 
