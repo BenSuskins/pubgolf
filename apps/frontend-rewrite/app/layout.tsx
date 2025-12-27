@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Pub Golf",
-  description: "Track your Pub Golf scores here!",
+  description: "Track your Pub Golf scores here",
 };
 
 export const viewport: Viewport = {
