@@ -37,7 +37,7 @@ jobs:
         run: bun run build
 
       - name: Test
-        run: echo "No tests configured"
+        run: bun run test
 
   containerize:
     runs-on: ubuntu-latest

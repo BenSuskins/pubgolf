@@ -31,5 +31,4 @@ export interface JoinGameResponse {
   playerName: string;
 }
 
-// Par values for each hole (1-9)
 export const PAR_VALUES = [1, 3, 2, 2, 2, 2, 4, 1, 1];

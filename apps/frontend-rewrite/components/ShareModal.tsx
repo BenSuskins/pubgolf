@@ -20,9 +20,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
     return '';
   };
 
-  // Focus trap and keyboard handling
   useEffect(() => {
-    // Focus close button on mount
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -31,7 +29,6 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
         return;
       }
 
-      // Focus trap
       if (e.key === 'Tab' && modalRef.current) {
         const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -59,7 +56,6 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = getShareLink();
       document.body.appendChild(textArea);
