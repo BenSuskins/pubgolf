@@ -41,7 +41,7 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
       <table className="w-full border-collapse text-sm" role="table" aria-label="Player scores">
         <thead>
           <tr className="border-b border-[var(--color-border)]">
-            <th scope="col" className="sticky left-0 bg-[var(--color-surface)] px-3 py-2 text-left font-semibold">
+            <th scope="col" className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-2 text-left font-semibold">
               Player
             </th>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hole) => (
@@ -52,7 +52,7 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
             <th scope="col" className="px-3 py-2 text-center font-semibold">Total</th>
           </tr>
           <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]">
-            <td className="sticky left-0 bg-[var(--color-surface)] px-3 py-1">Par</td>
+            <td className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-1">Par</td>
             {PAR_VALUES.map((par, i) => (
               <td key={i} className="px-3 py-1 text-center">
                 {par}
@@ -72,14 +72,14 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                 key={player.id}
                 className={`border-b border-[var(--color-border-subtle)] transition-colors duration-150 ${
                   isCurrentPlayer
-                    ? 'bg-[var(--color-primary)]/10 border-l-2 border-l-[var(--color-primary)]'
+                    ? 'bg-[var(--color-primary)]/10'
                     : 'hover:bg-[var(--color-surface-hover)]'
                 }`}
               >
                 <th
                   scope="row"
-                  className={`sticky left-0 px-3 py-2 font-medium text-left ${
-                    isCurrentPlayer ? 'bg-[var(--color-primary)]/10' : 'bg-[var(--color-surface)]'
+                  className={`sticky left-0 z-10 px-3 py-2 font-medium text-left bg-[var(--color-surface)] ${
+                    isCurrentPlayer ? 'border-l-2 border-l-[var(--color-primary)]' : ''
                   }`}
                 >
                   <span className="max-w-[120px] truncate inline-block align-middle" title={player.name}>
