@@ -4,24 +4,31 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import RoulettePro from 'react-roulette-pro';
+import 'react-roulette-pro/dist/index.css';
 import { getWheelOptions, spinWheel, ApiError } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
-const Wheel = dynamic(
-  () => import('react-custom-roulette').then((mod) => mod.Wheel),
-  { ssr: false }
-);
-
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
-interface WheelData {
+interface WheelOption {
   option: string;
   optionSize?: number;
 }
 
+interface Prize {
+  id: number;
+  image: string;
+  text: string;
+}
+
+// Transparent 1x1 pixel PNG as placeholder since library requires image
+const PLACEHOLDER_IMAGE =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 export default function LuckyPage() {
-  const [wheelData, setWheelData] = useState<WheelData[]>([]);
-  const [mustSpin, setMustSpin] = useState(false);
+  const [prizes, setPrizes] = useState<Prize[]>([]);
+  const [start, setStart] = useState(false);
   const [prizeIndex, setPrizeIndex] = useState(0);
   const [hasSpun, setHasSpun] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -44,7 +51,14 @@ export default function LuckyPage() {
     async function fetchWheelOptions() {
       try {
         const data = await getWheelOptions();
-        setWheelData(data.options);
+        const transformedPrizes: Prize[] = data.options.map(
+          (opt: WheelOption, index: number) => ({
+            id: index,
+            image: PLACEHOLDER_IMAGE,
+            text: opt.option,
+          })
+        );
+        setPrizes(transformedPrizes);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load wheel options');
       } finally {
@@ -68,7 +82,7 @@ export default function LuckyPage() {
     try {
       const data = await spinWheel(gameCode, playerId);
 
-      const index = wheelData.findIndex((item) => item.option === data.result);
+      const index = prizes.findIndex((item) => item.text === data.result);
       if (index === -1) {
         throw new Error(`Result "${data.result}" not found in wheel options`);
       }
@@ -76,7 +90,7 @@ export default function LuckyPage() {
       setPrizeIndex(index);
       setResult(data.result);
       setHole(data.hole);
-      requestAnimationFrame(() => setMustSpin(true));
+      setStart(true);
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setError('You have already used your spin for this game!');
@@ -87,6 +101,11 @@ export default function LuckyPage() {
     }
   };
 
+  const handlePrizeDefined = () => {
+    setStart(false);
+    setHasSpun(true);
+  };
+
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
@@ -95,7 +114,7 @@ export default function LuckyPage() {
     );
   }
 
-  if (wheelData.length === 0) {
+  if (prizes.length === 0) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
         <p className="text-[var(--color-error)]">{error || 'No wheel options available'}</p>
@@ -118,20 +137,17 @@ export default function LuckyPage() {
 
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6 space-y-6 text-center">
           <div className="flex justify-center">
-            <Wheel
-              mustStartSpinning={mustSpin}
-              prizeNumber={prizeIndex}
-              data={wheelData}
-              backgroundColors={['var(--color-primary)', '#4b5563']}
-              textColors={['#fff']}
-              spinDuration={0.9}
-              radiusLineColor="#fff"
-              outerBorderColor="var(--color-primary)"
-              fontSize={14}
-              onStopSpinning={() => {
-                setMustSpin(false);
-                setHasSpun(true);
-              }}
+            <RoulettePro
+              prizes={prizes}
+              prizeIndex={prizeIndex}
+              start={start}
+              onPrizeDefined={handlePrizeDefined}
+              spinningTime={0.9}
+              prizeItemRenderFunction={(item) => (
+                <div className="flex items-center justify-center h-full w-full px-4 py-2 bg-[var(--color-primary)] text-white font-medium text-sm rounded">
+                  {item.text}
+                </div>
+              )}
             />
           </div>
 
@@ -154,10 +170,10 @@ export default function LuckyPage() {
         <div className="space-y-3">
           <button
             onClick={handleSpin}
-            disabled={mustSpin || hasSpun}
+            disabled={start || hasSpun}
             className="w-full py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-[var(--color-primary-disabled)] disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors"
           >
-            {mustSpin ? 'Spinning...' : hasSpun ? 'Already Spun' : 'Spin the Wheel!'}
+            {start ? 'Spinning...' : hasSpun ? 'Already Spun' : 'Spin the Wheel!'}
           </button>
 
           <Link
