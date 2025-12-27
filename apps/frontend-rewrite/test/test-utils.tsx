@@ -1,7 +1,7 @@
 import { render, RenderOptions } from '@testing-library/react';
 import { ReactElement, ReactNode } from 'react';
 
-interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {}
+type CustomRenderOptions = Omit<RenderOptions, 'wrapper'>;
 
 function AllTheProviders({ children }: { children: ReactNode }) {
   return <>{children}</>;
