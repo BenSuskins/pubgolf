@@ -32,7 +32,7 @@ Make sure you have the following installed:
 
 - [JDK 21+](https://adoptium.net/)
 - [Node.js (v18+)](https://nodejs.org/)
-- [npm](https://www.npmjs.com/)
+- [bun](https://bun.com))
 - [Make](https://www.gnu.org/software/make/)
 - [Podman](https://podman.io) (For local database)
 
@@ -49,7 +49,7 @@ make setup
 This command will:
 
 - Build the backend using Gradle (`./gradlew clean build`)
-- Install frontend dependencies (`npm install` in `apps/frontend`)
+- Install frontend dependencies (`bun install` in `apps/frontend`)
 
 ---
 
