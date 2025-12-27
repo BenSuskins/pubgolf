@@ -98,17 +98,27 @@ function HomeContent() {
         How to Play
       </Link>
 
-      <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        Having issues?{' '}
-        <a
-          href="https://github.com/BenSuskins/pubgolf/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[var(--color-primary)] hover:underline"
-        >
-          Contact us on GitHub
-        </a>
-      </p>
+      <footer className="text-center text-sm text-[var(--color-text-secondary)] space-y-2">
+        <p>© 2025 Ben Suskins | Pub Golf</p>
+        <p className="space-x-2">
+          <Link href="/terms" className="text-[var(--color-primary)] hover:underline">
+            Terms & Conditions
+          </Link>
+          <span>·</span>
+          <Link href="/privacy" className="text-[var(--color-primary)] hover:underline">
+            Privacy Policy
+          </Link>
+          <span>·</span>
+          <a
+            href="https://github.com/BenSuskins/pubgolf/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--color-primary)] hover:underline"
+          >
+            Report an issue
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
