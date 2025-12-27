@@ -100,14 +100,14 @@ export default function GamePage() {
               </Link>
               {hasUsedLucky ? (
                 <span className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-md cursor-not-allowed">
-                  I&apos;m Feeling Lucky
+                  Randomise
                 </span>
               ) : (
                 <Link
-                  href="/lucky"
+                  href="/randomise"
                   className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
                 >
-                  I&apos;m Feeling Lucky
+                  Randomise
                 </Link>
               )}
             </div>

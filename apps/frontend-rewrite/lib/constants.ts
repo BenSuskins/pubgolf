@@ -6,7 +6,7 @@ export const RULES = [
   'Doing additional drinks will lower your score as decided by the referee.',
   'A maximum of 4 drinks can be consumed per hole.',
   'You cannot swap between route A or B mid game.',
-  "You can use 'I'm Feeling Lucky' to swap one drink per game.",
+  "You can use 'Randomise' to swap one drink per game.",
   'Skipping a Drink: +5 Points',
   'Spilled Drink: +3 Points',
   'Vomiting: +10 Points',

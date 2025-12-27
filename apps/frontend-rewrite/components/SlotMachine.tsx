@@ -68,16 +68,16 @@ export function SlotMachine({
     }
 
     // Calculate final position to land on winning item
-    // Add extra loops for dramatic effect
-    const loops = 3;
-    const baseOffset = totalWidth * loops;
-    const winningOffset = winningIndex * itemWidth;
-    const centerOffset = Math.floor(visibleItems / 2) * itemWidth;
-    const finalOffset = baseOffset + winningOffset - centerOffset;
+    // Account for current position and ensure we spin through multiple loops
+    const targetForWinningItem = winningIndex * itemWidth;
+    const minLoops = 3;
+    const minDistanceToTravel = totalWidth * minLoops;
 
-    // Small delay to allow transition to apply
-    requestAnimationFrame(() => {
-      setOffset(finalOffset);
+    // Find finalOffset that lands on winning item and travels at least minLoops
+    setOffset((currentOffset) => {
+      const minFinalOffset = currentOffset + minDistanceToTravel;
+      const loopsNeeded = Math.ceil((minFinalOffset - targetForWinningItem) / totalWidth);
+      return targetForWinningItem + loopsNeeded * totalWidth;
     });
 
     // Call onSpinEnd after animation completes
@@ -86,7 +86,7 @@ export function SlotMachine({
     }, spinDuration * 1000);
 
     return () => clearTimeout(timer);
-  }, [spinning, winningIndex, items.length, onSpinEnd, spinDuration, totalWidth]);
+  }, [spinning, winningIndex, onSpinEnd, spinDuration, totalWidth]);
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -94,8 +94,8 @@ export function SlotMachine({
       <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[var(--color-surface)] to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[var(--color-surface)] to-transparent z-10 pointer-events-none" />
 
-      {/* Center indicator */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-[120px] -ml-[60px] border-2 border-[var(--color-primary)] rounded-lg z-20 pointer-events-none" />
+      {/* Center indicator line */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -ml-px bg-[var(--color-primary)] z-20 pointer-events-none" />
 
       {/* Slot container */}
       <div

@@ -111,7 +111,7 @@ export default function LuckyPage() {
     <main className="min-h-full flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">I&apos;m Feeling Lucky</h1>
+          <h1 className="text-2xl font-bold mb-2">Randomise</h1>
           <p className="text-[var(--color-text-secondary)]">
             Spin to get a random challenge!
           </p>
