@@ -12,8 +12,8 @@ import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.Hole
-import uk.co.suskins.pubgolf.models.ImFeelingLucky
-import uk.co.suskins.pubgolf.models.ImFeelingLuckyUsedFailure
+import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
+import uk.co.suskins.pubgolf.models.RandomiseResult
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
@@ -89,15 +89,15 @@ class GameService(
                     .also { gameMetrics.scoreSubmitted(hole) }
             }
 
-    fun imFeelingLucky(
+    fun randomise(
         gameCode: GameCode,
         playerId: PlayerId,
-    ): Result<ImFeelingLucky, PubGolfFailure> =
+    ): Result<RandomiseResult, PubGolfFailure> =
         gameRepository
             .findByCodeIgnoreCase(gameCode)
             .flatMap { hasPlayer(it, playerId) }
-            .flatMap { hasUsedLucky(it, playerId) }
-            .flatMap { game -> generateResult(playerId, game) }
+            .flatMap { hasUsedRandomise(it, playerId) }
+            .flatMap { game -> generateRandomiseResult(playerId, game) }
 
     private fun hasPlayer(
         game: Game,
@@ -119,34 +119,34 @@ class GameService(
             Success(game)
         }
 
-    private fun generateResult(
+    private fun generateRandomiseResult(
         playerId: PlayerId,
         game: Game,
-    ): Result<ImFeelingLucky, PubGolfFailure> {
-        return luckyHole(game, playerId).flatMap { luckyHole ->
+    ): Result<RandomiseResult, PubGolfFailure> {
+        return randomiseHole(game, playerId).flatMap { randomiseHole ->
             val outcome = Outcomes.random()
 
             val updatedPlayers =
                 game.players.map {
                     if (it.matches(playerId)) {
-                        it.updateLucky(luckyHole, outcome)
+                        it.updateRandomise(randomiseHole, outcome)
                     } else {
                         it
                     }
                 }
             return gameRepository.save(game.copy(players = updatedPlayers)).flatMap {
                 Success(
-                    ImFeelingLucky(
+                    RandomiseResult(
                         result = outcome.label,
-                        hole = luckyHole,
+                        hole = randomiseHole,
                         outcomes = Outcomes.entries,
                     ),
-                ).also { gameMetrics.imFeelingLuckyUsed() }
+                ).also { gameMetrics.randomiseUsed() }
             }
         }
     }
 
-    private fun luckyHole(
+    private fun randomiseHole(
         game: Game,
         playerId: PlayerId,
     ): Result<Hole, PubGolfFailure> {
@@ -162,21 +162,21 @@ class GameService(
         val mostRecentHole = mostRecent?.key!!
 
         return if (mostRecentHole.value == 9) {
-            Failure(ImFeelingLuckyUsedFailure("No more holes left"))
+            Failure(RandomiseAlreadyUsedFailure("No more holes left"))
         } else {
             Success(Hole(mostRecentHole.value + 1))
         }
     }
 
-    private fun hasUsedLucky(
+    private fun hasUsedRandomise(
         game: Game,
         playerId: PlayerId,
     ): Result<Game, PubGolfFailure> {
         val find = game.players.find { it.id == playerId }
-        return if (find?.lucky == null) {
+        return if (find?.randomise == null) {
             Success(game)
         } else {
-            Failure(ImFeelingLuckyUsedFailure("ImFeelingLucky already used"))
+            Failure(RandomiseAlreadyUsedFailure("Randomise already used"))
         }
     }
 }

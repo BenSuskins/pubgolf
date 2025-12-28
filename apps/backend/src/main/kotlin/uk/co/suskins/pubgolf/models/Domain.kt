@@ -12,7 +12,7 @@ data class Player(
     val id: PlayerId,
     val name: PlayerName,
     val scores: Map<Hole, ScoreWithTimestamp> = initialScore(),
-    val lucky: Lucky? = null,
+    val randomise: Randomise? = null,
 ) {
     fun matches(playerId: PlayerId) = id.value == playerId.value
 
@@ -21,10 +21,10 @@ data class Player(
         score: Score,
     ) = copy(scores = scores + (hole to ScoreWithTimestamp(score, Instant.now())))
 
-    fun updateLucky(
+    fun updateRandomise(
         hole: Hole,
         result: Outcomes,
-    ) = copy(lucky = Lucky(hole, result))
+    ) = copy(randomise = Randomise(hole, result))
 
     companion object {
         fun initialScore(): Map<Hole, ScoreWithTimestamp> {
@@ -42,12 +42,12 @@ data class ScoreWithTimestamp(
     var instant: Instant,
 )
 
-data class Lucky(
+data class Randomise(
     val hole: Hole,
     val result: Outcomes,
 )
 
-data class ImFeelingLucky(
+data class RandomiseResult(
     val result: String,
     val hole: Hole,
     val outcomes: List<Outcomes>,
@@ -101,7 +101,7 @@ data class PlayerAlreadyExistsFailure(
     override val message: String,
 ) : PubGolfFailure
 
-data class ImFeelingLuckyUsedFailure(
+data class RandomiseAlreadyUsedFailure(
     override val message: String,
 ) : PubGolfFailure
 
@@ -139,16 +139,16 @@ fun Game.toJpa(): GameEntity {
 
         playerEntity.scores.addAll(scoreEntities)
 
-        player.lucky?.let { lucky ->
-            val luckyEntity =
-                PlayerLuckyEntity(
-                    id = PlayerLuckyId(gameEntity.id, player.id.value),
+        player.randomise?.let { randomise ->
+            val randomiseEntity =
+                PlayerRandomiseEntity(
+                    id = PlayerRandomiseId(gameEntity.id, player.id.value),
                     game = gameEntity,
                     player = playerEntity,
-                    hole = lucky.hole.value,
-                    outcome = lucky.result.name,
+                    hole = randomise.hole.value,
+                    outcome = randomise.result.name,
                 )
-            playerEntity.lucky = luckyEntity
+            playerEntity.randomise = randomiseEntity
         }
         gameEntity.addPlayer(playerEntity)
     }

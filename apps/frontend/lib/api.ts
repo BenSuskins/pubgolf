@@ -86,8 +86,8 @@ export interface SpinWheelResponse {
   hole: number;
 }
 
-export async function getWheelOptions(): Promise<WheelOptionsResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/games/wheel-options`, {
+export async function getRandomiseOptions(): Promise<WheelOptionsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/randomise-options`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -99,7 +99,7 @@ export async function spinWheel(
   playerId: string
 ): Promise<SpinWheelResponse> {
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/games/${gameCode}/players/${playerId}/lucky`,
+    `${API_BASE_URL}/api/v1/games/${gameCode}/players/${playerId}/randomise`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

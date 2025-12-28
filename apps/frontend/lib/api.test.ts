@@ -4,7 +4,7 @@ import {
   joinGame,
   getGameState,
   submitScore,
-  getWheelOptions,
+  getRandomiseOptions,
   spinWheel,
   ApiError,
 } from './api';
@@ -166,8 +166,8 @@ describe('API functions', () => {
     });
   });
 
-  describe('getWheelOptions', () => {
-    test('should GET wheel options from correct endpoint', async () => {
+  describe('getRandomiseOptions', () => {
+    test('should GET randomise options from correct endpoint', async () => {
       mockFetch.mockResolvedValueOnce(
         new Response(
           JSON.stringify({
@@ -180,11 +180,11 @@ describe('API functions', () => {
         )
       );
 
-      const result = await getWheelOptions();
+      const result = await getRandomiseOptions();
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
-      expect(url).toContain('/api/v1/games/wheel-options');
+      expect(url).toContain('/api/v1/games/randomise-options');
       expect(result.options).toHaveLength(2);
     });
   });
@@ -205,7 +205,7 @@ describe('API functions', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
-      expect(url).toContain('/api/v1/games/ABCD/players/player-123/lucky');
+      expect(url).toContain('/api/v1/games/ABCD/players/player-123/randomise');
       expect(options.method).toBe('POST');
       expect(result.result).toBe('Double Points');
       expect(result.hole).toBe(3);

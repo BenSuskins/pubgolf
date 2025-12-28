@@ -91,7 +91,7 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                   </span>
                 </th>
                 {player.scores.map((score, i) => {
-                  const isLuckyHole = player.lucky && player.lucky.hole === i + 1;
+                  const isRandomiseHole = player.randomise && player.randomise.hole === i + 1;
                   return (
                     <td
                       key={i}
@@ -99,9 +99,9 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                     >
                       <div className="flex flex-col items-center">
                         <span>{score ?? '-'}</span>
-                        {isLuckyHole && (
+                        {isRandomiseHole && (
                           <span className="text-xs text-[var(--color-primary)]">
-                            {player.lucky!.result}
+                            {player.randomise!.result}
                           </span>
                         )}
                       </div>

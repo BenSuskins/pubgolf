@@ -44,20 +44,20 @@ data class PlayerEntity(
     @OneToMany(mappedBy = "player", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     val scores: MutableList<ScoreEntity> = mutableListOf(),
     @OneToOne(mappedBy = "player", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var lucky: PlayerLuckyEntity? = null,
+    var randomise: PlayerRandomiseEntity? = null,
 )
 
 @Embeddable
-data class PlayerLuckyId(
+data class PlayerRandomiseId(
     val gameId: UUID = UUID.randomUUID(),
     val playerId: UUID = UUID.randomUUID(),
 ) : Serializable
 
 @Entity
 @Table(name = "player_lucky")
-data class PlayerLuckyEntity(
+data class PlayerRandomiseEntity(
     @EmbeddedId
-    val id: PlayerLuckyId,
+    val id: PlayerRandomiseId,
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("gameId")
     @JoinColumn(name = "game_id", nullable = false)
@@ -106,11 +106,11 @@ fun GameEntity.toDomain(): Game =
                 Player(
                     id = PlayerId(it.id),
                     name = PlayerName(it.name),
-                    lucky =
-                        it.lucky?.let { luckyEntity ->
-                            Lucky(
-                                hole = Hole(luckyEntity.hole),
-                                result = Outcomes.valueOf(luckyEntity.outcome),
+                    randomise =
+                        it.randomise?.let { randomiseEntity ->
+                            Randomise(
+                                hole = Hole(randomiseEntity.hole),
+                                result = Outcomes.valueOf(randomiseEntity.outcome),
                             )
                         },
                     scores =

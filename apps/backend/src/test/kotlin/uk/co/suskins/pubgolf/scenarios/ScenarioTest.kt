@@ -58,23 +58,23 @@ abstract class ScenarioTest {
                 .toEntity(String::class.java)
         }
 
-    fun imFeelingLucky(
+    fun randomise(
         gameCode: String?,
         playerId: String?,
     ) = resultFrom {
         restClient
             .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/lucky")
+            .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/randomise")
             .contentType(MediaType.APPLICATION_JSON)
             .retrieve()
             .toEntity(String::class.java)
     }
 
-    fun wheelOptions() =
+    fun randomiseOptions() =
         resultFrom {
             restClient
                 .get()
-                .uri("http://localhost:8080/api/v1/games/wheel-options")
+                .uri("http://localhost:8080/api/v1/games/randomise-options")
                 .retrieve()
                 .toEntity(String::class.java)
         }

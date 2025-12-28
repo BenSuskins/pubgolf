@@ -34,9 +34,9 @@ class GameMetricsTest {
     }
 
     @Test
-    fun `Can increment lucky counter`() {
-        gameMetrics.imFeelingLuckyUsed()
+    fun `Can increment randomise counter`() {
+        gameMetrics.randomiseUsed()
 
-        assertThat(registry.get("pubgolf.game.lucky").counter().count(), equalTo(1.0))
+        assertThat(registry.get("pubgolf.game.randomise").counter().count(), equalTo(1.0))
     }
 }

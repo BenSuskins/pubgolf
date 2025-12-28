@@ -11,27 +11,13 @@ import org.springframework.web.client.RestClientException
 import java.util.UUID
 import kotlin.test.assertTrue
 
-class ImFeelingLucky : ScenarioTest() {
+class Randomise : ScenarioTest() {
     @Test
-    fun `Can get wheel options`() {
-        val response = wheelOptions()
-
-        val body = response.bodyString().asJsonMap()
-        val outcomes = body["options"] as List<*>
-        assertThat(
-            outcomes.size,
-            equalTo(
-                13,
-            ),
-        )
-    }
-
-    @Test
-    fun `Can hit the I'm Feeling Lucky Button`() {
+    fun `Can use the randomise button`() {
         val game = createGame("Ben")
         submitScore(game.gameCode(), game.playerId(), 5, 0)
 
-        val response = imFeelingLucky(game.gameCode(), game.playerId())
+        val response = randomise(game.gameCode(), game.playerId())
 
         val body = response.bodyString().asJsonMap()
         assertThat(response.valueOrNull()!!.statusCode, equalTo(OK))
@@ -40,25 +26,25 @@ class ImFeelingLucky : ScenarioTest() {
     }
 
     @Test
-    fun `Can only hit the I'm Feeling Lucky Button once`() {
+    fun `Can only use the randomise button once`() {
         val game = createGame("Jake")
 
-        imFeelingLucky(game.gameCode(), game.playerId())
-        val response = imFeelingLucky(game.gameCode(), game.playerId())
+        randomise(game.gameCode(), game.playerId())
+        val response = randomise(game.gameCode(), game.playerId())
 
         val restClientException = response.get() as RestClientException
         println(restClientException)
         assertTrue(restClientException.message!!.contains("409 Conflict"))
-        assertTrue(restClientException.message!!.contains("ImFeelingLucky already used"))
+        assertTrue(restClientException.message!!.contains("Randomise already used"))
     }
 
     @Test
-    fun `Can't use the I'm Feeling Lucky Button when your last hole was 9`() {
+    fun `Can't use the randomise button when your last hole was 9`() {
         val game = createGame("Jake")
         submitScore(game.gameCode(), game.playerId(), 9, 2)
 
-        imFeelingLucky(game.gameCode(), game.playerId())
-        val response = imFeelingLucky(game.gameCode(), game.playerId())
+        randomise(game.gameCode(), game.playerId())
+        val response = randomise(game.gameCode(), game.playerId())
 
         val restClientException = response.get() as RestClientException
         assertTrue(restClientException.message!!.contains("409 Conflict"))
@@ -66,7 +52,7 @@ class ImFeelingLucky : ScenarioTest() {
     }
 
     @Test
-    fun `Can't use I'm Feeling Lucky Button for a game that doesn't exist`() {
+    fun `Can't use randomise button for a game that doesn't exist`() {
         val response = submitScore("random-game-code", UUID.randomUUID().toString(), 1, 1)
 
         val restClientException = response.get() as RestClientException
@@ -75,7 +61,7 @@ class ImFeelingLucky : ScenarioTest() {
     }
 
     @Test
-    fun `Can't use I'm Feeling Lucky Button for a player that doesn't exist`() {
+    fun `Can't use randomise button for a player that doesn't exist`() {
         val game = createGame("Ben")
         val playerId = UUID.randomUUID().toString()
 

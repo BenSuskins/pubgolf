@@ -46,7 +46,7 @@ export default function GamePage() {
 
   const playerId = getPlayerId();
   const currentPlayer = players.find(p => p.id === playerId);
-  const hasUsedLucky = currentPlayer?.lucky != null;
+  const hasUsedRandomise = currentPlayer?.randomise != null;
 
   if (loading) {
     return (
@@ -98,7 +98,7 @@ export default function GamePage() {
               >
                 Submit Score
               </Link>
-              {hasUsedLucky ? (
+              {hasUsedRandomise ? (
                 <span className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-md cursor-not-allowed">
                   Randomise
                 </span>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { SlotMachine } from '@/components/SlotMachine';
-import { getWheelOptions, spinWheel, ApiError } from '@/lib/api';
+import { getRandomiseOptions, spinWheel, ApiError } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
@@ -15,7 +15,7 @@ interface WheelOption {
   optionSize?: number;
 }
 
-export default function LuckyPage() {
+export default function RandomisePage() {
   const [items, setItems] = useState<string[]>([]);
   const [spinning, setSpinning] = useState(false);
   const [winningIndex, setWinningIndex] = useState<number | null>(null);
@@ -37,18 +37,18 @@ export default function LuckyPage() {
       return;
     }
 
-    async function fetchWheelOptions() {
+    async function fetchRandomiseOptions() {
       try {
-        const data = await getWheelOptions();
+        const data = await getRandomiseOptions();
         setItems(data.options.map((opt: WheelOption) => opt.option));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load wheel options');
+        setError(err instanceof Error ? err.message : 'Failed to load randomise options');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchWheelOptions();
+    fetchRandomiseOptions();
   }, [getGameCode, getPlayerId, router]);
 
   const handleSpin = async () => {

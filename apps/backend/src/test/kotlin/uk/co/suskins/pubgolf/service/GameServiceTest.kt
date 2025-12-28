@@ -14,6 +14,7 @@ import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Player
+import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
@@ -183,7 +184,7 @@ class GameServiceTest {
     }
 
     @Test
-    fun `can use I'm Feeling Lucky`() {
+    fun `can use randomise`() {
         val player = Player(PlayerId.random(), host)
         val game =
             Game(
@@ -194,23 +195,23 @@ class GameServiceTest {
         gameRepository.save(game)
         service.submitScore(gameCode, player.id, Hole(1), Score(5))
 
-        val result = service.imFeelingLucky(gameCode, player.id)
+        val result = service.randomise(gameCode, player.id)
 
         assertThat(result, isSuccess())
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
-        val lucky = updatedGame.players.find { it.name == host }!!.lucky
-        assertThat(lucky!!.hole, equalTo(Hole(2)))
+        val randomise = updatedGame.players.find { it.name == host }!!.randomise
+        assertThat(randomise!!.hole, equalTo(Hole(2)))
     }
 
     @Test
-    fun `fail to use I'm Feeling Lucky for a game that doesn't exist`() {
-        val result = service.imFeelingLucky(gameCode, PlayerId.random())
+    fun `fail to use randomise for a game that doesn't exist`() {
+        val result = service.randomise(gameCode, PlayerId.random())
 
         assertThat(result, isFailure(GameNotFoundFailure("Game `${gameCode.value}` not found.")))
     }
 
     @Test
-    fun `fail to use I'm Feeling Lucky for a player that doesn't exist`() {
+    fun `fail to use randomise for a player that doesn't exist`() {
         val game =
             Game(
                 id = GameId.random(),
@@ -220,10 +221,28 @@ class GameServiceTest {
         gameRepository.save(game)
 
         val playerId = PlayerId.random()
-        val result = service.imFeelingLucky(gameCode, playerId)
+        val result = service.randomise(gameCode, playerId)
 
         assertThat(result, isFailure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `ACE007`.")))
     }
+
+    @Test
+    fun `fail to use randomise when most recent score is hole 9`() {
+        val player = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(player),
+            )
+        gameRepository.save(game)
+        service.submitScore(gameCode, player.id, Hole(9), Score(5))
+
+        val result = service.randomise(gameCode, player.id)
+
+        assertThat(result, isFailure(RandomiseAlreadyUsedFailure("No more holes left")))
+    }
+
 }
 
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }

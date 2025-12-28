@@ -136,10 +136,10 @@
         }
       }
     },
-    "/api/v1/games/{gameCode}/players/{playerId}/lucky" : {
+    "/api/v1/games/{gameCode}/players/{playerId}/randomise" : {
       "post" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "imFeelingLucky-EHXYgIk",
+        "operationId" : "randomise-EHXYgIk",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -158,11 +158,11 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Lucky result",
+            "description" : "Randomise result",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ImFeelingLuckyResponse"
+                  "$ref" : "#/components/schemas/RandomiseResponse"
                 }
               }
             }
@@ -332,7 +332,7 @@
         }
       }
     },
-    "/api/v1/games/wheel-options" : {
+    "/api/v1/games/randomise-options" : {
       "get" : {
         "tags" : [ "game-controller" ],
         "operationId" : "wheelOptions",
@@ -410,7 +410,7 @@
         },
         "required" : [ "hole", "score" ]
       },
-      "ImFeelingLuckyResponse" : {
+      "RandomiseResponse" : {
         "type" : "object",
         "properties" : {
           "result" : {
@@ -472,19 +472,6 @@
         },
         "required" : [ "gameCode", "gameId", "players" ]
       },
-      "LuckyResponse" : {
-        "type" : "object",
-        "properties" : {
-          "hole" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "result" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "hole", "result" ]
-      },
       "PlayerResponse" : {
         "type" : "object",
         "properties" : {
@@ -505,11 +492,24 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "lucky" : {
-            "$ref" : "#/components/schemas/LuckyResponse"
+          "randomise" : {
+            "$ref" : "#/components/schemas/RandomiseOutcomeResponse"
           }
         },
         "required" : [ "id", "name", "scores", "totalScore" ]
+      },
+      "RandomiseOutcomeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "result" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "hole", "result" ]
       },
       "Score" : {
         "type" : "object",

@@ -20,7 +20,7 @@ class GameMetrics(
         registry.counter("pubgolf.score.submitted", "hole", hole.value.toString()).increment()
     }
 
-    fun imFeelingLuckyUsed() {
-        registry.counter("pubgolf.game.lucky").increment()
+    fun randomiseUsed() {
+        registry.counter("pubgolf.game.randomise").increment()
     }
 }

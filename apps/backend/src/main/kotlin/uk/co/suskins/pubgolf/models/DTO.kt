@@ -43,7 +43,7 @@ data class GameStateResponse(
     val players: List<PlayerResponse>,
 )
 
-data class ImFeelingLuckyResponse(
+data class RandomiseResponse(
     val result: String,
     val hole: Hole,
 )
@@ -62,10 +62,10 @@ data class PlayerResponse(
     val name: PlayerName,
     val scores: List<Score>,
     val totalScore: Int,
-    val lucky: LuckyResponse?,
+    val randomise: RandomiseOutcomeResponse?,
 )
 
-data class LuckyResponse(
+data class RandomiseOutcomeResponse(
     val hole: Hole,
     val result: String,
 )

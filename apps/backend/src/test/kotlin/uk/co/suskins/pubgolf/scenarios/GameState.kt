@@ -35,20 +35,20 @@ class GameState : ScenarioTest() {
     }
 
     @Test
-    fun `Players have lucky attributes`() {
+    fun `Players have randomise attributes`() {
         val host = "Ben"
         val game = createGame(host)
         submitScore(game.gameCode(), game.playerId(), 1, -10)
-        imFeelingLucky(game.gameCode(), game.playerId())
+        randomise(game.gameCode(), game.playerId())
 
         val response = gameState(game.gameCode())
 
         val body = response.bodyString().asJsonMap()
         val players = body["players"] as List<*>
         val player = players[0] as Map<*, *>
-        val lucky = player["lucky"] as Map<*, *>
-        assertThat(lucky["hole"], equalTo(2))
-        assertThat(lucky["result"] as String, matches(resultPattern))
+        val randomise = player["randomise"] as Map<*, *>
+        assertThat(randomise["hole"], equalTo(2))
+        assertThat(randomise["result"] as String, matches(resultPattern))
     }
 
     @Test

@@ -1,4 +1,4 @@
-export interface Lucky {
+export interface Randomise {
   hole: number;
   result: string;
 }
@@ -8,7 +8,7 @@ export interface Player {
   name: string;
   scores: (number | null)[];
   totalScore: number;
-  lucky: Lucky | null;
+  randomise: Randomise | null;
 }
 
 export interface GameState {

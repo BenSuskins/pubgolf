@@ -8,13 +8,13 @@ const createPlayer = (
   name: string,
   scores: (number | null)[],
   totalScore: number,
-  lucky: { hole: number; result: string } | null = null
+  randomise: { hole: number; result: string } | null = null
 ): Player => ({
   id,
   name,
   scores,
   totalScore,
-  lucky,
+  randomise,
 });
 
 describe('ScoreboardTable', () => {
@@ -186,12 +186,12 @@ describe('ScoreboardTable', () => {
     });
   });
 
-  describe('lucky indicator', () => {
-    test('should display lucky result under score for lucky holes', () => {
+  describe('randomise indicator', () => {
+    test('should display randomise result under score for randomise holes', () => {
       const players: Player[] = [
         createPlayer(
           'p1',
-          'Lucky Player',
+          'Randomise Player',
           [1, 2, 2, 2, 2, 2, 4, 1, 1],
           17,
           { hole: 3, result: 'Double Points' }
@@ -203,7 +203,7 @@ describe('ScoreboardTable', () => {
       expect(screen.getByText('Double Points')).toBeInTheDocument();
     });
 
-    test('should not display lucky indicator for non-lucky holes', () => {
+    test('should not display randomise indicator for non-randomise holes', () => {
       const players: Player[] = [
         createPlayer('p1', 'Regular Player', [1, 2, 2, 2, 2, 2, 4, 1, 1], 17),
       ];

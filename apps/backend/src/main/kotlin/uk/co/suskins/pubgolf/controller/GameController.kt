@@ -30,10 +30,10 @@ import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
-import uk.co.suskins.pubgolf.models.ImFeelingLuckyResponse
-import uk.co.suskins.pubgolf.models.ImFeelingLuckyUsedFailure
 import uk.co.suskins.pubgolf.models.JoinGameResponse
-import uk.co.suskins.pubgolf.models.LuckyResponse
+import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
+import uk.co.suskins.pubgolf.models.RandomiseOutcomeResponse
+import uk.co.suskins.pubgolf.models.RandomiseResponse
 import uk.co.suskins.pubgolf.models.OutcomeResponse
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.OutcomesResponse
@@ -227,8 +227,8 @@ class GameController(
                                 it.name,
                                 it.scores.map { it.value.score },
                                 it.scores.map { it.value.score.value }.sum(),
-                                it.lucky?.let {
-                                    LuckyResponse(it.hole, it.result.label)
+                                it.randomise?.let {
+                                    RandomiseOutcomeResponse(it.hole, it.result.label)
                                 },
                             )
                         }.sortedBy { it.totalScore },
@@ -289,16 +289,16 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
-    @PostMapping("/{gameCode}/players/{playerId}/lucky")
+    @PostMapping("/{gameCode}/players/{playerId}/randomise")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Lucky result",
+                description = "Randomise result",
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = ImFeelingLuckyResponse::class),
+                        schema = Schema(implementation = RandomiseResponse::class),
                     ),
                 ],
             ),
@@ -343,14 +343,14 @@ class GameController(
             ),
         ],
     )
-    fun imFeelingLucky(
+    fun randomise(
         @PathVariable("gameCode") gameCode: GameCode,
         @PathVariable("playerId") playerId: PlayerId,
     ): ResponseEntity<*> =
         gameService
-            .imFeelingLucky(gameCode, playerId)
+            .randomise(gameCode, playerId)
             .map {
-                ImFeelingLuckyResponse(
+                RandomiseResponse(
                     it.result,
                     it.hole,
                 )
@@ -360,7 +360,7 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
-    @GetMapping("/wheel-options")
+    @GetMapping("/randomise-options")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -386,7 +386,7 @@ class GameController(
             is GameNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
-            is ImFeelingLuckyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is RandomiseAlreadyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }
