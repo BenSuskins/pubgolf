@@ -1,121 +1,95 @@
-# 🍻⛳️ Pub Golf
+# Pub Golf
 
 ![Pub Golf Mockups](docs/Mockups.png?raw=true "Mockups")
 
-A Pub Golf Leaderboard App, to track scores.
+A real-time leaderboard application for tracking Pub Golf games. Create custom games, invite friends via QR codes, and compete on live scoreboards.
 
----
+**Live Demo:** [pubgolf.me](https://pubgolf.me)
 
-Check it out here:
+## Tech Stack
 
-👉 [Here](https://pubgolf.me)
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js, React, TypeScript, Tailwind CSS |
+| Backend | Kotlin, Spring Boot |
+| Testing | Playwright (E2E), JUnit |
+| Infrastructure | Docker, Podman |
 
----
+## Features
 
-## ✨ Features
+- Real-time leaderboard updates
+- Custom game creation with configurable rules
+- QR code game invitations
 
-- 📊 Pub Golf Leaderboard.
-- 🕹️ Create custom games with your friends.
-- 📷 Share game invites with QR Codes.
-- ⚙️ Game Rules.
+## Architecture
 
-This Monorepo contains:
-- 🧠 **Backend**: Kotlin + Spring Boot (`apps/backend`)
-- 💅 **Frontend**: Next.js (`apps/frontend`)
-- 🛠️ Task automation: [`make`](https://www.gnu.org/software/make/) for local dev tasks
+This is a monorepo containing:
 
----
+```
+apps/
+├── backend/   # Kotlin + Spring Boot REST API
+└── frontend/  # Next.js application
+e2e/           # Playwright end-to-end tests
+```
 
-### 📦 Prerequisites
+## Getting Started
 
-Make sure you have the following installed:
+### Prerequisites
 
 - [JDK 21+](https://adoptium.net/)
-- [Node.js (v18+)](https://nodejs.org/)
-- [bun](https://bun.com))
+- [Node.js 18+](https://nodejs.org/)
+- [Bun](https://bun.sh/)
 - [Make](https://www.gnu.org/software/make/)
-- [Podman](https://podman.io) (For local database)
+- [Podman](https://podman.io/) (for local database)
 
----
-
-### 🛠 Setup
-
-From the root of the repo, run:
+### Setup
 
 ```bash
 make setup
 ```
 
-This command will:
+This builds the backend with Gradle and installs frontend and E2E dependencies.
 
-- Build the backend using Gradle (`./gradlew clean build`)
-- Install frontend dependencies (`bun install` in `apps/frontend`)
+### Running Locally
 
----
-
-### 🧪 Running the App
-
-#### 🔁 Backend (Spring Boot)
-
+**Backend** (runs on port 8080):
 ```bash
 make backend
 ```
 
-Runs the backend at [http://localhost:8080](http://localhost:8080)
-
-#### 💻 Frontend (Next.js)
-
+**Frontend** (runs on port 3000):
 ```bash
 make frontend
 ```
 
-Runs the frontend at [http://localhost:3000](http://localhost:3000)
+## Testing
 
----
+**Backend unit tests:**
+```bash
+make backend-test
+```
 
-# 🧭 Pub Golf – Roadmap & Future Plans
+**E2E tests**
+```bash
+make e2e
+```
 
-Planned enhancements and production improvements.
+**E2E tests with Playwright UI:**
+```bash
+make e2e-ui
+```
 
----
+## Development
 
-## 🚀 New Features
+| Command | Description |
+|---------|-------------|
+| `make setup` | Initial project setup |
+| `make backend` | Run backend server |
+| `make frontend` | Run frontend dev server |
+| `make backend-test` | Run backend unit tests |
+| `make e2e` | Run Playwright E2E tests |
+| `make e2e-ui` | Run E2E tests with Playwright UI |
 
-- [ ] Final scorecard export image
-- [ ] Game state tracking: In Progress / Finished
-- [x] QR code for joining games
-- [ ] Bonus/penalty rule system
+## License
 
----
-
-## 📈 Observability & Productionisation
-
-- [x] Prometheus metrics
-- [ ] Structured JSON logs
-- [ ] Grafana dashboards
-- [ ] Rate limiting
-- [ ] Slow request logging / tracing
-- [ ] Alerting
-
----
-
-## 🛠 Infrastructure & Code Architecture
-
-- [ ] Admin endpoints for game reset and cleanup
-- [ ] Multi-stage Docker builds with non-root users
-- [ ] Feature toggles for WIP functionality
-- [ ] Linting
-- [x] Tiny Types
-- [x] Pass environment variables via Docker to frontend
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT License - see [LICENSE](LICENSE) for details.
