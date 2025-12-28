@@ -23,8 +23,11 @@ function getMedal(rank: number): string {
 }
 
 function getPlayerRank(player: Player, players: Player[]): number {
-  const sorted = [...players].sort((a, b) => a.totalScore - b.totalScore);
-  return sorted.findIndex((p) => p.id === player.id);
+  const lowerScores = players
+    .filter((p) => p.totalScore < player.totalScore)
+    .map((p) => p.totalScore);
+  const distinctLowerScores = new Set(lowerScores);
+  return distinctLowerScores.size;
 }
 
 export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTableProps) {

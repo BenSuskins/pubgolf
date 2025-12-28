@@ -114,6 +114,59 @@ describe('ScoreboardTable', () => {
 
       expect(screen.getByText('🥉')).toBeInTheDocument();
     });
+
+    test('should display gold medal for both players tied for first', () => {
+      const players: Player[] = [
+        createPlayer('p1', 'TiedFirst1', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p2', 'TiedFirst2', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p3', 'Third', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      const goldMedals = screen.getAllByText('🥇');
+      expect(goldMedals).toHaveLength(2);
+    });
+
+    test('should display silver medal for player after tied first places', () => {
+      const players: Player[] = [
+        createPlayer('p1', 'TiedFirst1', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p2', 'TiedFirst2', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p3', 'Second', [2, 2, 2, 2, 2, 2, 2, 2, 2], 18),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      expect(screen.getByText('🥈')).toBeInTheDocument();
+    });
+
+    test('should display silver medal for both players tied for second', () => {
+      const players: Player[] = [
+        createPlayer('p1', 'First', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p2', 'TiedSecond1', [2, 2, 2, 2, 2, 2, 2, 2, 2], 18),
+        createPlayer('p3', 'TiedSecond2', [2, 2, 2, 2, 2, 2, 2, 2, 2], 18),
+        createPlayer('p4', 'Fourth', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      const silverMedals = screen.getAllByText('🥈');
+      expect(silverMedals).toHaveLength(2);
+    });
+
+    test('should display gold medal for all three players in three-way tie for first', () => {
+      const players: Player[] = [
+        createPlayer('p1', 'TiedFirst1', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p2', 'TiedFirst2', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p3', 'TiedFirst3', [1, 1, 1, 1, 1, 1, 1, 1, 1], 9),
+        createPlayer('p4', 'Fourth', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      const goldMedals = screen.getAllByText('🥇');
+      expect(goldMedals).toHaveLength(3);
+    });
   });
 
   describe('current player highlighting', () => {
