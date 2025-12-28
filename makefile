@@ -1,4 +1,4 @@
-.PHONY: backend backend-test frontend setup e2e e2e-ui
+.PHONY: backend backend-test frontend frontend-test setup e2e e2e-ui
 
 setup:
 	./gradlew clean build
@@ -13,6 +13,9 @@ backend-test:
 
 frontend:
 	cd apps/frontend && bun run dev
+
+frontend-test:
+	cd apps/frontend && bun run test
 
 e2e:
 	cd e2e && bun run test

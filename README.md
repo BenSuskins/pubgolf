@@ -12,7 +12,7 @@ A real-time leaderboard application for tracking Pub Golf games. Create custom g
 |-------|------------|
 | Frontend | Next.js, React, TypeScript, Tailwind CSS |
 | Backend | Kotlin, Spring Boot |
-| Testing | Playwright (E2E), JUnit |
+| Testing | Playwright (E2E), Bun Test, JUnit |
 | Infrastructure | Docker, Podman |
 
 ## Features
@@ -69,7 +69,12 @@ make frontend
 make backend-test
 ```
 
-**E2E tests**
+**Frontend unit tests:**
+```bash
+make frontend-test
+```
+
+**E2E tests:**
 ```bash
 make e2e
 ```
@@ -87,6 +92,7 @@ make e2e-ui
 | `make backend` | Run backend server |
 | `make frontend` | Run frontend dev server |
 | `make backend-test` | Run backend unit tests |
+| `make frontend-test` | Run frontend unit tests |
 | `make e2e` | Run Playwright E2E tests |
 | `make e2e-ui` | Run E2E tests with Playwright UI |
 
