@@ -46,21 +46,22 @@ class RandomiseOptions : ScenarioTest() {
         val options = body["options"] as List<*>
         val labels = options.map { (it as Map<*, *>)["option"] as String }
 
-        val expectedLabels = listOf(
-            "Double Drink",
-            "Half Score",
-            "Double Score",
-            "Free Choice",
-            "Tequila",
-            "Beer",
-            "Wine",
-            "Cider",
-            "Cocktail",
-            "Spirit w/ Mixer",
-            "Guinness",
-            "Jägerbomb",
-            "VK"
-        )
+        val expectedLabels =
+            listOf(
+                "Double Drink",
+                "Half Score",
+                "Double Score",
+                "Free Choice",
+                "Tequila",
+                "Beer",
+                "Wine",
+                "Cider",
+                "Cocktail",
+                "Spirit w/ Mixer",
+                "Guinness",
+                "Jägerbomb",
+                "VK",
+            )
 
         expectedLabels.forEach { expected ->
             assert(labels.contains(expected)) { "Expected outcome '$expected' not found in $labels" }

@@ -31,9 +31,6 @@ import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
 import uk.co.suskins.pubgolf.models.JoinGameResponse
-import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
-import uk.co.suskins.pubgolf.models.RandomiseOutcomeResponse
-import uk.co.suskins.pubgolf.models.RandomiseResponse
 import uk.co.suskins.pubgolf.models.OutcomeResponse
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.OutcomesResponse
@@ -42,6 +39,9 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PlayerResponse
 import uk.co.suskins.pubgolf.models.PubGolfFailure
+import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
+import uk.co.suskins.pubgolf.models.RandomiseOutcomeResponse
+import uk.co.suskins.pubgolf.models.RandomiseResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.service.GameService
 

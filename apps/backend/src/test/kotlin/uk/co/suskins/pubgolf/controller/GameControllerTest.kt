@@ -8,11 +8,11 @@ import org.springframework.http.HttpStatus
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
+import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
-import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
@@ -34,35 +34,39 @@ class GameControllerTest {
 
     @Test
     fun `returns 404 NOT_FOUND when player not found`() {
-        val game = Game(
-            id = GameId.random(),
-            code = GameCode("ACE007"),
-            players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
+            )
         gameRepository.save(game)
 
-        val response = controller.submitScore(
-            GameCode("ACE007"),
-            PlayerId.random(),
-            ScoreRequest(Hole(1), Score(5))
-        )
+        val response =
+            controller.submitScore(
+                GameCode("ACE007"),
+                PlayerId.random(),
+                ScoreRequest(Hole(1), Score(5)),
+            )
 
         assertThat(response.statusCode, equalTo(HttpStatus.NOT_FOUND))
     }
 
     @Test
     fun `returns 400 BAD_REQUEST when player already exists`() {
-        val game = Game(
-            id = GameId.random(),
-            code = GameCode("ACE007"),
-            players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
+            )
         gameRepository.save(game)
 
-        val response = controller.joinGame(
-            GameCode("ACE007"),
-            GameJoinRequest(PlayerName("Ben"))
-        )
+        val response =
+            controller.joinGame(
+                GameCode("ACE007"),
+                GameJoinRequest(PlayerName("Ben")),
+            )
 
         assertThat(response.statusCode, equalTo(HttpStatus.BAD_REQUEST))
     }
@@ -70,11 +74,12 @@ class GameControllerTest {
     @Test
     fun `returns 409 CONFLICT when randomise already used`() {
         val player = Player(PlayerId.random(), PlayerName("Ben"))
-        val game = Game(
-            id = GameId.random(),
-            code = GameCode("ACE007"),
-            players = listOf(player),
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(player),
+            )
         gameRepository.save(game)
         gameService.submitScore(GameCode("ACE007"), player.id, Hole(1), Score(5))
         gameService.randomise(GameCode("ACE007"), player.id)
@@ -87,11 +92,12 @@ class GameControllerTest {
     @Test
     fun `returns 409 CONFLICT when no more holes left for randomise`() {
         val player = Player(PlayerId.random(), PlayerName("Ben"))
-        val game = Game(
-            id = GameId.random(),
-            code = GameCode("ACE007"),
-            players = listOf(player),
-        )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(player),
+            )
         gameRepository.save(game)
         gameService.submitScore(GameCode("ACE007"), player.id, Hole(9), Score(5))
 

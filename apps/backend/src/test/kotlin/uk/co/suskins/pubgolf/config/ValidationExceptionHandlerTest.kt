@@ -15,9 +15,10 @@ class ValidationExceptionHandlerTest {
 
     @Test
     fun `formats single field error correctly`() {
-        val bindingResult = DataBinder(Any()).bindingResult.apply {
-            addError(FieldError("object", "name", "must not be blank"))
-        }
+        val bindingResult =
+            DataBinder(Any()).bindingResult.apply {
+                addError(FieldError("object", "name", "must not be blank"))
+            }
         val exception = MethodArgumentNotValidException(methodParameter, bindingResult)
 
         val response = handler.handleValidation(exception)
@@ -28,10 +29,11 @@ class ValidationExceptionHandlerTest {
 
     @Test
     fun `formats multiple field errors with comma separator`() {
-        val bindingResult = DataBinder(Any()).bindingResult.apply {
-            addError(FieldError("object", "name", "must not be blank"))
-            addError(FieldError("object", "score", "must be positive"))
-        }
+        val bindingResult =
+            DataBinder(Any()).bindingResult.apply {
+                addError(FieldError("object", "name", "must not be blank"))
+                addError(FieldError("object", "score", "must be positive"))
+            }
         val exception = MethodArgumentNotValidException(methodParameter, bindingResult)
 
         val response = handler.handleValidation(exception)

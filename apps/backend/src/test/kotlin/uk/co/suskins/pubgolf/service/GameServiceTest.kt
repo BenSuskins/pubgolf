@@ -14,11 +14,11 @@ import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Player
-import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
+import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import java.util.UUID
@@ -242,7 +242,6 @@ class GameServiceTest {
 
         assertThat(result, isFailure(RandomiseAlreadyUsedFailure("No more holes left")))
     }
-
 }
 
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }

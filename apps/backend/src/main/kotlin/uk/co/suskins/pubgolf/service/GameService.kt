@@ -12,8 +12,6 @@ import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.Hole
-import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
-import uk.co.suskins.pubgolf.models.RandomiseResult
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
@@ -21,6 +19,8 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
+import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
+import uk.co.suskins.pubgolf.models.RandomiseResult
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.repository.GameRepository
 
