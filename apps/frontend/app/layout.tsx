@@ -16,10 +16,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Pub Golf",
   description: "Track your Pub Golf scores here",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Pub Golf",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
   viewportFit: "cover",
+  themeColor: "#2563eb",
 };
 
 export default function RootLayout({
