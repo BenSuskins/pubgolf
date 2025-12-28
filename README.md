@@ -13,6 +13,7 @@ A real-time leaderboard application for tracking Pub Golf games. Create custom g
 | Frontend | Next.js, React, TypeScript, Tailwind CSS |
 | Backend | Kotlin, Spring Boot |
 | Testing | Playwright (E2E), Bun Test, JUnit |
+| Linting | ESLint, ktlint |
 | Infrastructure | Docker, Podman |
 
 ## Features
@@ -84,6 +85,23 @@ make e2e
 make e2e-ui
 ```
 
+## Linting
+
+**All linting:**
+```bash
+make lint
+```
+
+**Backend only (ktlint):**
+```bash
+make backend-lint
+```
+
+**Frontend only (ESLint):**
+```bash
+make frontend-lint
+```
+
 ## Development
 
 | Command | Description |
@@ -95,6 +113,9 @@ make e2e-ui
 | `make frontend-test` | Run frontend unit tests |
 | `make e2e` | Run Playwright E2E tests |
 | `make e2e-ui` | Run E2E tests with Playwright UI |
+| `make lint` | Run all linters |
+| `make backend-lint` | Run ktlint on backend |
+| `make frontend-lint` | Run ESLint on frontend |
 
 ## License
 
