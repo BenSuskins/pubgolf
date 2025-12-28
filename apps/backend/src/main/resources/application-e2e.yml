@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: "jdbc:sqlite:file:e2e-test?mode=memory&cache=shared"
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: create
+  flyway:
+    enabled: false
+
+application:
+  origins:
+    - http://localhost:3000
