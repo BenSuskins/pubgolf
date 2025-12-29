@@ -5,6 +5,8 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -23,6 +25,10 @@ data class GameEntity(
     @Id
     val id: UUID,
     val code: String,
+    @Enumerated(EnumType.STRING)
+    val status: GameStatus = GameStatus.ACTIVE,
+    @Column(name = "host_player_id")
+    val hostPlayerId: UUID? = null,
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
     val players: MutableList<PlayerEntity> = mutableListOf(),
@@ -101,6 +107,8 @@ fun GameEntity.toDomain(): Game =
     Game(
         id = GameId(id),
         code = GameCode(code),
+        status = status,
+        hostPlayerId = hostPlayerId?.let { PlayerId(it) },
         players =
             players.map {
                 Player(

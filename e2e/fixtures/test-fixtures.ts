@@ -9,10 +9,24 @@ interface GameSession {
   playerName: string;
 }
 
+interface GameState {
+  gameId: string;
+  gameCode: string;
+  status: 'ACTIVE' | 'COMPLETED';
+  hostPlayerId: string | null;
+  players: Array<{
+    id: string;
+    name: string;
+    scores: number[];
+    totalScore: number;
+  }>;
+}
+
 interface TestFixtures {
   createGameViaApi: (hostName: string) => Promise<GameSession>;
   joinGameViaApi: (gameCode: string, playerName: string) => Promise<GameSession>;
   submitScoreViaApi: (gameCode: string, playerId: string, hole: number, score: number) => Promise<void>;
+  completeGameViaApi: (gameCode: string, playerId: string) => Promise<GameState>;
   authenticatedPage: Page;
 }
 
@@ -87,6 +101,30 @@ export const test = base.extend<TestFixtures>({
     };
 
     await use(submitScore);
+  },
+
+  completeGameViaApi: async ({}, use) => {
+    const completeGame = async (
+      gameCode: string,
+      playerId: string
+    ): Promise<GameState> => {
+      const response = await fetch(
+        `${API_URL}/api/v1/games/${gameCode}/complete`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to complete game: ${response.status}`);
+      }
+
+      return response.json();
+    };
+
+    await use(completeGame);
   },
 
   authenticatedPage: async ({ page, createGameViaApi }, use) => {

@@ -9,9 +9,12 @@ import dev.forkhandles.result4k.peek
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.Game
+import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
+import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
@@ -38,6 +41,8 @@ class GameService(
                 id = GameId.random(),
                 code = GameCode.random(),
                 players = listOf(host),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = host.id,
             )
 
         return gameRepository
@@ -53,6 +58,7 @@ class GameService(
     ): Result<Game, PubGolfFailure> =
         gameRepository
             .findByCodeIgnoreCase(gameCode)
+            .flatMap { isNotCompleted(it, "This game has ended") }
             .flatMap { hasPlayer(it, name) }
             .flatMap { game ->
                 val player = Player(PlayerId.random(), name)
@@ -73,6 +79,7 @@ class GameService(
     ): Result<Unit, PubGolfFailure> =
         gameRepository
             .findByCodeIgnoreCase(gameCode)
+            .flatMap { isNotCompleted(it, "Cannot submit score to completed game") }
             .flatMap { hasPlayer(it, playerId) }
             .flatMap { game ->
                 val updatedPlayers =
@@ -95,9 +102,26 @@ class GameService(
     ): Result<RandomiseResult, PubGolfFailure> =
         gameRepository
             .findByCodeIgnoreCase(gameCode)
+            .flatMap { isNotCompleted(it, "Cannot randomise on completed game") }
             .flatMap { hasPlayer(it, playerId) }
             .flatMap { hasUsedRandomise(it, playerId) }
             .flatMap { game -> generateRandomiseResult(playerId, game) }
+
+    fun completeGame(
+        gameCode: GameCode,
+        playerId: PlayerId,
+    ): Result<Game, PubGolfFailure> =
+        gameRepository
+            .findByCodeIgnoreCase(gameCode)
+            .flatMap { isNotCompleted(it, "Game is already completed") }
+            .flatMap { isHost(it, playerId) }
+            .flatMap { game ->
+                val completed = game.copy(status = GameStatus.COMPLETED)
+                gameRepository
+                    .save(completed)
+                    .peek { logger.info("Game ${it.code.value} completed.") }
+                    .also { gameMetrics.gameCompleted() }
+            }
 
     private fun hasPlayer(
         game: Game,
@@ -115,6 +139,26 @@ class GameService(
     ): Result<Game, PubGolfFailure> =
         if (game.players.any { it.name.value.equals(name.value, ignoreCase = true) }) {
             Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${game.code.value}`."))
+        } else {
+            Success(game)
+        }
+
+    private fun isNotCompleted(
+        game: Game,
+        message: String,
+    ): Result<Game, PubGolfFailure> =
+        if (game.status == GameStatus.COMPLETED) {
+            Failure(GameAlreadyCompletedFailure(message))
+        } else {
+            Success(game)
+        }
+
+    private fun isHost(
+        game: Game,
+        playerId: PlayerId,
+    ): Result<Game, PubGolfFailure> =
+        if (game.hostPlayerId != playerId) {
+            Failure(NotHostPlayerFailure("Only the host can complete this game"))
         } else {
             Success(game)
         }

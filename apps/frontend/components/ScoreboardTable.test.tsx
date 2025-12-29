@@ -225,4 +225,42 @@ describe('ScoreboardTable', () => {
       expect(screen.getByRole('table', { name: /player scores/i })).toBeInTheDocument();
     });
   });
+
+  describe('host indicator', () => {
+    test('should display crown icon for host player', () => {
+      const players: Player[] = [
+        createPlayer('host-id', 'Host Player', [1, 2, 2, 2, 2, 2, 4, 1, 1], 17),
+        createPlayer('other-id', 'Other Player', [1, 3, 2, 2, 2, 2, 4, 1, 1], 18),
+      ];
+
+      render(<ScoreboardTable players={players} hostPlayerId="host-id" />);
+
+      expect(screen.getByTitle('Host')).toBeInTheDocument();
+      expect(screen.getByText('👑')).toBeInTheDocument();
+    });
+
+    test('should not display crown icon when no hostPlayerId is provided', () => {
+      const players: Player[] = [
+        createPlayer('p1', 'Player One', [1, 2, 2, 2, 2, 2, 4, 1, 1], 17),
+        createPlayer('p2', 'Player Two', [1, 3, 2, 2, 2, 2, 4, 1, 1], 18),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      expect(screen.queryByText('👑')).not.toBeInTheDocument();
+    });
+
+    test('should only display one crown for the host', () => {
+      const players: Player[] = [
+        createPlayer('host-id', 'Host Player', [1, 2, 2, 2, 2, 2, 4, 1, 1], 17),
+        createPlayer('other-id', 'Other Player', [1, 3, 2, 2, 2, 2, 4, 1, 1], 18),
+        createPlayer('third-id', 'Third Player', [2, 3, 2, 2, 2, 2, 4, 1, 1], 19),
+      ];
+
+      render(<ScoreboardTable players={players} hostPlayerId="host-id" />);
+
+      const crowns = screen.getAllByText('👑');
+      expect(crowns).toHaveLength(1);
+    });
+  });
 });

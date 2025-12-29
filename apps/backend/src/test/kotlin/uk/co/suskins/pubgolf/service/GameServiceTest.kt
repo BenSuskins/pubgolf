@@ -9,10 +9,13 @@ import dev.forkhandles.result4k.valueOrNull
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
 import uk.co.suskins.pubgolf.models.Game
+import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
+import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
@@ -241,6 +244,133 @@ class GameServiceTest {
         val result = service.randomise(gameCode, player.id)
 
         assertThat(result, isFailure(RandomiseAlreadyUsedFailure("No more holes left")))
+    }
+
+    @Test
+    fun `creating game sets first player as host`() {
+        val result = service.createGame(host)
+
+        val game = result.valueOrNull()!!
+        assertThat(game.hostPlayerId, equalTo(game.players.first().id))
+    }
+
+    @Test
+    fun `creating game sets status to ACTIVE`() {
+        val result = service.createGame(host)
+
+        val game = result.valueOrNull()!!
+        assertThat(game.status, equalTo(GameStatus.ACTIVE))
+    }
+
+    @Test
+    fun `host can complete a game`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.completeGame(gameCode, hostPlayer.id)
+
+        assertThat(result, isSuccess())
+        val completedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(completedGame.status, equalTo(GameStatus.COMPLETED))
+    }
+
+    @Test
+    fun `non-host cannot complete a game`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val otherPlayer = Player(PlayerId.random(), PlayerName("Other"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer, otherPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.completeGame(gameCode, otherPlayer.id)
+
+        assertThat(result, isFailure(NotHostPlayerFailure("Only the host can complete this game")))
+    }
+
+    @Test
+    fun `cannot complete already completed game`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.COMPLETED,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.completeGame(gameCode, hostPlayer.id)
+
+        assertThat(result, isFailure(GameAlreadyCompletedFailure("Game is already completed")))
+    }
+
+    @Test
+    fun `cannot submit score to completed game`() {
+        val player = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(player),
+                status = GameStatus.COMPLETED,
+                hostPlayerId = player.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.submitScore(gameCode, player.id, Hole(2), Score(4))
+
+        assertThat(result, isFailure(GameAlreadyCompletedFailure("Cannot submit score to completed game")))
+    }
+
+    @Test
+    fun `cannot join completed game`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.COMPLETED,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.joinGame(gameCode, PlayerName("NewPlayer"))
+
+        assertThat(result, isFailure(GameAlreadyCompletedFailure("This game has ended")))
+    }
+
+    @Test
+    fun `cannot use randomise on completed game`() {
+        val player = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(player),
+                status = GameStatus.COMPLETED,
+                hostPlayerId = player.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.randomise(gameCode, player.id)
+
+        assertThat(result, isFailure(GameAlreadyCompletedFailure("Cannot randomise on completed game")))
     }
 }
 

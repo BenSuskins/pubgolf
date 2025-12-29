@@ -56,8 +56,8 @@ export default function HowToPlayPage() {
               <thead>
                 <tr className="border-b border-[var(--color-border)]">
                   <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Hole</th>
-                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Option A</th>
-                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Option B</th>
+                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Route A</th>
+                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Route B</th>
                   <th className="px-3 py-3 text-center font-semibold text-[var(--color-accent)]">Par</th>
                 </tr>
               </thead>

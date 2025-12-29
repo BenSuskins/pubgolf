@@ -46,3 +46,8 @@ value class GameId(
         fun random() = GameId(UUID.randomUUID())
     }
 }
+
+enum class GameStatus {
+    ACTIVE,
+    COMPLETED,
+}

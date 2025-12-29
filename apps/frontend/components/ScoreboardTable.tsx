@@ -5,6 +5,7 @@ import { Player, PAR_VALUES } from '@/lib/types';
 interface ScoreboardTableProps {
   players: Player[];
   currentPlayerId?: string;
+  hostPlayerId?: string;
 }
 
 function getScoreColor(score: number | null, holeIndex: number): string {
@@ -30,7 +31,7 @@ function getPlayerRank(player: Player, players: Player[]): number {
   return distinctLowerScores.size;
 }
 
-export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTableProps) {
+export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: ScoreboardTableProps) {
   if (players.length === 0) {
     return (
       <div className="text-center py-12">
@@ -70,6 +71,7 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
         <tbody>
           {players.map((player) => {
             const isCurrentPlayer = player.id === currentPlayerId;
+            const isHost = player.id === hostPlayerId;
             const rank = getPlayerRank(player, players);
             const medal = getMedal(rank);
             const isLeader = rank === 0;
@@ -94,6 +96,9 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                   <div className="flex items-center gap-2">
                     {medal && (
                       <span className={`text-lg ${isLeader ? 'animate-pulse' : ''}`}>{medal}</span>
+                    )}
+                    {isHost && (
+                      <span className="text-lg" title="Host">👑</span>
                     )}
                     <span className="max-w-[100px] truncate" title={player.name}>
                       {player.name}

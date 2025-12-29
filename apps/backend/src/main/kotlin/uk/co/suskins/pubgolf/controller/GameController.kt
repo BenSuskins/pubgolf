@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
@@ -23,14 +24,17 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.co.suskins.pubgolf.models.CompleteGameRequest
 import uk.co.suskins.pubgolf.models.CreateGameResponse
 import uk.co.suskins.pubgolf.models.ErrorResponse
+import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
 import uk.co.suskins.pubgolf.models.JoinGameResponse
+import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.OutcomeResponse
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.OutcomesResponse
@@ -220,6 +224,8 @@ class GameController(
                 GameStateResponse(
                     it.id,
                     it.code,
+                    it.status,
+                    it.hostPlayerId,
                     it.players
                         .map {
                             PlayerResponse(
@@ -360,6 +366,91 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
+    @PostMapping("/{gameCode}/complete")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Game completed",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Not the host",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "Game already completed",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun completeGame(
+        @PathVariable("gameCode") gameCode: GameCode,
+        @Valid @RequestBody request: CompleteGameRequest,
+    ): ResponseEntity<*> =
+        gameService
+            .completeGame(gameCode, request.playerId)
+            .map {
+                GameStateResponse(
+                    it.id,
+                    it.code,
+                    it.status,
+                    it.hostPlayerId,
+                    it.players
+                        .map {
+                            PlayerResponse(
+                                it.id,
+                                it.name,
+                                it.scores.map { it.value.score },
+                                it.scores.map { it.value.score.value }.sum(),
+                                it.randomise?.let {
+                                    RandomiseOutcomeResponse(it.hole, it.result.label)
+                                },
+                            )
+                        }.sortedBy { it.totalScore },
+                )
+            }.map {
+                ResponseEntity.status(OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
     @GetMapping("/randomise-options")
     @ApiResponses(
         value = [
@@ -387,6 +478,8 @@ class GameController(
             is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
             is RandomiseAlreadyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is GameAlreadyCompletedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is NotHostPlayerFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }

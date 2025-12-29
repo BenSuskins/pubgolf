@@ -5,10 +5,12 @@ import com.natpryce.hamkrest.equalTo
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
+import uk.co.suskins.pubgolf.models.CompleteGameRequest
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameJoinRequest
+import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerId
@@ -102,6 +104,61 @@ class GameControllerTest {
         gameService.submitScore(GameCode("ACE007"), player.id, Hole(9), Score(5))
 
         val response = controller.randomise(GameCode("ACE007"), player.id)
+
+        assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
+    }
+
+    @Test
+    fun `returns 200 OK when host completes game`() {
+        val hostPlayer = Player(PlayerId.random(), PlayerName("Ben"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val response = controller.completeGame(GameCode("ACE007"), CompleteGameRequest(hostPlayer.id))
+
+        assertThat(response.statusCode, equalTo(HttpStatus.OK))
+    }
+
+    @Test
+    fun `returns 403 FORBIDDEN when non-host tries to complete game`() {
+        val hostPlayer = Player(PlayerId.random(), PlayerName("Ben"))
+        val otherPlayer = Player(PlayerId.random(), PlayerName("Other"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(hostPlayer, otherPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val response = controller.completeGame(GameCode("ACE007"), CompleteGameRequest(otherPlayer.id))
+
+        assertThat(response.statusCode, equalTo(HttpStatus.FORBIDDEN))
+    }
+
+    @Test
+    fun `returns 409 CONFLICT when completing already completed game`() {
+        val hostPlayer = Player(PlayerId.random(), PlayerName("Ben"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(hostPlayer),
+                status = GameStatus.COMPLETED,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val response = controller.completeGame(GameCode("ACE007"), CompleteGameRequest(hostPlayer.id))
 
         assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
     }

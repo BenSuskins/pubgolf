@@ -11,9 +11,13 @@ export interface Player {
   randomise: Randomise | null;
 }
 
+export type GameStatus = 'ACTIVE' | 'COMPLETED';
+
 export interface GameState {
   gameId: string;
   gameCode: string;
+  status: GameStatus;
+  hostPlayerId: string | null;
   players: Player[];
 }
 

@@ -108,4 +108,13 @@ export async function spinWheel(
   return handleResponse<SpinWheelResponse>(response);
 }
 
+export async function completeGame(gameCode: string, playerId: string): Promise<GameState> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId }),
+  });
+  return handleResponse<GameState>(response);
+}
+
 export { ApiError };

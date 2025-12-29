@@ -276,6 +276,82 @@
         }
       }
     },
+    "/api/v1/games/{gameCode}/complete" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "completeGame-fOdNj2Q",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CompleteGameRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Game completed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Game already completed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/{gameCode}" : {
       "get" : {
         "tags" : [ "game-controller" ],
@@ -453,6 +529,16 @@
         },
         "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
       },
+      "CompleteGameRequest" : {
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "playerId" ]
+      },
       "GameStateResponse" : {
         "type" : "object",
         "properties" : {
@@ -463,6 +549,14 @@
           "gameCode" : {
             "type" : "string"
           },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "ACTIVE", "COMPLETED" ]
+          },
+          "hostPlayerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
           "players" : {
             "type" : "array",
             "items" : {
@@ -470,7 +564,7 @@
             }
           }
         },
-        "required" : [ "gameCode", "gameId", "players" ]
+        "required" : [ "gameCode", "gameId", "players", "status" ]
       },
       "PlayerResponse" : {
         "type" : "object",

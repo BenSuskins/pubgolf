@@ -6,6 +6,8 @@ data class Game(
     val id: GameId,
     val code: GameCode,
     val players: List<Player>,
+    val status: GameStatus = GameStatus.ACTIVE,
+    val hostPlayerId: PlayerId? = null,
 )
 
 data class Player(
@@ -113,8 +115,16 @@ data class PersistenceFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class GameAlreadyCompletedFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class NotHostPlayerFailure(
+    override val message: String,
+) : PubGolfFailure
+
 fun Game.toJpa(): GameEntity {
-    val gameEntity = GameEntity(id.value, code.value)
+    val gameEntity = GameEntity(id.value, code.value, status, hostPlayerId?.value)
 
     players.forEach { player ->
         val playerEntity =

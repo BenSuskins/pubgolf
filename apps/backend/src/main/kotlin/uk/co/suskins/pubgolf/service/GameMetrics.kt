@@ -23,4 +23,8 @@ class GameMetrics(
     fun randomiseUsed() {
         registry.counter("pubgolf.game.randomise").increment()
     }
+
+    fun gameCompleted() {
+        registry.counter("pubgolf.game.completed").increment()
+    }
 }
