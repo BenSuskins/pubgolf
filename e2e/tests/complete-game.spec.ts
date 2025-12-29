@@ -263,7 +263,7 @@ test.describe('Complete Game', () => {
 
       // Wait for leaderboard to load first
       await expect(page.getByText('HostPlayer')).toBeVisible();
-      await expect(page.getByTitle('Host')).toBeVisible();
+      await expect(page.getByTitle('Host', { exact: true })).toBeVisible();
     });
   });
 });
