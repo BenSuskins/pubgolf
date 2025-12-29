@@ -1,20 +1,19 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { RULES, DRINKS } from '@/lib/constants';
 import { getPenaltyOptions, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
+import { BackButton } from './BackButton';
 
-export default function HowToPlayPage() {
-  const router = useRouter();
-  const [penalties, setPenalties] = useState<PenaltyOption[]>([]);
+async function fetchPenalties(): Promise<PenaltyOption[]> {
+  try {
+    const response = await getPenaltyOptions();
+    return response.penalties;
+  } catch {
+    return [];
+  }
+}
 
-  useEffect(() => {
-    getPenaltyOptions()
-      .then((response) => setPenalties(response.penalties))
-      .catch(() => {});
-  }, []);
+export default async function HowToPlayPage() {
+  const penalties = await fetchPenalties();
 
   return (
     <main className="p-6 py-8">
@@ -90,12 +89,7 @@ export default function HowToPlayPage() {
         </section>
 
         <div className="flex justify-center">
-          <button
-            onClick={() => router.back()}
-            className="py-3 px-8 glass rounded-lg hover:bg-white/5 transition-colors font-medium"
-          >
-            Got It
-          </button>
+          <BackButton />
         </div>
       </div>
     </main>
