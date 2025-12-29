@@ -8,13 +8,15 @@ const createPlayer = (
   name: string,
   scores: (number | null)[],
   totalScore: number,
-  randomise: { hole: number; result: string } | null = null
+  randomise: { hole: number; result: string } | null = null,
+  penalties: { hole: number; type: 'SKIP' | 'CHUNDER'; points: number }[] = []
 ): Player => ({
   id,
   name,
   scores,
   totalScore,
   randomise,
+  penalties,
 });
 
 describe('ScoreboardTable', () => {
@@ -261,6 +263,60 @@ describe('ScoreboardTable', () => {
 
       const crowns = screen.getAllByText('👑');
       expect(crowns).toHaveLength(1);
+    });
+  });
+
+  describe('penalty indicator', () => {
+    test('should display SKIP penalty emoji for penalty holes', () => {
+      const players: Player[] = [
+        createPlayer(
+          'p1',
+          'Penalty Player',
+          [1, 2, 5, 2, 2, 2, 4, 1, 1],
+          20,
+          null,
+          [{ hole: 3, type: 'SKIP', points: 5 }]
+        ),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      expect(screen.getByText('🚫')).toBeInTheDocument();
+    });
+
+    test('should display CHUNDER penalty emoji for penalty holes', () => {
+      const players: Player[] = [
+        createPlayer(
+          'p1',
+          'Penalty Player',
+          [1, 2, 2, 2, 10, 2, 4, 1, 1],
+          25,
+          null,
+          [{ hole: 5, type: 'CHUNDER', points: 10 }]
+        ),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      expect(screen.getByText('🤮')).toBeInTheDocument();
+    });
+
+    test('should display both randomise and penalty on same hole', () => {
+      const players: Player[] = [
+        createPlayer(
+          'p1',
+          'Player',
+          [1, 2, 5, 2, 2, 2, 4, 1, 1],
+          20,
+          { hole: 3, result: 'Double Points' },
+          [{ hole: 3, type: 'SKIP', points: 5 }]
+        ),
+      ];
+
+      render(<ScoreboardTable players={players} />);
+
+      expect(screen.getByText('Double Points')).toBeInTheDocument();
+      expect(screen.getByText('🚫')).toBeInTheDocument();
     });
   });
 });

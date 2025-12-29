@@ -3,12 +3,26 @@ export interface Randomise {
   result: string;
 }
 
+export type PenaltyType = 'SKIP' | 'CHUNDER';
+
+export interface Penalty {
+  hole: number;
+  type: PenaltyType;
+  points: number;
+}
+
+export const PENALTY_EMOJI_MAP: Record<PenaltyType, string> = {
+  SKIP: '🚫',
+  CHUNDER: '🤮',
+};
+
 export interface Player {
   id: string;
   name: string;
   scores: (number | null)[];
   totalScore: number;
   randomise: Randomise | null;
+  penalties: Penalty[];
 }
 
 export type GameStatus = 'ACTIVE' | 'COMPLETED';

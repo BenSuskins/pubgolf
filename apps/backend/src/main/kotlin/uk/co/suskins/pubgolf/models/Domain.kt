@@ -15,6 +15,7 @@ data class Player(
     val name: PlayerName,
     val scores: Map<Hole, ScoreWithTimestamp> = initialScore(),
     val randomise: Randomise? = null,
+    val penalties: List<Penalty> = emptyList(),
 ) {
     fun matches(playerId: PlayerId) = id.value == playerId.value
 
@@ -27,6 +28,13 @@ data class Player(
         hole: Hole,
         result: Outcomes,
     ) = copy(randomise = Randomise(hole, result))
+
+    fun updatePenalty(
+        hole: Hole,
+        penaltyType: PenaltyType,
+    ) = copy(penalties = penalties.filter { it.hole != hole } + Penalty(hole, penaltyType))
+
+    fun removePenalty(hole: Hole) = copy(penalties = penalties.filter { it.hole != hole })
 
     companion object {
         fun initialScore(): Map<Hole, ScoreWithTimestamp> {
@@ -47,6 +55,11 @@ data class ScoreWithTimestamp(
 data class Randomise(
     val hole: Hole,
     val result: Outcomes,
+)
+
+data class Penalty(
+    val hole: Hole,
+    val type: PenaltyType,
 )
 
 data class RandomiseResult(
@@ -160,6 +173,17 @@ fun Game.toJpa(): GameEntity {
                 )
             playerEntity.randomise = randomiseEntity
         }
+
+        val penaltyEntities =
+            player.penalties.map { penalty ->
+                PlayerPenaltyEntity(
+                    id = PlayerPenaltyId(playerId = player.id.value, hole = penalty.hole.value),
+                    player = playerEntity,
+                    penaltyType = penalty.type,
+                )
+            }
+        playerEntity.penalties.addAll(penaltyEntities)
+
         gameEntity.addPlayer(playerEntity)
     }
     return gameEntity

@@ -1,4 +1,4 @@
-import { CreateGameResponse, JoinGameResponse, GameState } from './types';
+import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 
@@ -59,14 +59,19 @@ export async function submitScore(
   gameCode: string,
   playerId: string,
   hole: number,
-  score: number
+  score: number,
+  penaltyType?: PenaltyType | null
 ): Promise<void> {
+  const body: { hole: number; score: number; penaltyType?: PenaltyType } = { hole, score };
+  if (penaltyType) {
+    body.penaltyType = penaltyType;
+  }
   const response = await fetch(
     `${API_BASE_URL}/api/v1/games/${gameCode}/players/${playerId}/scores`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hole, score }),
+      body: JSON.stringify(body),
     }
   );
   return handleResponse<void>(response);
@@ -92,6 +97,24 @@ export async function getRandomiseOptions(): Promise<WheelOptionsResponse> {
     headers: { 'Content-Type': 'application/json' },
   });
   return handleResponse<WheelOptionsResponse>(response);
+}
+
+export interface PenaltyOption {
+  type: string;
+  name: string;
+  points: number;
+}
+
+export interface PenaltyOptionsResponse {
+  penalties: PenaltyOption[];
+}
+
+export async function getPenaltyOptions(): Promise<PenaltyOptionsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/penalty-options`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<PenaltyOptionsResponse>(response);
 }
 
 export async function spinWheel(

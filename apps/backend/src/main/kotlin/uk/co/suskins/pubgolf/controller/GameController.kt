@@ -38,6 +38,10 @@ import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.OutcomeResponse
 import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.OutcomesResponse
+import uk.co.suskins.pubgolf.models.PenaltyOptionResponse
+import uk.co.suskins.pubgolf.models.PenaltyOptionsResponse
+import uk.co.suskins.pubgolf.models.PenaltyResponse
+import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
@@ -227,14 +231,17 @@ class GameController(
                     it.status,
                     it.hostPlayerId,
                     it.players
-                        .map {
+                        .map { player ->
                             PlayerResponse(
-                                it.id,
-                                it.name,
-                                it.scores.map { it.value.score },
-                                it.scores.map { it.value.score.value }.sum(),
-                                it.randomise?.let {
+                                player.id,
+                                player.name,
+                                player.scores.map { it.value.score },
+                                player.scores.map { it.value.score.value }.sum(),
+                                player.randomise?.let {
                                     RandomiseOutcomeResponse(it.hole, it.result.label)
+                                },
+                                player.penalties.map { penalty ->
+                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
                                 },
                             )
                         }.sortedBy { it.totalScore },
@@ -289,7 +296,7 @@ class GameController(
         @Valid @RequestBody scoreRequest: ScoreRequest,
     ): ResponseEntity<*> =
         gameService
-            .submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score)
+            .submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
             .map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
@@ -433,14 +440,17 @@ class GameController(
                     it.status,
                     it.hostPlayerId,
                     it.players
-                        .map {
+                        .map { player ->
                             PlayerResponse(
-                                it.id,
-                                it.name,
-                                it.scores.map { it.value.score },
-                                it.scores.map { it.value.score.value }.sum(),
-                                it.randomise?.let {
+                                player.id,
+                                player.name,
+                                player.scores.map { it.value.score },
+                                player.scores.map { it.value.score.value }.sum(),
+                                player.randomise?.let {
                                     RandomiseOutcomeResponse(it.hole, it.result.label)
+                                },
+                                player.penalties.map { penalty ->
+                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
                                 },
                             )
                         }.sortedBy { it.totalScore },
@@ -470,6 +480,32 @@ class GameController(
         ResponseEntity
             .status(OK)
             .body(OutcomesResponse(Outcomes.entries.map { OutcomeResponse(it.label, it.weight) }))
+
+    @GetMapping("/penalty-options")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Penalty options",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = PenaltyOptionsResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun penaltyOptions(): ResponseEntity<*> =
+        ResponseEntity
+            .status(OK)
+            .body(
+                PenaltyOptionsResponse(
+                    PenaltyType.entries.map {
+                        PenaltyOptionResponse(it.name, it.label, it.points)
+                    },
+                ),
+            )
 
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")

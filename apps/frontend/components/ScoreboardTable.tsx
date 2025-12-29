@@ -1,6 +1,6 @@
 'use client';
 
-import { Player, PAR_VALUES } from '@/lib/types';
+import { Player, PAR_VALUES, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 
 interface ScoreboardTableProps {
   players: Player[];
@@ -107,6 +107,7 @@ export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: Scor
                 </th>
                 {player.scores.map((score, i) => {
                   const isRandomiseHole = player.randomise && player.randomise.hole === i + 1;
+                  const penalty = player.penalties?.find((p) => p.hole === i + 1);
                   return (
                     <td
                       key={i}
@@ -117,6 +118,11 @@ export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: Scor
                         {isRandomiseHole && (
                           <span className="text-[10px] text-[var(--color-accent)] font-medium">
                             {player.randomise!.result}
+                          </span>
+                        )}
+                        {penalty && (
+                          <span className="text-[10px]" title={penalty.type}>
+                            {PENALTY_EMOJI_MAP[penalty.type as PenaltyType]}
                           </span>
                         )}
                       </div>

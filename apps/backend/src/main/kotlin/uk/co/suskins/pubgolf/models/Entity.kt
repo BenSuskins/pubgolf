@@ -51,6 +51,8 @@ data class PlayerEntity(
     val scores: MutableList<ScoreEntity> = mutableListOf(),
     @OneToOne(mappedBy = "player", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var randomise: PlayerRandomiseEntity? = null,
+    @OneToMany(mappedBy = "player", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    val penalties: MutableList<PlayerPenaltyEntity> = mutableListOf(),
 )
 
 @Embeddable
@@ -103,6 +105,30 @@ data class ScoreId(
     val hole: Int,
 ) : Serializable
 
+@Embeddable
+data class PlayerPenaltyId(
+    @Column(name = "player_id")
+    val playerId: UUID = UUID.randomUUID(),
+    @Column(name = "hole")
+    val hole: Int = 0,
+) : Serializable
+
+@Entity
+@Table(name = "player_penalties")
+data class PlayerPenaltyEntity(
+    @EmbeddedId
+    val id: PlayerPenaltyId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("playerId")
+    @JoinColumn(name = "player_id", nullable = false)
+    val player: PlayerEntity,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "penalty_type", nullable = false)
+    val penaltyType: PenaltyType,
+    @Column(name = "created", nullable = false)
+    val created: Instant = Instant.now(),
+)
+
 fun GameEntity.toDomain(): Game =
     Game(
         id = GameId(id),
@@ -131,6 +157,13 @@ fun GameEntity.toDomain(): Game =
                                         it.modified,
                                     )
                             },
+                    penalties =
+                        it.penalties.map { penaltyEntity ->
+                            Penalty(
+                                hole = Hole(penaltyEntity.id.hole),
+                                type = penaltyEntity.penaltyType,
+                            )
+                        },
                 )
             },
     )

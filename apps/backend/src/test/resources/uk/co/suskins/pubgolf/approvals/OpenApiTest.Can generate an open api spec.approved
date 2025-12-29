@@ -425,6 +425,24 @@
           }
         }
       }
+    },
+    "/api/v1/games/penalty-options" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "penaltyOptions",
+        "responses" : {
+          "200" : {
+            "description" : "Penalty options",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PenaltyOptionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -482,6 +500,10 @@
             "format" : "int32",
             "maximum" : 10,
             "minimum" : -10
+          },
+          "penaltyType" : {
+            "type" : "string",
+            "enum" : [ "SKIP", "CHUNDER" ]
           }
         },
         "required" : [ "hole", "score" ]
@@ -566,6 +588,23 @@
         },
         "required" : [ "gameCode", "gameId", "players", "status" ]
       },
+      "PenaltyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "hole", "points", "type" ]
+      },
       "PlayerResponse" : {
         "type" : "object",
         "properties" : {
@@ -588,9 +627,15 @@
           },
           "randomise" : {
             "$ref" : "#/components/schemas/RandomiseOutcomeResponse"
+          },
+          "penalties" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PenaltyResponse"
+            }
           }
         },
-        "required" : [ "id", "name", "scores", "totalScore" ]
+        "required" : [ "id", "name", "penalties", "scores", "totalScore" ]
       },
       "RandomiseOutcomeResponse" : {
         "type" : "object",
@@ -639,6 +684,34 @@
           }
         },
         "required" : [ "options" ]
+      },
+      "PenaltyOptionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "name", "points", "type" ]
+      },
+      "PenaltyOptionsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "penalties" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PenaltyOptionResponse"
+            }
+          }
+        },
+        "required" : [ "penalties" ]
       }
     }
   }

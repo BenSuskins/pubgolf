@@ -84,15 +84,31 @@ abstract class ScenarioTest {
         playerId: String?,
         hole: Int,
         score: Int,
+        penaltyType: String? = null,
     ) = resultFrom {
+        val body =
+            if (penaltyType != null) {
+                """{"hole": $hole,"score": $score,"penaltyType": "$penaltyType"}"""
+            } else {
+                """{"hole": $hole,"score": $score}"""
+            }
         restClient
             .post()
             .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/scores")
             .contentType(MediaType.APPLICATION_JSON)
-            .body("""{"hole": $hole,"score": $score}""")
+            .body(body)
             .retrieve()
             .toEntity(String::class.java)
     }
+
+    fun penaltyOptions() =
+        resultFrom {
+            restClient
+                .get()
+                .uri("http://localhost:8080/api/v1/games/penalty-options")
+                .retrieve()
+                .toEntity(String::class.java)
+        }
 
     fun gameOfTenPlayers(host: String): Result<ResponseEntity<String>, Exception> {
         val game = createGame(host)

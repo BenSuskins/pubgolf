@@ -1,10 +1,21 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RULES, PENALTIES, DRINKS } from '@/lib/constants';
+import { RULES, DRINKS } from '@/lib/constants';
+import { getPenaltyOptions, PenaltyOption } from '@/lib/api';
+import { PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 
 export default function HowToPlayPage() {
   const router = useRouter();
+  const [penalties, setPenalties] = useState<PenaltyOption[]>([]);
+
+  useEffect(() => {
+    getPenaltyOptions()
+      .then((response) => setPenalties(response.penalties))
+      .catch(() => {});
+  }, []);
+
   return (
     <main className="p-6 py-8">
       <div className="max-w-2xl mx-auto space-y-8">
@@ -34,14 +45,14 @@ export default function HowToPlayPage() {
             Penalties
           </h3>
           <div className="flex flex-wrap gap-3">
-            {PENALTIES.map((penalty, index) => (
+            {penalties.map((penalty) => (
               <div
-                key={index}
+                key={penalty.type}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-error-bg)] text-sm"
               >
-                <span>{penalty.emoji}</span>
+                <span>{PENALTY_EMOJI_MAP[penalty.type as PenaltyType]}</span>
                 <span className="text-[var(--color-text-secondary)]">{penalty.name}</span>
-                <span className="text-[var(--color-error)] font-bold">{penalty.points}</span>
+                <span className="text-[var(--color-error)] font-bold">+{penalty.points}</span>
               </div>
             ))}
           </div>

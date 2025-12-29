@@ -13,6 +13,9 @@ import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
+import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.Penalty
+import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
@@ -58,6 +61,40 @@ interface GameRepositoryContract {
     fun `returns failure if game code not found`() {
         val result = gameRepository.findByCodeIgnoreCase(GameCode("ACE007"))
         assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
+    }
+
+    @Test
+    fun `can save and find a game with player penalties`() {
+        val playerWithPenalty =
+            Player(
+                id = PlayerId.random(),
+                name = PlayerName("Ben"),
+                penalties = listOf(Penalty(Hole(3), PenaltyType.SKIP)),
+            )
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("PENALTY001"),
+                players = listOf(playerWithPenalty),
+            )
+
+        val saved =
+            gameRepository
+                .save(game)
+                .valueOrNull()!!
+        val savedPlayer = saved.players.first()
+        assertThat(savedPlayer.penalties.size, equalTo(1))
+        assertThat(savedPlayer.penalties.first().hole, equalTo(Hole(3)))
+        assertThat(savedPlayer.penalties.first().type, equalTo(PenaltyType.SKIP))
+
+        val found =
+            gameRepository
+                .findByCodeIgnoreCase(GameCode("PENALTY001"))
+                .valueOrNull()!!
+        val foundPlayer = found.players.first()
+        assertThat(foundPlayer.penalties.size, equalTo(1))
+        assertThat(foundPlayer.penalties.first().hole, equalTo(Hole(3)))
+        assertThat(foundPlayer.penalties.first().type, equalTo(PenaltyType.SKIP))
     }
 }
 

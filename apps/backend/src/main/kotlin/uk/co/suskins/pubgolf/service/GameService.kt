@@ -16,6 +16,7 @@ import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.Outcomes
+import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
@@ -76,6 +77,7 @@ class GameService(
         playerId: PlayerId,
         hole: Hole,
         score: Score,
+        penaltyType: PenaltyType? = null,
     ): Result<Unit, PubGolfFailure> =
         gameRepository
             .findByCodeIgnoreCase(gameCode)
@@ -85,7 +87,13 @@ class GameService(
                 val updatedPlayers =
                     game.players.map {
                         if (it.matches(playerId)) {
-                            it.updateScore(hole, score)
+                            val actualScore = penaltyType?.let { Score(it.points) } ?: score
+                            val withScore = it.updateScore(hole, actualScore)
+                            if (penaltyType != null) {
+                                withScore.updatePenalty(hole, penaltyType)
+                            } else {
+                                withScore.removePenalty(hole)
+                            }
                         } else {
                             it
                         }

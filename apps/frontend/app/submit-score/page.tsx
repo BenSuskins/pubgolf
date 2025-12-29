@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { submitScore } from '@/lib/api';
+import { submitScore, getPenaltyOptions, PenaltyOption } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { PenaltyType, PENALTY_EMOJI_MAP } from '@/lib/types';
 
 export default function SubmitScorePage() {
   const [hole, setHole] = useState(1);
   const [score, setScore] = useState('');
+  const [penaltyType, setPenaltyType] = useState<PenaltyType | null>(null);
+  const [penaltyOptions, setPenaltyOptions] = useState<PenaltyOption[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -22,12 +25,19 @@ export default function SubmitScorePage() {
     }
   }, [getGameCode, getPlayerId, router]);
 
+  useEffect(() => {
+    getPenaltyOptions()
+      .then((response) => setPenaltyOptions(response.penalties))
+      .catch(() => {});
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const scoreNum = parseInt(score, 10);
-    if (isNaN(scoreNum) || scoreNum < -10 || scoreNum > 10) {
+    const selectedPenalty = penaltyOptions.find((p) => p.type === penaltyType);
+    const scoreNum = penaltyType && selectedPenalty ? selectedPenalty.points : parseInt(score, 10);
+    if (!penaltyType && (isNaN(scoreNum) || scoreNum < -10 || scoreNum > 10)) {
       setError('Score must be between -10 and 10');
       return;
     }
@@ -41,7 +51,7 @@ export default function SubmitScorePage() {
 
     setLoading(true);
     try {
-      await submitScore(gameCode, playerId, hole, scoreNum);
+      await submitScore(gameCode, playerId, hole, scoreNum, penaltyType);
       router.push('/game');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit score');
@@ -49,6 +59,8 @@ export default function SubmitScorePage() {
       setLoading(false);
     }
   };
+
+  const selectedPenalty = penaltyOptions.find((p) => p.type === penaltyType);
 
   return (
     <main className="min-h-full flex flex-col items-center justify-center p-6">
@@ -87,17 +99,58 @@ export default function SubmitScorePage() {
             <input
               id="score"
               type="number"
-              value={score}
+              value={penaltyType ? '' : score}
               onChange={(e) => setScore(e.target.value)}
-              placeholder="How many sips?"
+              placeholder={penaltyType ? `Score: ${selectedPenalty?.points ?? ''}` : 'How many sips?'}
               min={-10}
               max={10}
-              className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 transition-all"
-              disabled={loading}
+              className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 transition-all disabled:opacity-50"
+              disabled={loading || !!penaltyType}
             />
             <p className="text-xs text-[var(--color-text-secondary)] mt-2">
-              Between -10 and 10 (penalties apply!)
+              Between -10 and 10
             </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
+              Penalty (optional)
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPenaltyType(null)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  !penaltyType
+                    ? 'btn-gradient'
+                    : 'glass hover:bg-white/5'
+                }`}
+                disabled={loading}
+              >
+                None
+              </button>
+              {penaltyOptions.map((option) => (
+                <button
+                  key={option.type}
+                  type="button"
+                  onClick={() => setPenaltyType(option.type as PenaltyType)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-1 ${
+                    penaltyType === option.type
+                      ? 'bg-[var(--color-error)] text-white'
+                      : 'glass hover:bg-white/5'
+                  }`}
+                  disabled={loading}
+                >
+                  <span>{PENALTY_EMOJI_MAP[option.type as PenaltyType]}</span>
+                  <span>+{option.points}</span>
+                </button>
+              ))}
+            </div>
+            {penaltyType && selectedPenalty && (
+              <p className="text-xs text-[var(--color-error)] mt-2">
+                {selectedPenalty.name} - Score will be {selectedPenalty.points}
+              </p>
+            )}
           </div>
 
           {error && (

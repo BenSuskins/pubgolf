@@ -51,3 +51,11 @@ enum class GameStatus {
     ACTIVE,
     COMPLETED,
 }
+
+enum class PenaltyType(
+    val points: Int,
+    val label: String,
+) {
+    SKIP(5, "Skip a drink"),
+    CHUNDER(10, "Tactical chunder"),
+}
