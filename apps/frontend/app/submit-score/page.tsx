@@ -56,7 +56,7 @@ export default function SubmitScorePage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2 font-[family-name:var(--font-display)]">Log Your Sips</h1>
           <p className="text-[var(--color-text-secondary)]">
-            How'd that one go down?
+            How&apos;d that one go down?
           </p>
         </div>
 

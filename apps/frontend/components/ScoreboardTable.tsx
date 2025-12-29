@@ -68,7 +68,7 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
           </tr>
         </thead>
         <tbody>
-          {players.map((player, playerIndex) => {
+          {players.map((player) => {
             const isCurrentPlayer = player.id === currentPlayerId;
             const rank = getPlayerRank(player, players);
             const medal = getMedal(rank);
