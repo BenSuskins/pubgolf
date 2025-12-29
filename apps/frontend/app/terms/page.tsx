@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions - Pub Golf",
+  description:
+    "Terms and conditions for using Pub Golf. Read about user submissions, limitations of liability, and governing law.",
+};
 
 export default function TermsPage() {
   return (

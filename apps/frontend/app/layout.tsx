@@ -20,8 +20,41 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pubgolf.me"),
   title: "Pub Golf",
   description: "9 Holes. 9 Drinks. 1 Champion.",
+  keywords: [
+    "pub golf",
+    "bar golf",
+    "drinking game",
+    "pub crawl",
+    "bar crawl",
+    "pub golf app",
+    "pub golf scorecard",
+  ],
+  authors: [{ name: "Ben Suskins" }],
+  openGraph: {
+    title: "Pub Golf",
+    description: "9 Holes. 9 Drinks. 1 Champion.",
+    url: "https://pubgolf.me",
+    siteName: "Pub Golf",
+    type: "website",
+    locale: "en_GB",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Pub Golf - 9 Holes. 9 Drinks. 1 Champion.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pub Golf",
+    description: "9 Holes. 9 Drinks. 1 Champion.",
+    images: ["/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -47,6 +80,29 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col bg-ambient`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Pub Golf",
+              description: "9 Holes. 9 Drinks. 1 Champion.",
+              url: "https://pubgolf.me",
+              applicationCategory: "GameApplication",
+              operatingSystem: "Any",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "GBP",
+              },
+              author: {
+                "@type": "Person",
+                name: "Ben Suskins",
+              },
+            }),
+          }}
+        />
         <main className="flex-1">{children}</main>
         <footer className="text-center text-sm text-[var(--color-text-secondary)] space-y-2 py-4">
           <p>© 2025 Ben Suskins | Pub Golf</p>

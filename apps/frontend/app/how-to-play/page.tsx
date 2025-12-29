@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { RULES, DRINKS } from '@/lib/constants';
 import { getPenaltyOptions, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 import { BackButton } from './BackButton';
+
+export const metadata: Metadata = {
+  title: "How to Play Pub Golf - Rules & Scoring",
+  description:
+    "Learn the rules of Pub Golf. 9 holes, 9 drinks, beat the par at each stop. Complete guide to scoring, penalties, and the drink course.",
+};
 
 async function fetchPenalties(): Promise<PenaltyOption[]> {
   try {
