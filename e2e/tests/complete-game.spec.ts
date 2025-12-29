@@ -51,7 +51,7 @@ test.describe('Complete Game', () => {
       await expect(page.getByText('End Game?')).toBeVisible();
       await expect(page.getByText(/permanently end the game/i)).toBeVisible();
 
-      await page.getByRole('button', { name: 'End Game' }).click();
+      await page.getByRole('dialog').getByRole('button', { name: 'End Game' }).click();
 
       await expect(page.getByText('Game Complete')).toBeVisible();
     });
@@ -97,7 +97,7 @@ test.describe('Complete Game', () => {
 
       await page.goto('/game');
 
-      await expect(page.getByText('Winner')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Winner' })).toBeVisible();
       await expect(page.getByText('1 sips')).toBeVisible();
     });
 
@@ -261,6 +261,8 @@ test.describe('Complete Game', () => {
 
       await page.goto('/game');
 
+      // Wait for leaderboard to load first
+      await expect(page.getByText('HostPlayer')).toBeVisible();
       await expect(page.getByTitle('Host')).toBeVisible();
     });
   });
