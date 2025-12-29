@@ -26,7 +26,7 @@ describe('ScoreboardTable', () => {
         screen.getByText(/no players yet/i)
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/share the game code to invite players/i)
+        screen.getByText(/rally your crew/i)
       ).toBeInTheDocument();
     });
   });

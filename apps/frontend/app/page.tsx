@@ -13,31 +13,43 @@ function HomeContent() {
     hasGameCode ? 'join' : null
   );
 
-  const toggleSection = (section: 'create' | 'join') => {
-    setActiveSection(prev => prev === section ? null : section);
-  };
-
   return (
-    <div className="w-full max-w-md space-y-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-2">Pub Golf</h1>
-        <p className="text-[var(--color-text-secondary)]">
-          Track your Pub Golf scores here
-        </p>
-        <p className="text-[var(--color-text-secondary)]">
-          Create or join a game to play
-        </p>
+    <div className="w-full max-w-lg space-y-10">
+      {/* Hero Section */}
+      <div className="text-center space-y-6">
+        {/* Hero illustration with glow effect */}
+        <div className="relative w-48 h-48 mx-auto animate-float">
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] opacity-20 blur-2xl absolute inset-0" />
+          {/* Golf flag + beer icon placeholder - replace with AI image when ready */}
+          <div className="relative z-10 w-full h-full flex items-center justify-center">
+            <div className="text-8xl drop-shadow-2xl">🏌️‍♂️🍺</div>
+          </div>
+        </div>
+
+        <div>
+          <h1 className="text-5xl sm:text-6xl font-bold font-[family-name:var(--font-display)] gradient-text mb-3">
+            Pub Golf
+          </h1>
+          <p className="text-xl text-[var(--color-text-secondary)]">
+            9 Holes. 9 Drinks. 1 Champion.
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
+      {/* Action Cards */}
+      <div className="space-y-4">
+        {/* Start a Round */}
+        <section className="glass rounded-xl overflow-hidden">
           <button
-            onClick={() => toggleSection('create')}
-            className="w-full p-4 flex items-center justify-between text-left hover:bg-[var(--color-surface-hover)] transition-colors"
+            onClick={() => setActiveSection(prev => prev === 'create' ? null : 'create')}
+            className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
           >
-            <span className="text-xl font-semibold">Create a Game</span>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🏌️</span>
+              <span className="text-xl font-semibold font-[family-name:var(--font-display)]">Start a Round</span>
+            </div>
             <svg
-              className={`w-5 h-5 transition-transform duration-200 ${activeSection === 'create' ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-[var(--color-text-secondary)] transition-transform duration-200 ${activeSection === 'create' ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -50,8 +62,8 @@ function HomeContent() {
             style={{ gridTemplateRows: activeSection === 'create' ? '1fr' : '0fr' }}
           >
             <div className="overflow-hidden">
-              <div className="p-4 pt-0 border-t border-[var(--color-border)]">
-                <div className="pt-4">
+              <div className="p-5 pt-0 border-t border-[var(--color-glass-border)]">
+                <div className="pt-5">
                   <CreateGameForm />
                 </div>
               </div>
@@ -59,14 +71,18 @@ function HomeContent() {
           </div>
         </section>
 
-        <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
+        {/* Join the Party */}
+        <section className="glass rounded-xl overflow-hidden">
           <button
-            onClick={() => toggleSection('join')}
-            className="w-full p-4 flex items-center justify-between text-left hover:bg-[var(--color-surface-hover)] transition-colors"
+            onClick={() => setActiveSection(prev => prev === 'join' ? null : 'join')}
+            className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
           >
-            <span className="text-xl font-semibold">Join a Game</span>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🍻</span>
+              <span className="text-xl font-semibold font-[family-name:var(--font-display)]">Join the Party</span>
+            </div>
             <svg
-              className={`w-5 h-5 transition-transform duration-200 ${activeSection === 'join' ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 text-[var(--color-text-secondary)] transition-transform duration-200 ${activeSection === 'join' ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -79,8 +95,8 @@ function HomeContent() {
             style={{ gridTemplateRows: activeSection === 'join' ? '1fr' : '0fr' }}
           >
             <div className="overflow-hidden">
-              <div className="p-4 pt-0 border-t border-[var(--color-border)]">
-                <div className="pt-4">
+              <div className="p-5 pt-0 border-t border-[var(--color-glass-border)]">
+                <div className="pt-5">
                   <JoinGameForm />
                 </div>
               </div>
@@ -89,13 +105,14 @@ function HomeContent() {
         </section>
       </div>
 
-      <hr className="border-[var(--color-border)]" />
-
+      {/* Rules Link */}
       <Link
         href="/how-to-play"
-        className="block w-full p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-xl font-semibold text-center hover:bg-[var(--color-surface-hover)] transition-colors"
+        className="block w-full p-4 glass rounded-xl text-center hover:bg-white/5 transition-colors group"
       >
-        How to Play
+        <span className="text-lg font-medium text-[var(--color-text-secondary)] group-hover:text-[var(--color-text)] transition-colors">
+          First time? Learn the rules →
+        </span>
       </Link>
     </div>
   );
@@ -103,8 +120,12 @@ function HomeContent() {
 
 export default function HomePage() {
   return (
-    <section className="min-h-full flex flex-col items-center justify-center p-4">
-      <Suspense fallback={<div className="text-[var(--color-text-secondary)]">Loading...</div>}>
+    <section className="min-h-full flex flex-col items-center justify-center p-6 py-12">
+      <Suspense fallback={
+        <div className="text-[var(--color-text-secondary)] animate-pulse">
+          Loading...
+        </div>
+      }>
         <HomeContent />
       </Suspense>
     </section>

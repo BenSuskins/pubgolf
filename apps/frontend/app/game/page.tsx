@@ -51,7 +51,7 @@ export default function GamePage() {
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
-        <p className="text-[var(--color-text-secondary)]">Loading game...</p>
+        <p className="text-[var(--color-text-secondary)] animate-pulse">Loading game...</p>
       </main>
     );
   }
@@ -59,7 +59,7 @@ export default function GamePage() {
   if (error) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
-        <p className="text-[var(--color-error)]">{error}</p>
+        <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">{error}</p>
         <Link href="/" className="text-[var(--color-primary)] hover:underline">
           Back to Home
         </Link>
@@ -68,24 +68,27 @@ export default function GamePage() {
   }
 
   return (
-    <main className="p-4">
+    <main className="p-4 py-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <header className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Game: {gameCode.toUpperCase()}</h1>
+            <h1 className="text-2xl font-bold font-[family-name:var(--font-display)]">
+              Game: <span className="text-[var(--color-accent)]">{gameCode.toUpperCase()}</span>
+            </h1>
             <p className="text-[var(--color-text-secondary)] text-sm">
-              Share this code with friends to join
+              Rally your crew
             </p>
           </div>
           <button
             onClick={() => setShowShareModal(true)}
-            className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md hover:bg-[var(--color-surface-hover)] transition-colors text-sm shrink-0"
+            className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 flex items-center gap-2"
           >
-            Invite friends
+            <span>Invite</span>
+            <span className="text-lg">🍻</span>
           </button>
         </header>
 
-        <section className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
+        <section className="glass rounded-xl p-4">
           <ScoreboardTable players={players} currentPlayerId={playerId ?? undefined} />
         </section>
 
@@ -94,29 +97,29 @@ export default function GamePage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/submit-score"
-                className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
+                className="flex-1 py-3 px-4 btn-gradient text-center font-medium rounded-lg"
               >
-                Submit Score
+                Log Your Sips
               </Link>
               {hasUsedRandomise ? (
-                <span className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-md cursor-not-allowed">
-                  Randomise
+                <span className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-lg cursor-not-allowed opacity-50">
+                  Randomise Used
                 </span>
               ) : (
                 <Link
                   href="/randomise"
-                  className="flex-1 py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-center font-medium rounded-md transition-colors"
+                  className="flex-1 py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors border border-[var(--color-primary)]/30"
                 >
-                  Randomise
+                  🎰 Randomise
                 </Link>
               )}
             </div>
           )}
           <Link
             href="/how-to-play"
-            className="block py-3 px-4 bg-[var(--color-surface)] border border-[var(--color-border)] text-center font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="block py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
           >
-            How to Play
+            The Rules
           </Link>
         </nav>
       </div>

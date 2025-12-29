@@ -1,15 +1,14 @@
 export const RULES = [
-  'Each player must drink the designated drink at each stop.',
-  'The par score for each drink represents the expected number of sips to finish the drink.',
-  'Your score for a hole is the number of sips you took.',
-  'Each sip can last at most 1 minute.',
-  'Doing additional drinks will lower your score as decided by the referee.',
-  'A maximum of 4 drinks can be consumed per hole.',
-  'You cannot swap between route A or B mid game.',
-  "You can use 'Randomise' to swap one drink per game.",
-  'Skipping a Drink: +5 Points',
-  'Spilled Drink: +3 Points',
-  'Vomiting: +10 Points',
+  'Finish your drink in as few sips as possible. Your score = your sips.',
+  'Pick Route A or B at the start. No switching mid-game.',
+  'Use Randomise once per game to swap a drink for something random.',
+  'Lowest total score wins. May the best drinker take home the glory.',
+];
+
+export const PENALTIES = [
+  { name: 'Skip a drink', points: '+5', emoji: '🚫' },
+  { name: 'Spill your drink', points: '+3', emoji: '💧' },
+  { name: 'Tactical chunder', points: '+10', emoji: '🤮' },
 ];
 
 export interface DrinkInfo {

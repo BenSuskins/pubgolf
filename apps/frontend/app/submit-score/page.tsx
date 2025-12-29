@@ -51,25 +51,25 @@ export default function SubmitScorePage() {
   };
 
   return (
-    <main className="min-h-full flex flex-col items-center justify-center p-4">
+    <main className="min-h-full flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Submit Score</h1>
+          <h1 className="text-2xl font-bold mb-2 font-[family-name:var(--font-display)]">Log Your Sips</h1>
           <p className="text-[var(--color-text-secondary)]">
-            How well did you do?
+            How'd that one go down?
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg">
+        <form onSubmit={handleSubmit} className="space-y-5 p-6 glass rounded-xl">
           <div>
-            <label htmlFor="hole" className="block text-sm font-medium mb-1">
+            <label htmlFor="hole" className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
               Hole
             </label>
             <select
               id="hole"
               value={hole}
               onChange={(e) => setHole(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all"
               disabled={loading}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((h) => (
@@ -81,40 +81,44 @@ export default function SubmitScorePage() {
           </div>
 
           <div>
-            <label htmlFor="score" className="block text-sm font-medium mb-1">
-              Score
+            <label htmlFor="score" className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
+              Sips Taken
             </label>
             <input
               id="score"
               type="number"
               value={score}
               onChange={(e) => setScore(e.target.value)}
-              placeholder="Enter score"
+              placeholder="How many sips?"
               min={-10}
               max={10}
-              className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 transition-all"
               disabled={loading}
             />
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-              Score must be between -10 and 10
+            <p className="text-xs text-[var(--color-text-secondary)] mt-2">
+              Between -10 and 10 (penalties apply!)
             </p>
           </div>
 
-          {error && <p className="text-[var(--color-error)] text-sm">{error}</p>}
+          {error && (
+            <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">
+              {error}
+            </p>
+          )}
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-2 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-[var(--color-primary-disabled)] text-white font-medium rounded-md transition-colors"
+              className="flex-1 py-3 px-4 btn-gradient rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
-              {loading ? 'Submitting...' : 'Submit'}
+              {loading ? 'Logging...' : 'Log It'}
             </button>
             <Link
               href="/game"
-              className="flex-1 py-2 px-4 bg-[var(--color-surface)] border border-[var(--color-border)] text-center font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+              className="flex-1 py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
             >
-              Cancel
+              Back to Scoreboard
             </Link>
           </div>
         </form>

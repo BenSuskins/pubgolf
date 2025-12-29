@@ -50,7 +50,7 @@ export function JoinGameForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="join-name" className="block text-sm font-medium mb-1">
+        <label htmlFor="join-name" className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
           Your Name
         </label>
         <input
@@ -59,12 +59,12 @@ export function JoinGameForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter your name"
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 transition-all"
           disabled={loading}
         />
       </div>
       <div>
-        <label htmlFor="game-code" className="block text-sm font-medium mb-1">
+        <label htmlFor="game-code" className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
           Game Code
         </label>
         <input
@@ -72,18 +72,22 @@ export function JoinGameForm() {
           type="text"
           value={gameCode}
           onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-          placeholder="Enter game code"
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          placeholder="e.g. ABC123"
+          className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 font-mono tracking-wider transition-all"
           disabled={loading}
         />
       </div>
-      {error && <p className="text-[var(--color-error)] text-sm">{error}</p>}
+      {error && (
+        <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">
+          {error}
+        </p>
+      )}
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-[var(--color-primary-disabled)] text-white font-medium rounded-md transition-colors"
+        className="w-full py-3 px-4 btn-gradient rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
       >
-        {loading ? 'Joining...' : 'Join Game'}
+        {loading ? 'Joining...' : "I'm In!"}
       </button>
     </form>
   );

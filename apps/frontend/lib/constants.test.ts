@@ -1,24 +1,33 @@
 import { describe, test, expect } from 'bun:test';
-import { RULES, DRINKS } from './constants';
+import { RULES, PENALTIES, DRINKS } from './constants';
 import { PAR_VALUES } from './types';
 
 describe('RULES', () => {
-  test('should export an array of 11 rules', () => {
-    expect(RULES).toHaveLength(11);
-  });
-
-  test('should have the correct first rule', () => {
-    expect(RULES[0]).toBe('Each player must drink the designated drink at each stop.');
-  });
-
-  test('should have the correct last rule (Vomiting penalty)', () => {
-    expect(RULES[RULES.length - 1]).toBe('Vomiting: +10 Points');
+  test('should export an array of 4 rules', () => {
+    expect(RULES).toHaveLength(4);
   });
 
   test('should all be non-empty strings', () => {
     RULES.forEach((rule) => {
       expect(typeof rule).toBe('string');
       expect(rule.length).toBeGreaterThan(0);
+    });
+  });
+});
+
+describe('PENALTIES', () => {
+  test('should export an array of 3 penalties', () => {
+    expect(PENALTIES).toHaveLength(3);
+  });
+
+  test('should have correct structure for each penalty', () => {
+    PENALTIES.forEach((penalty) => {
+      expect(penalty).toHaveProperty('name');
+      expect(penalty).toHaveProperty('points');
+      expect(penalty).toHaveProperty('emoji');
+      expect(typeof penalty.name).toBe('string');
+      expect(typeof penalty.points).toBe('string');
+      expect(typeof penalty.emoji).toBe('string');
     });
   });
 });

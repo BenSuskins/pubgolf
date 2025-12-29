@@ -28,10 +28,10 @@ describe('ShareModal', () => {
   });
 
   describe('rendering', () => {
-    test('should render modal with title "Share Game"', () => {
+    test('should render modal with title', () => {
       render(<ShareModal gameCode="ABCD" onClose={mockOnClose} />);
 
-      expect(screen.getByText('Share Game')).toBeInTheDocument();
+      expect(screen.getByText('Rally Your Crew')).toBeInTheDocument();
     });
 
     test('should display game code in uppercase', () => {
@@ -46,11 +46,11 @@ describe('ShareModal', () => {
       expect(screen.getByTestId('qr-code')).toBeInTheDocument();
     });
 
-    test('should render "Copy Invite Link" and "Close" buttons', () => {
+    test('should render "Copy Invite Link" and "Done" buttons', () => {
       render(<ShareModal gameCode="ABCD" onClose={mockOnClose} />);
 
       expect(screen.getByText('Copy Invite Link')).toBeInTheDocument();
-      expect(screen.getByText('Close')).toBeInTheDocument();
+      expect(screen.getByText('Done')).toBeInTheDocument();
     });
 
     test('should display "Game Code" label', () => {
@@ -76,7 +76,7 @@ describe('ShareModal', () => {
         screen.getByRole('button', { name: /copy invite link/i })
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: /close/i })
+        screen.getByRole('button', { name: /close share modal/i })
       ).toBeInTheDocument();
     });
   });
@@ -105,11 +105,11 @@ describe('ShareModal', () => {
   });
 
   describe('close functionality', () => {
-    test('should call onClose when Close button clicked', async () => {
+    test('should call onClose when Done button clicked', async () => {
       const user = userEvent.setup();
       render(<ShareModal gameCode="ABCD" onClose={mockOnClose} />);
 
-      await user.click(screen.getByText('Close'));
+      await user.click(screen.getByText('Done'));
 
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
@@ -128,7 +128,7 @@ describe('ShareModal', () => {
       render(<ShareModal gameCode="ABCD" onClose={mockOnClose} />);
 
       // Click on the modal title (inside the modal)
-      fireEvent.click(screen.getByText('Share Game'));
+      fireEvent.click(screen.getByText('Rally Your Crew'));
 
       expect(mockOnClose).not.toHaveBeenCalled();
     });

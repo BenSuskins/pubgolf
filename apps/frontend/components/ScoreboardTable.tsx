@@ -33,42 +33,46 @@ function getPlayerRank(player: Player, players: Player[]): number {
 export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTableProps) {
   if (players.length === 0) {
     return (
-      <p className="text-center text-[var(--color-text-secondary)] py-8">
-        No players yet. Share the game code to invite players!
-      </p>
+      <div className="text-center py-12">
+        <p className="text-2xl mb-2">🍻</p>
+        <p className="text-[var(--color-text-secondary)]">
+          No players yet. Rally your crew!
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto -mx-4 px-4">
       <table className="w-full border-collapse text-sm" role="table" aria-label="Player scores">
         <thead>
           <tr className="border-b border-[var(--color-border)]">
-            <th scope="col" className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-2 text-left font-semibold">
+            <th scope="col" className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">
               Player
             </th>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hole) => (
-              <th scope="col" key={hole} className="px-3 py-2 text-center font-semibold min-w-[40px]">
+              <th scope="col" key={hole} className="px-3 py-3 text-center font-semibold min-w-[44px] text-[var(--color-text-secondary)]">
                 {hole}
               </th>
             ))}
-            <th scope="col" className="px-3 py-2 text-center font-semibold">Total</th>
+            <th scope="col" className="px-3 py-3 text-center font-semibold text-[var(--color-accent)]">Total</th>
           </tr>
-          <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]">
-            <td className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-1">Par</td>
+          <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]/60">
+            <td className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-1.5">Par</td>
             {PAR_VALUES.map((par, i) => (
-              <td key={i} className="px-3 py-1 text-center">
+              <td key={i} className="px-3 py-1.5 text-center">
                 {par}
               </td>
             ))}
-            <td className="px-3 py-1 text-center">{PAR_VALUES.reduce((a, b) => a + b, 0)}</td>
+            <td className="px-3 py-1.5 text-center">{PAR_VALUES.reduce((a, b) => a + b, 0)}</td>
           </tr>
         </thead>
         <tbody>
-          {players.map((player) => {
+          {players.map((player, playerIndex) => {
             const isCurrentPlayer = player.id === currentPlayerId;
             const rank = getPlayerRank(player, players);
             const medal = getMedal(rank);
+            const isLeader = rank === 0;
 
             return (
               <tr
@@ -76,31 +80,37 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                 className={`border-b border-[var(--color-border-subtle)] transition-colors duration-150 ${
                   isCurrentPlayer
                     ? 'bg-[var(--color-primary)]/10'
-                    : 'hover:bg-[var(--color-surface-hover)]'
+                    : 'hover:bg-white/5'
                 }`}
               >
                 <th
                   scope="row"
-                  className={`sticky left-0 z-10 px-3 py-2 font-medium text-left bg-[var(--color-surface)] ${
-                    isCurrentPlayer ? 'border-l-2 border-l-[var(--color-primary)]' : ''
+                  className={`sticky left-0 z-10 px-3 py-3 font-medium text-left ${
+                    isCurrentPlayer
+                      ? 'bg-[var(--color-primary)]/10 border-l-2 border-l-[var(--color-primary)]'
+                      : 'bg-[var(--color-surface)]'
                   }`}
                 >
-                  <span className="max-w-[120px] truncate inline-block align-middle" title={player.name}>
-                    {medal && <span className="mr-1">{medal}</span>}
-                    {player.name}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {medal && (
+                      <span className={`text-lg ${isLeader ? 'animate-pulse' : ''}`}>{medal}</span>
+                    )}
+                    <span className="max-w-[100px] truncate" title={player.name}>
+                      {player.name}
+                    </span>
+                  </div>
                 </th>
                 {player.scores.map((score, i) => {
                   const isRandomiseHole = player.randomise && player.randomise.hole === i + 1;
                   return (
                     <td
                       key={i}
-                      className={`px-3 py-2 text-center ${getScoreColor(score, i)}`}
+                      className={`px-3 py-3 text-center ${getScoreColor(score, i)}`}
                     >
                       <div className="flex flex-col items-center">
-                        <span>{score ?? '-'}</span>
+                        <span className="font-medium">{score ?? '-'}</span>
                         {isRandomiseHole && (
-                          <span className="text-xs text-[var(--color-primary)]">
+                          <span className="text-[10px] text-[var(--color-accent)] font-medium">
                             {player.randomise!.result}
                           </span>
                         )}
@@ -108,7 +118,9 @@ export function ScoreboardTable({ players, currentPlayerId }: ScoreboardTablePro
                     </td>
                   );
                 })}
-                <td className="px-3 py-2 text-center font-semibold">{player.totalScore}</td>
+                <td className={`px-3 py-3 text-center font-bold ${isLeader ? 'text-[var(--color-accent)]' : ''}`}>
+                  {player.totalScore}
+                </td>
               </tr>
             );
           })}

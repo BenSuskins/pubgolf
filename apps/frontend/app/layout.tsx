@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
@@ -13,9 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["500", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Pub Golf",
-  description: "Track your Pub Golf scores here",
+  description: "9 Holes. 9 Drinks. 1 Champion.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -28,7 +34,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: "#2563eb",
+  themeColor: "#0d1117",
 };
 
 export default function RootLayout({
@@ -39,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col bg-ambient`}
       >
         <main className="flex-1">{children}</main>
         <footer className="text-center text-sm text-[var(--color-text-secondary)] space-y-2 py-4">

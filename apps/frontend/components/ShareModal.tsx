@@ -75,7 +75,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -83,33 +83,36 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
     >
       <div
         ref={modalRef}
-        className="bg-[var(--color-surface)] rounded-lg p-6 max-w-sm w-full mx-4 space-y-4"
+        className="glass rounded-2xl p-6 max-w-sm w-full mx-4 space-y-5 animate-fade-in"
       >
-        <h2 id="share-modal-title" className="text-xl font-bold text-center">
-          Share Game
+        <h2 id="share-modal-title" className="text-xl font-bold text-center font-[family-name:var(--font-display)]">
+          Rally Your Crew
         </h2>
 
         <div className="flex justify-center">
-          <div className="bg-white p-3 rounded-lg">
+          <div className="bg-white p-4 rounded-xl glow-sm">
             <QRCode
-              size={200}
+              size={180}
               value={getShareLink()}
               style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-              viewBox="0 0 200 200"
+              viewBox="0 0 180 180"
+              fgColor="#0d1117"
             />
           </div>
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-[var(--color-text-secondary)]">Game Code</p>
-          <p className="text-2xl font-bold tracking-wider">{gameCode.toUpperCase()}</p>
+          <p className="text-sm text-[var(--color-text-secondary)] mb-1">Game Code</p>
+          <p className="text-3xl font-bold tracking-widest font-mono text-[var(--color-accent)]">
+            {gameCode.toUpperCase()}
+          </p>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <button
             onClick={handleCopy}
             aria-label={copied ? 'Link copied to clipboard' : 'Copy invite link to clipboard'}
-            className="w-full py-2 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-md transition-colors"
+            className="w-full py-3 px-4 btn-gradient rounded-lg"
           >
             {copied ? 'Copied!' : 'Copy Invite Link'}
           </button>
@@ -117,9 +120,9 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
             ref={closeButtonRef}
             onClick={onClose}
             aria-label="Close share modal"
-            className="w-full py-2 px-4 border border-[var(--color-border)] font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="w-full py-3 px-4 border border-[var(--color-border)] font-medium rounded-lg hover:bg-white/5 transition-colors"
           >
-            Close
+            Done
           </button>
         </div>
       </div>

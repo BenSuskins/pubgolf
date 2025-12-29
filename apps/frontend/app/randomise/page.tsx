@@ -91,7 +91,7 @@ export default function RandomisePage() {
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
-        <p className="text-[var(--color-text-secondary)]">Loading wheel...</p>
+        <p className="text-[var(--color-text-secondary)] animate-pulse">Loading wheel...</p>
       </main>
     );
   }
@@ -99,7 +99,9 @@ export default function RandomisePage() {
   if (items.length === 0) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
-        <p className="text-[var(--color-error)]">{error || 'No wheel options available'}</p>
+        <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">
+          {error || 'No wheel options available'}
+        </p>
         <Link href="/game" className="text-[var(--color-primary)] hover:underline">
           Back to Game
         </Link>
@@ -108,16 +110,18 @@ export default function RandomisePage() {
   }
 
   return (
-    <main className="min-h-full flex flex-col items-center justify-center p-4">
+    <main className="min-h-full flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Randomise</h1>
+          <h1 className="text-2xl font-bold mb-2 font-[family-name:var(--font-display)]">
+            🎰 Randomise
+          </h1>
           <p className="text-[var(--color-text-secondary)]">
-            Want to switch up your drink?
+            Feeling adventurous? Spin the wheel!
           </p>
         </div>
 
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6 space-y-6">
+        <div className="glass rounded-xl p-6 space-y-6">
           <SlotMachine
             items={items}
             winningIndex={winningIndex}
@@ -127,16 +131,17 @@ export default function RandomisePage() {
           />
 
           {hasSpun && result && !spinning && (
-            <div className="space-y-2 text-center">
+            <div className="space-y-2 text-center animate-fade-in">
               <Confetti numberOfPieces={500} recycle={false} />
-              <p className="text-xl font-bold text-[var(--color-primary)]">
-                You got: {result} for Hole {hole}!
+              <p className="text-xl font-bold">
+                <span className="text-[var(--color-accent)]">{result}</span>
+                <span className="text-[var(--color-text-secondary)]"> for Hole {hole}!</span>
               </p>
             </div>
           )}
 
           {error && (
-            <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-md text-center">
+            <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-lg text-center text-sm">
               {error}
             </div>
           )}
@@ -146,16 +151,20 @@ export default function RandomisePage() {
           <button
             onClick={handleSpin}
             disabled={spinning || hasSpun}
-            className="w-full py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-[var(--color-primary-disabled)] disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors"
+            className={`w-full py-3 px-4 font-medium rounded-lg transition-all ${
+              spinning || hasSpun
+                ? 'bg-[var(--color-border)] text-[var(--color-text-secondary)] cursor-not-allowed opacity-50'
+                : 'btn-gradient animate-pulse-glow'
+            }`}
           >
-            {spinning ? 'Spinning...' : hasSpun ? 'Already Spun' : 'Spin'}
+            {spinning ? 'Spinning...' : hasSpun ? 'Already Spun' : 'Spin the Wheel'}
           </button>
 
           <Link
             href="/game"
-            className="block w-full py-3 px-4 bg-[var(--color-surface)] border border-[var(--color-border)] text-center font-medium rounded-md hover:bg-[var(--color-surface-hover)] transition-colors"
+            className="block w-full py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
           >
-            Back to Game
+            Back to Scoreboard
           </Link>
         </div>
       </div>

@@ -61,10 +61,10 @@ describe('CreateGameForm', () => {
       expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
     });
 
-    test('should render "Create Game" submit button', () => {
+    test('should render submit button', () => {
       render(<CreateGameForm />);
 
-      expect(screen.getByRole('button', { name: /create game/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /let's go/i })).toBeInTheDocument();
     });
 
     test('should have proper placeholder text', () => {
@@ -80,7 +80,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'A');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       expect(screen.getByText(/must be at least 2 characters/i)).toBeInTheDocument();
     });
@@ -96,7 +96,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), '   ');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       expect(screen.getByText(/must be at least 2 characters/i)).toBeInTheDocument();
     });
@@ -108,7 +108,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), '  Test User  ');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       await waitFor(() => {
         expect(mockCreateGame).toHaveBeenCalledWith('Test User');
@@ -120,7 +120,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       await waitFor(() => {
         expect(mockSetGameSession).toHaveBeenCalledWith('ABCD', 'player-456', 'Test User');
@@ -132,7 +132,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/game');
@@ -150,7 +150,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       expect(screen.getByRole('button', { name: /creating/i })).toBeInTheDocument();
     });
@@ -164,7 +164,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       expect(screen.getByLabelText(/your name/i)).toBeDisabled();
     });
@@ -178,7 +178,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       expect(screen.getByRole('button', { name: /creating/i })).toBeDisabled();
     });
@@ -192,7 +192,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       await waitFor(() => {
         expect(screen.getByText(/network error/i)).toBeInTheDocument();
@@ -206,7 +206,7 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       await waitFor(() => {
         expect(screen.getByText(/failed to create game/i)).toBeInTheDocument();
@@ -220,10 +220,10 @@ describe('CreateGameForm', () => {
       render(<CreateGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /create game/i }));
+      await user.click(screen.getByRole('button', { name: /let's go/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /create game/i })).not.toBeDisabled();
+        expect(screen.getByRole('button', { name: /let's go/i })).not.toBeDisabled();
       });
     });
   });
