@@ -167,4 +167,5 @@ body {
     radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
     var(--color-bg);
+  background-attachment: fixed;
 }
