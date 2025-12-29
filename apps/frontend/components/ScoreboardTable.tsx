@@ -87,12 +87,15 @@ export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: Scor
               >
                 <th
                   scope="row"
-                  className={`sticky left-0 z-10 px-3 py-3 font-medium text-left ${
+                  className={`sticky left-0 z-10 px-3 py-3 font-medium text-left bg-[var(--color-surface)] relative ${
                     isCurrentPlayer
-                      ? 'bg-[var(--color-primary)]/10 border-l-2 border-l-[var(--color-primary)]'
-                      : 'bg-[var(--color-surface)]'
+                      ? 'border-l-2 border-l-[var(--color-primary)]'
+                      : ''
                   }`}
                 >
+                  {isCurrentPlayer && (
+                    <div className="absolute inset-0 bg-[var(--color-primary)]/10 pointer-events-none" />
+                  )}
                   <div className="flex items-center gap-2">
                     {medal && (
                       <span className={`text-lg ${isLeader ? 'animate-pulse' : ''}`}>{medal}</span>
