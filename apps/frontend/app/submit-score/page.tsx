@@ -114,7 +114,7 @@ export default function SubmitScorePage() {
 
           <div>
             <label className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
-              Penalty (optional)
+              Penalty
             </label>
             <div className="flex gap-2">
               <button
@@ -148,7 +148,7 @@ export default function SubmitScorePage() {
             </div>
             {penaltyType && selectedPenalty && (
               <p className="text-xs text-[var(--color-error)] mt-2">
-                {selectedPenalty.name} - Score will be {selectedPenalty.points}
+                {selectedPenalty.name}
               </p>
             )}
           </div>
