@@ -4,9 +4,9 @@ test.describe('Create Game', () => {
   test('creates a new game successfully', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'Create a Game' }).click();
+    await page.getByRole('button', { name: 'Start a Round' }).click();
     await page.locator('#create-name').fill('Alice');
-    await page.getByRole('button', { name: 'Create Game' }).click();
+    await page.getByRole('button', { name: "Let's Go!" }).click();
 
     await expect(page).toHaveURL('/game');
     await expect(page.getByRole('heading', { name: /Game: [A-Z]+\d{3}/ })).toBeVisible();
@@ -16,9 +16,9 @@ test.describe('Create Game', () => {
   test('shows validation error for short name', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'Create a Game' }).click();
+    await page.getByRole('button', { name: 'Start a Round' }).click();
     await page.locator('#create-name').fill('A');
-    await page.getByRole('button', { name: 'Create Game' }).click();
+    await page.getByRole('button', { name: "Let's Go!" }).click();
 
     await expect(page.getByText('Name must be at least 2 characters')).toBeVisible();
     await expect(page).toHaveURL('/');
@@ -27,9 +27,9 @@ test.describe('Create Game', () => {
   test('stores session in localStorage after creation', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'Create a Game' }).click();
+    await page.getByRole('button', { name: 'Start a Round' }).click();
     await page.locator('#create-name').fill('StorageTest');
-    await page.getByRole('button', { name: 'Create Game' }).click();
+    await page.getByRole('button', { name: "Let's Go!" }).click();
 
     await expect(page).toHaveURL('/game');
 

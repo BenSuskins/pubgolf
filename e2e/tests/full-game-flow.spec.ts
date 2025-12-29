@@ -3,9 +3,9 @@ import { test, expect } from '../fixtures/test-fixtures';
 test.describe('Full Game Flow', () => {
   test('complete game from creation to leaderboard', async ({ page, browser }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Create a Game' }).click();
+    await page.getByRole('button', { name: 'Start a Round' }).click();
     await page.locator('#create-name').fill('GameHost');
-    await page.getByRole('button', { name: 'Create Game' }).click();
+    await page.getByRole('button', { name: "Let's Go!" }).click();
 
     await expect(page).toHaveURL('/game');
 
@@ -18,24 +18,24 @@ test.describe('Full Game Flow', () => {
     const player2Page = await player2Context.newPage();
 
     await player2Page.goto('/');
-    await player2Page.getByRole('button', { name: 'Join a Game' }).click();
+    await player2Page.getByRole('button', { name: 'Join the Party' }).click();
     await player2Page.locator('#join-name').fill('Player2');
     await player2Page.locator('#game-code').fill(gameCode!);
-    await player2Page.getByRole('button', { name: 'Join Game' }).click();
+    await player2Page.getByRole('button', { name: "I'm In!" }).click();
 
     await expect(player2Page).toHaveURL('/game');
 
-    await page.getByRole('link', { name: 'Submit Score' }).click();
+    await page.getByRole('link', { name: 'Log Your Sips' }).click();
     await page.locator('#hole').selectOption('1');
     await page.locator('#score').fill('2');
-    await page.getByRole('button', { name: 'Submit' }).click();
+    await page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(page).toHaveURL('/game');
 
-    await player2Page.getByRole('link', { name: 'Submit Score' }).click();
+    await player2Page.getByRole('link', { name: 'Log Your Sips' }).click();
     await player2Page.locator('#hole').selectOption('1');
     await player2Page.locator('#score').fill('4');
-    await player2Page.getByRole('button', { name: 'Submit' }).click();
+    await player2Page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(player2Page).toHaveURL('/game');
 

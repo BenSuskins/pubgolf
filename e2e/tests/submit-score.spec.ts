@@ -5,13 +5,13 @@ test.describe('Submit Score', () => {
     const page = authenticatedPage;
 
     await page.goto('/game');
-    await page.getByRole('link', { name: 'Submit Score' }).click();
+    await page.getByRole('link', { name: 'Log Your Sips' }).click();
 
     await expect(page).toHaveURL('/submit-score');
 
     await page.locator('#hole').selectOption('3');
     await page.locator('#score').fill('2');
-    await page.getByRole('button', { name: 'Submit' }).click();
+    await page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(page).toHaveURL('/game');
   });
@@ -23,7 +23,7 @@ test.describe('Submit Score', () => {
 
     await page.locator('#hole').selectOption('1');
     await page.locator('#score').fill('15');
-    await page.getByRole('button', { name: 'Submit' }).click();
+    await page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(page.getByText(/between -10 and 10/i)).toBeVisible();
   });
@@ -34,11 +34,11 @@ test.describe('Submit Score', () => {
     await expect(page).toHaveURL('/');
   });
 
-  test('cancel returns to game page', async ({ authenticatedPage }) => {
+  test('back button returns to game page', async ({ authenticatedPage }) => {
     const page = authenticatedPage;
 
     await page.goto('/submit-score');
-    await page.getByRole('link', { name: 'Cancel' }).click();
+    await page.getByRole('link', { name: 'Back to Scoreboard' }).click();
 
     await expect(page).toHaveURL('/game');
   });

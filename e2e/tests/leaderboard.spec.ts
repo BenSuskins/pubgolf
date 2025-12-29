@@ -26,11 +26,11 @@ test.describe('Leaderboard', () => {
     expect(firstRowText).toContain('Leader');
   });
 
-  test('shows invite friends button', async ({ authenticatedPage }) => {
+  test('shows invite button', async ({ authenticatedPage }) => {
     const page = authenticatedPage;
 
     await page.goto('/game');
 
-    await expect(page.getByRole('button', { name: 'Invite friends' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Invite/i })).toBeVisible();
   });
 });
