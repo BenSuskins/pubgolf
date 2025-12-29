@@ -19,7 +19,7 @@ export default function HowToPlayPage() {
 
         <section className="glass rounded-xl p-6">
           <h2 className="text-xl font-semibold mb-4 font-[family-name:var(--font-display)] flex items-center gap-2">
-            <span>📋</span> How It Works
+            How It Works
           </h2>
           <ol className="space-y-3 mb-6">
             {RULES.map((rule, index) => (
@@ -49,7 +49,7 @@ export default function HowToPlayPage() {
 
         <section className="glass rounded-xl p-6">
           <h2 className="text-xl font-semibold mb-4 font-[family-name:var(--font-display)] flex items-center gap-2">
-            <span>🍺</span> The Course
+            The Course
           </h2>
           <div className="overflow-x-auto -mx-2">
             <table className="w-full border-collapse text-sm">

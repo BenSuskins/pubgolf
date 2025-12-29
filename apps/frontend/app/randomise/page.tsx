@@ -114,7 +114,7 @@ export default function RandomisePage() {
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2 font-[family-name:var(--font-display)]">
-            🎰 Randomise
+            Randomise
           </h1>
           <p className="text-[var(--color-text-secondary)]">
             Feeling adventurous? Spin the wheel!
