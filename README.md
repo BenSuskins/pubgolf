@@ -1,6 +1,6 @@
 # Pub Golf
 
-![Pub Golf Mockups](docs/Mockups.png?raw=true "Mockups")
+![Pub Golf Screenshots](docs/Screenshot.png?raw=true "Screenshots")
 
 A real-time leaderboard application for tracking Pub Golf games. Create custom games, invite friends via QR codes, and compete on live scoreboards.
 
