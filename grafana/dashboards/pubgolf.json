@@ -43,11 +43,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_game_created_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Total Games Created",
+      "title": "Games Created ($window)",
       "type": "stat"
     },
     {
@@ -77,11 +77,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_player_joined_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_player_joined_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Total Players Joined",
+      "title": "Players Joined ($window)",
       "type": "stat"
     },
     {
@@ -111,11 +111,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_score_submitted_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_score_submitted_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Total Scores Submitted",
+      "title": "Scores Submitted ($window)",
       "type": "stat"
     },
     {
@@ -145,11 +145,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_game_randomise_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_randomise_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Total Wheel Spins",
+      "title": "Wheel Spins ($window)",
       "type": "stat"
     },
     {
@@ -179,11 +179,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_game_completed_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_completed_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Total Games Completed",
+      "title": "Games Completed ($window)",
       "type": "stat"
     },
     {
@@ -219,11 +219,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_game_completed_total) / sum(pubgolf_game_created_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_completed_total[$window])) / sum(increase(pubgolf_game_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Completion Rate",
+      "title": "Completion Rate ($window)",
       "type": "stat"
     },
     {
@@ -276,7 +276,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(rate(pubgolf_game_created_total[$__rate_interval])) * 3600",
+          "expr": "sum(rate(pubgolf_game_total[$__rate_interval])) * 3600",
           "legendFormat": "Games Created",
           "refId": "A"
         },
@@ -394,12 +394,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum by (hole) (pubgolf_score_submitted_total)",
+          "expr": "sum by (hole) (increase(pubgolf_score_submitted_total[$window]))",
           "legendFormat": "Hole {{hole}}",
           "refId": "A"
         }
       ],
-      "title": "Scores by Hole",
+      "title": "Scores by Hole ($window)",
       "type": "timeseries"
     },
     {
@@ -427,12 +427,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum by (hole) (pubgolf_score_submitted_total)",
+          "expr": "sum by (hole) (increase(pubgolf_score_submitted_total[$window]))",
           "legendFormat": "Hole {{hole}}",
           "refId": "A"
         }
       ],
-      "title": "Score Distribution by Hole",
+      "title": "Score Distribution by Hole ($window)",
       "type": "piechart"
     },
     {
@@ -524,11 +524,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_player_joined_total) / sum(pubgolf_game_created_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_player_joined_total[$window])) / sum(increase(pubgolf_game_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Avg Players per Game",
+      "title": "Avg Players per Game ($window)",
       "type": "stat"
     },
     {
@@ -562,11 +562,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_score_submitted_total) / sum(pubgolf_player_joined_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_score_submitted_total[$window])) / sum(increase(pubgolf_player_joined_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Avg Scores per Player",
+      "title": "Avg Scores per Player ($window)",
       "type": "stat"
     },
     {
@@ -598,11 +598,11 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_game_randomise_total) / sum(pubgolf_game_created_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_randomise_total[$window])) / sum(increase(pubgolf_game_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Avg Wheel Spins per Game",
+      "title": "Avg Wheel Spins per Game ($window)",
       "type": "stat"
     },
     {
@@ -634,18 +634,18 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(pubgolf_score_submitted_total) / sum(pubgolf_game_completed_total) or vector(0)",
+          "expr": "sum(increase(pubgolf_score_submitted_total[$window])) / sum(increase(pubgolf_game_completed_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "Avg Scores per Completed Game",
+      "title": "Avg Scores per Completed Game ($window)",
       "type": "stat"
     }
   ],
   "refresh": "30s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["pubgolf", "application"],
+  "tags": [],
   "templating": {
     "list": [
       {
@@ -661,6 +661,24 @@
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
+      },
+      {
+        "current": { "selected": true, "text": "30d", "value": "30d" },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Window",
+        "multi": false,
+        "name": "window",
+        "options": [
+          { "selected": false, "text": "1d", "value": "1d" },
+          { "selected": false, "text": "7d", "value": "7d" },
+          { "selected": true, "text": "30d", "value": "30d" },
+          { "selected": false, "text": "90d", "value": "90d" },
+          { "selected": false, "text": "1y", "value": "365d" }
+        ],
+        "query": "1d,7d,30d,90d,365d",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },
