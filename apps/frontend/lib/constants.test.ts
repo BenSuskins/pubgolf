@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { RULES, PENALTIES } from './constants';
+import { RULES } from './constants';
 
 describe('RULES', () => {
   test('should export an array of 4 rules', () => {
@@ -14,19 +14,3 @@ describe('RULES', () => {
   });
 });
 
-describe('PENALTIES', () => {
-  test('should export an array of 3 penalties', () => {
-    expect(PENALTIES).toHaveLength(3);
-  });
-
-  test('should have correct structure for each penalty', () => {
-    PENALTIES.forEach((penalty) => {
-      expect(penalty).toHaveProperty('name');
-      expect(penalty).toHaveProperty('points');
-      expect(penalty).toHaveProperty('emoji');
-      expect(typeof penalty.name).toBe('string');
-      expect(typeof penalty.points).toBe('string');
-      expect(typeof penalty.emoji).toBe('string');
-    });
-  });
-});

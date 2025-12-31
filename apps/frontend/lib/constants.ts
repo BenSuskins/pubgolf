@@ -4,9 +4,3 @@ export const RULES = [
   'Use Randomise once per game to swap a drink for something random.',
   'Lowest total score wins. May the best drinker take home the glory.',
 ];
-
-export const PENALTIES = [
-  { name: 'Skip a drink', points: '+5', emoji: '🚫' },
-  { name: 'Spill your drink', points: '+3', emoji: '💧' },
-  { name: 'Tactical chunder', points: '+10', emoji: '🤮' },
-];
