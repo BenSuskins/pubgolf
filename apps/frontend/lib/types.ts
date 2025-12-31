@@ -49,8 +49,6 @@ export interface JoinGameResponse {
   playerName: string;
 }
 
-export const PAR_VALUES = [1, 3, 2, 2, 2, 2, 4, 1, 1];
-
 export interface RouteHole {
   hole: number;
   par: number;

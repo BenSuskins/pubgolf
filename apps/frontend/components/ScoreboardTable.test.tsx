@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { ScoreboardTable } from './ScoreboardTable';
 import { Player } from '@/lib/types';
 
+const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
+
 const createPlayer = (
   id: string,
   name: string,
@@ -22,7 +24,7 @@ const createPlayer = (
 describe('ScoreboardTable', () => {
   describe('empty state', () => {
     test('should display empty message when no players', () => {
-      render(<ScoreboardTable players={[]} />);
+      render(<ScoreboardTable players={[]} pars={DEFAULT_PARS} />);
 
       expect(
         screen.getByText(/no players yet/i)
@@ -40,7 +42,7 @@ describe('ScoreboardTable', () => {
     ];
 
     test('should render table with correct headers (holes 1-9 and Total)', () => {
-      render(<ScoreboardTable players={mockPlayers} />);
+      render(<ScoreboardTable players={mockPlayers} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('Player')).toBeInTheDocument();
       for (let i = 1; i <= 9; i++) {
@@ -50,7 +52,7 @@ describe('ScoreboardTable', () => {
     });
 
     test('should display par values row', () => {
-      render(<ScoreboardTable players={mockPlayers} />);
+      render(<ScoreboardTable players={mockPlayers} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('Par')).toBeInTheDocument();
       // Total par should be 18
@@ -58,21 +60,21 @@ describe('ScoreboardTable', () => {
     });
 
     test('should render player rows with names', () => {
-      render(<ScoreboardTable players={mockPlayers} />);
+      render(<ScoreboardTable players={mockPlayers} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('Alice')).toBeInTheDocument();
       expect(screen.getByText('Bob')).toBeInTheDocument();
     });
 
     test('should display "-" for null scores', () => {
-      render(<ScoreboardTable players={mockPlayers} />);
+      render(<ScoreboardTable players={mockPlayers} pars={DEFAULT_PARS} />);
 
       const dashes = screen.getAllByText('-');
       expect(dashes.length).toBeGreaterThan(0);
     });
 
     test('should display total score for each player', () => {
-      const { container } = render(<ScoreboardTable players={mockPlayers} />);
+      const { container } = render(<ScoreboardTable players={mockPlayers} pars={DEFAULT_PARS} />);
 
       // Check that total scores are in the last column cells
       const totalCells = container.querySelectorAll('tbody tr td:last-child');
@@ -89,7 +91,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p2', 'Second', [2, 2, 2, 2, 2, 2, 2, 2, 2], 18),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('🥇')).toBeInTheDocument();
     });
@@ -100,7 +102,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p2', 'Second', [2, 2, 2, 2, 2, 2, 2, 2, 2], 18),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('🥈')).toBeInTheDocument();
     });
@@ -112,7 +114,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p3', 'Third', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('🥉')).toBeInTheDocument();
     });
@@ -124,7 +126,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p3', 'Third', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       const goldMedals = screen.getAllByText('🥇');
       expect(goldMedals).toHaveLength(2);
@@ -137,7 +139,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p3', 'Second', [2, 2, 2, 2, 2, 2, 2, 2, 2], 18),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('🥈')).toBeInTheDocument();
     });
@@ -150,7 +152,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p4', 'Fourth', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       const silverMedals = screen.getAllByText('🥈');
       expect(silverMedals).toHaveLength(2);
@@ -164,7 +166,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p4', 'Fourth', [3, 3, 3, 3, 3, 3, 3, 3, 3], 27),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       const goldMedals = screen.getAllByText('🥇');
       expect(goldMedals).toHaveLength(3);
@@ -179,7 +181,7 @@ describe('ScoreboardTable', () => {
       ];
 
       const { container } = render(
-        <ScoreboardTable players={players} currentPlayerId="p1" />
+        <ScoreboardTable players={players} pars={DEFAULT_PARS} currentPlayerId="p1" />
       );
 
       // Check that the current player row has special styling
@@ -200,7 +202,7 @@ describe('ScoreboardTable', () => {
         ),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('Double Points')).toBeInTheDocument();
     });
@@ -210,7 +212,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p1', 'Regular Player', [1, 2, 2, 2, 2, 2, 4, 1, 1], 17),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.queryByText('Double Points')).not.toBeInTheDocument();
     });
@@ -222,7 +224,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p1', 'Test Player', [1, 2, 2, 2, 2, 2, 4, 1, 1], 17),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByRole('table', { name: /player scores/i })).toBeInTheDocument();
     });
@@ -235,7 +237,7 @@ describe('ScoreboardTable', () => {
         createPlayer('other-id', 'Other Player', [1, 3, 2, 2, 2, 2, 4, 1, 1], 18),
       ];
 
-      render(<ScoreboardTable players={players} hostPlayerId="host-id" />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} hostPlayerId="host-id" />);
 
       expect(screen.getByTitle('Host')).toBeInTheDocument();
       expect(screen.getByText('👑')).toBeInTheDocument();
@@ -247,7 +249,7 @@ describe('ScoreboardTable', () => {
         createPlayer('p2', 'Player Two', [1, 3, 2, 2, 2, 2, 4, 1, 1], 18),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.queryByText('👑')).not.toBeInTheDocument();
     });
@@ -259,7 +261,7 @@ describe('ScoreboardTable', () => {
         createPlayer('third-id', 'Third Player', [2, 3, 2, 2, 2, 2, 4, 1, 1], 19),
       ];
 
-      render(<ScoreboardTable players={players} hostPlayerId="host-id" />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} hostPlayerId="host-id" />);
 
       const crowns = screen.getAllByText('👑');
       expect(crowns).toHaveLength(1);
@@ -279,7 +281,7 @@ describe('ScoreboardTable', () => {
         ),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('🚫')).toBeInTheDocument();
     });
@@ -296,7 +298,7 @@ describe('ScoreboardTable', () => {
         ),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('🤮')).toBeInTheDocument();
     });
@@ -313,7 +315,7 @@ describe('ScoreboardTable', () => {
         ),
       ];
 
-      render(<ScoreboardTable players={players} />);
+      render(<ScoreboardTable players={players} pars={DEFAULT_PARS} />);
 
       expect(screen.getByText('Double Points')).toBeInTheDocument();
       expect(screen.getByText('🚫')).toBeInTheDocument();

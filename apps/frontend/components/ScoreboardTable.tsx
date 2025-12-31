@@ -1,16 +1,16 @@
 'use client';
 
-import { Player, PAR_VALUES, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
+import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 
 interface ScoreboardTableProps {
   players: Player[];
+  pars: number[];
   currentPlayerId?: string;
   hostPlayerId?: string;
 }
 
-function getScoreColor(score: number | null, holeIndex: number): string {
+function getScoreColor(score: number | null, par: number): string {
   if (score === null) return '';
-  const par = PAR_VALUES[holeIndex];
   if (score < par) return 'text-[var(--color-success)]';
   if (score > par) return 'text-[var(--color-danger)]';
   return '';
@@ -31,7 +31,7 @@ function getPlayerRank(player: Player, players: Player[]): number {
   return distinctLowerScores.size;
 }
 
-export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: ScoreboardTableProps) {
+export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }: ScoreboardTableProps) {
   if (players.length === 0) {
     return (
       <div className="text-center py-12">
@@ -60,12 +60,12 @@ export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: Scor
           </tr>
           <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]/60">
             <td className="sticky left-0 z-10 bg-[var(--color-surface)] px-3 py-1.5">Par</td>
-            {PAR_VALUES.map((par, i) => (
+            {pars.map((par, i) => (
               <td key={i} className="px-3 py-1.5 text-center">
                 {par}
               </td>
             ))}
-            <td className="px-3 py-1.5 text-center">{PAR_VALUES.reduce((a, b) => a + b, 0)}</td>
+            <td className="px-3 py-1.5 text-center">{pars.reduce((a, b) => a + b, 0)}</td>
           </tr>
         </thead>
         <tbody>
@@ -114,7 +114,7 @@ export function ScoreboardTable({ players, currentPlayerId, hostPlayerId }: Scor
                   return (
                     <td
                       key={i}
-                      className={`px-3 py-3 text-center ${getScoreColor(score, i)}`}
+                      className={`px-3 py-3 text-center ${getScoreColor(score, pars[i])}`}
                     >
                       <div className="flex flex-col items-center">
                         <span className="font-medium">{score ?? '-'}</span>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, completeGame } from '@/lib/api';
+import { getGameState, completeGame, getRoutes } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { ShareModal } from '@/components/ShareModal';
@@ -11,8 +11,11 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { Player, GameStatus } from '@/lib/types';
 
+const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
+
 export default function GamePage() {
   const [players, setPlayers] = useState<Player[]>([]);
+  const [pars, setPars] = useState<number[]>(DEFAULT_PARS);
   const [gameCode, setGameCode] = useState<string>('');
   const [status, setStatus] = useState<GameStatus>('ACTIVE');
   const [hostPlayerId, setHostPlayerId] = useState<string | null>(null);
@@ -55,6 +58,12 @@ export default function GamePage() {
     const interval = setInterval(fetchGame, 30000);
     return () => clearInterval(interval);
   }, [fetchGame]);
+
+  useEffect(() => {
+    getRoutes()
+      .then((response) => setPars(response.holes.map((hole) => hole.par)))
+      .catch(() => {});
+  }, []);
 
   const playerId = getPlayerId();
   const currentPlayer = players.find(p => p.id === playerId);
@@ -148,6 +157,7 @@ export default function GamePage() {
         <section className="glass rounded-xl p-4">
           <ScoreboardTable
             players={players}
+            pars={pars}
             currentPlayerId={playerId ?? undefined}
             hostPlayerId={hostPlayerId ?? undefined}
           />
