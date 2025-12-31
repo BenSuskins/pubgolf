@@ -408,6 +408,24 @@
         }
       }
     },
+    "/api/v1/games/routes" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "routes",
+        "responses" : {
+          "200" : {
+            "description" : "Drink routes for each hole",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoutesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/randomise-options" : {
       "get" : {
         "tags" : [ "game-controller" ],
@@ -659,6 +677,38 @@
           }
         },
         "required" : [ "value" ]
+      },
+      "HoleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "par" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "drinks" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "drinks", "hole", "par" ]
+      },
+      "RoutesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "holes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/HoleResponse"
+            }
+          }
+        },
+        "required" : [ "holes" ]
       },
       "OutcomeResponse" : {
         "type" : "object",

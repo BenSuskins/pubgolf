@@ -136,6 +136,27 @@ data class NotHostPlayerFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class RouteHole(
+    val hole: Int,
+    val par: Int,
+    val drinks: Map<String, String>,
+)
+
+object Routes {
+    val holes: List<RouteHole> =
+        listOf(
+            RouteHole(1, 1, mapOf("Route A" to "Tequila", "Route B" to "Sambuca")),
+            RouteHole(2, 3, mapOf("Route A" to "Beer", "Route B" to "Double Vodka & Single Vodka w/ Mixer")),
+            RouteHole(3, 2, mapOf("Route A" to "Wine", "Route B" to "Double Gin w/ Mixer")),
+            RouteHole(4, 2, mapOf("Route A" to "Cider", "Route B" to "Double Rum w/ Mixer")),
+            RouteHole(5, 2, mapOf("Route A" to "Cocktail", "Route B" to "Cocktail")),
+            RouteHole(6, 2, mapOf("Route A" to "Spirit w/ Mixer", "Route B" to "Spirit w/ Mixer")),
+            RouteHole(7, 4, mapOf("Route A" to "Guinness", "Route B" to "2 x Double Whiskey w/ Mixer")),
+            RouteHole(8, 1, mapOf("Route A" to "Jägerbomb", "Route B" to "Jägerbomb")),
+            RouteHole(9, 1, mapOf("Route A" to "VK", "Route B" to "Smirnoff Ice")),
+        )
+}
+
 fun Game.toJpa(): GameEntity {
     val gameEntity = GameEntity(id.value, code.value, status, hostPlayerId?.value)
 

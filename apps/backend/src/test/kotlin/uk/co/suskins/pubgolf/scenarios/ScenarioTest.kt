@@ -110,6 +110,15 @@ abstract class ScenarioTest {
                 .toEntity(String::class.java)
         }
 
+    fun routes() =
+        resultFrom {
+            restClient
+                .get()
+                .uri("http://localhost:8080/api/v1/games/routes")
+                .retrieve()
+                .toEntity(String::class.java)
+        }
+
     fun gameOfTenPlayers(host: String): Result<ResponseEntity<String>, Exception> {
         val game = createGame(host)
         for (i in 1..9) {

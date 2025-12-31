@@ -1,4 +1,4 @@
-import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType } from './types';
+import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 
@@ -27,6 +27,37 @@ async function handleResponse<T>(response: Response): Promise<T> {
   }
 
   return response.json();
+}
+
+async function fetchWithRetry<T>(
+  fetchFunction: () => Promise<T>,
+  maxRetries: number = 3,
+  delayMs: number = 500
+): Promise<T> {
+  let lastError: Error | undefined;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fetchFunction();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs * (attempt + 1)));
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+export async function getRoutes(): Promise<RoutesResponse> {
+  return fetchWithRetry(async () => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/games/routes`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return handleResponse<RoutesResponse>(response);
+  });
 }
 
 export async function createGame(host: string): Promise<CreateGameResponse> {

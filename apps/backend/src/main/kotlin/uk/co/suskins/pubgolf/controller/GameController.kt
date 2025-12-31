@@ -33,6 +33,7 @@ import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
+import uk.co.suskins.pubgolf.models.HoleResponse
 import uk.co.suskins.pubgolf.models.JoinGameResponse
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.OutcomeResponse
@@ -50,6 +51,8 @@ import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.RandomiseOutcomeResponse
 import uk.co.suskins.pubgolf.models.RandomiseResponse
+import uk.co.suskins.pubgolf.models.Routes
+import uk.co.suskins.pubgolf.models.RoutesResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.service.GameService
 
@@ -503,6 +506,32 @@ class GameController(
                 PenaltyOptionsResponse(
                     PenaltyType.entries.map {
                         PenaltyOptionResponse(it.name, it.label, it.points)
+                    },
+                ),
+            )
+
+    @GetMapping("/routes")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Drink routes for each hole",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = RoutesResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun routes(): ResponseEntity<*> =
+        ResponseEntity
+            .status(OK)
+            .body(
+                RoutesResponse(
+                    Routes.holes.map {
+                        HoleResponse(it.hole, it.par, it.drinks)
                     },
                 ),
             )

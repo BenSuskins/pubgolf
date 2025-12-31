@@ -74,6 +74,16 @@ data class PenaltyOptionResponse(
     val points: Int,
 )
 
+data class RoutesResponse(
+    val holes: List<HoleResponse>,
+)
+
+data class HoleResponse(
+    val hole: Int,
+    val par: Int,
+    val drinks: Map<String, String>,
+)
+
 data class PlayerResponse(
     val id: PlayerId,
     val name: PlayerName,

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { RULES, DRINKS } from '@/lib/constants';
-import { getPenaltyOptions, PenaltyOption } from '@/lib/api';
-import { PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
+import { RULES } from '@/lib/constants';
+import { getPenaltyOptions, getRoutes, PenaltyOption } from '@/lib/api';
+import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
 import { BackButton } from './BackButton';
+import { RoutesTable } from '@/components/RoutesTable';
 
 export const metadata: Metadata = {
   title: "How to Play Pub Golf - Rules & Scoring",
@@ -19,8 +20,17 @@ async function fetchPenalties(): Promise<PenaltyOption[]> {
   }
 }
 
+async function fetchRoutes(): Promise<RouteHole[]> {
+  try {
+    const response = await getRoutes();
+    return response.holes;
+  } catch {
+    return [];
+  }
+}
+
 export default async function HowToPlayPage() {
-  const penalties = await fetchPenalties();
+  const [penalties, holes] = await Promise.all([fetchPenalties(), fetchRoutes()]);
 
   return (
     <main className="p-6 py-8">
@@ -68,31 +78,7 @@ export default async function HowToPlayPage() {
           <h2 className="text-xl font-semibold mb-4 font-[family-name:var(--font-display)] flex items-center gap-2">
             The Course
           </h2>
-          <div className="overflow-x-auto -mx-2">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-[var(--color-border)]">
-                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Hole</th>
-                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Route A</th>
-                  <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">Route B</th>
-                  <th className="px-3 py-3 text-center font-semibold text-[var(--color-accent)]">Par</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DRINKS.map((drink, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-[var(--color-border-subtle)] hover:bg-white/5 transition-colors"
-                  >
-                    <td className="px-3 py-3 font-bold text-[var(--color-accent)]">{index + 1}</td>
-                    <td className="px-3 py-3">{drink.drinkA}</td>
-                    <td className="px-3 py-3">{drink.drinkB}</td>
-                    <td className="px-3 py-3 text-center font-medium">{drink.par}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RoutesTable holes={holes} />
         </section>
 
         <div className="flex justify-center">

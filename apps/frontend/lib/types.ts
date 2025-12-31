@@ -50,3 +50,13 @@ export interface JoinGameResponse {
 }
 
 export const PAR_VALUES = [1, 3, 2, 2, 2, 2, 4, 1, 1];
+
+export interface RouteHole {
+  hole: number;
+  par: number;
+  drinks: Record<string, string>;
+}
+
+export interface RoutesResponse {
+  holes: RouteHole[];
+}
