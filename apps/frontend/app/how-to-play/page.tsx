@@ -1,36 +1,25 @@
-import type { Metadata } from "next";
+'use client';
+
+import { useEffect, useState } from 'react';
 import { RULES } from '@/lib/constants';
 import { getPenaltyOptions, getRoutes, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
 import { BackButton } from './BackButton';
 import { RoutesTable } from '@/components/RoutesTable';
 
-export const metadata: Metadata = {
-  title: "How to Play Pub Golf - Rules & Scoring",
-  description:
-    "Learn the rules of Pub Golf. 9 holes, 9 drinks, beat the par at each stop. Complete guide to scoring, penalties, and the drink course.",
-};
+export default function HowToPlayPage() {
+  const [penalties, setPenalties] = useState<PenaltyOption[]>([]);
+  const [holes, setHoles] = useState<RouteHole[]>([]);
 
-async function fetchPenalties(): Promise<PenaltyOption[]> {
-  try {
-    const response = await getPenaltyOptions();
-    return response.penalties;
-  } catch {
-    return [];
-  }
-}
+  useEffect(() => {
+    getPenaltyOptions()
+      .then((response) => setPenalties(response.penalties))
+      .catch(() => setPenalties([]));
 
-async function fetchRoutes(): Promise<RouteHole[]> {
-  try {
-    const response = await getRoutes();
-    return response.holes;
-  } catch {
-    return [];
-  }
-}
-
-export default async function HowToPlayPage() {
-  const [penalties, holes] = await Promise.all([fetchPenalties(), fetchRoutes()]);
+    getRoutes()
+      .then((response) => setHoles(response.holes))
+      .catch(() => setHoles([]));
+  }, []);
 
   return (
     <main className="p-6 py-8">
