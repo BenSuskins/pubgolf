@@ -276,6 +276,72 @@
         }
       }
     },
+    "/api/v1/games/{gameCode}/events" : {
+      "post" : {
+        "tags" : [ "event-controller" ],
+        "operationId" : "startEvent-fOdNj2Q",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StartEventRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Event started",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Event already active",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/{gameCode}/complete" : {
       "post" : {
         "tags" : [ "game-controller" ],
@@ -408,6 +474,96 @@
         }
       }
     },
+    "/api/v1/games/{gameCode}/events/current" : {
+      "get" : {
+        "tags" : [ "event-controller" ],
+        "operationId" : "getActiveEvent-L7I0Y1Y",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Active event for the game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ActiveEventResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "No active event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "event-controller" ],
+        "operationId" : "endCurrentEvent-fOdNj2Q",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EndEventRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Event ended",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game not found or no active event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/routes" : {
       "get" : {
         "tags" : [ "game-controller" ],
@@ -455,6 +611,24 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PenaltyOptionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events" : {
+      "get" : {
+        "tags" : [ "event-controller" ],
+        "operationId" : "getEvents",
+        "responses" : {
+          "200" : {
+            "description" : "List of available events",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventsResponse"
                 }
               }
             }
@@ -569,6 +743,34 @@
         },
         "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
       },
+      "StartEventRequest" : {
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "eventId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "eventId", "playerId" ]
+      },
+      "EventResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "id", "name" ]
+      },
       "CompleteGameRequest" : {
         "type" : "object",
         "properties" : {
@@ -678,6 +880,21 @@
         },
         "required" : [ "value" ]
       },
+      "ActiveEventResponse" : {
+        "type" : "object",
+        "properties" : {
+          "eventId" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "eventId", "name" ]
+      },
       "HoleResponse" : {
         "type" : "object",
         "properties" : {
@@ -762,6 +979,28 @@
           }
         },
         "required" : [ "penalties" ]
+      },
+      "EventsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EventResponse"
+            }
+          }
+        },
+        "required" : [ "events" ]
+      },
+      "EndEventRequest" : {
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "playerId" ]
       }
     }
   }

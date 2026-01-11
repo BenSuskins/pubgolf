@@ -136,6 +136,18 @@ data class NotHostPlayerFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class EventAlreadyActiveFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class NoActiveEventFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class EventNotFoundFailure(
+    override val message: String,
+) : PubGolfFailure
+
 data class RouteHole(
     val hole: Int,
     val par: Int,

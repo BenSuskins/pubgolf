@@ -33,7 +33,8 @@ private val host = PlayerName("Ben")
 class GameServiceTest {
     private val gameRepository = GameRepositoryFake()
     private val gameMetrics = GameMetrics(SimpleMeterRegistry())
-    private val service = GameService(gameRepository, gameMetrics)
+    private val gameBroadcastService = GameBroadcastServiceFake(gameRepository)
+    private val service = GameService(gameRepository, gameMetrics, gameBroadcastService)
 
     @Test
     fun `can create game`() {

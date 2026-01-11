@@ -3,13 +3,18 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, completeGame, getRoutes } from '@/lib/api';
+import { getGameState, completeGame, getRoutes, getActiveEvent } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useGameWebSocket } from '@/hooks/useGameWebSocket';
+import { useSeenEvents } from '@/hooks/useSeenEvents';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { ShareModal } from '@/components/ShareModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
-import { Player, GameStatus } from '@/lib/types';
+import { EventModal } from '@/components/EventModal';
+import { EventEndModal } from '@/components/EventEndModal';
+import { ActiveEventBanner } from '@/components/ActiveEventBanner';
+import { Player, GameStatus, EventPayload } from '@/lib/types';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
@@ -25,10 +30,18 @@ export default function GamePage() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [showEventEndModal, setShowEventEndModal] = useState(false);
+  const [currentActiveEvent, setCurrentActiveEvent] = useState<EventPayload | null>(null);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
 
-  const fetchGame = useCallback(async () => {
+  const storedGameCode = getGameCode();
+  const { isConnected, gameState, activeEvent, gameEnded, lastEventEnd, clearEventEnd } =
+    useGameWebSocket(storedGameCode);
+  const { hasSeenEvent, markEventAsSeen } = useSeenEvents(storedGameCode);
+
+  const fetchInitialState = useCallback(async () => {
     const code = getGameCode();
     if (!code) {
       router.push('/');
@@ -38,10 +51,23 @@ export default function GamePage() {
     setGameCode(code);
 
     try {
-      const state = await getGameState(code);
+      const [state, existingEvent] = await Promise.all([
+        getGameState(code),
+        getActiveEvent(code),
+      ]);
+
       setPlayers(state.players);
       setStatus(state.status);
       setHostPlayerId(state.hostPlayerId);
+
+      if (existingEvent) {
+        setCurrentActiveEvent(existingEvent);
+        if (!hasSeenEvent(existingEvent.eventId)) {
+          setShowEventModal(true);
+          markEventAsSeen(existingEvent.eventId);
+        }
+      }
+
       if (state.status === 'COMPLETED') {
         setShowCelebration(true);
       }
@@ -51,17 +77,48 @@ export default function GamePage() {
     } finally {
       setLoading(false);
     }
-  }, [getGameCode, router]);
+  }, [getGameCode, router, hasSeenEvent, markEventAsSeen]);
 
   useEffect(() => {
-    fetchGame();
-    const interval = setInterval(fetchGame, 30000);
-    return () => clearInterval(interval);
-  }, [fetchGame]);
+    fetchInitialState();
+  }, [fetchInitialState]);
+
+  useEffect(() => {
+    if (gameState) {
+      setPlayers(gameState.players);
+      setStatus(gameState.status);
+      setHostPlayerId(gameState.hostPlayerId);
+    }
+  }, [gameState]);
+
+  useEffect(() => {
+    if (activeEvent) {
+      setCurrentActiveEvent(activeEvent);
+      if (!hasSeenEvent(activeEvent.eventId)) {
+        setShowEventModal(true);
+        markEventAsSeen(activeEvent.eventId);
+      }
+    } else if (!activeEvent && currentActiveEvent) {
+      setCurrentActiveEvent(null);
+    }
+  }, [activeEvent, hasSeenEvent, markEventAsSeen, currentActiveEvent]);
+
+  useEffect(() => {
+    if (lastEventEnd) {
+      setShowEventEndModal(true);
+    }
+  }, [lastEventEnd]);
+
+  useEffect(() => {
+    if (gameEnded) {
+      setStatus('COMPLETED');
+      setShowCelebration(true);
+    }
+  }, [gameEnded]);
 
   useEffect(() => {
     getRoutes()
-      .then((response) => setPars(response.holes.map((hole) => hole.par)))
+      .then(response => setPars(response.holes.map(hole => hole.par)))
       .catch(() => {});
   }, []);
 
@@ -95,6 +152,11 @@ export default function GamePage() {
     }
   };
 
+  const handleEventEndModalClose = () => {
+    setShowEventEndModal(false);
+    clearEventEnd();
+  };
+
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
@@ -106,7 +168,9 @@ export default function GamePage() {
   if (error) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
-        <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">{error}</p>
+        <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">
+          {error}
+        </p>
         <Link href="/" className="text-[var(--color-primary)] hover:underline">
           Back to Home
         </Link>
@@ -124,16 +188,29 @@ export default function GamePage() {
             </h1>
             <p className="text-[var(--color-text-secondary)] text-sm">
               Rally your crew
+              {isConnected && (
+                <span className="ml-2 text-green-500" title="Connected">
+                  ●
+                </span>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-2">
             {isHost && !isCompleted && (
-              <button
-                onClick={() => setShowConfirmModal(true)}
-                className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
-              >
-                End Game
-              </button>
+              <>
+                <Link
+                  href={`/game/${gameCode}/host`}
+                  className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0"
+                >
+                  Host Controls
+                </Link>
+                <button
+                  onClick={() => setShowConfirmModal(true)}
+                  className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
+                >
+                  End Game
+                </button>
+              </>
             )}
             {!isCompleted && (
               <button
@@ -148,10 +225,12 @@ export default function GamePage() {
 
         {isCompleted && (
           <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 rounded-lg px-4 py-3 text-center">
-            <p className="font-semibold text-[var(--color-accent)]">
-              🏆 Game Complete
-            </p>
+            <p className="font-semibold text-[var(--color-accent)]">🏆 Game Complete</p>
           </div>
+        )}
+
+        {currentActiveEvent && !isCompleted && (
+          <ActiveEventBanner eventName={currentActiveEvent.name} />
         )}
 
         <section className="glass rounded-xl p-4">
@@ -196,10 +275,7 @@ export default function GamePage() {
       </div>
 
       {showShareModal && (
-        <ShareModal
-          gameCode={gameCode}
-          onClose={() => setShowShareModal(false)}
-        />
+        <ShareModal gameCode={gameCode} onClose={() => setShowShareModal(false)} />
       )}
 
       {showConfirmModal && (
@@ -215,10 +291,15 @@ export default function GamePage() {
       )}
 
       {showCelebration && isCompleted && (
-        <CelebrationScreen
-          winners={getWinners()}
-          onDismiss={() => setShowCelebration(false)}
-        />
+        <CelebrationScreen winners={getWinners()} onDismiss={() => setShowCelebration(false)} />
+      )}
+
+      {showEventModal && currentActiveEvent && (
+        <EventModal event={currentActiveEvent} onDismiss={() => setShowEventModal(false)} />
+      )}
+
+      {showEventEndModal && lastEventEnd && (
+        <EventEndModal eventName={lastEventEnd.name} onClose={handleEventEndModalClose} />
       )}
     </main>
   );

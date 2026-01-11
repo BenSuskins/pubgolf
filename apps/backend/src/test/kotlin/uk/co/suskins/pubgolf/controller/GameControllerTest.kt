@@ -18,13 +18,15 @@ import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
+import uk.co.suskins.pubgolf.service.GameBroadcastServiceFake
 import uk.co.suskins.pubgolf.service.GameMetrics
 import uk.co.suskins.pubgolf.service.GameService
 
 class GameControllerTest {
     private val gameRepository = GameRepositoryFake()
     private val gameMetrics = GameMetrics(SimpleMeterRegistry())
-    private val gameService = GameService(gameRepository, gameMetrics)
+    private val gameBroadcastService = GameBroadcastServiceFake(gameRepository)
+    private val gameService = GameService(gameRepository, gameMetrics, gameBroadcastService)
     private val controller = GameController(gameService)
 
     @Test

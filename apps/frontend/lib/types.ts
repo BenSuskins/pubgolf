@@ -58,3 +58,35 @@ export interface RouteHole {
 export interface RoutesResponse {
   holes: RouteHole[];
 }
+
+export interface Event {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface EventsResponse {
+  events: Event[];
+}
+
+export interface EventPayload {
+  eventId: string;
+  name: string;
+  description: string;
+}
+
+export interface EventEndPayload {
+  eventId: string;
+  name: string;
+}
+
+export type WebSocketMessageType =
+  | 'GAME_STATE'
+  | 'EVENT_START'
+  | 'EVENT_END'
+  | 'GAME_ENDED';
+
+export interface WebSocketMessage {
+  type: WebSocketMessageType;
+  payload: unknown;
+}

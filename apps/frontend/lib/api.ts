@@ -1,4 +1,13 @@
-import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse } from './types';
+import {
+  CreateGameResponse,
+  JoinGameResponse,
+  GameState,
+  PenaltyType,
+  RoutesResponse,
+  EventsResponse,
+  Event,
+  EventPayload,
+} from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 
@@ -169,6 +178,51 @@ export async function completeGame(gameCode: string, playerId: string): Promise<
     body: JSON.stringify({ playerId }),
   });
   return handleResponse<GameState>(response);
+}
+
+export async function getEvents(): Promise<EventsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/events`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<EventsResponse>(response);
+}
+
+export async function getActiveEvent(gameCode: string): Promise<EventPayload | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/current`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (response.status === 404) {
+      return null;
+    }
+    return handleResponse<EventPayload>(response);
+  } catch {
+    return null;
+  }
+}
+
+export async function startEvent(
+  gameCode: string,
+  playerId: string,
+  eventId: string
+): Promise<Event> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId, eventId }),
+  });
+  return handleResponse<Event>(response);
+}
+
+export async function endEvent(gameCode: string, playerId: string): Promise<Event> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/current`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId }),
+  });
+  return handleResponse<Event>(response);
 }
 
 export { ApiError };

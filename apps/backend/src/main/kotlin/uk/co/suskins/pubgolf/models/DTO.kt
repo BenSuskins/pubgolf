@@ -107,3 +107,28 @@ data class RandomiseOutcomeResponse(
 data class ErrorResponse(
     val message: String,
 )
+
+data class EventResponse(
+    val id: String,
+    val name: String,
+    val description: String,
+)
+
+data class EventsResponse(
+    val events: List<EventResponse>,
+)
+
+data class StartEventRequest(
+    val playerId: PlayerId,
+    val eventId: String,
+)
+
+data class EndEventRequest(
+    val playerId: PlayerId,
+)
+
+data class ActiveEventResponse(
+    val eventId: String,
+    val name: String,
+    val description: String,
+)
