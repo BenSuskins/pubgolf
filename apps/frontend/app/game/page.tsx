@@ -39,7 +39,7 @@ export default function GamePage() {
     setError('');
   }, []);
 
-  const { isConnected } = useGameWebSocket({
+  useGameWebSocket({
     gameCode,
     onGameStateUpdate: handleGameStateUpdate,
     enabled: !loading && status !== 'COMPLETED',
@@ -67,13 +67,6 @@ export default function GamePage() {
   useEffect(() => {
     fetchGame();
   }, [fetchGame]);
-
-  useEffect(() => {
-    if (isConnected || loading || status === 'COMPLETED') return;
-
-    const interval = setInterval(fetchGame, 30000);
-    return () => clearInterval(interval);
-  }, [isConnected, loading, status, fetchGame]);
 
   useEffect(() => {
     getRoutes()
