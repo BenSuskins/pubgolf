@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getGameState, completeGame, getRoutes } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { ShareModal } from '@/components/ShareModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
-import { Player, GameStatus } from '@/lib/types';
+import { Player, GameStatus, GameState } from '@/lib/types';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
@@ -28,6 +29,22 @@ export default function GamePage() {
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
 
+  const handleGameStateUpdate = useCallback((state: GameState) => {
+    setPlayers(state.players);
+    setStatus(state.status);
+    setHostPlayerId(state.hostPlayerId);
+    if (state.status === 'COMPLETED') {
+      setShowCelebration(true);
+    }
+    setError('');
+  }, []);
+
+  const { isConnected } = useGameWebSocket({
+    gameCode,
+    onGameStateUpdate: handleGameStateUpdate,
+    enabled: !loading && status !== 'COMPLETED',
+  });
+
   const fetchGame = useCallback(async () => {
     const code = getGameCode();
     if (!code) {
@@ -39,25 +56,24 @@ export default function GamePage() {
 
     try {
       const state = await getGameState(code);
-      setPlayers(state.players);
-      setStatus(state.status);
-      setHostPlayerId(state.hostPlayerId);
-      if (state.status === 'COMPLETED') {
-        setShowCelebration(true);
-      }
-      setError('');
+      handleGameStateUpdate(state);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load game');
     } finally {
       setLoading(false);
     }
-  }, [getGameCode, router]);
+  }, [getGameCode, router, handleGameStateUpdate]);
 
   useEffect(() => {
     fetchGame();
+  }, [fetchGame]);
+
+  useEffect(() => {
+    if (isConnected || loading || status === 'COMPLETED') return;
+
     const interval = setInterval(fetchGame, 30000);
     return () => clearInterval(interval);
-  }, [fetchGame]);
+  }, [isConnected, loading, status, fetchGame]);
 
   useEffect(() => {
     getRoutes()

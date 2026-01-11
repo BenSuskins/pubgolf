@@ -32,6 +32,7 @@ import uk.co.suskins.pubgolf.repository.GameRepository
 class GameService(
     private val gameRepository: GameRepository,
     private val gameMetrics: GameMetrics,
+    private val gameStateBroadcaster: GameStateBroadcaster,
 ) {
     private val logger = LoggerFactory.getLogger(GameService::class.java)
 
@@ -66,6 +67,7 @@ class GameService(
                 val updated = game.copy(players = game.players + player)
                 gameRepository
                     .save(updated)
+                    .peek { gameStateBroadcaster.broadcast(it) }
                     .map { game.copy(players = listOf(player)) }
                     .also { gameMetrics.playerJoined() }
             }
@@ -100,6 +102,7 @@ class GameService(
                     }
                 gameRepository
                     .save(game.copy(players = updatedPlayers))
+                    .peek { gameStateBroadcaster.broadcast(it) }
                     .map { }
                     .also { gameMetrics.scoreSubmitted(hole) }
             }
@@ -127,6 +130,7 @@ class GameService(
                 val completed = game.copy(status = GameStatus.COMPLETED)
                 gameRepository
                     .save(completed)
+                    .peek { gameStateBroadcaster.broadcast(it) }
                     .peek { logger.info("Game ${it.code.value} completed.") }
                     .also { gameMetrics.gameCompleted() }
             }
@@ -186,15 +190,18 @@ class GameService(
                         it
                     }
                 }
-            return gameRepository.save(game.copy(players = updatedPlayers)).flatMap {
-                Success(
-                    RandomiseResult(
-                        result = outcome.label,
-                        hole = randomiseHole,
-                        outcomes = Outcomes.entries,
-                    ),
-                ).also { gameMetrics.randomiseUsed() }
-            }
+            return gameRepository
+                .save(game.copy(players = updatedPlayers))
+                .peek { gameStateBroadcaster.broadcast(it) }
+                .flatMap {
+                    Success(
+                        RandomiseResult(
+                            result = outcome.label,
+                            hole = randomiseHole,
+                            outcomes = Outcomes.entries,
+                        ),
+                    ).also { gameMetrics.randomiseUsed() }
+                }
         }
     }
 

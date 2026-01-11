@@ -12,11 +12,13 @@
     "test:coverage": "bun test --coverage"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.2.1",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-confetti": "^6.4.0",
     "react-dom": "19.2.3",
-    "react-qr-code": "^2.0.15"
+    "react-qr-code": "^2.0.15",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -27,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sockjs-client": "^1.5.4",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "happy-dom": "^20.0.11",
