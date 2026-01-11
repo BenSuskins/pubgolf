@@ -39,7 +39,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -59,8 +58,6 @@ dependencies {
     testImplementation("com.oneeyedmen:okeydoke:${property("okeyDokeVersion")}")
 
     testFixturesImplementation("dev.forkhandles:result4k")
-    testFixturesImplementation("org.springframework.boot:spring-boot-starter-websocket")
-    testFixturesImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

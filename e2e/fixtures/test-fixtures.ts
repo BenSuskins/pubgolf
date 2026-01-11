@@ -22,27 +22,11 @@ interface GameState {
   }>;
 }
 
-interface Event {
-  id: string;
-  name: string;
-  description: string;
-}
-
-interface EventPayload {
-  eventId: string;
-  name: string;
-  description: string;
-}
-
 interface TestFixtures {
   createGameViaApi: (hostName: string) => Promise<GameSession>;
   joinGameViaApi: (gameCode: string, playerName: string) => Promise<GameSession>;
   submitScoreViaApi: (gameCode: string, playerId: string, hole: number, score: number) => Promise<void>;
   completeGameViaApi: (gameCode: string, playerId: string) => Promise<GameState>;
-  getEventsViaApi: () => Promise<Event[]>;
-  startEventViaApi: (gameCode: string, playerId: string, eventId: string) => Promise<void>;
-  endEventViaApi: (gameCode: string, playerId: string) => Promise<void>;
-  getActiveEventViaApi: (gameCode: string) => Promise<EventPayload | null>;
   authenticatedPage: Page;
 }
 
@@ -141,75 +125,6 @@ export const test = base.extend<TestFixtures>({
     };
 
     await use(completeGame);
-  },
-
-  getEventsViaApi: async ({}, use) => {
-    const getEvents = async (): Promise<Event[]> => {
-      const response = await fetch(`${API_URL}/api/v1/events`);
-
-      if (!response.ok) {
-        throw new Error(`Failed to get events: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.events;
-    };
-
-    await use(getEvents);
-  },
-
-  startEventViaApi: async ({}, use) => {
-    const startEvent = async (
-      gameCode: string,
-      playerId: string,
-      eventId: string
-    ): Promise<void> => {
-      const response = await fetch(`${API_URL}/api/v1/games/${gameCode}/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, eventId }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to start event: ${response.status}`);
-      }
-    };
-
-    await use(startEvent);
-  },
-
-  endEventViaApi: async ({}, use) => {
-    const endEvent = async (gameCode: string, playerId: string): Promise<void> => {
-      const response = await fetch(`${API_URL}/api/v1/games/${gameCode}/events/current`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to end event: ${response.status}`);
-      }
-    };
-
-    await use(endEvent);
-  },
-
-  getActiveEventViaApi: async ({}, use) => {
-    const getActiveEvent = async (gameCode: string): Promise<EventPayload | null> => {
-      const response = await fetch(`${API_URL}/api/v1/games/${gameCode}/events/current`);
-
-      if (response.status === 404) {
-        return null;
-      }
-
-      if (!response.ok) {
-        throw new Error(`Failed to get active event: ${response.status}`);
-      }
-
-      return response.json();
-    };
-
-    await use(getActiveEvent);
   },
 
   authenticatedPage: async ({ page, createGameViaApi }, use) => {

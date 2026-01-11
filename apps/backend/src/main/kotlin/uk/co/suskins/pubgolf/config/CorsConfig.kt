@@ -12,7 +12,7 @@ class CorsConfig(
         registry
             .addMapping("/**")
             .allowedOrigins(*applicationProperties.origins.toTypedArray())
-            .allowedMethods("GET", "POST", "DELETE", "OPTIONS")
+            .allowedMethods("GET", "POST", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)
     }
