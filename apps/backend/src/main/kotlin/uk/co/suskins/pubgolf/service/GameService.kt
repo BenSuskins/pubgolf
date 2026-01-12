@@ -8,9 +8,13 @@ import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.peek
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.co.suskins.pubgolf.models.ActiveEvent
+import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
+import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameEvent
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
@@ -27,6 +31,7 @@ import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.RandomiseResult
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.repository.GameRepository
+import java.time.Instant
 
 @Service
 class GameService(
@@ -127,13 +132,68 @@ class GameService(
             .flatMap { isNotCompleted(it, "Game is already completed") }
             .flatMap { isHost(it, playerId) }
             .flatMap { game ->
-                val completed = game.copy(status = GameStatus.COMPLETED)
+                val completed = game.copy(status = GameStatus.COMPLETED, activeEvent = null)
                 gameRepository
                     .save(completed)
                     .peek { gameStateBroadcaster.broadcast(it) }
                     .peek { logger.info("Game ${it.code.value} completed.") }
                     .also { gameMetrics.gameCompleted() }
             }
+
+    fun getAvailableEvents(): List<GameEvent> = GameEvent.entries.toList()
+
+    fun getActiveEvent(gameCode: GameCode): Result<ActiveEvent?, PubGolfFailure> =
+        gameRepository
+            .findByCodeIgnoreCase(gameCode)
+            .map { it.activeEvent }
+
+    fun activateEvent(
+        gameCode: GameCode,
+        playerId: PlayerId,
+        eventId: String,
+    ): Result<Game, PubGolfFailure> =
+        gameRepository
+            .findByCodeIgnoreCase(gameCode)
+            .flatMap { isNotCompleted(it, "Cannot activate event on completed game") }
+            .flatMap { isHost(it, playerId) }
+            .flatMap { hasNoActiveEvent(it) }
+            .flatMap { game ->
+                val event =
+                    GameEvent.fromId(eventId)
+                        ?: return@flatMap Failure(EventNotFoundFailure("Event '$eventId' not found"))
+                val activeEvent = ActiveEvent(event, Instant.now())
+                val updated = game.copy(activeEvent = activeEvent)
+                gameRepository
+                    .save(updated)
+                    .peek { gameStateBroadcaster.broadcast(it) }
+                    .peek { logger.info("Event '${event.title}' activated for game ${it.code.value}") }
+            }
+
+    fun endEvent(
+        gameCode: GameCode,
+        playerId: PlayerId,
+    ): Result<Game, PubGolfFailure> =
+        gameRepository
+            .findByCodeIgnoreCase(gameCode)
+            .flatMap { isHost(it, playerId) }
+            .flatMap { game ->
+                if (game.activeEvent == null) {
+                    Success(game)
+                } else {
+                    val updated = game.copy(activeEvent = null)
+                    gameRepository
+                        .save(updated)
+                        .peek { gameStateBroadcaster.broadcast(it) }
+                        .peek { logger.info("Event ended for game ${it.code.value}") }
+                }
+            }
+
+    private fun hasNoActiveEvent(game: Game): Result<Game, PubGolfFailure> =
+        if (game.activeEvent != null) {
+            Failure(EventAlreadyActiveFailure("An event is already active. End the current event before activating a new one."))
+        } else {
+            Success(game)
+        }
 
     private fun hasPlayer(
         game: Game,

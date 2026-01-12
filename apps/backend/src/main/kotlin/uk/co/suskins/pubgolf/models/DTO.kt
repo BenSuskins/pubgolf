@@ -48,6 +48,7 @@ data class GameStateResponse(
     val status: GameStatus,
     val hostPlayerId: PlayerId?,
     val players: List<PlayerResponse>,
+    val activeEvent: ActiveEventResponse?,
 )
 
 data class RandomiseResponse(
@@ -106,4 +107,33 @@ data class RandomiseOutcomeResponse(
 
 data class ErrorResponse(
     val message: String,
+)
+
+data class EventResponse(
+    val id: String,
+    val title: String,
+    val description: String,
+)
+
+data class EventsResponse(
+    val events: List<EventResponse>,
+)
+
+data class ActiveEventResponse(
+    val id: String,
+    val title: String,
+    val description: String,
+    val activatedAt: java.time.Instant,
+)
+
+data class ActiveEventStateResponse(
+    val activeEvent: ActiveEventResponse?,
+)
+
+data class ActivateEventRequest(
+    val playerId: PlayerId,
+)
+
+data class EndEventRequest(
+    val playerId: PlayerId,
 )

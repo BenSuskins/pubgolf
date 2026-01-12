@@ -1,4 +1,4 @@
-import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse } from './types';
+import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse, GameEvent, ActiveEvent } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 
@@ -164,6 +164,55 @@ export async function spinWheel(
 
 export async function completeGame(gameCode: string, playerId: string): Promise<GameState> {
   const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId }),
+  });
+  return handleResponse<GameState>(response);
+}
+
+export interface EventsResponse {
+  events: GameEvent[];
+}
+
+export interface ActiveEventStateResponse {
+  activeEvent: ActiveEvent | null;
+}
+
+export async function getAvailableEvents(gameCode: string): Promise<EventsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<EventsResponse>(response);
+}
+
+export async function getActiveEvent(gameCode: string): Promise<ActiveEventStateResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/active`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<ActiveEventStateResponse>(response);
+}
+
+export async function activateEvent(
+  gameCode: string,
+  eventId: string,
+  playerId: string
+): Promise<GameState> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/games/${gameCode}/events/${eventId}/activate`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    }
+  );
+  return handleResponse<GameState>(response);
+}
+
+export async function endEvent(gameCode: string, playerId: string): Promise<GameState> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/end`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ playerId }),

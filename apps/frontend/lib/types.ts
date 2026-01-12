@@ -27,12 +27,26 @@ export interface Player {
 
 export type GameStatus = 'ACTIVE' | 'COMPLETED';
 
+export interface GameEvent {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface ActiveEvent {
+  id: string;
+  title: string;
+  description: string;
+  activatedAt: string;
+}
+
 export interface GameState {
   gameId: string;
   gameCode: string;
   status: GameStatus;
   hostPlayerId: string | null;
   players: Player[];
+  activeEvent: ActiveEvent | null;
 }
 
 export interface CreateGameResponse {

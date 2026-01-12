@@ -24,9 +24,17 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.co.suskins.pubgolf.models.ActivateEventRequest
+import uk.co.suskins.pubgolf.models.ActiveEventResponse
+import uk.co.suskins.pubgolf.models.ActiveEventStateResponse
 import uk.co.suskins.pubgolf.models.CompleteGameRequest
 import uk.co.suskins.pubgolf.models.CreateGameResponse
+import uk.co.suskins.pubgolf.models.EndEventRequest
 import uk.co.suskins.pubgolf.models.ErrorResponse
+import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
+import uk.co.suskins.pubgolf.models.EventNotFoundFailure
+import uk.co.suskins.pubgolf.models.EventResponse
+import uk.co.suskins.pubgolf.models.EventsResponse
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameJoinRequest
@@ -248,6 +256,14 @@ class GameController(
                                 },
                             )
                         }.sortedBy { it.totalScore },
+                    it.activeEvent?.let { event ->
+                        ActiveEventResponse(
+                            event.event.id,
+                            event.event.title,
+                            event.event.description,
+                            event.activatedAt,
+                        )
+                    },
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -457,6 +473,14 @@ class GameController(
                                 },
                             )
                         }.sortedBy { it.totalScore },
+                    it.activeEvent?.let { event ->
+                        ActiveEventResponse(
+                            event.event.id,
+                            event.event.title,
+                            event.event.description,
+                            event.activatedAt,
+                        )
+                    },
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -536,14 +560,260 @@ class GameController(
                 ),
             )
 
+    @GetMapping("/{gameCode}/events")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Available events",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = EventsResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun getAvailableEvents(
+        @PathVariable("gameCode") gameCode: GameCode,
+    ): ResponseEntity<*> =
+        gameService
+            .gameState(gameCode)
+            .map {
+                EventsResponse(
+                    gameService.getAvailableEvents().map { event ->
+                        EventResponse(event.id, event.title, event.description)
+                    },
+                )
+            }.map {
+                ResponseEntity.status(OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
+    @GetMapping("/{gameCode}/events/active")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Current active event",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ActiveEventStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun getActiveEvent(
+        @PathVariable("gameCode") gameCode: GameCode,
+    ): ResponseEntity<*> =
+        gameService
+            .getActiveEvent(gameCode)
+            .map { activeEvent ->
+                ActiveEventStateResponse(
+                    activeEvent?.let {
+                        ActiveEventResponse(
+                            it.event.id,
+                            it.event.title,
+                            it.event.description,
+                            it.activatedAt,
+                        )
+                    },
+                )
+            }.map {
+                ResponseEntity.status(OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
+    @PostMapping("/{gameCode}/events/{eventId}/activate")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Event activated",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Not the host",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Game or event not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "Event already active",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun activateEvent(
+        @PathVariable("gameCode") gameCode: GameCode,
+        @PathVariable("eventId") eventId: String,
+        @Valid @RequestBody request: ActivateEventRequest,
+    ): ResponseEntity<*> =
+        gameService
+            .activateEvent(gameCode, request.playerId, eventId)
+            .map {
+                GameStateResponse(
+                    it.id,
+                    it.code,
+                    it.status,
+                    it.hostPlayerId,
+                    it.players
+                        .map { player ->
+                            PlayerResponse(
+                                player.id,
+                                player.name,
+                                player.scores.map { it.value.score },
+                                player.scores.map { it.value.score.value }.sum(),
+                                player.randomise?.let {
+                                    RandomiseOutcomeResponse(it.hole, it.result.label)
+                                },
+                                player.penalties.map { penalty ->
+                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
+                                },
+                            )
+                        }.sortedBy { it.totalScore },
+                    it.activeEvent?.let { event ->
+                        ActiveEventResponse(
+                            event.event.id,
+                            event.event.title,
+                            event.event.description,
+                            event.activatedAt,
+                        )
+                    },
+                )
+            }.map {
+                ResponseEntity.status(OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
+    @PostMapping("/{gameCode}/events/end")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Event ended",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Not the host",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun endEvent(
+        @PathVariable("gameCode") gameCode: GameCode,
+        @Valid @RequestBody request: EndEventRequest,
+    ): ResponseEntity<*> =
+        gameService
+            .endEvent(gameCode, request.playerId)
+            .map {
+                GameStateResponse(
+                    it.id,
+                    it.code,
+                    it.status,
+                    it.hostPlayerId,
+                    it.players
+                        .map { player ->
+                            PlayerResponse(
+                                player.id,
+                                player.name,
+                                player.scores.map { it.value.score },
+                                player.scores.map { it.value.score.value }.sum(),
+                                player.randomise?.let {
+                                    RandomiseOutcomeResponse(it.hole, it.result.label)
+                                },
+                                player.penalties.map { penalty ->
+                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
+                                },
+                            )
+                        }.sortedBy { it.totalScore },
+                    it.activeEvent?.let { event ->
+                        ActiveEventResponse(
+                            event.event.id,
+                            event.event.title,
+                            event.event.description,
+                            event.activatedAt,
+                        )
+                    },
+                )
+            }.map {
+                ResponseEntity.status(OK).body(it)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")
         return when (it) {
             is GameNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
+            is EventNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
             is RandomiseAlreadyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is GameAlreadyCompletedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is EventAlreadyActiveFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is NotHostPlayerFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }

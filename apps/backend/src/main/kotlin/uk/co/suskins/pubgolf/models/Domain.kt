@@ -8,6 +8,7 @@ data class Game(
     val players: List<Player>,
     val status: GameStatus = GameStatus.ACTIVE,
     val hostPlayerId: PlayerId? = null,
+    val activeEvent: ActiveEvent? = null,
 )
 
 data class Player(
@@ -102,6 +103,29 @@ enum class Outcomes(
     }
 }
 
+enum class GameEvent(
+    val id: String,
+    val title: String,
+    val description: String,
+) {
+    PHOTO_OP("photo-op", "Photo Op!", "Everyone must take a group photo at the current venue"),
+    SPEED_ROUND("speed-round", "Speed Round", "Finish your current drink within 2 minutes"),
+    HALFTIME("halftime", "Halftime", "Take a 5-minute break"),
+    LAST_ORDERS("last-orders", "Last Orders", "Final warning before moving to next venue"),
+    CLUB_SWAP("club-swap", "Club Swap", "You must drink with your non-dominant hand, getting caught is a +1 penalty"),
+    STRANGER_DANGER("stranger-danger", "Stranger Danger", "Convince a stranger to buy you a drink, -2 points"),
+    ;
+
+    companion object {
+        fun fromId(id: String): GameEvent? = entries.find { it.id == id }
+    }
+}
+
+data class ActiveEvent(
+    val event: GameEvent,
+    val activatedAt: Instant,
+)
+
 sealed interface PubGolfFailure {
     val message: String
 
@@ -136,6 +160,14 @@ data class NotHostPlayerFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class EventAlreadyActiveFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class EventNotFoundFailure(
+    override val message: String,
+) : PubGolfFailure
+
 data class RouteHole(
     val hole: Int,
     val par: Int,
@@ -158,7 +190,15 @@ object Routes {
 }
 
 fun Game.toJpa(): GameEntity {
-    val gameEntity = GameEntity(id.value, code.value, status, hostPlayerId?.value)
+    val gameEntity =
+        GameEntity(
+            id = id.value,
+            code = code.value,
+            status = status,
+            hostPlayerId = hostPlayerId?.value,
+            activeEventId = activeEvent?.event?.id,
+            activeEventActivatedAt = activeEvent?.activatedAt,
+        )
 
     players.forEach { player ->
         val playerEntity =

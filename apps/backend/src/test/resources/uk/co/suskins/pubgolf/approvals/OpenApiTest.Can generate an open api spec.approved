@@ -276,6 +276,135 @@
         }
       }
     },
+    "/api/v1/games/{gameCode}/events/{eventId}/activate" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "activateEvent-oU5FXdQ",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "eventId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ActivateEventRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Event activated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Event already active",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{gameCode}/events/end" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "endEvent-fOdNj2Q",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EndEventRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Event ended",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/{gameCode}/complete" : {
       "post" : {
         "tags" : [ "game-controller" ],
@@ -397,6 +526,68 @@
           },
           "500" : {
             "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{gameCode}/events" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "getAvailableEvents-L7I0Y1Y",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Available events",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{gameCode}/events/active" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "getActiveEvent-L7I0Y1Y",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Current active event",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ActiveEventStateResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game not found",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -569,7 +760,7 @@
         },
         "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
       },
-      "CompleteGameRequest" : {
+      "ActivateEventRequest" : {
         "type" : "object",
         "properties" : {
           "playerId" : {
@@ -578,6 +769,25 @@
           }
         },
         "required" : [ "playerId" ]
+      },
+      "ActiveEventResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "activatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "activatedAt", "description", "id", "title" ]
       },
       "GameStateResponse" : {
         "type" : "object",
@@ -602,6 +812,9 @@
             "items" : {
               "$ref" : "#/components/schemas/PlayerResponse"
             }
+          },
+          "activeEvent" : {
+            "$ref" : "#/components/schemas/ActiveEventResponse"
           }
         },
         "required" : [ "gameCode", "gameId", "players", "status" ]
@@ -677,6 +890,61 @@
           }
         },
         "required" : [ "value" ]
+      },
+      "EndEventRequest" : {
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "playerId" ]
+      },
+      "CompleteGameRequest" : {
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "playerId" ]
+      },
+      "EventResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "id", "title" ]
+      },
+      "EventsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EventResponse"
+            }
+          }
+        },
+        "required" : [ "events" ]
+      },
+      "ActiveEventStateResponse" : {
+        "type" : "object",
+        "properties" : {
+          "activeEvent" : {
+            "$ref" : "#/components/schemas/ActiveEventResponse"
+          }
+        }
       },
       "HoleResponse" : {
         "type" : "object",

@@ -1,16 +1,20 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getGameState, completeGame, getRoutes } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { ShareModal } from '@/components/ShareModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
-import { Player, GameStatus, GameState } from '@/lib/types';
+import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
+import { EventBanner } from '@/components/EventBanner';
+import { Toast } from '@/components/Toast';
+import { Player, GameStatus, GameState, ActiveEvent } from '@/lib/types';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
@@ -20,24 +24,47 @@ export default function GamePage() {
   const [gameCode, setGameCode] = useState<string>('');
   const [status, setStatus] = useState<GameStatus>('ACTIVE');
   const [hostPlayerId, setHostPlayerId] = useState<string | null>(null);
+  const [activeEvent, setActiveEvent] = useState<ActiveEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [showEventNotification, setShowEventNotification] = useState(false);
+  const [showEventEndedToast, setShowEventEndedToast] = useState(false);
+  const previousEventIdRef = useRef<string | null>(null);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
+  const { getLastSeenEventId, setLastSeenEventId, getQueuedEventId, setQueuedEventId } = useSessionStorage();
 
   const handleGameStateUpdate = useCallback((state: GameState) => {
     setPlayers(state.players);
     setStatus(state.status);
     setHostPlayerId(state.hostPlayerId);
+
+    const newEventId = state.activeEvent?.id ?? null;
+    const prevEventId = previousEventIdRef.current;
+
+    if (newEventId !== prevEventId) {
+      if (newEventId && state.activeEvent) {
+        const lastSeenId = getLastSeenEventId();
+        if (lastSeenId !== newEventId) {
+          setShowEventNotification(true);
+        }
+      } else if (prevEventId && !newEventId) {
+        setShowEventEndedToast(true);
+      }
+    }
+
+    previousEventIdRef.current = newEventId;
+    setActiveEvent(state.activeEvent);
+
     if (state.status === 'COMPLETED') {
       setShowCelebration(true);
     }
     setError('');
-  }, []);
+  }, [getLastSeenEventId]);
 
   useGameWebSocket({
     gameCode,
@@ -73,6 +100,21 @@ export default function GamePage() {
       .then((response) => setPars(response.holes.map((hole) => hole.par)))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const queuedEventId = getQueuedEventId();
+    if (queuedEventId && activeEvent && activeEvent.id === queuedEventId) {
+      setShowEventNotification(true);
+      setQueuedEventId(null);
+    }
+  }, [activeEvent, getQueuedEventId, setQueuedEventId]);
+
+  const handleEventNotificationDismiss = useCallback(() => {
+    setShowEventNotification(false);
+    if (activeEvent) {
+      setLastSeenEventId(activeEvent.id);
+    }
+  }, [activeEvent, setLastSeenEventId]);
 
   const playerId = getPlayerId();
   const currentPlayer = players.find(p => p.id === playerId);
@@ -137,6 +179,14 @@ export default function GamePage() {
           </div>
           <div className="flex items-center gap-2">
             {isHost && !isCompleted && (
+              <Link
+                href={`/game/${gameCode.toLowerCase()}/host`}
+                className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
+              >
+                Host Panel
+              </Link>
+            )}
+            {isHost && !isCompleted && (
               <button
                 onClick={() => setShowConfirmModal(true)}
                 className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
@@ -161,6 +211,10 @@ export default function GamePage() {
               🏆 Game Complete
             </p>
           </div>
+        )}
+
+        {activeEvent && !isCompleted && (
+          <EventBanner event={activeEvent} />
         )}
 
         <section className="glass rounded-xl p-4">
@@ -227,6 +281,20 @@ export default function GamePage() {
         <CelebrationScreen
           winners={getWinners()}
           onDismiss={() => setShowCelebration(false)}
+        />
+      )}
+
+      {showEventNotification && activeEvent && (
+        <EventNotificationOverlay
+          event={activeEvent}
+          onDismiss={handleEventNotificationDismiss}
+        />
+      )}
+
+      {showEventEndedToast && (
+        <Toast
+          message="Event ended"
+          onDismiss={() => setShowEventEndedToast(false)}
         />
       )}
     </main>

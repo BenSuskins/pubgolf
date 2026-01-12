@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.service
 
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
+import uk.co.suskins.pubgolf.models.ActiveEventResponse
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameStateResponse
 import uk.co.suskins.pubgolf.models.PenaltyResponse
@@ -44,5 +45,14 @@ class StompGameStateBroadcaster(
                                 },
                         )
                     }.sortedBy { it.totalScore },
+            activeEvent =
+                activeEvent?.let {
+                    ActiveEventResponse(
+                        id = it.event.id,
+                        title = it.event.title,
+                        description = it.event.description,
+                        activatedAt = it.activatedAt,
+                    )
+                },
         )
 }

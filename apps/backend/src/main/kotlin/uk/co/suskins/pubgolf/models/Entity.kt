@@ -29,6 +29,10 @@ data class GameEntity(
     val status: GameStatus = GameStatus.ACTIVE,
     @Column(name = "host_player_id")
     val hostPlayerId: UUID? = null,
+    @Column(name = "active_event_id")
+    val activeEventId: String? = null,
+    @Column(name = "active_event_activated_at")
+    val activeEventActivatedAt: Instant? = null,
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
     val players: MutableList<PlayerEntity> = mutableListOf(),
@@ -135,6 +139,15 @@ fun GameEntity.toDomain(): Game =
         code = GameCode(code),
         status = status,
         hostPlayerId = hostPlayerId?.let { PlayerId(it) },
+        activeEvent =
+            activeEventId?.let { eventId ->
+                GameEvent.fromId(eventId)?.let { event ->
+                    ActiveEvent(
+                        event = event,
+                        activatedAt = activeEventActivatedAt ?: Instant.now(),
+                    )
+                }
+            },
         players =
             players.map {
                 Player(

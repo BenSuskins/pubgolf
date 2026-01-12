@@ -8,9 +8,13 @@ import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
+import uk.co.suskins.pubgolf.models.ActiveEvent
+import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
+import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameEvent
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameStatus
@@ -24,6 +28,7 @@ import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
+import java.time.Instant
 import java.util.UUID
 import kotlin.test.assertTrue
 
@@ -372,6 +377,220 @@ class GameServiceTest {
         val result = service.randomise(gameCode, player.id)
 
         assertThat(result, isFailure(GameAlreadyCompletedFailure("Cannot randomise on completed game")))
+    }
+
+    @Test
+    fun `get available events returns all events`() {
+        val events = service.getAvailableEvents()
+
+        assertThat(events.size, equalTo(GameEvent.entries.size))
+        assertTrue(events.contains(GameEvent.PHOTO_OP))
+        assertTrue(events.contains(GameEvent.SPEED_ROUND))
+    }
+
+    @Test
+    fun `host can activate event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.activateEvent(gameCode, hostPlayer.id, "photo-op")
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(updatedGame.activeEvent!!.event, equalTo(GameEvent.PHOTO_OP))
+    }
+
+    @Test
+    fun `non-host cannot activate event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val otherPlayer = Player(PlayerId.random(), PlayerName("Other"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer, otherPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.activateEvent(gameCode, otherPlayer.id, "photo-op")
+
+        assertThat(result, isFailure(NotHostPlayerFailure("Only the host can complete this game")))
+    }
+
+    @Test
+    fun `cannot activate event when one is already active`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now()),
+            )
+        gameRepository.save(game)
+
+        val result = service.activateEvent(gameCode, hostPlayer.id, "speed-round")
+
+        assertThat(
+            result,
+            isFailure(
+                EventAlreadyActiveFailure(
+                    "An event is already active. End the current event before activating a new one.",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun `cannot activate event on completed game`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.COMPLETED,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.activateEvent(gameCode, hostPlayer.id, "photo-op")
+
+        assertThat(result, isFailure(GameAlreadyCompletedFailure("Cannot activate event on completed game")))
+    }
+
+    @Test
+    fun `cannot activate invalid event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.activateEvent(gameCode, hostPlayer.id, "invalid-event")
+
+        assertThat(result, isFailure(EventNotFoundFailure("Event 'invalid-event' not found")))
+    }
+
+    @Test
+    fun `host can end active event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now()),
+            )
+        gameRepository.save(game)
+
+        val result = service.endEvent(gameCode, hostPlayer.id)
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(updatedGame.activeEvent, equalTo(null))
+    }
+
+    @Test
+    fun `ending event when none active is no-op`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.endEvent(gameCode, hostPlayer.id)
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(updatedGame.activeEvent, equalTo(null))
+    }
+
+    @Test
+    fun `active event is cleared when game completes`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now()),
+            )
+        gameRepository.save(game)
+
+        val result = service.completeGame(gameCode, hostPlayer.id)
+
+        assertThat(result, isSuccess())
+        val completedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(completedGame.status, equalTo(GameStatus.COMPLETED))
+        assertThat(completedGame.activeEvent, equalTo(null))
+    }
+
+    @Test
+    fun `get active event returns current event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now())
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent = activeEvent,
+            )
+        gameRepository.save(game)
+
+        val result = service.getActiveEvent(gameCode)
+
+        assertThat(result, isSuccess())
+        val event = result.valueOrNull()!!
+        assertThat(event!!.event, equalTo(GameEvent.PHOTO_OP))
+    }
+
+    @Test
+    fun `get active event returns null when no event active`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.getActiveEvent(gameCode)
+
+        assertThat(result, isSuccess())
+        assertThat(result.valueOrNull(), equalTo(null))
     }
 }
 
