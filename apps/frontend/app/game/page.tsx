@@ -3,13 +3,12 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, completeGame, getRoutes } from '@/lib/api';
+import { getGameState, getRoutes } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { ShareModal } from '@/components/ShareModal';
-import { ConfirmModal } from '@/components/ConfirmModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
 import { EventBanner } from '@/components/EventBanner';
@@ -29,8 +28,6 @@ export default function GamePage() {
   const [error, setError] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [completing, setCompleting] = useState(false);
   const [showEventNotification, setShowEventNotification] = useState(false);
   const [showEventEndedToast, setShowEventEndedToast] = useState(false);
   const previousEventIdRef = useRef<string | null>(null);
@@ -128,24 +125,6 @@ export default function GamePage() {
     return players.filter(p => p.totalScore === minScore);
   };
 
-  const handleCompleteGame = async () => {
-    if (!playerId || !gameCode) return;
-
-    setCompleting(true);
-    try {
-      const state = await completeGame(gameCode, playerId);
-      setPlayers(state.players);
-      setStatus(state.status);
-      setHostPlayerId(state.hostPlayerId);
-      setShowConfirmModal(false);
-      setShowCelebration(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to complete game');
-    } finally {
-      setCompleting(false);
-    }
-  };
-
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
@@ -185,14 +164,6 @@ export default function GamePage() {
               >
                 Host Panel
               </Link>
-            )}
-            {isHost && !isCompleted && (
-              <button
-                onClick={() => setShowConfirmModal(true)}
-                className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
-              >
-                End Game
-              </button>
             )}
             {!isCompleted && (
               <button
@@ -262,18 +233,6 @@ export default function GamePage() {
         <ShareModal
           gameCode={gameCode}
           onClose={() => setShowShareModal(false)}
-        />
-      )}
-
-      {showConfirmModal && (
-        <ConfirmModal
-          title="End Game?"
-          message="This will permanently end the game. No more scores can be submitted and no one else can join."
-          confirmText="End Game"
-          cancelText="Cancel"
-          onConfirm={handleCompleteGame}
-          onCancel={() => setShowConfirmModal(false)}
-          loading={completing}
         />
       )}
 

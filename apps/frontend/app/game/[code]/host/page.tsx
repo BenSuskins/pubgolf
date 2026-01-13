@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, getAvailableEvents, activateEvent, endEvent } from '@/lib/api';
+import { getGameState, getAvailableEvents, activateEvent, endEvent, completeGame } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { EventCard } from '@/components/EventCard';
@@ -19,6 +19,8 @@ export default function HostPanelPage() {
   const [activatingEventId, setActivatingEventId] = useState<string | null>(null);
   const [endingEvent, setEndingEvent] = useState(false);
   const [confirmEvent, setConfirmEvent] = useState<GameEvent | null>(null);
+  const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const router = useRouter();
   const params = useParams();
   const gameCode = (params.code as string) ?? '';
@@ -108,6 +110,22 @@ export default function HostPanelPage() {
     }
   };
 
+  const handleCompleteGame = async () => {
+    const playerId = getPlayerId();
+    if (!playerId || !gameCode) return;
+
+    setCompleting(true);
+    try {
+      await completeGame(gameCode, playerId);
+      setShowEndGameModal(false);
+      router.push('/game');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to end game');
+    } finally {
+      setCompleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
@@ -139,12 +157,20 @@ export default function HostPanelPage() {
               Game: <span className="text-[var(--color-accent)]">{gameCode.toUpperCase()}</span>
             </p>
           </div>
-          <Link
-            href="/game"
-            className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0"
-          >
-            Back to Game
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowEndGameModal(true)}
+              className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
+            >
+              End Game
+            </button>
+            <Link
+              href="/game"
+              className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0"
+            >
+              Back to Game
+            </Link>
+          </div>
         </header>
 
         {activeEvent && (
@@ -203,6 +229,18 @@ export default function HostPanelPage() {
           onConfirm={() => handleActivateEvent(confirmEvent)}
           onCancel={() => setConfirmEvent(null)}
           loading={activatingEventId === confirmEvent.id}
+        />
+      )}
+
+      {showEndGameModal && (
+        <ConfirmModal
+          title="End Game?"
+          message="This will permanently end the game. No more scores can be submitted and no one else can join."
+          confirmText="End Game"
+          cancelText="Cancel"
+          onConfirm={handleCompleteGame}
+          onCancel={() => setShowEndGameModal(false)}
+          loading={completing}
         />
       )}
     </main>
