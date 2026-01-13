@@ -121,7 +121,14 @@ class GameService(
             .flatMap { isNotCompleted(it, "Cannot randomise on completed game") }
             .flatMap { hasPlayer(it, playerId) }
             .flatMap { hasUsedRandomise(it, playerId) }
-            .flatMap { game -> generateRandomiseResult(playerId, game) }
+            .flatMap { game ->
+                generateRandomiseResult(playerId, game).flatMap { randomiseResult ->
+                    gameRepository
+                        .findByCodeIgnoreCase(gameCode)
+                        .peek { gameStateBroadcaster.broadcast(it) }
+                        .map { randomiseResult }
+                }
+            }
 
     fun completeGame(
         gameCode: GameCode,
