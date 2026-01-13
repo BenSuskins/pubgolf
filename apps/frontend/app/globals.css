@@ -125,6 +125,11 @@ body {
   border: 1px solid var(--color-glass-border);
 }
 
+.glass:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* Glow effect */
 .glow {
   box-shadow: 0 0 20px var(--color-glow);
@@ -152,13 +157,19 @@ body {
   transition: all 0.2s ease;
 }
 
-.btn-gradient:hover {
+.btn-gradient:hover,
+.btn-gradient:focus-visible {
   box-shadow: 0 0 20px var(--color-glow);
   transform: translateY(-1px);
 }
 
 .btn-gradient:active {
   transform: translateY(0);
+}
+
+.btn-gradient:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Ambient background gradient */
@@ -181,4 +192,27 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-text: #ffffff;
+    --color-text-secondary: #d0d6dd;
+    --color-border: #58606a;
+    --color-primary: #fbbf24;
+    --color-accent: #fde047;
+  }
+
+  .glass {
+    border-width: 2px;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline-width: 3px;
+  }
 }

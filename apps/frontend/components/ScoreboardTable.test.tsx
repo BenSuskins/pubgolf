@@ -239,7 +239,7 @@ describe('ScoreboardTable', () => {
 
       render(<ScoreboardTable players={players} pars={DEFAULT_PARS} hostPlayerId="host-id" />);
 
-      expect(screen.getByTitle('Host')).toBeInTheDocument();
+      expect(screen.getByLabelText('Game host')).toBeInTheDocument();
       expect(screen.getByText('👑')).toBeInTheDocument();
     });
 

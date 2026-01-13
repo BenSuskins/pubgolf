@@ -209,12 +209,17 @@ export default function GamePage() {
                 Log Your Sips
               </Link>
               {hasUsedRandomise ? (
-                <span className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-lg cursor-not-allowed opacity-50">
+                <div
+                  role="status"
+                  aria-label="Randomise feature already used for this game"
+                  className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-lg cursor-not-allowed opacity-50"
+                >
                   Randomise Used
-                </span>
+                </div>
               ) : (
                 <Link
                   href="/randomise"
+                  aria-label="Go to randomise wheel page"
                   className="flex-1 py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors border border-[var(--color-primary)]/30"
                 >
                   Randomise

@@ -35,7 +35,7 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
   if (players.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-2xl mb-2">🍻</p>
+        <p className="text-2xl mb-2" aria-hidden="true">🍻</p>
         <p className="text-[var(--color-text-secondary)]">
           No players yet. Rally your crew!
         </p>
@@ -44,7 +44,12 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
   }
 
   return (
-    <div className="overflow-x-auto -mx-4 px-4">
+    <div
+      className="overflow-x-auto -mx-4 px-4"
+      role="region"
+      aria-label="Scrollable scoreboard"
+      tabIndex={0}
+    >
       <table className="w-full border-collapse text-sm" role="table" aria-label="Player scores">
         <thead>
           <tr className="border-b border-[var(--color-border)]">
@@ -98,10 +103,18 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
                   )}
                   <div className="flex items-center gap-2">
                     {medal && (
-                      <span className={`text-lg ${isLeader ? 'animate-pulse' : ''}`}>{medal}</span>
+                      <span
+                        className={`text-lg ${isLeader ? 'animate-pulse' : ''}`}
+                        role="img"
+                        aria-label={rank === 0 ? 'First place' : rank === 1 ? 'Second place' : 'Third place'}
+                      >
+                        {medal}
+                      </span>
                     )}
                     {isHost && (
-                      <span className="text-lg" title="Host">👑</span>
+                      <span className="text-lg" role="img" aria-label="Game host">
+                        👑
+                      </span>
                     )}
                     <span className="max-w-[100px] truncate" title={player.name}>
                       {player.name}
@@ -124,7 +137,11 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
                           </span>
                         )}
                         {penalty && (
-                          <span className="text-[10px]" title={penalty.type}>
+                          <span
+                            className="text-[10px]"
+                            role="img"
+                            aria-label={`${penalty.type} penalty`}
+                          >
                             {PENALTY_EMOJI_MAP[penalty.type as PenaltyType]}
                           </span>
                         )}

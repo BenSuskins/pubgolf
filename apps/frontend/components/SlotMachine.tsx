@@ -84,17 +84,24 @@ export function SlotMachine({
   }, [spinning, winningIndex, onSpinEnd, spinDuration, totalWidth]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl">
+    <div
+      className="relative w-full overflow-hidden rounded-xl"
+      role="region"
+      aria-label="Randomise wheel"
+      aria-live="polite"
+    >
       {/* Gradient fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[var(--color-bg)] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[var(--color-bg)] to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[var(--color-bg)] to-transparent z-10 pointer-events-none" aria-hidden="true" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[var(--color-bg)] to-transparent z-10 pointer-events-none" aria-hidden="true" />
 
       {/* Center indicator */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-1 -ml-0.5 bg-[var(--color-accent)] z-20 pointer-events-none rounded-full glow-sm" />
+      <div className="absolute left-1/2 top-0 bottom-0 w-1 -ml-0.5 bg-[var(--color-accent)] z-20 pointer-events-none rounded-full glow-sm" aria-hidden="true" />
 
       <div
         ref={containerRef}
         className="flex py-3"
+        role="list"
+        aria-label="Wheel options"
         style={{
           transform: `translateX(calc(50% - ${itemWidth / 2}px))`,
         }}
@@ -104,6 +111,7 @@ export function SlotMachine({
             key={index}
             className="flex-shrink-0 flex items-center justify-center px-2"
             style={{ width: itemWidth }}
+            role="listitem"
           >
             <div className="w-full h-16 flex items-center justify-center bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] text-[var(--color-bg)] font-semibold text-sm rounded-xl px-3 text-center leading-tight shadow-lg">
               {item}
@@ -111,6 +119,11 @@ export function SlotMachine({
           </div>
         ))}
       </div>
+      {spinning && (
+        <div className="sr-only" role="status" aria-live="assertive">
+          Spinning wheel...
+        </div>
+      )}
     </div>
   );
 }
