@@ -22,7 +22,9 @@ function HomeContent() {
           <div className="w-full h-full rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] opacity-20 blur-2xl absolute inset-0" />
           {/* Golf flag + beer icon placeholder - replace with AI image when ready */}
           <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <div className="text-8xl drop-shadow-2xl">🏌️‍♂️🍺</div>
+            <div className="text-8xl drop-shadow-2xl" role="img" aria-label="Golf and beer">
+              🏌️‍♂️🍺
+            </div>
           </div>
         </div>
 
@@ -42,10 +44,13 @@ function HomeContent() {
         <section className="glass rounded-xl overflow-hidden">
           <button
             onClick={() => setActiveSection(prev => prev === 'create' ? null : 'create')}
+            aria-expanded={activeSection === 'create'}
+            aria-controls="create-game-section"
+            aria-label="Start a new game round"
             className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏌️</span>
+              <span className="text-2xl" aria-hidden="true">🏌️</span>
               <span className="text-xl font-semibold font-[family-name:var(--font-display)]">Start a Round</span>
             </div>
             <svg
@@ -53,11 +58,16 @@ function HomeContent() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           <div
+            id="create-game-section"
+            role="region"
+            aria-labelledby="create-button-label"
             className="grid transition-[grid-template-rows] duration-200 ease-out"
             style={{ gridTemplateRows: activeSection === 'create' ? '1fr' : '0fr' }}
           >
@@ -75,10 +85,13 @@ function HomeContent() {
         <section className="glass rounded-xl overflow-hidden">
           <button
             onClick={() => setActiveSection(prev => prev === 'join' ? null : 'join')}
+            aria-expanded={activeSection === 'join'}
+            aria-controls="join-game-section"
+            aria-label="Join an existing game"
             className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🍻</span>
+              <span className="text-2xl" aria-hidden="true">🍻</span>
               <span className="text-xl font-semibold font-[family-name:var(--font-display)]">Join the Party</span>
             </div>
             <svg
@@ -86,11 +99,16 @@ function HomeContent() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
           <div
+            id="join-game-section"
+            role="region"
+            aria-labelledby="join-button-label"
             className="grid transition-[grid-template-rows] duration-200 ease-out"
             style={{ gridTemplateRows: activeSection === 'join' ? '1fr' : '0fr' }}
           >

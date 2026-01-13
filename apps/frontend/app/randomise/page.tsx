@@ -91,7 +91,9 @@ export default function RandomisePage() {
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
-        <p className="text-[var(--color-text-secondary)] animate-pulse">Loading wheel...</p>
+        <p className="text-[var(--color-text-secondary)] animate-pulse" role="status" aria-live="polite">
+          Loading wheel...
+        </p>
       </main>
     );
   }

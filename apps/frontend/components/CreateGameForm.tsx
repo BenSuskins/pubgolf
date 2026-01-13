@@ -45,12 +45,15 @@ export function CreateGameForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter your name"
+          aria-invalid={!!error}
+          aria-describedby={error ? "create-name-error" : undefined}
+          aria-required="true"
           className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 transition-all"
           disabled={loading}
         />
       </div>
       {error && (
-        <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">
+        <p id="create-name-error" role="alert" className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">
           {error}
         </p>
       )}

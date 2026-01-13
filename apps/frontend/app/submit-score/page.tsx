@@ -104,43 +104,52 @@ export default function SubmitScorePage() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
+          <fieldset>
+            <legend className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
               Sips Taken
-            </label>
+            </legend>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={decrementScore}
                 disabled={loading || !!penaltyType || score <= -10}
+                aria-label="Decrease sips by one"
                 className="w-16 h-16 flex items-center justify-center text-2xl font-bold glass rounded-lg hover:bg-white/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 -
               </button>
-              <div className="flex-1 h-16 flex items-center justify-center text-4xl font-bold glass rounded-lg">
+              <div
+                className="flex-1 h-16 flex items-center justify-center text-4xl font-bold glass rounded-lg"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {penaltyType && selectedPenalty ? selectedPenalty.points : score}
               </div>
               <button
                 type="button"
                 onClick={incrementScore}
                 disabled={loading || !!penaltyType || score >= 10}
+                aria-label="Increase sips by one"
                 className="w-16 h-16 flex items-center justify-center text-2xl font-bold glass rounded-lg hover:bg-white/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 +
               </button>
             </div>
-          </div>
+          </fieldset>
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
+          <fieldset>
+            <legend className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
               Penalties
-            </label>
+            </legend>
             <div className="grid grid-cols-3 gap-3">
               {penaltyOptions.map((option) => (
                 <button
                   key={option.type}
                   type="button"
                   onClick={() => togglePenalty(option.type as PenaltyType)}
+                  aria-label={`${option.name} penalty, adds ${option.points} sips`}
+                  aria-pressed={penaltyType === option.type}
                   className={`p-4 rounded-lg font-medium transition-all flex flex-col items-center gap-2 min-h-[100px] ${
                     penaltyType === option.type
                       ? 'bg-[var(--color-error)] text-white ring-2 ring-[var(--color-error)]'
@@ -148,13 +157,15 @@ export default function SubmitScorePage() {
                   }`}
                   disabled={loading}
                 >
-                  <span className="text-3xl">{PENALTY_EMOJI_MAP[option.type as PenaltyType]}</span>
+                  <span className="text-3xl" aria-hidden="true">
+                    {PENALTY_EMOJI_MAP[option.type as PenaltyType]}
+                  </span>
                   <span className="text-sm text-center leading-tight">{option.name}</span>
                   <span className="text-lg font-bold">+{option.points}</span>
                 </button>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {error && (
             <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">

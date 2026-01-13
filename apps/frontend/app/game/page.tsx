@@ -128,7 +128,9 @@ export default function GamePage() {
   if (loading) {
     return (
       <main className="min-h-full flex items-center justify-center">
-        <p className="text-[var(--color-text-secondary)] animate-pulse">Loading game...</p>
+        <p className="text-[var(--color-text-secondary)] animate-pulse" role="status" aria-live="polite">
+          Loading game...
+        </p>
       </main>
     );
   }
@@ -179,7 +181,7 @@ export default function GamePage() {
         {isCompleted && (
           <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 rounded-lg px-4 py-3 text-center">
             <p className="font-semibold text-[var(--color-accent)]">
-              🏆 Game Complete
+              <span aria-hidden="true">🏆</span> Game Complete
             </p>
           </div>
         )}
