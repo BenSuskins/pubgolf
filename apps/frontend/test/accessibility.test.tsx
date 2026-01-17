@@ -56,7 +56,7 @@ mock.module('@/lib/api', () => ({
   ),
 }));
 
-// @ts-ignore
+// @ts-expect-error - jest-axe types not compatible with bun:test
 expect.extend(toHaveNoViolations);
 
 describe('Accessibility Tests', () => {

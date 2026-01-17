@@ -4,7 +4,9 @@ import { renderHook, waitFor } from '@testing-library/react';
 let mockActivate: ReturnType<typeof mock>;
 let mockDeactivate: ReturnType<typeof mock>;
 let mockSubscribe: ReturnType<typeof mock>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let onConnectCallback: (() => void) | null = null;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let onWebSocketCloseCallback: (() => void) | null = null;
 
 mock.module('@stomp/stompjs', () => {
@@ -43,6 +45,7 @@ mock.module('@stomp/stompjs', () => {
 
 mock.module('sockjs-client', () => ({
   default: class MockSockJS {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     constructor(_url: string) {}
   },
 }));
