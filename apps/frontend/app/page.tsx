@@ -46,7 +46,7 @@ function HomeContent() {
             onClick={() => setActiveSection(prev => prev === 'create' ? null : 'create')}
             aria-expanded={activeSection === 'create'}
             aria-controls="create-game-section"
-            aria-label="Start a new game round"
+            aria-label="Start a Round"
             className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
           >
             <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ function HomeContent() {
             onClick={() => setActiveSection(prev => prev === 'join' ? null : 'join')}
             aria-expanded={activeSection === 'join'}
             aria-controls="join-game-section"
-            aria-label="Join an existing game"
+            aria-label="Join the Party"
             className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
           >
             <div className="flex items-center gap-3">

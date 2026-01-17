@@ -112,7 +112,7 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
                       </span>
                     )}
                     {isHost && (
-                      <span className="text-lg" role="img" aria-label="Game host">
+                      <span className="text-lg" role="img" aria-label="Game host" title="Host">
                         👑
                       </span>
                     )}
