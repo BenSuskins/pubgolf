@@ -258,7 +258,7 @@ export default function GamePage() {
               href="/game/map"
               className="block py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
             >
-              🗺️ View Map
+              See Route
             </Link>
           )}
         </nav>

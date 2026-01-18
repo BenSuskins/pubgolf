@@ -13,7 +13,7 @@ export default function PubSlotList({ pubs, onRemove }: PubSlotListProps) {
 
   return (
     <div className="space-y-2">
-      <h3 className="font-semibold text-sm text-gray-700">Pub Route ({pubs.length}/9)</h3>
+      <h3 className="font-semibold text-sm text-[var(--color-text-primary)]">Pub Route ({pubs.length}/9)</h3>
       <ul className="space-y-1" aria-label="Selected pubs">
         {slots.slice(0, visibleSlots).map((index) => {
           const pub = pubs[index];
@@ -23,16 +23,14 @@ export default function PubSlotList({ pubs, onRemove }: PubSlotListProps) {
           return (
             <li
               key={index}
-              className={`flex items-center gap-3 p-2 rounded-md ${
-                isFilled ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'
-              }`}
+              className="flex items-center gap-3 p-2 rounded-md bg-[var(--color-bg-secondary)] border border-[var(--color-border)]"
             >
               <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-500 text-white rounded-full text-sm font-bold">
                 {index + 1}
               </span>
               {isFilled ? (
                 <>
-                  <span className="flex-1 truncate text-sm font-medium">{pub.name}</span>
+                  <span className="flex-1 truncate text-sm font-medium text-[var(--color-text-primary)]">{pub.name}</span>
                   {isLastFilled && (
                     <button
                       onClick={() => onRemove(index)}
@@ -44,7 +42,7 @@ export default function PubSlotList({ pubs, onRemove }: PubSlotListProps) {
                   )}
                 </>
               ) : (
-                <span className="flex-1 text-sm text-gray-400 italic">Empty slot</span>
+                <span className="flex-1 text-sm text-[var(--color-text-secondary)] italic">Empty slot</span>
               )}
             </li>
           );

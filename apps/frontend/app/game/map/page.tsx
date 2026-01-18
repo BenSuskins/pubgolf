@@ -93,7 +93,7 @@ export default function MapPage() {
         >
           ← Back to Game
         </Link>
-        <h1 className="text-xl font-bold text-[var(--color-text-primary)]">Pub Route Map</h1>
+        <h1 className="text-xl font-bold text-[var(--color-text-primary)]">Route</h1>
         <div className="w-20" />
       </header>
 

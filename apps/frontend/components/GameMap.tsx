@@ -20,6 +20,8 @@ export default function GameMap({ routeData, userLocation }: GameMapProps) {
     if (!map.current) {
       map.current = new maplibregl.Map({
         container: mapContainer.current,
+        maxZoom: 18,
+        minZoom: 2,
         style: {
           version: 8,
           sources: {
@@ -40,8 +42,8 @@ export default function GameMap({ routeData, userLocation }: GameMapProps) {
               id: 'carto-dark',
               type: 'raster',
               source: 'carto-dark',
-              minzoom: 0,
-              maxzoom: 19,
+              minzoom: 2,
+              maxzoom: 22,
             },
           ],
         },
