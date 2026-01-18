@@ -1,173 +1,238 @@
-# Host Driven Events
+# Pubgolf Game Creation with Map
 
 ## Overview
 
-Hosts can trigger special events during gameplay through a dedicated host panel. These events are purely informational
-announcements that appear to all players, creating moments of shared experience during the game.
+When a host creates a game of Pubgolf, they can optionally pick 9 pubs for the route using an autocomplete search. Once configured, all players have access to a map showing the pubs and a walking route between them.
 
-## Event Data Model
+---
 
-Events are served from a hardcoded backend list with 5-10 global events available to all games.
+## Feature Requirements
 
-Each event contains:
+### Pub Selection (During Game Creation)
 
-- **Title**: Short event name
-- **Description**: Explanation of what the event means
+**Trigger:**
+- Toggle checkbox "Add pub route" on the game creation form reveals the pub selection interface
 
-### Suggested Events
+**Selection Interface:**
+- 9 numbered slots displayed (progressive reveal pattern)
+- Single autocomplete search input that fills the next available slot
+- Pubs must be added in sequence: first added = Hole 1, second = Hole 2, etc.
+- Only the most recently added pub can be removed
+- Game creation requires all 9 slots to be filled when the feature is enabled
+- Live mini-map preview updates as pubs are added (pins only, no route until all 9 selected)
 
-1. **"Photo Op!"** - Everyone must take a group photo at the current venue
-2. **"Speed Round"** - Finish your current drink within 2 minutes
-3. **"Halftime"** - Take a 5-minute break
-4. **"Last Orders"** - Final warning before moving to next venue
-5. **"Club Swap"** - You must drink with your non dominant hand, getting caught is a +1 penalty
-6. **"Stranger Danger"** - Convince a stranger to buy you a drink, -2 points
+**Autocomplete Search:**
+- 500ms debounce delay before searching
+- Maximum 5 results displayed
+- "No results found" message for empty results
+- After first pub is selected, subsequent searches are biased toward a 5km radius using Nominatim's viewbox parameter (soft bias - distant results still included)
+- No category filtering - users can select any establishment
 
-## Persistence
+### Map Display
 
-- Active event state is **persisted in the database** with the game record
-- Survives server restarts
-- Only one event can be active per game at a time
+**Access:**
+- "View Map" button appears below the scoreboard (only if pubs are configured)
+- Hidden entirely for games without pubs
 
-## Host Panel
+**Map View:**
+- Full-page view at `/game/[code]/map`
+- MapLibre GL JS with MapTiler vector tiles (Dark Matter style)
+- Domain-restricted MapTiler API key (public, restricted to pubgolf.me)
+- Numbered markers (1-9) for each pub
+- Tap/click marker to reveal pub name in popup
+- Walking route polyline connecting pubs in order
+- External navigation: popup includes "Get Directions" link opening walking directions in device's default maps app
 
-### Access Control
+**User Location:**
+- Single GPS fetch when map opens
+- Blue dot shows user position if permission granted
+- If GPS permission denied, map displays normally without user position marker
 
-- Accessible via dedicated page route: `/game/{code}/host`
-- **Host-only access** - validated via player id in storage vs game state
-- Only the original game creator can access the host panel
+---
 
-### UI Behavior
+## Technical Specification
 
-- Cards are provided by API endpoint
-- Displays available event cards (title + description)
-- Host selects a card, then confirms activation
-- Active event card is highlighted/distinguished in the panel
-- Host can end the active event at any time
-- No event history shown - once ended, events disappear from panel
-- They should show in a responsive card grid
+### External Services
 
-### Game End Behavior
+| Service | Purpose | Notes |
+|---------|---------|-------|
+| Nominatim (OSM) | Place autocomplete search | Proxied through backend, 1 req/sec global rate limit |
+| OSRM (public demo server) | Walking route calculation | Called once at game creation, route stored |
+| MapTiler | Vector map tiles | Free tier (100k loads/month), Dark Matter style |
 
-- When the game ends (all holes completed), active events automatically end
-- Host panel becomes inaccessible for finished games
+### Backend Changes
 
-## Player Experience
-
-### Event Activation
-
-When an event is activated:
-
-1. **WebSocket notification** sent to all connected clients via existing game state updates (active event embedded in
-   game state payload)
-2. **Notification appears** on the scoreboard page:
-    - Middle of screen overlay with semi-transparent backdrop
-    - Auto dismiss after 3 seconds
-    - Shows event title and description
-    - Dismissible by clicking/tapping anywhere
-    - Only shown once per activation (not shown to late joiners)
-3. **Banner appears** above the score table:
-    - Shows active event title/description
-    - Scrolls with page content (not sticky)
-    - Visible until event ends
-
-### Notification Queueing
-
-- If player is not on scoreboard when event triggers, Notification is queued
-- Notification displays when player next navigates to scoreboard
-- Late joiners (connected after activation) do not see the Notification, only the banner
-
-### Event End
-
-When host ends an event:
-
-1. Banner is removed from scoreboard
-2. Toast/snackbar notification briefly appears: "Event ended"
-3. Game state updated via WebSocket
-
-## API Design
-
-### Endpoints
-
-All endpoints under `/api/v1/games/{gameCode}`:
-
-| Method | Path                         | Auth      | Description                       |
-|--------|------------------------------|-----------|-----------------------------------|
-| GET    | `/events`                    | None      | List available events             |
-| GET    | `/events/active`             | None      | Get current active event (if any) |
-| POST   | `/events/{eventId}/activate` | Host only | Activate an event                 |
-| POST   | `/events/end`                | Host only | End the active event              |
-
-### Response: Available Events
-
-```json
-{
-  "events": [
-    {
-      "id": "photo-op",
-      "title": "Photo Op!",
-      "description": "Everyone must take a group photo at the current venue"
-    }
-  ]
-}
+**New Endpoint: Place Search Proxy**
 ```
+GET /api/v1/places/search?q={query}&lat={latitude}&lng={longitude}
+```
+- Proxies requests to Nominatim
+- No authentication required
+- Global rate limit: 1 request/second (enforced across all clients)
+- Queue behavior: drop oldest request per client, process newest
+- User-Agent: `PubGolf/1.0`
+- When lat/lng provided, uses viewbox parameter for 5km soft bias
+- Returns: array of `{ name: string, latitude: number, longitude: number }`
 
-### Response: Active Event
-
-```json
-{
-  "activeEvent": {
-    "id": "photo-op",
-    "title": "Photo Op!",
-    "description": "Everyone must take a group photo at the current venue",
-    "activatedAt": "2024-01-15T20:30:00Z"
+**New Endpoint: Set Pubs**
+```
+POST /api/v1/games/{code}/pubs
+```
+- Request body:
+  ```json
+  {
+    "hostPlayerId": "uuid",
+    "pubs": [
+      { "name": "The Red Lion", "latitude": 51.5074, "longitude": -0.1278 },
+      // ... 9 pubs total
+    ]
   }
-}
+  ```
+- Validates hostPlayerId matches game's hostPlayerId
+- Can only be called once per game
+- Triggers OSRM route calculation with retry logic
+- If OSRM fails after retries: game created with pub pins but no route polyline
+- Response: `201 Created` with game data including route (if available)
+
+**New Endpoint: Get Route**
 ```
-
-Returns `null` for `activeEvent` if no event is active.
-
-### WebSocket Game State
-
-Active event is embedded in the existing game state payload:
-
-```json
-{
-  "gameCode": "ABC123",
-  "players": [
-    ...
-  ],
-  "activeEvent": {
-    "id": "photo-op",
-    "title": "Photo Op!",
-    "description": "Everyone must take a group photo at the current venue",
-    "activatedAt": "2024-01-15T20:30:00Z"
+GET /api/v1/games/{code}/route
+```
+- Returns pub list and route geometry
+- Response:
+  ```json
+  {
+    "pubs": [
+      { "hole": 1, "name": "The Red Lion", "latitude": 51.5074, "longitude": -0.1278 },
+      // ... 9 pubs
+    ],
+    "route": { "type": "LineString", "coordinates": [[lng, lat], ...] } // null if OSRM failed
   }
-}
+  ```
+
+**Domain Model Changes:**
+
+New `Pub` domain model:
+```kotlin
+data class Pub(
+    val id: PubId,
+    val gameId: GameId,
+    val hole: Hole,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double
+)
 ```
 
-## Frontend State Management
+Game model additions:
+- Route geometry stored as JSON text column (nullable)
+- Relationship to Pub entities
 
-### Notification Display Logic
+**Database Migration (Flyway):**
+- New `pub` table with foreign key to `game`
+- New nullable `route_geometry` column on `game` table
+- Existing games have null pubs/route
 
-Track per-session state:
+**OSRM Integration:**
+- Call `https://router.project-osrm.org/route/v1/foot/{coordinates}?overview=full&geometries=geojson`
+- Retry logic with exponential backoff on failure
+- Store full route geometry as GeoJSON LineString
 
-- `lastSeenEventId`: The most recent event ID for which Notification was shown
-- When `activeEvent.id` changes and differs from `lastSeenEventId`:
-    - If on scoreboard: show Notification immediately
-    - If not on scoreboard: queue Notification for next scoreboard visit
-- After Notification dismissed: update `lastSeenEventId`
+### Frontend Changes
 
-### Host Disconnect
+**Game Creation Form (`CreateGameForm.tsx`):**
+- New "Add pub route" toggle checkbox
+- When checked, reveals:
+  - Autocomplete search input
+  - 9 numbered slots showing selected pubs
+  - Remove button on last added pub only
+  - Mini-map preview showing pub pins
+- Create Game button disabled until all 9 pubs selected (when toggle is on)
+- On submit: creates game first, then calls POST /games/{code}/pubs
 
-- If host closes browser or loses connection, active event remains active indefinitely
-- Host can reconnect and end the event later
-- Event persists in database until explicitly ended or game ends
-- Host connectivity is irrelevant, we don't track the host connection anywhere
+**New Map Page (`app/game/[code]/map/page.tsx`):**
+- MapLibre GL JS map component
+- Fetches route data from GET /games/{code}/route
+- Numbered markers with click-to-reveal popups
+- Route polyline (if available)
+- Geolocation API for user position (single fetch)
+- Back navigation to game page
 
-## Error Handling
+**Game Page Changes:**
+- Conditionally render "View Map" button below scoreboard
+- Only visible when game has pubs configured
 
-- Attempting to activate event when one is already active: Return error, require ending current event first
-- Attempting to end event when none is active: No-op, return success
-- Non-host attempting to activate/end: Return 403 Forbidden
-- Accessing host panel for finished game: Return 403 or redirect to game page
+**New Components:**
+- `PubSearchAutocomplete.tsx` - debounced search input with dropdown
+- `PubSlotList.tsx` - numbered list of selected pubs with remove capability
+- `MiniMapPreview.tsx` - small map for creation flow showing pins
+- `GameMap.tsx` - full map component with route and markers
+
+**API Client Additions (`lib/api.ts`):**
+- `searchPlaces(query: string, lat?: number, lng?: number)`
+- `setPubs(gameCode: string, hostPlayerId: string, pubs: Pub[])`
+- `getRoute(gameCode: string)`
+
+### Testing Strategy
+
+**Backend:**
+- Contract tests for new repository methods (Pub storage)
+- Unit tests for Nominatim proxy service with rate limiting
+- Unit tests for OSRM integration and retry logic
+- Integration tests for new endpoints
+
+**Frontend:**
+- Component tests for PubSearchAutocomplete, PubSlotList
+- Hook tests for any new custom hooks
+
+**E2E:**
+- Skip E2E tests for map functionality
+- Rely on unit/integration tests and manual testing
+
+---
+
+## UI/UX Details
+
+### Pub Selection Flow
+1. Host enters name
+2. Host checks "Add pub route" toggle
+3. Interface expands showing 9 empty slots and search input
+4. Mini-map appears (initially empty)
+5. Host searches and selects pubs one by one
+6. Mini-map updates with pins as pubs are added
+7. After 9th pub, route is calculated and displayed on mini-map
+8. Host clicks "Create Game"
+9. Game and pubs are saved, player redirected to game page
+
+### Error States
+- Search API unavailable: "Search unavailable, please try again"
+- OSRM fails after retries: Game created, map shows pins without route polyline
+- GPS permission denied: Map displays without user position, no error message
+
+### Terminology
+- Keep "Pubs" terminology throughout UI (not "Venues" or "Stops")
+- Pub names only visible on map page (not scoreboard or score submission)
+
+---
+
+## Configuration
+
+**Environment Variables:**
+- `MAPTILER_API_KEY` - Domain-restricted key for MapTiler
+- Existing `NEXT_PUBLIC_API_URL` used for backend communication
+
+**Rate Limiting:**
+- Backend enforces 1 req/sec globally for Nominatim proxy
+- No search result caching
+
+---
+
+## Out of Scope
+
+- Editing pubs after game creation
+- Reordering pubs after selection
+- Pub names on scoreboard or score submission screens
+- Walking distance/time display
+- Current pub highlighting based on game progress
+- Continuous GPS location tracking
+- Alternative routing providers (fallback)

@@ -481,6 +481,84 @@
         }
       }
     },
+    "/api/v1/games/{code}/pubs" : {
+      "post" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "setPubs",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SetPubsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/places/search" : {
+      "get" : {
+        "tags" : [ "places-controller" ],
+        "operationId" : "search",
+        "parameters" : [ {
+          "name" : "q",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "lat",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }, {
+          "name" : "lng",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/games/{gameCode}" : {
       "get" : {
         "tags" : [ "game-controller" ],
@@ -592,6 +670,32 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{code}/route" : {
+      "get" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "getRoute",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
                 }
               }
             }
@@ -910,6 +1014,46 @@
           }
         },
         "required" : [ "playerId" ]
+      },
+      "PubDto" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "latitude" : {
+            "type" : "number",
+            "format" : "double",
+            "maximum" : 90,
+            "minimum" : -90
+          },
+          "longitude" : {
+            "type" : "number",
+            "format" : "double",
+            "maximum" : 180,
+            "minimum" : -180
+          }
+        },
+        "required" : [ "latitude", "longitude", "name" ]
+      },
+      "SetPubsRequest" : {
+        "type" : "object",
+        "properties" : {
+          "pubs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PubDto"
+            },
+            "maxItems" : 9,
+            "minItems" : 9
+          },
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "playerId", "pubs" ]
       },
       "EventResponse" : {
         "type" : "object",

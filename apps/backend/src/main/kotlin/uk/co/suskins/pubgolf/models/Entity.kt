@@ -33,12 +33,21 @@ data class GameEntity(
     val activeEventId: String? = null,
     @Column(name = "active_event_activated_at")
     val activeEventActivatedAt: Instant? = null,
+    @Column(name = "route_geometry")
+    val routeGeometry: String? = null,
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
     val players: MutableList<PlayerEntity> = mutableListOf(),
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "game_id")
+    val pubs: MutableList<PubEntity> = mutableListOf(),
 ) {
     fun addPlayer(playerEntity: PlayerEntity) {
         this.players.add(playerEntity)
+    }
+
+    fun addPub(pubEntity: PubEntity) {
+        this.pubs.add(pubEntity)
     }
 }
 
@@ -133,6 +142,31 @@ data class PlayerPenaltyEntity(
     val created: Instant = Instant.now(),
 )
 
+@Embeddable
+data class PubEntityId(
+    @Column(name = "game_id")
+    val gameId: UUID = UUID.randomUUID(),
+    @Column(name = "hole")
+    val hole: Int = 0,
+) : Serializable
+
+@Entity
+@Table(name = "pubs")
+data class PubEntity(
+    @EmbeddedId
+    val id: PubEntityId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("gameId")
+    @JoinColumn(name = "game_id", nullable = false)
+    val game: GameEntity,
+    @Column(name = "name", nullable = false)
+    val name: String,
+    @Column(name = "latitude", nullable = false)
+    val latitude: Double,
+    @Column(name = "longitude", nullable = false)
+    val longitude: Double,
+)
+
 fun GameEntity.toDomain(): Game =
     Game(
         id = GameId(id),
@@ -178,5 +212,22 @@ fun GameEntity.toDomain(): Game =
                             )
                         },
                 )
+            },
+        pubs =
+            pubs
+                .sortedBy { it.id.hole }
+                .map { it.toDomain() },
+        routeGeometry =
+            routeGeometry?.let { routeString ->
+                val parts = routeString.split(":")
+                if (parts.size == 2) {
+                    val coordinates =
+                        parts[1].split(";").map { coord ->
+                            coord.split(",").map { it.toDouble() }
+                        }
+                    RouteGeometry(type = parts[0], coordinates = coordinates)
+                } else {
+                    null
+                }
             },
     )

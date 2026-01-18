@@ -1,8 +1,10 @@
 package uk.co.suskins.pubgolf.models
 
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 data class GameRequest(
     @field:NotBlank(message = "Host name must not be blank")
@@ -136,4 +138,45 @@ data class ActivateEventRequest(
 
 data class EndEventRequest(
     val playerId: PlayerId,
+)
+
+data class PlaceSearchResult(
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+)
+
+data class PubDto(
+    @field:NotBlank(message = "Pub name must not be blank")
+    val name: String,
+    @field:Min(value = -90, message = "Latitude must be between -90 and 90")
+    @field:Max(value = 90, message = "Latitude must be between -90 and 90")
+    val latitude: Double,
+    @field:Min(value = -180, message = "Longitude must be between -180 and 180")
+    @field:Max(value = 180, message = "Longitude must be between -180 and 180")
+    val longitude: Double,
+)
+
+data class SetPubsRequest(
+    @field:Size(min = 9, max = 9, message = "Exactly 9 pubs are required")
+    @field:Valid
+    val pubs: List<PubDto>,
+    val playerId: PlayerId,
+)
+
+data class PubLocationResponse(
+    val hole: Int,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+)
+
+data class RouteGeometryResponse(
+    val type: String,
+    val coordinates: List<List<Double>>,
+)
+
+data class RouteResponse(
+    val pubs: List<PubLocationResponse>,
+    val route: RouteGeometryResponse?,
 )

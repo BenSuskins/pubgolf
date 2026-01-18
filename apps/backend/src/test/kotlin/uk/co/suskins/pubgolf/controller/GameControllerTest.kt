@@ -18,16 +18,22 @@ import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
+import uk.co.suskins.pubgolf.repository.PubRepositoryFake
 import uk.co.suskins.pubgolf.service.GameMetrics
 import uk.co.suskins.pubgolf.service.GameService
 import uk.co.suskins.pubgolf.service.GameStateBroadcasterFake
+import uk.co.suskins.pubgolf.service.PubRouteService
+import uk.co.suskins.pubgolf.service.RoutingServiceFake
 
 class GameControllerTest {
     private val gameRepository = GameRepositoryFake()
+    private val pubRepository = PubRepositoryFake()
     private val gameMetrics = GameMetrics(SimpleMeterRegistry())
     private val gameStateBroadcaster = GameStateBroadcasterFake()
     private val gameService = GameService(gameRepository, gameMetrics, gameStateBroadcaster)
-    private val controller = GameController(gameService)
+    private val routingService = RoutingServiceFake()
+    private val pubRouteService = PubRouteService(gameRepository, pubRepository, routingService)
+    private val controller = GameController(gameService, pubRouteService)
 
     @Test
     fun `returns 404 NOT_FOUND when game not found`() {

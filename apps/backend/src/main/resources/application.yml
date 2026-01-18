@@ -13,6 +13,19 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+routing:
+  osrm:
+    baseUrl: https://router.project-osrm.org
+    profile: foot
+
+geocoding:
+  nominatim:
+    baseUrl: https://nominatim.openstreetmap.org
+    userAgent: PubGolf/1.0
+    rateLimit:
+      delayMs: 1000
+    resultLimit: 5
+
 management:
   endpoints:
     web:

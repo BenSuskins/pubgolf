@@ -9,6 +9,8 @@ data class Game(
     val status: GameStatus = GameStatus.ACTIVE,
     val hostPlayerId: PlayerId? = null,
     val activeEvent: ActiveEvent? = null,
+    val pubs: List<Pub> = emptyList(),
+    val routeGeometry: RouteGeometry? = null,
 )
 
 data class Player(
@@ -126,6 +128,20 @@ data class ActiveEvent(
     val activatedAt: Instant,
 )
 
+data class Pub(
+    val id: PubId,
+    val gameId: GameId,
+    val hole: Hole,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+)
+
+data class RouteGeometry(
+    val type: String = "LineString",
+    val coordinates: List<List<Double>>,
+)
+
 sealed interface PubGolfFailure {
     val message: String
 
@@ -168,6 +184,26 @@ data class EventNotFoundFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class PubsAlreadySetFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class InvalidPubCountFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class InvalidHostFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class PlaceSearchFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class RoutingFailure(
+    override val message: String,
+) : PubGolfFailure
+
 data class RouteHole(
     val hole: Int,
     val par: Int,
@@ -198,6 +234,7 @@ fun Game.toJpa(): GameEntity {
             hostPlayerId = hostPlayerId?.value,
             activeEventId = activeEvent?.event?.id,
             activeEventActivatedAt = activeEvent?.activatedAt,
+            routeGeometry = routeGeometry?.let { "${it.type}:${it.coordinates.joinToString(";") { coord -> coord.joinToString(",") }}" },
         )
 
     players.forEach { player ->
@@ -247,5 +284,30 @@ fun Game.toJpa(): GameEntity {
 
         gameEntity.addPlayer(playerEntity)
     }
+
+    pubs.forEach { pub ->
+        val pubEntity = pub.toJpa(gameEntity)
+        gameEntity.addPub(pubEntity)
+    }
+
     return gameEntity
 }
+
+fun Pub.toJpa(gameEntity: GameEntity): PubEntity =
+    PubEntity(
+        id = PubEntityId(gameId = gameEntity.id, hole = hole.value),
+        game = gameEntity,
+        name = name,
+        latitude = latitude,
+        longitude = longitude,
+    )
+
+fun PubEntity.toDomain(): Pub =
+    Pub(
+        id = PubId(id.gameId),
+        gameId = GameId(id.gameId),
+        hole = Hole(id.hole),
+        name = name,
+        latitude = latitude,
+        longitude = longitude,
+    )

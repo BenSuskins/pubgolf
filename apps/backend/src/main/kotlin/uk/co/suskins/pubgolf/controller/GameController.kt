@@ -42,6 +42,8 @@ import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
 import uk.co.suskins.pubgolf.models.HoleResponse
+import uk.co.suskins.pubgolf.models.InvalidHostFailure
+import uk.co.suskins.pubgolf.models.InvalidPubCountFailure
 import uk.co.suskins.pubgolf.models.JoinGameResponse
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.OutcomeResponse
@@ -56,18 +58,25 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PlayerResponse
 import uk.co.suskins.pubgolf.models.PubGolfFailure
+import uk.co.suskins.pubgolf.models.PubLocationResponse
+import uk.co.suskins.pubgolf.models.PubsAlreadySetFailure
 import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.RandomiseOutcomeResponse
 import uk.co.suskins.pubgolf.models.RandomiseResponse
+import uk.co.suskins.pubgolf.models.RouteGeometryResponse
+import uk.co.suskins.pubgolf.models.RouteResponse
 import uk.co.suskins.pubgolf.models.Routes
 import uk.co.suskins.pubgolf.models.RoutesResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
+import uk.co.suskins.pubgolf.models.SetPubsRequest
 import uk.co.suskins.pubgolf.service.GameService
+import uk.co.suskins.pubgolf.service.PubRouteService
 
 @RestController
 @RequestMapping("/api/v1/games")
 class GameController(
     private val gameService: GameService,
+    private val pubRouteService: PubRouteService,
 ) {
     private val logger = LoggerFactory.getLogger(GameController::class.java)
 
@@ -804,6 +813,51 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
+    @PostMapping("/{code}/pubs")
+    fun setPubs(
+        @PathVariable code: String,
+        @Valid @RequestBody request: SetPubsRequest,
+    ): ResponseEntity<out Any> =
+        pubRouteService
+            .setPubsForGame(GameCode(code), request.playerId, request.pubs)
+            .map {
+                ResponseEntity.status(CREATED).build<Any>()
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
+    @GetMapping("/{code}/route")
+    fun getRoute(
+        @PathVariable code: String,
+    ): ResponseEntity<out Any> =
+        pubRouteService
+            .getRouteForGame(GameCode(code))
+            .map { (pubs, routeGeometry) ->
+                val pubLocations =
+                    pubs.map { pub ->
+                        PubLocationResponse(
+                            hole = pub.hole.value,
+                            name = pub.name,
+                            latitude = pub.latitude,
+                            longitude = pub.longitude,
+                        )
+                    }
+                val routeResponse =
+                    RouteResponse(
+                        pubs = pubLocations,
+                        route =
+                            routeGeometry?.let {
+                                RouteGeometryResponse(
+                                    type = it.type,
+                                    coordinates = it.coordinates,
+                                )
+                            },
+                    )
+                ResponseEntity.status(OK).body(routeResponse)
+            }.mapFailure {
+                resolveFailure(it)
+            }.get()
+
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")
         return when (it) {
@@ -811,10 +865,13 @@ class GameController(
             is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is EventNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
+            is InvalidPubCountFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
             is RandomiseAlreadyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is GameAlreadyCompletedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is EventAlreadyActiveFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is PubsAlreadySetFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is NotHostPlayerFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
+            is InvalidHostFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }

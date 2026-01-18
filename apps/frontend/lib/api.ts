@@ -1,4 +1,4 @@
-import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse, GameEvent, ActiveEvent } from './types';
+import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse, GameEvent, ActiveEvent, PlaceSearchResult, Pub, RouteData } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 
@@ -218,6 +218,45 @@ export async function endEvent(gameCode: string, playerId: string): Promise<Game
     body: JSON.stringify({ playerId }),
   });
   return handleResponse<GameState>(response);
+}
+
+export async function searchPlaces(
+  query: string,
+  latitude?: number,
+  longitude?: number
+): Promise<PlaceSearchResult[]> {
+  const params = new URLSearchParams({ q: query });
+  if (latitude !== undefined && longitude !== undefined) {
+    params.append('lat', latitude.toString());
+    params.append('lng', longitude.toString());
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/places/search?${params.toString()}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<PlaceSearchResult[]>(response);
+}
+
+export async function setPubs(
+  gameCode: string,
+  playerId: string,
+  pubs: Pub[]
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/pubs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId, pubs }),
+  });
+  return handleResponse<void>(response);
+}
+
+export async function getRoute(gameCode: string): Promise<RouteData> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/route`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<RouteData>(response);
 }
 
 export { ApiError };

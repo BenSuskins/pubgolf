@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, getRoutes, completeGame } from '@/lib/api';
+import { getGameState, getRoutes, completeGame, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
@@ -32,6 +32,7 @@ export default function GamePage() {
   const [showEventNotification, setShowEventNotification] = useState(false);
   const [showEventEndedToast, setShowEventEndedToast] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [hasPubRoute, setHasPubRoute] = useState(false);
   const previousEventIdRef = useRef<string | null>(null);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
@@ -107,6 +108,21 @@ export default function GamePage() {
       setQueuedEventId(null);
     }
   }, [activeEvent, getQueuedEventId, setQueuedEventId]);
+
+  useEffect(() => {
+    if (!gameCode) return;
+
+    const checkPubRoute = async () => {
+      try {
+        const routeData = await getRoute(gameCode);
+        setHasPubRoute(routeData.pubs.length > 0);
+      } catch (err) {
+        setHasPubRoute(false);
+      }
+    };
+
+    checkPubRoute();
+  }, [gameCode]);
 
   const handleEventNotificationDismiss = useCallback(() => {
     setShowEventNotification(false);
@@ -237,6 +253,14 @@ export default function GamePage() {
           >
             The Rules
           </Link>
+          {hasPubRoute && (
+            <Link
+              href="/game/map"
+              className="block py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
+            >
+              🗺️ View Map
+            </Link>
+          )}
         </nav>
       </div>
 

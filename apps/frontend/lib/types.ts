@@ -72,3 +72,29 @@ export interface RouteHole {
 export interface RoutesResponse {
   holes: RouteHole[];
 }
+
+export interface Pub {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface PubLocation extends Pub {
+  hole: number;
+}
+
+export interface RouteGeometry {
+  type: 'LineString';
+  coordinates: number[][];
+}
+
+export interface RouteData {
+  pubs: PubLocation[];
+  route: RouteGeometry | null;
+}
+
+export interface PlaceSearchResult {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
