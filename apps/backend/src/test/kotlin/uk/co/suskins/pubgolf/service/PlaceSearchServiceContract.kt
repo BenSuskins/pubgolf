@@ -4,6 +4,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.greaterThan
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Tag
+import org.springframework.web.client.RestTemplate
 import uk.co.suskins.pubgolf.adapter.geocoding.NominatimPlaceSearchAdapter
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -61,5 +62,6 @@ class NominatimPlaceSearchAdapterTest : PlaceSearchServiceContract {
             userAgent = "PubGolf/1.0",
             rateLimitDelayMs = 1000,
             resultLimit = 5,
+            restTemplate = RestTemplate(),
         )
 }

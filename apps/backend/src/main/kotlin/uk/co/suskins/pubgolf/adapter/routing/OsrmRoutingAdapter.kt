@@ -44,7 +44,7 @@ class OsrmRoutingAdapter(
     private val baseUrl: String,
     @Value("\${routing.osrm.profile:foot}")
     private val profile: String,
-    private val restTemplate: RestTemplate = RestTemplate(),
+    private val restTemplate: RestTemplate,
 ) : RoutingService {
     private val logger = LoggerFactory.getLogger(OsrmRoutingAdapter::class.java)
 

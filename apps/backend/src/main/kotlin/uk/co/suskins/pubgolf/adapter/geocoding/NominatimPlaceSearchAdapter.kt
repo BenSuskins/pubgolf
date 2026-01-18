@@ -39,7 +39,7 @@ class NominatimPlaceSearchAdapter(
     private val rateLimitDelayMs: Long,
     @Value("\${geocoding.nominatim.resultLimit:5}")
     private val resultLimit: Int,
-    private val restTemplate: RestTemplate = RestTemplate(),
+    private val restTemplate: RestTemplate,
 ) : PlaceSearchService {
     private val logger = LoggerFactory.getLogger(NominatimPlaceSearchAdapter::class.java)
     private val rateLimiter = Semaphore(1)

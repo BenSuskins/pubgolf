@@ -5,6 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import dev.forkhandles.result4k.Success
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Tag
+import org.springframework.web.client.RestTemplate
 import uk.co.suskins.pubgolf.adapter.routing.OsrmRoutingAdapter
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.Hole
@@ -108,5 +109,6 @@ class OsrmRoutingAdapterTest : RoutingServiceContract {
         OsrmRoutingAdapter(
             baseUrl = "https://router.project-osrm.org",
             profile = "foot",
+            restTemplate = RestTemplate(),
         )
 }
