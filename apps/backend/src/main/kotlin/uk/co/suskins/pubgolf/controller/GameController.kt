@@ -35,6 +35,7 @@ import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.EventResponse
 import uk.co.suskins.pubgolf.models.EventsResponse
+import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameJoinRequest
@@ -244,41 +245,10 @@ class GameController(
     ): ResponseEntity<*> =
         gameService
             .gameState(gameCode)
-            .map {
-                GameStateResponse(
-                    it.id,
-                    it.code,
-                    it.status,
-                    it.hostPlayerId,
-                    it.players
-                        .map { player ->
-                            PlayerResponse(
-                                player.id,
-                                player.name,
-                                player.scores.map { it.value.score },
-                                player.scores.map { it.value.score.value }.sum(),
-                                player.randomise?.let {
-                                    RandomiseOutcomeResponse(it.hole, it.result.label)
-                                },
-                                player.penalties.map { penalty ->
-                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
-                                },
-                            )
-                        }.sortedBy { it.totalScore },
-                    it.activeEvent?.let { event ->
-                        ActiveEventResponse(
-                            event.event.id,
-                            event.event.title,
-                            event.event.description,
-                            event.activatedAt,
-                        )
-                    },
-                )
-            }.map {
-                ResponseEntity.status(OK).body(it)
-            }.mapFailure {
-                resolveFailure(it)
-            }.get()
+            .map { it.toGameStateResponse() }
+            .map { ResponseEntity.status(OK).body(it) }
+            .mapFailure { resolveFailure(it) }
+            .get()
 
     @PostMapping("/{gameCode}/players/{playerId}/scores")
     @ApiResponses(
@@ -461,41 +431,10 @@ class GameController(
     ): ResponseEntity<*> =
         gameService
             .completeGame(gameCode, request.playerId)
-            .map {
-                GameStateResponse(
-                    it.id,
-                    it.code,
-                    it.status,
-                    it.hostPlayerId,
-                    it.players
-                        .map { player ->
-                            PlayerResponse(
-                                player.id,
-                                player.name,
-                                player.scores.map { it.value.score },
-                                player.scores.map { it.value.score.value }.sum(),
-                                player.randomise?.let {
-                                    RandomiseOutcomeResponse(it.hole, it.result.label)
-                                },
-                                player.penalties.map { penalty ->
-                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
-                                },
-                            )
-                        }.sortedBy { it.totalScore },
-                    it.activeEvent?.let { event ->
-                        ActiveEventResponse(
-                            event.event.id,
-                            event.event.title,
-                            event.event.description,
-                            event.activatedAt,
-                        )
-                    },
-                )
-            }.map {
-                ResponseEntity.status(OK).body(it)
-            }.mapFailure {
-                resolveFailure(it)
-            }.get()
+            .map { it.toGameStateResponse() }
+            .map { ResponseEntity.status(OK).body(it) }
+            .mapFailure { resolveFailure(it) }
+            .get()
 
     @GetMapping("/randomise-options")
     @ApiResponses(
@@ -700,41 +639,10 @@ class GameController(
     ): ResponseEntity<*> =
         gameService
             .activateEvent(gameCode, request.playerId, eventId)
-            .map {
-                GameStateResponse(
-                    it.id,
-                    it.code,
-                    it.status,
-                    it.hostPlayerId,
-                    it.players
-                        .map { player ->
-                            PlayerResponse(
-                                player.id,
-                                player.name,
-                                player.scores.map { it.value.score },
-                                player.scores.map { it.value.score.value }.sum(),
-                                player.randomise?.let {
-                                    RandomiseOutcomeResponse(it.hole, it.result.label)
-                                },
-                                player.penalties.map { penalty ->
-                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
-                                },
-                            )
-                        }.sortedBy { it.totalScore },
-                    it.activeEvent?.let { event ->
-                        ActiveEventResponse(
-                            event.event.id,
-                            event.event.title,
-                            event.event.description,
-                            event.activatedAt,
-                        )
-                    },
-                )
-            }.map {
-                ResponseEntity.status(OK).body(it)
-            }.mapFailure {
-                resolveFailure(it)
-            }.get()
+            .map { it.toGameStateResponse() }
+            .map { ResponseEntity.status(OK).body(it) }
+            .mapFailure { resolveFailure(it) }
+            .get()
 
     @PostMapping("/{gameCode}/events/end")
     @ApiResponses(
@@ -777,41 +685,10 @@ class GameController(
     ): ResponseEntity<*> =
         gameService
             .endEvent(gameCode, request.playerId)
-            .map {
-                GameStateResponse(
-                    it.id,
-                    it.code,
-                    it.status,
-                    it.hostPlayerId,
-                    it.players
-                        .map { player ->
-                            PlayerResponse(
-                                player.id,
-                                player.name,
-                                player.scores.map { it.value.score },
-                                player.scores.map { it.value.score.value }.sum(),
-                                player.randomise?.let {
-                                    RandomiseOutcomeResponse(it.hole, it.result.label)
-                                },
-                                player.penalties.map { penalty ->
-                                    PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
-                                },
-                            )
-                        }.sortedBy { it.totalScore },
-                    it.activeEvent?.let { event ->
-                        ActiveEventResponse(
-                            event.event.id,
-                            event.event.title,
-                            event.event.description,
-                            event.activatedAt,
-                        )
-                    },
-                )
-            }.map {
-                ResponseEntity.status(OK).body(it)
-            }.mapFailure {
-                resolveFailure(it)
-            }.get()
+            .map { it.toGameStateResponse() }
+            .map { ResponseEntity.status(OK).body(it) }
+            .mapFailure { resolveFailure(it) }
+            .get()
 
     @PostMapping("/{code}/pubs")
     fun setPubs(
@@ -875,4 +752,35 @@ class GameController(
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }
+
+    private fun Game.toGameStateResponse(): GameStateResponse =
+        GameStateResponse(
+            id,
+            code,
+            status,
+            hostPlayerId,
+            players
+                .map { player ->
+                    PlayerResponse(
+                        player.id,
+                        player.name,
+                        player.scores.map { it.value.score },
+                        player.scores.values.sumOf { it.score.value },
+                        player.randomise?.let {
+                            RandomiseOutcomeResponse(it.hole, it.result.label)
+                        },
+                        player.penalties.map { penalty ->
+                            PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
+                        },
+                    )
+                }.sortedBy { it.totalScore },
+            activeEvent?.let { event ->
+                ActiveEventResponse(
+                    event.event.id,
+                    event.event.title,
+                    event.event.description,
+                    event.activatedAt,
+                )
+            },
+        )
 }

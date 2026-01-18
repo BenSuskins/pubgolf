@@ -1,6 +1,7 @@
 package uk.co.suskins.pubgolf.controller
 
 import dev.forkhandles.result4k.get
+import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
@@ -31,19 +32,17 @@ class PlacesController(
 
         return placeSearchService
             .search(query, clientIp, latitude, longitude)
+            .map { results -> ResponseEntity.ok<Any>(results) }
             .mapFailure { failure ->
                 logger.error("Failed to search places: ${failure.message}")
-                when (failure) {
-                    is PlaceSearchFailure -> ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(failure.asErrorResponse())
-                    else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(failure.asErrorResponse())
-                }
+                val status =
+                    if (failure is PlaceSearchFailure) {
+                        HttpStatus.SERVICE_UNAVAILABLE
+                    } else {
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                    }
+                ResponseEntity.status(status).body<Any>(failure.asErrorResponse())
             }.get()
-            .let { result ->
-                when (result) {
-                    is List<*> -> ResponseEntity.ok(result)
-                    else -> result as ResponseEntity<Any>
-                }
-            }
     }
 
     private fun extractClientIp(request: HttpServletRequest): String {

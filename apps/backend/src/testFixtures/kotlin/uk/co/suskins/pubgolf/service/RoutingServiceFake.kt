@@ -8,11 +8,7 @@ import uk.co.suskins.pubgolf.models.RouteGeometry
 
 class RoutingServiceFake : RoutingService {
     override fun calculateRoute(pubs: List<Pub>): Result<RouteGeometry?, PubGolfFailure> {
-        if (pubs.isEmpty()) {
-            return Success(null)
-        }
-
-        if (pubs.size == 1) {
+        if (pubs.size < 2) {
             return Success(null)
         }
 

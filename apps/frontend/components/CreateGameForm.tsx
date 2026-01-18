@@ -98,7 +98,7 @@ export function CreateGameForm() {
             className="w-5 h-5 rounded border-[var(--color-border)] bg-[var(--color-bg)] accent-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]"
           />
           <span className="text-sm font-medium text-[var(--color-text-secondary)]">
-            Add pub route (select 9 pubs)
+            Add Route Map
           </span>
         </label>
 
