@@ -31,17 +31,17 @@ describe('HowToPlayPage', () => {
   beforeEach(() => {
     mockGetPenaltyOptions.mockClear();
     mockGetRoutes.mockClear();
-    mockGetPenaltyOptions.mockResolvedValue({
+    mockGetPenaltyOptions.mockImplementation(() => Promise.resolve({
       penalties: [
         { type: 'SKIP', name: 'Skip', points: 5 },
         { type: 'CHUNDER', name: 'Chunder', points: 10 }
       ]
-    });
-    mockGetRoutes.mockResolvedValue({
+    }));
+    mockGetRoutes.mockImplementation(() => Promise.resolve({
       holes: [
         { hole: 1, par: 1, drinks: { 'Route A': 'Beer', 'Route B': 'Wine' } }
       ]
-    });
+    }));
   });
 
   describe('loading states', () => {
@@ -107,7 +107,7 @@ describe('HowToPlayPage', () => {
 
   describe('error handling', () => {
     test('should handle penalty API failure gracefully', async () => {
-      mockGetPenaltyOptions.mockRejectedValue(new Error('Network error'));
+      mockGetPenaltyOptions.mockImplementation(() => Promise.reject(new Error('Network error')));
       render(<HowToPlayPage />);
 
       await waitFor(() => {
@@ -116,7 +116,7 @@ describe('HowToPlayPage', () => {
     });
 
     test('should handle routes API failure gracefully', async () => {
-      mockGetRoutes.mockRejectedValue(new Error('Network error'));
+      mockGetRoutes.mockImplementation(() => Promise.reject(new Error('Network error')));
       render(<HowToPlayPage />);
 
       await waitFor(() => {
