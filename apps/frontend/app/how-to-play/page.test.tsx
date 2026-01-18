@@ -64,17 +64,25 @@ describe('HowToPlayPage', () => {
     test('should hide penalties skeleton after data loads', async () => {
       render(<HowToPlayPage />);
 
+      // Wait for penalty content to appear
       await waitFor(() => {
-        expect(screen.queryByLabelText(/loading penalties/i)).not.toBeInTheDocument();
+        expect(screen.getByText('Skip')).toBeInTheDocument();
       });
+
+      // Then verify skeleton is gone
+      expect(screen.queryByLabelText(/loading penalties/i)).not.toBeInTheDocument();
     });
 
     test('should hide routes skeleton after data loads', async () => {
       render(<HowToPlayPage />);
 
+      // Wait for route content to appear
       await waitFor(() => {
-        expect(screen.queryByLabelText(/loading course/i)).not.toBeInTheDocument();
+        expect(screen.getByText('Route A')).toBeInTheDocument();
       });
+
+      // Then verify skeleton is gone
+      expect(screen.queryByLabelText(/loading course/i)).not.toBeInTheDocument();
     });
   });
 
@@ -108,18 +116,26 @@ describe('HowToPlayPage', () => {
       mockGetPenaltyOptions.mockImplementation(() => Promise.reject(new Error('Network error')));
       render(<HowToPlayPage />);
 
+      // Routes still load independently - wait for them
       await waitFor(() => {
-        expect(screen.queryByLabelText(/loading penalties/i)).not.toBeInTheDocument();
+        expect(screen.getByText('Route A')).toBeInTheDocument();
       });
+
+      // Verify penalty skeleton is gone (error was handled)
+      expect(screen.queryByLabelText(/loading penalties/i)).not.toBeInTheDocument();
     });
 
     test('should handle routes API failure gracefully', async () => {
       mockGetRoutes.mockImplementation(() => Promise.reject(new Error('Network error')));
       render(<HowToPlayPage />);
 
+      // Penalties still load independently - wait for them
       await waitFor(() => {
-        expect(screen.queryByLabelText(/loading course/i)).not.toBeInTheDocument();
+        expect(screen.getByText('Skip')).toBeInTheDocument();
       });
+
+      // Verify routes skeleton is gone (error was handled)
+      expect(screen.queryByLabelText(/loading course/i)).not.toBeInTheDocument();
     });
   });
 });
