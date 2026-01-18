@@ -227,4 +227,25 @@ describe('JoinGameForm', () => {
       });
     });
   });
+
+  describe('auto-focus behavior', () => {
+    test('should pre-fill game code when in URL', () => {
+      mockSearchParams.set('gameCode', 'ABC123');
+
+      render(<JoinGameForm />);
+
+      const gameCodeInput = screen.getByLabelText(/game code/i);
+      expect(gameCodeInput).toHaveValue('ABC123');
+    });
+
+    test('should have ref attached to name input for auto-focus', () => {
+      mockSearchParams.set('gameCode', 'ABC123');
+
+      render(<JoinGameForm />);
+
+      const nameInput = screen.getByLabelText(/your name/i);
+      expect(nameInput).toBeInTheDocument();
+      expect(nameInput).toHaveAttribute('id', 'join-name');
+    });
+  });
 });

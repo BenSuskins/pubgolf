@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { joinGame } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -13,11 +13,19 @@ export function JoinGameForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setGameSession } = useLocalStorage();
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const codeFromUrl = searchParams.get('gameCode');
     if (codeFromUrl) {
       setGameCode(codeFromUrl.toUpperCase());
+
+      // Auto-focus name input after a short delay to allow accordion animation
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 250);
+
+      return () => clearTimeout(timer);
     }
   }, [searchParams]);
 
@@ -54,6 +62,7 @@ export function JoinGameForm() {
           Your Name
         </label>
         <input
+          ref={nameInputRef}
           id="join-name"
           type="text"
           value={name}

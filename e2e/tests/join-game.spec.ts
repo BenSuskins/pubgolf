@@ -50,4 +50,21 @@ test.describe('Join Game', () => {
     const gameCodeInput = page.locator('#game-code');
     await expect(gameCodeInput).toHaveValue(hostSession.gameCode.toUpperCase());
   });
+
+  test('auto-focuses name input when arriving with game code', async ({ page, createGameViaApi }) => {
+    const hostSession = await createGameViaApi('AutoFocusHost');
+
+    await page.goto(`/?gameCode=${hostSession.gameCode}`);
+
+    // Wait for accordion animation to complete
+    await page.waitForTimeout(300);
+
+    // Name input should be focused
+    const nameInput = page.locator('#join-name');
+    await expect(nameInput).toBeFocused();
+
+    // Should be able to type immediately
+    await page.keyboard.type('QuickJoiner');
+    await expect(nameInput).toHaveValue('QuickJoiner');
+  });
 });
