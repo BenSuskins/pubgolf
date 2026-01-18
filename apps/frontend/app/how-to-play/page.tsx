@@ -10,7 +10,7 @@ import { RoutesTable } from '@/components/RoutesTable';
 function PenaltiesSkeleton() {
   return (
     <div className="flex flex-wrap gap-3" role="status" aria-label="Loading penalties">
-      {[1, 2, 3].map((i) => (
+      {[1, 2].map((i) => (
         <div
           key={i}
           className="h-10 w-32 rounded-lg bg-[var(--color-border)] animate-pulse"
@@ -41,7 +41,7 @@ function RoutesTableSkeleton() {
           </tr>
         </thead>
         <tbody>
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
             <tr key={i} className="border-b border-[var(--color-border-subtle)]">
               <td className="px-3 py-3">
                 <div className="h-4 w-4 bg-[var(--color-border)] rounded animate-pulse" />
