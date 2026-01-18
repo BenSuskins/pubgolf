@@ -29,8 +29,6 @@ mock.module('next/navigation', () => ({
 
 describe('HowToPlayPage', () => {
   beforeEach(() => {
-    mockGetPenaltyOptions.mockClear();
-    mockGetRoutes.mockClear();
     mockGetPenaltyOptions.mockImplementation(() => Promise.resolve({
       penalties: [
         { type: 'SKIP', name: 'Skip', points: 5 },
