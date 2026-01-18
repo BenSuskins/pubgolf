@@ -12,7 +12,7 @@ test.describe('Complete Game', () => {
         localStorage.setItem('playerName', session.playerName);
       }, hostSession);
 
-      await page.goto('/game');
+      await page.goto(`/game/${hostSession.gameCode}/host`);
 
       await expect(page.getByRole('button', { name: 'End Game' })).toBeVisible();
     });
@@ -28,7 +28,7 @@ test.describe('Complete Game', () => {
         localStorage.setItem('playerName', session.playerName);
       }, playerSession);
 
-      await page.goto('/game');
+      await page.goto(`/game/${hostSession.gameCode}/host`);
 
       await expect(page.getByRole('button', { name: 'End Game' })).not.toBeVisible();
     });
@@ -43,7 +43,7 @@ test.describe('Complete Game', () => {
         localStorage.setItem('playerName', session.playerName);
       }, hostSession);
 
-      await page.goto('/game');
+      await page.goto(`/game/${hostSession.gameCode}/host`);
 
       await page.getByRole('button', { name: 'End Game' }).click();
 
@@ -66,7 +66,7 @@ test.describe('Complete Game', () => {
         localStorage.setItem('playerName', session.playerName);
       }, hostSession);
 
-      await page.goto('/game');
+      await page.goto(`/game/${hostSession.gameCode}/host`);
 
       await page.getByRole('button', { name: 'End Game' }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
