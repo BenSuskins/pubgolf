@@ -31,7 +31,6 @@ export default function GamePage() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEventNotification, setShowEventNotification] = useState(false);
   const [showEventEndedToast, setShowEventEndedToast] = useState(false);
-  const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [completing, setCompleting] = useState(false);
   const previousEventIdRef = useRef<string | null>(null);
   const router = useRouter();
@@ -116,24 +115,6 @@ export default function GamePage() {
     }
   }, [activeEvent, setLastSeenEventId]);
 
-  const handleCompleteGame = async () => {
-    if (!gameCode) return;
-    const playerId = getPlayerId();
-    if (!playerId) return;
-
-    setCompleting(true);
-    try {
-      await completeGame(gameCode, playerId);
-      setShowEndGameModal(false);
-      setShowCelebration(true);
-      setStatus('COMPLETED');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to end game');
-    } finally {
-      setCompleting(false);
-    }
-  };
-
   const playerId = getPlayerId();
   const currentPlayer = players.find(p => p.id === playerId);
   const hasUsedRandomise = currentPlayer?.randomise != null;
@@ -182,12 +163,6 @@ export default function GamePage() {
           <div className="flex items-center gap-2">
             {isHost && !isCompleted && (
               <>
-                <button
-                  onClick={() => setShowEndGameModal(true)}
-                  className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
-                >
-                  End Game
-                </button>
                 <Link
                   href={`/game/${gameCode.toLowerCase()}/host`}
                   className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
@@ -290,18 +265,6 @@ export default function GamePage() {
         <Toast
           message="Event ended"
           onDismiss={() => setShowEventEndedToast(false)}
-        />
-      )}
-
-      {showEndGameModal && (
-        <ConfirmModal
-          title="End Game?"
-          message="This will permanently end the game. No more scores can be submitted and no one else can join."
-          confirmText="End Game"
-          cancelText="Cancel"
-          onConfirm={handleCompleteGame}
-          onCancel={() => setShowEndGameModal(false)}
-          loading={completing}
         />
       )}
     </main>
