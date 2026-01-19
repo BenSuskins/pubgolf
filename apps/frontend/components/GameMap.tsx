@@ -60,14 +60,14 @@ export default function GameMap({ routeData, userLocation }: GameMapProps) {
       el.className = 'w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full border-3 border-white shadow-xl font-bold cursor-pointer hover:bg-blue-700 transition-colors';
       el.textContent = String(pub.hole);
 
-      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
-        <div class="p-2">
-          <h3 class="font-bold mb-2">${pub.name}</h3>
+      const popup = new maplibregl.Popup({ offset: 25, className: 'dark-popup' }).setHTML(`
+        <div class="p-3 bg-[#161b22] rounded-lg">
+          <h3 class="font-bold mb-2 text-[#f0f6fc]">${pub.name}</h3>
           <a
             href="https://maps.google.com/maps?daddr=${pub.latitude},${pub.longitude}&directionsmode=walking"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-blue-600 hover:underline text-sm"
+            class="text-[#f59e0b] hover:text-[#d97706] hover:underline text-sm font-medium"
           >
             Get Directions →
           </a>
