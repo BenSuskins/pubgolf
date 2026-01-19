@@ -64,6 +64,29 @@ interface GameRepositoryContract {
     }
 
     @Test
+    fun `can find game by code ignoring case`() {
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players =
+                    listOf(
+                        Player(PlayerId.random(), PlayerName("Ben")),
+                    ),
+            )
+
+        gameRepository.save(game)
+
+        val lowercase = gameRepository.findByCodeIgnoreCase(GameCode("ace007")).valueOrNull()
+        assertTrue(lowercase != null)
+        assertThat(lowercase.code, equalTo(GameCode("ACE007")))
+
+        val mixedCase = gameRepository.findByCodeIgnoreCase(GameCode("AcE007")).valueOrNull()
+        assertTrue(mixedCase != null)
+        assertThat(mixedCase.code, equalTo(GameCode("ACE007")))
+    }
+
+    @Test
     fun `can save and find a game with player penalties`() {
         val playerWithPenalty =
             Player(

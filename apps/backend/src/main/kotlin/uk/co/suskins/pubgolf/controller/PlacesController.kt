@@ -4,9 +4,11 @@ import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.constraints.Size
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.co.suskins.pubgolf.models.PlaceSearchFailure
 import uk.co.suskins.pubgolf.service.PlaceSearchService
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/places")
 class PlacesController(
@@ -23,7 +26,9 @@ class PlacesController(
 
     @GetMapping("/search")
     fun search(
-        @RequestParam("q") query: String,
+        @RequestParam("q")
+        @Size(min = 1, max = 200, message = "Query must be between 1 and 200 characters")
+        query: String,
         @RequestParam("lat", required = false) latitude: Double?,
         @RequestParam("lng", required = false) longitude: Double?,
         request: HttpServletRequest,

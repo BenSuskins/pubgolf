@@ -52,7 +52,7 @@ data class Player(
 
 data class ScoreWithTimestamp(
     val score: Score,
-    var instant: Instant,
+    val instant: Instant,
 )
 
 data class Randomise(

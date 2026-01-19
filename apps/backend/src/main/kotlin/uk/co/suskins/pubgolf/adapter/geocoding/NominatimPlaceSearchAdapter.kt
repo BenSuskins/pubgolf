@@ -16,6 +16,8 @@ import uk.co.suskins.pubgolf.models.PlaceSearchFailure
 import uk.co.suskins.pubgolf.models.PlaceSearchResult
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.service.PlaceSearchService
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Semaphore
 
@@ -82,6 +84,7 @@ class NominatimPlaceSearchAdapter(
                     )
                 }
             } finally {
+                clientQueues.remove(clientIdentifier)
                 rateLimiter.release()
             }
         }.mapFailure { error ->
@@ -95,7 +98,8 @@ class NominatimPlaceSearchAdapter(
         longitude: Double?,
     ): String {
         val searchUrl = "$baseUrl/search"
-        val params = mutableListOf("q=$query", "format=json", "limit=$resultLimit")
+        val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8)
+        val params = mutableListOf("q=$encodedQuery", "format=json", "limit=$resultLimit")
 
         if (latitude != null && longitude != null) {
             val latDelta = 0.045

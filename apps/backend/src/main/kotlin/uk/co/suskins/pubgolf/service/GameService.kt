@@ -284,8 +284,9 @@ class GameService(
             return Success(Hole(1))
         }
 
-        val mostRecent = scores.maxByOrNull { it.value.instant }
-        val mostRecentHole = mostRecent?.key!!
+        val mostRecentHole =
+            scores.maxByOrNull { it.value.instant }?.key
+                ?: return Failure(RandomiseAlreadyUsedFailure("No scores found for player"))
 
         return if (mostRecentHole.value == 9) {
             Failure(RandomiseAlreadyUsedFailure("No more holes left"))
