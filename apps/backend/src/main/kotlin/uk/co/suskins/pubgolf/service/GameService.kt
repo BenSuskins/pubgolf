@@ -26,6 +26,7 @@ import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
+import uk.co.suskins.pubgolf.models.PlayerNotInGameFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.RandomiseResult
@@ -148,6 +149,20 @@ class GameService(
             }
 
     fun getAvailableEvents(): List<GameEvent> = GameEvent.entries.toList()
+
+    fun validatePlayerInGame(
+        gameCode: GameCode,
+        playerId: PlayerId,
+    ): Result<Game, PubGolfFailure> =
+        gameRepository
+            .findByCodeIgnoreCase(gameCode)
+            .flatMap { game ->
+                if (game.players.none { it.matches(playerId) }) {
+                    Failure(PlayerNotInGameFailure("Player `${playerId.value}` does not belong to game `${gameCode.value}`."))
+                } else {
+                    Success(game)
+                }
+            }
 
     fun getActiveEvent(gameCode: GameCode): Result<ActiveEvent?, PubGolfFailure> =
         gameRepository

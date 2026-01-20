@@ -62,10 +62,10 @@
         }
       }
     },
-    "/api/v1/games/{gameCode}/players/{playerId}/scores" : {
+    "/api/v1/games/{gameCode}/scores" : {
       "post" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "submitScore-_YZ3NN4",
+        "operationId" : "submitScore-oU5FXdQ",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -74,12 +74,11 @@
             "type" : "string"
           }
         }, {
-          "name" : "playerId",
-          "in" : "path",
-          "required" : true,
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
           "schema" : {
-            "type" : "string",
-            "format" : "uuid"
+            "type" : "string"
           }
         } ],
         "requestBody" : {
@@ -113,6 +112,16 @@
               }
             }
           },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Game or Player not found",
             "content" : {
@@ -133,13 +142,16 @@
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
       }
     },
-    "/api/v1/games/{gameCode}/players/{playerId}/randomise" : {
+    "/api/v1/games/{gameCode}/randomise" : {
       "post" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "randomise-EHXYgIk",
+        "operationId" : "randomise-fOdNj2Q",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -148,12 +160,11 @@
             "type" : "string"
           }
         }, {
-          "name" : "playerId",
-          "in" : "path",
-          "required" : true,
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
           "schema" : {
-            "type" : "string",
-            "format" : "uuid"
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -169,6 +180,16 @@
           },
           "400" : {
             "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -207,7 +228,10 @@
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
       }
     },
     "/api/v1/games/{gameCode}/join" : {
@@ -294,17 +318,14 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/ActivateEventRequest"
-              }
-            }
-          },
-          "required" : true
-        },
         "responses" : {
           "200" : {
             "description" : "Event activated",
@@ -312,6 +333,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -346,7 +377,10 @@
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
       }
     },
     "/api/v1/games/{gameCode}/events/end" : {
@@ -360,17 +394,14 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/EndEventRequest"
-              }
-            }
-          },
-          "required" : true
-        },
         "responses" : {
           "200" : {
             "description" : "Event ended",
@@ -378,6 +409,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -402,7 +443,10 @@
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
       }
     },
     "/api/v1/games/{gameCode}/complete" : {
@@ -416,17 +460,14 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CompleteGameRequest"
-              }
-            }
-          },
-          "required" : true
-        },
         "responses" : {
           "200" : {
             "description" : "Game completed",
@@ -434,6 +475,16 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -478,7 +529,10 @@
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
       }
     },
     "/api/v1/games/{code}/pubs" : {
@@ -489,6 +543,13 @@
           "name" : "code",
           "in" : "path",
           "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
           "schema" : {
             "type" : "string"
           }
@@ -514,7 +575,10 @@
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
       }
     },
     "/api/v1/places/search" : {
@@ -866,16 +930,6 @@
         },
         "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
       },
-      "ActivateEventRequest" : {
-        "type" : "object",
-        "properties" : {
-          "playerId" : {
-            "type" : "string",
-            "format" : "uuid"
-          }
-        },
-        "required" : [ "playerId" ]
-      },
       "ActiveEventResponse" : {
         "type" : "object",
         "properties" : {
@@ -997,26 +1051,6 @@
         },
         "required" : [ "value" ]
       },
-      "EndEventRequest" : {
-        "type" : "object",
-        "properties" : {
-          "playerId" : {
-            "type" : "string",
-            "format" : "uuid"
-          }
-        },
-        "required" : [ "playerId" ]
-      },
-      "CompleteGameRequest" : {
-        "type" : "object",
-        "properties" : {
-          "playerId" : {
-            "type" : "string",
-            "format" : "uuid"
-          }
-        },
-        "required" : [ "playerId" ]
-      },
       "PubDto" : {
         "type" : "object",
         "properties" : {
@@ -1049,13 +1083,9 @@
             },
             "maxItems" : 9,
             "minItems" : 9
-          },
-          "playerId" : {
-            "type" : "string",
-            "format" : "uuid"
           }
         },
-        "required" : [ "playerId", "pubs" ]
+        "required" : [ "pubs" ]
       },
       "EventResponse" : {
         "type" : "object",
@@ -1176,6 +1206,14 @@
           }
         },
         "required" : [ "penalties" ]
+      }
+    },
+    "securitySchemes" : {
+      "PlayerIdHeader" : {
+        "type" : "apiKey",
+        "description" : "Player ID obtained from creating or joining a game",
+        "name" : "PubGolf-Player-Id",
+        "in" : "header"
       }
     }
   }

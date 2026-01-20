@@ -18,4 +18,15 @@ class OpenAPIConfig {
                     .contact(Contact().name("Ben Suskins").email("development@suskins.co.uk"))
                     .description("API's to power Pub Golf Application"),
             )
+            .components(
+                io.swagger.v3.oas.models.Components()
+                    .addSecuritySchemes(
+                        "PlayerIdHeader",
+                        io.swagger.v3.oas.models.security.SecurityScheme()
+                            .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.APIKEY)
+                            .`in`(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
+                            .name("PubGolf-Player-Id")
+                            .description("Player ID obtained from creating or joining a game"),
+                    ),
+            )
 }

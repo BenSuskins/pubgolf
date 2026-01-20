@@ -65,8 +65,8 @@ class GameScoreSubmission : ScenarioTest() {
         gameCode: String,
     ) {
         val restClientException = response.get() as RestClientException
-        assertTrue(restClientException.message!!.contains("404 Not Found"))
-        assertTrue(restClientException.message!!.contains("Player `$playerId` not found for game `$gameCode`."))
+        assertTrue(restClientException.message!!.contains("403 Forbidden"))
+        assertTrue(restClientException.message!!.contains("does not belong to game"))
     }
 
     private fun scoreSubmittedFailed(response: Result<ResponseEntity<String>, Exception>) {

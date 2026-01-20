@@ -26,10 +26,6 @@ data class ScoreRequest(
     val penaltyType: PenaltyType? = null,
 )
 
-data class CompleteGameRequest(
-    val playerId: PlayerId,
-)
-
 data class CreateGameResponse(
     val gameId: GameId,
     val gameCode: GameCode,
@@ -132,14 +128,6 @@ data class ActiveEventStateResponse(
     val activeEvent: ActiveEventResponse?,
 )
 
-data class ActivateEventRequest(
-    val playerId: PlayerId,
-)
-
-data class EndEventRequest(
-    val playerId: PlayerId,
-)
-
 data class PlaceSearchResult(
     val name: String,
     val latitude: Double,
@@ -161,7 +149,6 @@ data class SetPubsRequest(
     @field:Size(min = 9, max = 9, message = "Exactly 9 pubs are required")
     @field:Valid
     val pubs: List<PubDto>,
-    val playerId: PlayerId,
 )
 
 data class PubLocationResponse(

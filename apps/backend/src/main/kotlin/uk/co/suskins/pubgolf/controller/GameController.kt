@@ -1,5 +1,6 @@
 package uk.co.suskins.pubgolf.controller
 
+import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -17,19 +19,18 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.co.suskins.pubgolf.models.ActivateEventRequest
 import uk.co.suskins.pubgolf.models.ActiveEventResponse
 import uk.co.suskins.pubgolf.models.ActiveEventStateResponse
-import uk.co.suskins.pubgolf.models.CompleteGameRequest
 import uk.co.suskins.pubgolf.models.CreateGameResponse
-import uk.co.suskins.pubgolf.models.EndEventRequest
 import uk.co.suskins.pubgolf.models.ErrorResponse
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
@@ -46,6 +47,7 @@ import uk.co.suskins.pubgolf.models.HoleResponse
 import uk.co.suskins.pubgolf.models.InvalidHostFailure
 import uk.co.suskins.pubgolf.models.InvalidPubCountFailure
 import uk.co.suskins.pubgolf.models.JoinGameResponse
+import uk.co.suskins.pubgolf.models.MissingPlayerIdHeaderFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.OutcomeResponse
 import uk.co.suskins.pubgolf.models.Outcomes
@@ -57,6 +59,7 @@ import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
+import uk.co.suskins.pubgolf.models.PlayerNotInGameFailure
 import uk.co.suskins.pubgolf.models.PlayerResponse
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.PubLocationResponse
@@ -250,7 +253,8 @@ class GameController(
             .mapFailure { resolveFailure(it) }
             .get()
 
-    @PostMapping("/{gameCode}/players/{playerId}/scores")
+    @PostMapping("/{gameCode}/scores")
+    @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -260,6 +264,16 @@ class GameController(
             ApiResponse(
                 responseCode = "400",
                 description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Missing or invalid player ID header",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -290,17 +304,23 @@ class GameController(
     )
     fun submitScore(
         @PathVariable("gameCode") gameCode: GameCode,
-        @PathVariable("playerId") playerId: PlayerId,
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody scoreRequest: ScoreRequest,
-    ): ResponseEntity<*> =
-        gameService
-            .submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
+    ): ResponseEntity<*> {
+        val playerId = parsePlayerIdHeader(playerIdHeader)
+        return gameService
+            .validatePlayerInGame(gameCode, playerId)
+            .flatMap {
+                gameService.submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
+            }
             .map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
             }.get()
+    }
 
-    @PostMapping("/{gameCode}/players/{playerId}/randomise")
+    @PostMapping("/{gameCode}/randomise")
+    @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -316,6 +336,16 @@ class GameController(
             ApiResponse(
                 responseCode = "400",
                 description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Missing or invalid player ID header",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -356,10 +386,12 @@ class GameController(
     )
     fun randomise(
         @PathVariable("gameCode") gameCode: GameCode,
-        @PathVariable("playerId") playerId: PlayerId,
-    ): ResponseEntity<*> =
-        gameService
-            .randomise(gameCode, playerId)
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+    ): ResponseEntity<*> {
+        val playerId = parsePlayerIdHeader(playerIdHeader)
+        return gameService
+            .validatePlayerInGame(gameCode, playerId)
+            .flatMap { gameService.randomise(gameCode, playerId) }
             .map {
                 RandomiseResponse(
                     it.result,
@@ -370,8 +402,10 @@ class GameController(
             }.mapFailure {
                 resolveFailure(it)
             }.get()
+    }
 
     @PostMapping("/{gameCode}/complete")
+    @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -381,6 +415,16 @@ class GameController(
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Missing or invalid player ID header",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
                     ),
                 ],
             ),
@@ -427,14 +471,17 @@ class GameController(
     )
     fun completeGame(
         @PathVariable("gameCode") gameCode: GameCode,
-        @Valid @RequestBody request: CompleteGameRequest,
-    ): ResponseEntity<*> =
-        gameService
-            .completeGame(gameCode, request.playerId)
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+    ): ResponseEntity<*> {
+        val playerId = parsePlayerIdHeader(playerIdHeader)
+        return gameService
+            .validatePlayerInGame(gameCode, playerId)
+            .flatMap { gameService.completeGame(gameCode, playerId) }
             .map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
+    }
 
     @GetMapping("/randomise-options")
     @ApiResponses(
@@ -588,6 +635,7 @@ class GameController(
             }.get()
 
     @PostMapping("/{gameCode}/events/{eventId}/activate")
+    @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -597,6 +645,16 @@ class GameController(
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Missing or invalid player ID header",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
                     ),
                 ],
             ),
@@ -635,16 +693,20 @@ class GameController(
     fun activateEvent(
         @PathVariable("gameCode") gameCode: GameCode,
         @PathVariable("eventId") eventId: String,
-        @Valid @RequestBody request: ActivateEventRequest,
-    ): ResponseEntity<*> =
-        gameService
-            .activateEvent(gameCode, request.playerId, eventId)
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+    ): ResponseEntity<*> {
+        val playerId = parsePlayerIdHeader(playerIdHeader)
+        return gameService
+            .validatePlayerInGame(gameCode, playerId)
+            .flatMap { gameService.activateEvent(gameCode, playerId, eventId) }
             .map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
+    }
 
     @PostMapping("/{gameCode}/events/end")
+    @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -654,6 +716,16 @@ class GameController(
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Missing or invalid player ID header",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
                     ),
                 ],
             ),
@@ -681,27 +753,34 @@ class GameController(
     )
     fun endEvent(
         @PathVariable("gameCode") gameCode: GameCode,
-        @Valid @RequestBody request: EndEventRequest,
-    ): ResponseEntity<*> =
-        gameService
-            .endEvent(gameCode, request.playerId)
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+    ): ResponseEntity<*> {
+        val playerId = parsePlayerIdHeader(playerIdHeader)
+        return gameService
+            .validatePlayerInGame(gameCode, playerId)
+            .flatMap { gameService.endEvent(gameCode, playerId) }
             .map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
+    }
 
     @PostMapping("/{code}/pubs")
+    @SecurityRequirement(name = "PlayerIdHeader")
     fun setPubs(
         @PathVariable code: String,
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: SetPubsRequest,
-    ): ResponseEntity<out Any> =
-        pubRouteService
-            .setPubsForGame(GameCode(code), request.playerId, request.pubs)
+    ): ResponseEntity<out Any> {
+        val playerId = parsePlayerIdHeader(playerIdHeader)
+        return pubRouteService
+            .setPubsForGame(GameCode(code), playerId, request.pubs)
             .map {
                 ResponseEntity.status(CREATED).build<Any>()
             }.mapFailure {
                 resolveFailure(it)
             }.get()
+    }
 
     @GetMapping("/{code}/route")
     fun getRoute(
@@ -735,6 +814,17 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
+    private fun parsePlayerIdHeader(playerIdHeader: String?): PlayerId {
+        if (playerIdHeader == null) {
+            throw uk.co.suskins.pubgolf.config.MissingPlayerIdHeaderException("Missing required header: PubGolf-Player-Id")
+        }
+        return try {
+            PlayerId(java.util.UUID.fromString(playerIdHeader))
+        } catch (e: IllegalArgumentException) {
+            throw uk.co.suskins.pubgolf.config.MissingPlayerIdHeaderException("Invalid player ID format in header: $playerIdHeader")
+        }
+    }
+
     private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
         logger.error("Failure `${it.message}` occurred.")
         return when (it) {
@@ -749,6 +839,8 @@ class GameController(
             is PubsAlreadySetFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is NotHostPlayerFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
             is InvalidHostFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
+            is MissingPlayerIdHeaderFailure -> ResponseEntity.status(UNAUTHORIZED).body(it.asErrorResponse())
+            is PlayerNotInGameFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }

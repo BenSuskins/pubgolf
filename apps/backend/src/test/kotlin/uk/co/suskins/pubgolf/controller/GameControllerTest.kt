@@ -5,7 +5,6 @@ import com.natpryce.hamkrest.equalTo
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
-import uk.co.suskins.pubgolf.models.CompleteGameRequest
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
@@ -32,7 +31,7 @@ class GameControllerTest {
     private val gameStateBroadcaster = GameStateBroadcasterFake()
     private val gameService = GameService(gameRepository, gameMetrics, gameStateBroadcaster)
     private val routingService = RoutingServiceFake()
-    private val pubRouteService = PubRouteService(gameRepository, pubRepository, routingService)
+    private val pubRouteService = PubRouteService(gameRepository, pubRepository, routingService, gameService)
     private val controller = GameController(gameService, pubRouteService)
 
     @Test
@@ -43,7 +42,7 @@ class GameControllerTest {
     }
 
     @Test
-    fun `returns 404 NOT_FOUND when player not found`() {
+    fun `returns 403 FORBIDDEN when player not in game`() {
         val game =
             Game(
                 id = GameId.random(),
@@ -55,11 +54,11 @@ class GameControllerTest {
         val response =
             controller.submitScore(
                 GameCode("ACE007"),
-                PlayerId.random(),
+                PlayerId.random().value.toString(),
                 ScoreRequest(Hole(1), Score(5)),
             )
 
-        assertThat(response.statusCode, equalTo(HttpStatus.NOT_FOUND))
+        assertThat(response.statusCode, equalTo(HttpStatus.FORBIDDEN))
     }
 
     @Test
@@ -94,7 +93,7 @@ class GameControllerTest {
         gameService.submitScore(GameCode("ACE007"), player.id, Hole(1), Score(5))
         gameService.randomise(GameCode("ACE007"), player.id)
 
-        val response = controller.randomise(GameCode("ACE007"), player.id)
+        val response = controller.randomise(GameCode("ACE007"), player.id.value.toString())
 
         assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
     }
@@ -111,7 +110,7 @@ class GameControllerTest {
         gameRepository.save(game)
         gameService.submitScore(GameCode("ACE007"), player.id, Hole(9), Score(5))
 
-        val response = controller.randomise(GameCode("ACE007"), player.id)
+        val response = controller.randomise(GameCode("ACE007"), player.id.value.toString())
 
         assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
     }
@@ -129,7 +128,7 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.completeGame(GameCode("ACE007"), CompleteGameRequest(hostPlayer.id))
+        val response = controller.completeGame(GameCode("ACE007"), hostPlayer.id.value.toString())
 
         assertThat(response.statusCode, equalTo(HttpStatus.OK))
     }
@@ -148,7 +147,7 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.completeGame(GameCode("ACE007"), CompleteGameRequest(otherPlayer.id))
+        val response = controller.completeGame(GameCode("ACE007"), otherPlayer.id.value.toString())
 
         assertThat(response.statusCode, equalTo(HttpStatus.FORBIDDEN))
     }
@@ -166,7 +165,7 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.completeGame(GameCode("ACE007"), CompleteGameRequest(hostPlayer.id))
+        val response = controller.completeGame(GameCode("ACE007"), hostPlayer.id.value.toString())
 
         assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
     }

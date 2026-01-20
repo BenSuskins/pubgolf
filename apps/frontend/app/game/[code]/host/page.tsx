@@ -33,6 +33,7 @@ export default function HostPanelPage() {
 
   useGameWebSocket({
     gameCode,
+    playerId: getPlayerId(),
     onGameStateUpdate: handleGameStateUpdate,
     enabled: !loading && gameStatus !== 'COMPLETED',
   });

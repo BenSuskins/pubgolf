@@ -27,6 +27,7 @@ class PubRouteService(
     private val gameRepository: GameRepository,
     private val pubRepository: PubRepository,
     private val routingService: RoutingService,
+    private val gameService: GameService,
 ) {
     private val logger = LoggerFactory.getLogger(PubRouteService::class.java)
 
@@ -36,7 +37,7 @@ class PubRouteService(
         pubDtos: List<PubDto>,
     ): Result<Game, PubGolfFailure> =
         validatePubCount(pubDtos)
-            .flatMap { gameRepository.findByCodeIgnoreCase(gameCode) }
+            .flatMap { gameService.validatePlayerInGame(gameCode, hostPlayerId) }
             .flatMap { game -> validateHost(game, hostPlayerId) }
             .flatMap { game -> validateNoPubsSet(game) }
             .flatMap { game ->

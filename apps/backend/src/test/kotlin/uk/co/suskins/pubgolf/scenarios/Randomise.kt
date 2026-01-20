@@ -68,7 +68,7 @@ class Randomise : ScenarioTest() {
         val response = submitScore(game.gameCode(), playerId, 1, 1)
 
         val restClientException = response.get() as RestClientException
-        assertTrue(restClientException.message!!.contains("404 Not Found"))
-        assertTrue(restClientException.message!!.contains("Player `$playerId` not found for game `${game.gameCode()}`."))
+        assertTrue(restClientException.message!!.contains("403 Forbidden"))
+        assertTrue(restClientException.message!!.contains("Player `$playerId` does not belong to game `${game.gameCode()}`."))
     }
 }

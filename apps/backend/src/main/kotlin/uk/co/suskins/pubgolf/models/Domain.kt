@@ -204,6 +204,14 @@ data class RoutingFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class MissingPlayerIdHeaderFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class PlayerNotInGameFailure(
+    override val message: String,
+) : PubGolfFailure
+
 data class RouteHole(
     val hole: Int,
     val par: Int,

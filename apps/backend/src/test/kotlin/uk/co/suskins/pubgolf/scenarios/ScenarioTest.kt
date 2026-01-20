@@ -64,7 +64,8 @@ abstract class ScenarioTest {
     ) = resultFrom {
         restClient
             .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/randomise")
+            .uri("http://localhost:8080/api/v1/games/$gameCode/randomise")
+            .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
             .contentType(MediaType.APPLICATION_JSON)
             .retrieve()
             .toEntity(String::class.java)
@@ -94,7 +95,8 @@ abstract class ScenarioTest {
             }
         restClient
             .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/players/$playerId/scores")
+            .uri("http://localhost:8080/api/v1/games/$gameCode/scores")
+            .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
             .contentType(MediaType.APPLICATION_JSON)
             .body(body)
             .retrieve()
@@ -118,6 +120,46 @@ abstract class ScenarioTest {
                 .retrieve()
                 .toEntity(String::class.java)
         }
+
+    fun completeGame(
+        gameCode: String?,
+        playerId: String?,
+    ) = resultFrom {
+        restClient
+            .post()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/complete")
+            .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
+            .contentType(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .toEntity(String::class.java)
+    }
+
+    fun activateEvent(
+        gameCode: String?,
+        playerId: String?,
+        eventId: String?,
+    ) = resultFrom {
+        restClient
+            .post()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/events/$eventId/activate")
+            .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
+            .contentType(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .toEntity(String::class.java)
+    }
+
+    fun endEvent(
+        gameCode: String?,
+        playerId: String?,
+    ) = resultFrom {
+        restClient
+            .post()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/events/end")
+            .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
+            .contentType(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .toEntity(String::class.java)
+    }
 
     fun gameOfTenPlayers(host: String): Result<ResponseEntity<String>, Exception> {
         val game = createGame(host)

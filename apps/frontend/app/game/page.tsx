@@ -68,6 +68,7 @@ export default function GamePage() {
 
   useGameWebSocket({
     gameCode,
+    playerId: getPlayerId(),
     onGameStateUpdate: handleGameStateUpdate,
     enabled: !loading && status !== 'COMPLETED',
   });

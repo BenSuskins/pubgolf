@@ -19,6 +19,17 @@ async function handleResponse<T>(response: Response): Promise<T> {
     } catch {
       message = text || 'Request failed';
     }
+
+    // Handle 401 by clearing local storage and redirecting
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('playerId');
+        localStorage.removeItem('gameCode');
+        localStorage.removeItem('playerName');
+        window.location.href = '/';
+      }
+    }
+
     throw new ApiError(response.status, message);
   }
 
@@ -27,6 +38,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
   }
 
   return response.json();
+}
+
+function getAuthHeaders(playerId: string | null): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (playerId) {
+    headers['PubGolf-Player-Id'] = playerId;
+  }
+  return headers;
 }
 
 async function fetchWithRetry<T>(
@@ -98,10 +117,10 @@ export async function submitScore(
     body.penaltyType = penaltyType;
   }
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/games/${gameCode}/players/${playerId}/scores`,
+    `${API_BASE_URL}/api/v1/games/${gameCode}/scores`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(playerId),
       body: JSON.stringify(body),
     }
   );
@@ -153,10 +172,10 @@ export async function spinWheel(
   playerId: string
 ): Promise<SpinWheelResponse> {
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/games/${gameCode}/players/${playerId}/randomise`,
+    `${API_BASE_URL}/api/v1/games/${gameCode}/randomise`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(playerId),
     }
   );
   return handleResponse<SpinWheelResponse>(response);
@@ -165,8 +184,7 @@ export async function spinWheel(
 export async function completeGame(gameCode: string, playerId: string): Promise<GameState> {
   const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/complete`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ playerId }),
+    headers: getAuthHeaders(playerId),
   });
   return handleResponse<GameState>(response);
 }
@@ -204,8 +222,7 @@ export async function activateEvent(
     `${API_BASE_URL}/api/v1/games/${gameCode}/events/${eventId}/activate`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playerId }),
+      headers: getAuthHeaders(playerId),
     }
   );
   return handleResponse<GameState>(response);
@@ -214,8 +231,7 @@ export async function activateEvent(
 export async function endEvent(gameCode: string, playerId: string): Promise<GameState> {
   const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/end`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ playerId }),
+    headers: getAuthHeaders(playerId),
   });
   return handleResponse<GameState>(response);
 }
@@ -245,8 +261,8 @@ export async function setPubs(
 ): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/pubs`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ playerId, pubs }),
+    headers: getAuthHeaders(playerId),
+    body: JSON.stringify({ pubs }),
   });
   return handleResponse<void>(response);
 }

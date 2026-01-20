@@ -10,6 +10,7 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 
 interface UseGameWebSocketOptions {
   gameCode: string | null;
+  playerId: string | null;
   onGameStateUpdate: (state: GameState) => void;
   enabled?: boolean;
 }
@@ -21,6 +22,7 @@ interface UseGameWebSocketResult {
 
 export function useGameWebSocket({
   gameCode,
+  playerId,
   onGameStateUpdate,
   enabled = true,
 }: UseGameWebSocketOptions): UseGameWebSocketResult {
@@ -39,6 +41,7 @@ export function useGameWebSocket({
 
     const client = new Client({
       webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws`),
+      connectHeaders: playerId ? { 'PubGolf-Player-Id': playerId } : {},
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -74,7 +77,7 @@ export function useGameWebSocket({
 
     client.activate();
     clientRef.current = client;
-  }, [gameCode, enabled]);
+  }, [gameCode, playerId, enabled]);
 
   useEffect(() => {
     connect();

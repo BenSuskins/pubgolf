@@ -13,7 +13,7 @@ class CorsConfig(
             .addMapping("/**")
             .allowedOrigins(*applicationProperties.origins.toTypedArray())
             .allowedMethods("GET", "POST", "OPTIONS")
-            .allowedHeaders("*")
+            .allowedHeaders("Content-Type", "PubGolf-Player-Id")
             .allowCredentials(true)
     }
 }
