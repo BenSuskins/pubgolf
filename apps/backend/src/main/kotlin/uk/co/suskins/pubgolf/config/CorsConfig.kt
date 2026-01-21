@@ -12,7 +12,7 @@ class CorsConfig(
         registry
             .addMapping("/**")
             .allowedOrigins(*applicationProperties.origins.toTypedArray())
-            .allowedMethods("GET", "POST", "OPTIONS")
+            .allowedMethods("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("Content-Type", "PubGolf-Player-Id")
             .allowCredentials(true)
     }
