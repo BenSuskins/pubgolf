@@ -36,7 +36,6 @@ import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.EventResponse
 import uk.co.suskins.pubgolf.models.EventsResponse
-import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameJoinRequest
@@ -54,18 +53,15 @@ import uk.co.suskins.pubgolf.models.Outcomes
 import uk.co.suskins.pubgolf.models.OutcomesResponse
 import uk.co.suskins.pubgolf.models.PenaltyOptionResponse
 import uk.co.suskins.pubgolf.models.PenaltyOptionsResponse
-import uk.co.suskins.pubgolf.models.PenaltyResponse
 import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PlayerNotInGameFailure
-import uk.co.suskins.pubgolf.models.PlayerResponse
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.PubLocationResponse
 import uk.co.suskins.pubgolf.models.PubsAlreadySetFailure
 import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
-import uk.co.suskins.pubgolf.models.RandomiseOutcomeResponse
 import uk.co.suskins.pubgolf.models.RandomiseResponse
 import uk.co.suskins.pubgolf.models.RouteGeometryResponse
 import uk.co.suskins.pubgolf.models.RouteResponse
@@ -73,6 +69,7 @@ import uk.co.suskins.pubgolf.models.Routes
 import uk.co.suskins.pubgolf.models.RoutesResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.models.SetPubsRequest
+import uk.co.suskins.pubgolf.models.toGameStateResponse
 import uk.co.suskins.pubgolf.service.GameService
 import uk.co.suskins.pubgolf.service.PubRouteService
 
@@ -844,35 +841,4 @@ class GameController(
             else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
         }
     }
-
-    private fun Game.toGameStateResponse(): GameStateResponse =
-        GameStateResponse(
-            id,
-            code,
-            status,
-            hostPlayerId,
-            players
-                .map { player ->
-                    PlayerResponse(
-                        player.id,
-                        player.name,
-                        player.scores.map { it.value.score },
-                        player.scores.values.sumOf { it.score.value },
-                        player.randomise?.let {
-                            RandomiseOutcomeResponse(it.hole, it.result.label)
-                        },
-                        player.penalties.map { penalty ->
-                            PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
-                        },
-                    )
-                }.sortedBy { it.totalScore },
-            activeEvent?.let { event ->
-                ActiveEventResponse(
-                    event.event.id,
-                    event.event.title,
-                    event.event.description,
-                    event.activatedAt,
-                )
-            },
-        )
 }

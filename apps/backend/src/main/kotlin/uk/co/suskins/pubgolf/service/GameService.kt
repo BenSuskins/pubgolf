@@ -55,7 +55,6 @@ class GameService(
 
         return gameRepository
             .save(game)
-            .map { it }
             .peek { logger.info("Game ${it.code.value} created.") }
             .also { gameMetrics.gameCreated() }
     }
@@ -313,12 +312,10 @@ class GameService(
     private fun hasUsedRandomise(
         game: Game,
         playerId: PlayerId,
-    ): Result<Game, PubGolfFailure> {
-        val find = game.players.find { it.id == playerId }
-        return if (find?.randomise == null) {
+    ): Result<Game, PubGolfFailure> =
+        if (game.players.find { it.id == playerId }?.randomise == null) {
             Success(game)
         } else {
             Failure(RandomiseAlreadyUsedFailure("Randomise already used"))
         }
-    }
 }

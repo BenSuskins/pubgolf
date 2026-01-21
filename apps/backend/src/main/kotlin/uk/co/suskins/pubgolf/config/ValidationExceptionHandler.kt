@@ -26,22 +26,14 @@ class ValidationExceptionHandler {
     }
 
     @ExceptionHandler(MissingPlayerIdHeaderException::class)
-    fun handleMissingPlayerId(e: MissingPlayerIdHeaderException): ResponseEntity<ErrorResponse> =
+    fun handleMissingPlayerId(exception: MissingPlayerIdHeaderException): ResponseEntity<ErrorResponse> =
         ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(e.message ?: "Unauthorized"))
+            .body(ErrorResponse(exception.message ?: "Unauthorized"))
 
     @ExceptionHandler(ServletRequestBindingException::class)
-    fun handleServletRequestBinding(e: ServletRequestBindingException): ResponseEntity<ErrorResponse> {
-        // If it's our custom exception, return 401
-        if (e is MissingPlayerIdHeaderException) {
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ErrorResponse(e.message ?: "Unauthorized"))
-        }
-        // Otherwise, return 400 for other binding exceptions
-        return ResponseEntity
+    fun handleServletRequestBinding(exception: ServletRequestBindingException): ResponseEntity<ErrorResponse> =
+        ResponseEntity
             .badRequest()
-            .body(ErrorResponse(e.message ?: "Bad Request"))
-    }
+            .body(ErrorResponse(exception.message ?: "Bad Request"))
 }

@@ -319,3 +319,38 @@ fun PubEntity.toDomain(): Pub =
         latitude = latitude,
         longitude = longitude,
     )
+
+fun Game.toGameStateResponse(): GameStateResponse =
+    GameStateResponse(
+        gameId = id,
+        gameCode = code,
+        status = status,
+        hostPlayerId = hostPlayerId,
+        players =
+            players
+                .map { player ->
+                    PlayerResponse(
+                        id = player.id,
+                        name = player.name,
+                        scores = player.scores.map { it.value.score },
+                        totalScore = player.scores.values.sumOf { it.score.value },
+                        randomise =
+                            player.randomise?.let {
+                                RandomiseOutcomeResponse(it.hole, it.result.label)
+                            },
+                        penalties =
+                            player.penalties.map { penalty ->
+                                PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
+                            },
+                    )
+                }.sortedBy { it.totalScore },
+        activeEvent =
+            activeEvent?.let {
+                ActiveEventResponse(
+                    id = it.event.id,
+                    title = it.event.title,
+                    description = it.event.description,
+                    activatedAt = it.activatedAt,
+                )
+            },
+    )

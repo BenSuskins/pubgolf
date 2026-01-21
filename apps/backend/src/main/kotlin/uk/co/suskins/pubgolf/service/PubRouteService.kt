@@ -5,6 +5,8 @@ import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Success
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.peekFailure
+import dev.forkhandles.result4k.recover
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.Game
@@ -94,14 +96,9 @@ class PubRouteService(
             Failure(InvalidPubCountFailure("Exactly 9 pubs are required, but ${pubDtos.size} were provided"))
         }
 
-    private fun calculateRoute(pubs: List<Pub>): RouteGeometry? {
-        val result = routingService.calculateRoute(pubs)
-        return when (result) {
-            is Success -> result.value
-            is Failure -> {
-                logger.warn("Failed to calculate route, continuing without route: ${result.reason.message}")
-                null
-            }
-        }
-    }
+    private fun calculateRoute(pubs: List<Pub>): RouteGeometry? =
+        routingService
+            .calculateRoute(pubs)
+            .peekFailure { logger.warn("Failed to calculate route, continuing without route: ${it.message}") }
+            .recover { null }
 }
