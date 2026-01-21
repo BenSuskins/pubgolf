@@ -71,7 +71,7 @@ async function fetchWithRetry<T>(
 
 export async function getRoutes(): Promise<RoutesResponse> {
   return fetchWithRetry(async () => {
-    const response = await fetch(`${API_BASE_URL}/api/v1/games/routes`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/config/routes`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -89,7 +89,7 @@ export async function createGame(host: string): Promise<CreateGameResponse> {
 }
 
 export async function joinGame(gameCode: string, name: string): Promise<JoinGameResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/join`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/players`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name }),
@@ -142,7 +142,7 @@ export interface SpinWheelResponse {
 }
 
 export async function getRandomiseOptions(): Promise<WheelOptionsResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/games/randomise-options`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/config/randomise-options`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -160,7 +160,7 @@ export interface PenaltyOptionsResponse {
 }
 
 export async function getPenaltyOptions(): Promise<PenaltyOptionsResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/games/penalty-options`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/config/penalty-options`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -182,9 +182,10 @@ export async function spinWheel(
 }
 
 export async function completeGame(gameCode: string, playerId: string): Promise<GameState> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/complete`, {
-    method: 'POST',
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}`, {
+    method: 'PATCH',
     headers: getAuthHeaders(playerId),
+    body: JSON.stringify({ status: 'COMPLETED' }),
   });
   return handleResponse<GameState>(response);
 }
@@ -219,18 +220,19 @@ export async function activateEvent(
   playerId: string
 ): Promise<GameState> {
   const response = await fetch(
-    `${API_BASE_URL}/api/v1/games/${gameCode}/events/${eventId}/activate`,
+    `${API_BASE_URL}/api/v1/games/${gameCode}/active-event`,
     {
-      method: 'POST',
+      method: 'PUT',
       headers: getAuthHeaders(playerId),
+      body: JSON.stringify({ eventId }),
     }
   );
   return handleResponse<GameState>(response);
 }
 
 export async function endEvent(gameCode: string, playerId: string): Promise<GameState> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/end`, {
-    method: 'POST',
+  const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/active-event`, {
+    method: 'DELETE',
     headers: getAuthHeaders(playerId),
   });
   return handleResponse<GameState>(response);
@@ -260,7 +262,7 @@ export async function setPubs(
   pubs: Pub[]
 ): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/v1/games/${gameCode}/pubs`, {
-    method: 'POST',
+    method: 'PUT',
     headers: getAuthHeaders(playerId),
     body: JSON.stringify({ pubs }),
   });

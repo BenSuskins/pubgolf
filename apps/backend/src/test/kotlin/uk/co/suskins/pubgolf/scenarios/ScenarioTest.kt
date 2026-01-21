@@ -42,7 +42,7 @@ abstract class ScenarioTest {
     ) = resultFrom {
         restClient
             .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/join")
+            .uri("http://localhost:8080/api/v1/games/$gameCode/players")
             .contentType(MediaType.APPLICATION_JSON)
             .body(name?.let { """{ "name": "$name"}""" } ?: "")
             .retrieve()
@@ -75,7 +75,7 @@ abstract class ScenarioTest {
         resultFrom {
             restClient
                 .get()
-                .uri("http://localhost:8080/api/v1/games/randomise-options")
+                .uri("http://localhost:8080/api/v1/config/randomise-options")
                 .retrieve()
                 .toEntity(String::class.java)
         }
@@ -107,7 +107,7 @@ abstract class ScenarioTest {
         resultFrom {
             restClient
                 .get()
-                .uri("http://localhost:8080/api/v1/games/penalty-options")
+                .uri("http://localhost:8080/api/v1/config/penalty-options")
                 .retrieve()
                 .toEntity(String::class.java)
         }
@@ -116,7 +116,7 @@ abstract class ScenarioTest {
         resultFrom {
             restClient
                 .get()
-                .uri("http://localhost:8080/api/v1/games/routes")
+                .uri("http://localhost:8080/api/v1/config/routes")
                 .retrieve()
                 .toEntity(String::class.java)
         }
@@ -126,10 +126,11 @@ abstract class ScenarioTest {
         playerId: String?,
     ) = resultFrom {
         restClient
-            .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/complete")
+            .patch()
+            .uri("http://localhost:8080/api/v1/games/$gameCode")
             .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
             .contentType(MediaType.APPLICATION_JSON)
+            .body("""{"status": "COMPLETED"}""")
             .retrieve()
             .toEntity(String::class.java)
     }
@@ -140,10 +141,11 @@ abstract class ScenarioTest {
         eventId: String?,
     ) = resultFrom {
         restClient
-            .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/events/$eventId/activate")
+            .put()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/active-event")
             .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
             .contentType(MediaType.APPLICATION_JSON)
+            .body(eventId?.let { """{"eventId": "$eventId"}""" } ?: "")
             .retrieve()
             .toEntity(String::class.java)
     }
@@ -153,10 +155,9 @@ abstract class ScenarioTest {
         playerId: String?,
     ) = resultFrom {
         restClient
-            .post()
-            .uri("http://localhost:8080/api/v1/games/$gameCode/events/end")
+            .delete()
+            .uri("http://localhost:8080/api/v1/games/$gameCode/active-event")
             .let { if (playerId != null) it.header("PubGolf-Player-Id", playerId) else it }
-            .contentType(MediaType.APPLICATION_JSON)
             .retrieve()
             .toEntity(String::class.java)
     }

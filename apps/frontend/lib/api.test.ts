@@ -93,7 +93,7 @@ describe('API functions', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
-      expect(url).toContain('/api/v1/games/WXYZ/join');
+      expect(url).toContain('/api/v1/games/WXYZ/players');
       expect(options.method).toBe('POST');
       expect(JSON.parse(options.body as string)).toEqual({ name: 'Test Player' });
       expect(result.gameCode).toBe('WXYZ');
@@ -184,7 +184,7 @@ describe('API functions', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
-      expect(url).toContain('/api/v1/games/randomise-options');
+      expect(url).toContain('/api/v1/config/randomise-options');
       expect(result.options).toHaveLength(2);
     });
   });

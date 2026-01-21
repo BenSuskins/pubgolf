@@ -167,3 +167,12 @@ data class RouteResponse(
     val pubs: List<PubLocationResponse>,
     val route: RouteGeometryResponse?,
 )
+
+data class UpdateGameStatusRequest(
+    val status: GameStatus,
+)
+
+data class SetActiveEventRequest(
+    @field:NotBlank(message = "Event ID must not be blank")
+    val eventId: String,
+)

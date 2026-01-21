@@ -16,6 +16,7 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.models.ScoreRequest
+import uk.co.suskins.pubgolf.models.UpdateGameStatusRequest
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import uk.co.suskins.pubgolf.repository.PubRepositoryFake
 import uk.co.suskins.pubgolf.service.GameMetrics
@@ -128,7 +129,11 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.completeGame(GameCode("ACE007"), hostPlayer.id.value.toString())
+        val response = controller.updateGameStatus(
+            GameCode("ACE007"),
+            hostPlayer.id.value.toString(),
+            UpdateGameStatusRequest(GameStatus.COMPLETED),
+        )
 
         assertThat(response.statusCode, equalTo(HttpStatus.OK))
     }
@@ -147,7 +152,11 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.completeGame(GameCode("ACE007"), otherPlayer.id.value.toString())
+        val response = controller.updateGameStatus(
+            GameCode("ACE007"),
+            otherPlayer.id.value.toString(),
+            UpdateGameStatusRequest(GameStatus.COMPLETED),
+        )
 
         assertThat(response.statusCode, equalTo(HttpStatus.FORBIDDEN))
     }
@@ -165,7 +174,11 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.completeGame(GameCode("ACE007"), hostPlayer.id.value.toString())
+        val response = controller.updateGameStatus(
+            GameCode("ACE007"),
+            hostPlayer.id.value.toString(),
+            UpdateGameStatusRequest(GameStatus.COMPLETED),
+        )
 
         assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
     }

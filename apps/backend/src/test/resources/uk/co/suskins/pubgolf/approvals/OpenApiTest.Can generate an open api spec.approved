@@ -14,6 +14,212 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/v1/games/{gameCode}/pubs" : {
+      "put" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "setPubs-oU5FXdQ",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SetPubsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/games/{gameCode}/active-event" : {
+      "put" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "setActiveEvent-oU5FXdQ",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SetActiveEventRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Event activated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Event already active",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "deleteActiveEvent-fOdNj2Q",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Event ended",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Not the host",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
+      }
+    },
     "/api/v1/games" : {
       "post" : {
         "tags" : [ "game-controller" ],
@@ -234,7 +440,7 @@
         } ]
       }
     },
-    "/api/v1/games/{gameCode}/join" : {
+    "/api/v1/games/{gameCode}/players" : {
       "post" : {
         "tags" : [ "game-controller" ],
         "operationId" : "joinGame-fOdNj2Q",
@@ -300,10 +506,10 @@
         }
       }
     },
-    "/api/v1/games/{gameCode}/events/{eventId}/activate" : {
-      "post" : {
+    "/api/v1/games/{gameCode}" : {
+      "get" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "activateEvent-oU5FXdQ",
+        "operationId" : "gameState-L7I0Y1Y",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -311,24 +517,10 @@
           "schema" : {
             "type" : "string"
           }
-        }, {
-          "name" : "eventId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "PubGolf-Player-Id",
-          "in" : "header",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
         } ],
         "responses" : {
           "200" : {
-            "description" : "Event activated",
+            "description" : "Game state",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -337,94 +529,8 @@
               }
             }
           },
-          "401" : {
-            "description" : "Unauthorized - Missing or invalid player ID header",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Not the host",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Game or event not found",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Event already active",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "PlayerIdHeader" : [ ]
-        } ]
-      }
-    },
-    "/api/v1/games/{gameCode}/events/end" : {
-      "post" : {
-        "tags" : [ "game-controller" ],
-        "operationId" : "endEvent-fOdNj2Q",
-        "parameters" : [ {
-          "name" : "gameCode",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "PubGolf-Player-Id",
-          "in" : "header",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Event ended",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GameStateResponse"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized - Missing or invalid player ID header",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Not the host",
+          "400" : {
+            "description" : "Invalid argument",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -442,17 +548,22 @@
                 }
               }
             }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
-        },
-        "security" : [ {
-          "PlayerIdHeader" : [ ]
-        } ]
-      }
-    },
-    "/api/v1/games/{gameCode}/complete" : {
-      "post" : {
+        }
+      },
+      "patch" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "completeGame-fOdNj2Q",
+        "operationId" : "updateGameStatus-oU5FXdQ",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -468,13 +579,33 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateGameStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
         "responses" : {
           "200" : {
-            "description" : "Game completed",
+            "description" : "Game status updated",
             "content" : {
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -535,52 +666,6 @@
         } ]
       }
     },
-    "/api/v1/games/{code}/pubs" : {
-      "post" : {
-        "tags" : [ "game-controller" ],
-        "operationId" : "setPubs",
-        "parameters" : [ {
-          "name" : "code",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "PubGolf-Player-Id",
-          "in" : "header",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SetPubsRequest"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "PlayerIdHeader" : [ ]
-        } ]
-      }
-    },
     "/api/v1/places/search" : {
       "get" : {
         "tags" : [ "places-controller" ],
@@ -625,10 +710,10 @@
         }
       }
     },
-    "/api/v1/games/{gameCode}" : {
+    "/api/v1/games/{gameCode}/route" : {
       "get" : {
         "tags" : [ "game-controller" ],
-        "operationId" : "gameState-L7I0Y1Y",
+        "operationId" : "getRoute-L7I0Y1Y",
         "parameters" : [ {
           "name" : "gameCode",
           "in" : "path",
@@ -639,41 +724,11 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Game state",
+            "description" : "OK",
             "content" : {
-              "application/json" : {
+              "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/GameStateResponse"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Invalid argument",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Game not found",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponse"
+                  "type" : "object"
                 }
               }
             }
@@ -743,35 +798,9 @@
         }
       }
     },
-    "/api/v1/games/{code}/route" : {
+    "/api/v1/config/routes" : {
       "get" : {
-        "tags" : [ "game-controller" ],
-        "operationId" : "getRoute",
-        "parameters" : [ {
-          "name" : "code",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/games/routes" : {
-      "get" : {
-        "tags" : [ "game-controller" ],
+        "tags" : [ "config-controller" ],
         "operationId" : "routes",
         "responses" : {
           "200" : {
@@ -787,10 +816,10 @@
         }
       }
     },
-    "/api/v1/games/randomise-options" : {
+    "/api/v1/config/randomise-options" : {
       "get" : {
-        "tags" : [ "game-controller" ],
-        "operationId" : "wheelOptions",
+        "tags" : [ "config-controller" ],
+        "operationId" : "randomiseOptions",
         "responses" : {
           "200" : {
             "description" : "Wheel options",
@@ -805,9 +834,9 @@
         }
       }
     },
-    "/api/v1/games/penalty-options" : {
+    "/api/v1/config/penalty-options" : {
       "get" : {
-        "tags" : [ "game-controller" ],
+        "tags" : [ "config-controller" ],
         "operationId" : "penaltyOptions",
         "responses" : {
           "200" : {
@@ -826,109 +855,51 @@
   },
   "components" : {
     "schemas" : {
-      "GameRequest" : {
-        "type" : "object",
-        "properties" : {
-          "host" : {
-            "type" : "string",
-            "minLength" : 1
-          }
-        },
-        "required" : [ "host" ]
-      },
-      "CreateGameResponse" : {
-        "type" : "object",
-        "properties" : {
-          "gameId" : {
-            "type" : "string",
-            "format" : "uuid"
-          },
-          "gameCode" : {
-            "type" : "string"
-          },
-          "playerId" : {
-            "type" : "string",
-            "format" : "uuid"
-          },
-          "playerName" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
-      },
-      "ErrorResponse" : {
-        "type" : "object",
-        "properties" : {
-          "message" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "message" ]
-      },
-      "ScoreRequest" : {
-        "type" : "object",
-        "properties" : {
-          "hole" : {
-            "type" : "integer",
-            "format" : "int32",
-            "maximum" : 9,
-            "minimum" : 1
-          },
-          "score" : {
-            "type" : "integer",
-            "format" : "int32",
-            "maximum" : 10,
-            "minimum" : -10
-          },
-          "penaltyType" : {
-            "type" : "string",
-            "enum" : [ "SKIP", "CHUNDER" ]
-          }
-        },
-        "required" : [ "hole", "score" ]
-      },
-      "RandomiseResponse" : {
-        "type" : "object",
-        "properties" : {
-          "result" : {
-            "type" : "string"
-          },
-          "hole" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        },
-        "required" : [ "hole", "result" ]
-      },
-      "GameJoinRequest" : {
+      "PubDto" : {
         "type" : "object",
         "properties" : {
           "name" : {
             "type" : "string",
             "minLength" : 1
+          },
+          "latitude" : {
+            "type" : "number",
+            "format" : "double",
+            "maximum" : 90,
+            "minimum" : -90
+          },
+          "longitude" : {
+            "type" : "number",
+            "format" : "double",
+            "maximum" : 180,
+            "minimum" : -180
           }
         },
-        "required" : [ "name" ]
+        "required" : [ "latitude", "longitude", "name" ]
       },
-      "JoinGameResponse" : {
+      "SetPubsRequest" : {
         "type" : "object",
         "properties" : {
-          "gameId" : {
-            "type" : "string",
-            "format" : "uuid"
-          },
-          "gameCode" : {
-            "type" : "string"
-          },
-          "playerId" : {
-            "type" : "string",
-            "format" : "uuid"
-          },
-          "playerName" : {
-            "type" : "string"
+          "pubs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PubDto"
+            },
+            "maxItems" : 9,
+            "minItems" : 9
           }
         },
-        "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
+        "required" : [ "pubs" ]
+      },
+      "SetActiveEventRequest" : {
+        "type" : "object",
+        "properties" : {
+          "eventId" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "eventId" ]
       },
       "ActiveEventResponse" : {
         "type" : "object",
@@ -1051,41 +1022,119 @@
         },
         "required" : [ "value" ]
       },
-      "PubDto" : {
+      "ErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "message" ]
+      },
+      "GameRequest" : {
+        "type" : "object",
+        "properties" : {
+          "host" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "host" ]
+      },
+      "CreateGameResponse" : {
+        "type" : "object",
+        "properties" : {
+          "gameId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "gameCode" : {
+            "type" : "string"
+          },
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "playerName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
+      },
+      "ScoreRequest" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 9,
+            "minimum" : 1
+          },
+          "score" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 10,
+            "minimum" : -10
+          },
+          "penaltyType" : {
+            "type" : "string",
+            "enum" : [ "SKIP", "CHUNDER" ]
+          }
+        },
+        "required" : [ "hole", "score" ]
+      },
+      "RandomiseResponse" : {
+        "type" : "object",
+        "properties" : {
+          "result" : {
+            "type" : "string"
+          },
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "hole", "result" ]
+      },
+      "GameJoinRequest" : {
         "type" : "object",
         "properties" : {
           "name" : {
             "type" : "string",
             "minLength" : 1
-          },
-          "latitude" : {
-            "type" : "number",
-            "format" : "double",
-            "maximum" : 90,
-            "minimum" : -90
-          },
-          "longitude" : {
-            "type" : "number",
-            "format" : "double",
-            "maximum" : 180,
-            "minimum" : -180
           }
         },
-        "required" : [ "latitude", "longitude", "name" ]
+        "required" : [ "name" ]
       },
-      "SetPubsRequest" : {
+      "JoinGameResponse" : {
         "type" : "object",
         "properties" : {
-          "pubs" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/PubDto"
-            },
-            "maxItems" : 9,
-            "minItems" : 9
+          "gameId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "gameCode" : {
+            "type" : "string"
+          },
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "playerName" : {
+            "type" : "string"
           }
         },
-        "required" : [ "pubs" ]
+        "required" : [ "gameCode", "gameId", "playerId", "playerName" ]
+      },
+      "UpdateGameStatusRequest" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "enum" : [ "ACTIVE", "COMPLETED" ]
+          }
+        },
+        "required" : [ "status" ]
       },
       "EventResponse" : {
         "type" : "object",

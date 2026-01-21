@@ -21,9 +21,12 @@ import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -42,18 +45,11 @@ import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
-import uk.co.suskins.pubgolf.models.HoleResponse
 import uk.co.suskins.pubgolf.models.InvalidHostFailure
 import uk.co.suskins.pubgolf.models.InvalidPubCountFailure
 import uk.co.suskins.pubgolf.models.JoinGameResponse
 import uk.co.suskins.pubgolf.models.MissingPlayerIdHeaderFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
-import uk.co.suskins.pubgolf.models.OutcomeResponse
-import uk.co.suskins.pubgolf.models.Outcomes
-import uk.co.suskins.pubgolf.models.OutcomesResponse
-import uk.co.suskins.pubgolf.models.PenaltyOptionResponse
-import uk.co.suskins.pubgolf.models.PenaltyOptionsResponse
-import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
@@ -65,10 +61,10 @@ import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.RandomiseResponse
 import uk.co.suskins.pubgolf.models.RouteGeometryResponse
 import uk.co.suskins.pubgolf.models.RouteResponse
-import uk.co.suskins.pubgolf.models.Routes
-import uk.co.suskins.pubgolf.models.RoutesResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
+import uk.co.suskins.pubgolf.models.SetActiveEventRequest
 import uk.co.suskins.pubgolf.models.SetPubsRequest
+import uk.co.suskins.pubgolf.models.UpdateGameStatusRequest
 import uk.co.suskins.pubgolf.models.toGameStateResponse
 import uk.co.suskins.pubgolf.service.GameService
 import uk.co.suskins.pubgolf.service.PubRouteService
@@ -133,7 +129,7 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
-    @PostMapping("/{gameCode}/join")
+    @PostMapping("/{gameCode}/players")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -401,17 +397,27 @@ class GameController(
             }.get()
     }
 
-    @PostMapping("/{gameCode}/complete")
+    @PatchMapping("/{gameCode}")
     @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Game completed",
+                description = "Game status updated",
                 content = [
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
                     ),
                 ],
             ),
@@ -466,9 +472,10 @@ class GameController(
             ),
         ],
     )
-    fun completeGame(
+    fun updateGameStatus(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+        @Valid @RequestBody request: UpdateGameStatusRequest,
     ): ResponseEntity<*> {
         val playerId = parsePlayerIdHeader(playerIdHeader)
         return gameService
@@ -479,78 +486,6 @@ class GameController(
             .mapFailure { resolveFailure(it) }
             .get()
     }
-
-    @GetMapping("/randomise-options")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Wheel options",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = OutcomesResponse::class),
-                    ),
-                ],
-            ),
-        ],
-    )
-    fun wheelOptions(): ResponseEntity<*> =
-        ResponseEntity
-            .status(OK)
-            .body(OutcomesResponse(Outcomes.entries.map { OutcomeResponse(it.label, it.weight) }))
-
-    @GetMapping("/penalty-options")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Penalty options",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = PenaltyOptionsResponse::class),
-                    ),
-                ],
-            ),
-        ],
-    )
-    fun penaltyOptions(): ResponseEntity<*> =
-        ResponseEntity
-            .status(OK)
-            .body(
-                PenaltyOptionsResponse(
-                    PenaltyType.entries.map {
-                        PenaltyOptionResponse(it.name, it.label, it.points)
-                    },
-                ),
-            )
-
-    @GetMapping("/routes")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Drink routes for each hole",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = RoutesResponse::class),
-                    ),
-                ],
-            ),
-        ],
-    )
-    fun routes(): ResponseEntity<*> =
-        ResponseEntity
-            .status(OK)
-            .body(
-                RoutesResponse(
-                    Routes.holes.map {
-                        HoleResponse(it.hole, it.par, it.drinks)
-                    },
-                ),
-            )
 
     @GetMapping("/{gameCode}/events")
     @ApiResponses(
@@ -631,7 +566,7 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
-    @PostMapping("/{gameCode}/events/{eventId}/activate")
+    @PutMapping("/{gameCode}/active-event")
     @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
@@ -642,6 +577,16 @@ class GameController(
                     Content(
                         mediaType = "application/json",
                         schema = Schema(implementation = GameStateResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
                     ),
                 ],
             ),
@@ -687,22 +632,22 @@ class GameController(
             ),
         ],
     )
-    fun activateEvent(
+    fun setActiveEvent(
         @PathVariable("gameCode") gameCode: GameCode,
-        @PathVariable("eventId") eventId: String,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+        @Valid @RequestBody request: SetActiveEventRequest,
     ): ResponseEntity<*> {
         val playerId = parsePlayerIdHeader(playerIdHeader)
         return gameService
             .validatePlayerInGame(gameCode, playerId)
-            .flatMap { gameService.activateEvent(gameCode, playerId, eventId) }
+            .flatMap { gameService.activateEvent(gameCode, playerId, request.eventId) }
             .map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
     }
 
-    @PostMapping("/{gameCode}/events/end")
+    @DeleteMapping("/{gameCode}/active-event")
     @SecurityRequirement(name = "PlayerIdHeader")
     @ApiResponses(
         value = [
@@ -748,7 +693,7 @@ class GameController(
             ),
         ],
     )
-    fun endEvent(
+    fun deleteActiveEvent(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
     ): ResponseEntity<*> {
@@ -762,16 +707,16 @@ class GameController(
             .get()
     }
 
-    @PostMapping("/{code}/pubs")
+    @PutMapping("/{gameCode}/pubs")
     @SecurityRequirement(name = "PlayerIdHeader")
     fun setPubs(
-        @PathVariable code: String,
+        @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: SetPubsRequest,
     ): ResponseEntity<out Any> {
         val playerId = parsePlayerIdHeader(playerIdHeader)
         return pubRouteService
-            .setPubsForGame(GameCode(code), playerId, request.pubs)
+            .setPubsForGame(gameCode, playerId, request.pubs)
             .map {
                 ResponseEntity.status(CREATED).build<Any>()
             }.mapFailure {
@@ -779,12 +724,12 @@ class GameController(
             }.get()
     }
 
-    @GetMapping("/{code}/route")
+    @GetMapping("/{gameCode}/route")
     fun getRoute(
-        @PathVariable code: String,
+        @PathVariable("gameCode") gameCode: GameCode,
     ): ResponseEntity<out Any> =
         pubRouteService
-            .getRouteForGame(GameCode(code))
+            .getRouteForGame(gameCode)
             .map { (pubs, routeGeometry) ->
                 val pubLocations =
                     pubs.map { pub ->
