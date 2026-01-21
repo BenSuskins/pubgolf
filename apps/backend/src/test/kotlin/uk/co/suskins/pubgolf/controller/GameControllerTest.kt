@@ -129,11 +129,12 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.updateGameStatus(
-            GameCode("ACE007"),
-            hostPlayer.id.value.toString(),
-            UpdateGameStatusRequest(GameStatus.COMPLETED),
-        )
+        val response =
+            controller.updateGameStatus(
+                GameCode("ACE007"),
+                hostPlayer.id.value.toString(),
+                UpdateGameStatusRequest(GameStatus.COMPLETED),
+            )
 
         assertThat(response.statusCode, equalTo(HttpStatus.OK))
     }
@@ -152,11 +153,12 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.updateGameStatus(
-            GameCode("ACE007"),
-            otherPlayer.id.value.toString(),
-            UpdateGameStatusRequest(GameStatus.COMPLETED),
-        )
+        val response =
+            controller.updateGameStatus(
+                GameCode("ACE007"),
+                otherPlayer.id.value.toString(),
+                UpdateGameStatusRequest(GameStatus.COMPLETED),
+            )
 
         assertThat(response.statusCode, equalTo(HttpStatus.FORBIDDEN))
     }
@@ -174,11 +176,12 @@ class GameControllerTest {
             )
         gameRepository.save(game)
 
-        val response = controller.updateGameStatus(
-            GameCode("ACE007"),
-            hostPlayer.id.value.toString(),
-            UpdateGameStatusRequest(GameStatus.COMPLETED),
-        )
+        val response =
+            controller.updateGameStatus(
+                GameCode("ACE007"),
+                hostPlayer.id.value.toString(),
+                UpdateGameStatusRequest(GameStatus.COMPLETED),
+            )
 
         assertThat(response.statusCode, equalTo(HttpStatus.CONFLICT))
     }

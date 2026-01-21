@@ -305,8 +305,7 @@ class GameController(
             .validatePlayerInGame(gameCode, playerId)
             .flatMap {
                 gameService.submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
-            }
-            .map { ResponseEntity.status(NO_CONTENT).body(null) }
+            }.map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
             }.get()
@@ -758,12 +757,14 @@ class GameController(
 
     private fun parsePlayerIdHeader(playerIdHeader: String?): PlayerId {
         if (playerIdHeader == null) {
-            throw uk.co.suskins.pubgolf.config.MissingPlayerIdHeaderException("Missing required header: PubGolf-Player-Id")
+            throw uk.co.suskins.pubgolf.config
+                .MissingPlayerIdHeaderException("Missing required header: PubGolf-Player-Id")
         }
         return try {
             PlayerId(java.util.UUID.fromString(playerIdHeader))
         } catch (e: IllegalArgumentException) {
-            throw uk.co.suskins.pubgolf.config.MissingPlayerIdHeaderException("Invalid player ID format in header: $playerIdHeader")
+            throw uk.co.suskins.pubgolf.config
+                .MissingPlayerIdHeaderException("Invalid player ID format in header: $playerIdHeader")
         }
     }
 

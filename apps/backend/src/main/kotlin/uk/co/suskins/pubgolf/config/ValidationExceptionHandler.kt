@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import uk.co.suskins.pubgolf.models.ErrorResponse
 
-class MissingPlayerIdHeaderException(message: String) : ServletRequestBindingException(message)
+class MissingPlayerIdHeaderException(
+    message: String,
+) : ServletRequestBindingException(message)
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)

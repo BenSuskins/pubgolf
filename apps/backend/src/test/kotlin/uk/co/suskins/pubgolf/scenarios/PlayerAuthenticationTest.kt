@@ -50,7 +50,7 @@ class PlayerAuthenticationTest : ScenarioTest() {
     private fun assertAuthenticationFailure(
         result: Result<ResponseEntity<String>, Exception>,
         statusCode: String,
-        messageFragment: String? = null
+        messageFragment: String? = null,
     ) {
         val exception = result.get() as RestClientException
         assertThat(exception.message!!.contains(statusCode), equalTo(true))
