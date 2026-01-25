@@ -55,7 +55,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     },
     ref
   ) => {
-    const Component = (as || defaultElements[variant] || 'p') as keyof JSX.IntrinsicElements;
+    const Component = (as || defaultElements[variant] || 'p') as keyof React.JSX.IntrinsicElements;
 
     const variantClasses = {
       display: 'text-5xl sm:text-6xl font-bold font-display',
