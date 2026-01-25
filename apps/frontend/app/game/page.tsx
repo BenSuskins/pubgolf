@@ -8,6 +8,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
+import { ScoreboardSkeleton } from '@/components/ScoreboardSkeleton';
 import { ShareModal } from '@/components/ShareModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
@@ -146,10 +147,12 @@ export default function GamePage() {
 
   if (loading) {
     return (
-      <main className="min-h-full flex items-center justify-center">
-        <p className="text-[var(--color-text-secondary)] animate-pulse" role="status" aria-live="polite">
-          Loading game...
-        </p>
+      <main className="p-4 py-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <section className="glass rounded-xl p-4">
+            <ScoreboardSkeleton />
+          </section>
+        </div>
       </main>
     );
   }

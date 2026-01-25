@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
+import { Button } from './ui/Button';
 
 interface ShareModalProps {
   gameCode: string;
@@ -101,29 +102,30 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
           </div>
         </div>
 
-        <div className="text-center">
-          <p className="text-sm text-[var(--color-text-secondary)] mb-1">Game Code</p>
-          <p className="text-3xl font-bold tracking-widest font-mono text-[var(--color-accent)]">
+        <div className="flex flex-col items-center space-y-1">
+          <p className="text-sm text-[var(--color-text-secondary)]">Game Code</p>
+          <p className="text-4xl font-bold tracking-widest font-mono text-[var(--color-accent)]">
             {gameCode.toUpperCase()}
           </p>
         </div>
 
         <div className="space-y-3">
-          <button
+          <Button
             onClick={handleCopy}
-            aria-label={copied ? 'Link copied to clipboard' : 'Copy invite link to clipboard'}
-            className="w-full py-3 px-4 btn-gradient rounded-lg"
+            ariaLabel={copied ? 'Link copied to clipboard' : 'Copy invite link to clipboard'}
+            className="w-full"
           >
             {copied ? 'Copied!' : 'Copy Invite Link'}
-          </button>
-          <button
+          </Button>
+          <Button
             ref={closeButtonRef}
             onClick={onClose}
-            aria-label="Close share modal"
-            className="w-full py-3 px-4 border border-[var(--color-border)] font-medium rounded-lg hover:bg-white/5 transition-colors"
+            variant="secondary"
+            ariaLabel="Close share modal"
+            className="w-full"
           >
             Done
-          </button>
+          </Button>
         </div>
       </div>
     </div>

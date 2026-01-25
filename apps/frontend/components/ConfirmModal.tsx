@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { Button } from './ui/Button';
 
 interface ConfirmModalProps {
   title: string;
@@ -81,21 +82,23 @@ export function ConfirmModal({
         </p>
 
         <div className="space-y-3">
-          <button
+          <Button
             onClick={onConfirm}
             disabled={loading}
-            className="w-full py-3 px-4 btn-gradient rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            loading={loading}
+            className="w-full"
           >
             {loading ? 'Processing...' : confirmText}
-          </button>
-          <button
+          </Button>
+          <Button
             ref={cancelButtonRef}
             onClick={onCancel}
             disabled={loading}
-            className="w-full py-3 px-4 border border-[var(--color-border)] font-medium rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="secondary"
+            className="w-full"
           >
             {cancelText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

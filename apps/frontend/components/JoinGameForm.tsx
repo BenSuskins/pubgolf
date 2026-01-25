@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { joinGame } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { Button } from './ui/Button';
 
 export function JoinGameForm() {
   const [name, setName] = useState('');
@@ -97,13 +98,14 @@ export function JoinGameForm() {
           {error}
         </p>
       )}
-      <button
+      <Button
         type="submit"
         disabled={loading}
-        className="w-full py-3 px-4 btn-gradient rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+        loading={loading}
+        className="w-full"
       >
         {loading ? 'Joining...' : "I'm In!"}
-      </button>
+      </Button>
     </form>
   );
 }

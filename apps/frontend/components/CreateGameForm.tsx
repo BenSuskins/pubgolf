@@ -8,6 +8,7 @@ import { PlaceSearchResult, Pub } from '@/lib/types';
 import PubSearchAutocomplete from './PubSearchAutocomplete';
 import PubSlotList from './PubSlotList';
 import MiniMapPreview from './MiniMapPreview';
+import { Button } from './ui/Button';
 
 export function CreateGameForm() {
   const [name, setName] = useState('');
@@ -127,13 +128,14 @@ export function CreateGameForm() {
           {error}
         </p>
       )}
-      <button
+      <Button
         type="submit"
         disabled={loading || (addPubRoute && selectedPubs.length !== 9)}
-        className="w-full py-3 px-4 btn-gradient rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+        loading={loading}
+        className="w-full"
       >
         {loading ? 'Creating...' : "Let's Go!"}
-      </button>
+      </Button>
     </form>
   );
 }
