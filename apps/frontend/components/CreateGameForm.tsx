@@ -9,6 +9,7 @@ import PubSearchAutocomplete from './PubSearchAutocomplete';
 import PubSlotList from './PubSlotList';
 import MiniMapPreview from './MiniMapPreview';
 import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 
 export function CreateGameForm() {
   const [name, setName] = useState('');
@@ -71,23 +72,16 @@ export function CreateGameForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="create-name" className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
-          Your Name
-        </label>
-        <input
-          id="create-name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
-          aria-invalid={!!error}
-          aria-describedby={error ? "create-name-error" : undefined}
-          aria-required="true"
-          className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50 transition-all"
-          disabled={loading}
-        />
-      </div>
+      <Input
+        id="create-name"
+        label="Your Name"
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter your name"
+        disabled={loading}
+        fullWidth
+      />
 
       <div className="space-y-4">
         <label className="flex items-center space-x-3 cursor-pointer">

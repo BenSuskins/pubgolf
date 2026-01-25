@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 
 interface ScoreboardTableProps {
@@ -32,6 +33,40 @@ function getPlayerRank(player: Player, players: Player[]): number {
 }
 
 export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }: ScoreboardTableProps) {
+  const [scrollState, setScrollState] = useState({
+    isAtStart: true,
+    isAtEnd: false,
+  });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const updateScrollState = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const isAtStart = scrollLeft === 0;
+      const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+      setScrollState({ isAtStart, isAtEnd });
+    };
+
+    updateScrollState();
+
+    container.addEventListener('scroll', updateScrollState);
+
+    let resizeObserver: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(updateScrollState);
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      container.removeEventListener('scroll', updateScrollState);
+      resizeObserver?.disconnect();
+    };
+  }, [players]);
+
   if (players.length === 0) {
     return (
       <div className="text-center py-12">
@@ -44,12 +79,27 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
   }
 
   return (
-    <div
-      className="overflow-x-auto -mx-4 px-4"
-      role="region"
-      aria-label="Scrollable scoreboard"
-      tabIndex={0}
-    >
+    <div className="relative">
+      {!scrollState.isAtStart && (
+        <div
+          className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[var(--color-surface)] to-transparent pointer-events-none z-20"
+          aria-hidden="true"
+        />
+      )}
+      {!scrollState.isAtEnd && (
+        <div
+          className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[var(--color-surface)] to-transparent pointer-events-none z-20"
+          aria-hidden="true"
+        />
+      )}
+      <div
+        ref={scrollContainerRef}
+        className="overflow-x-auto -mx-4 px-4"
+        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+        role="region"
+        aria-label="Scrollable scoreboard"
+        tabIndex={0}
+      >
       <table className="w-full border-collapse text-sm" role="table" aria-label="Player scores">
         <thead>
           <tr className="border-b border-[var(--color-border)]">
@@ -157,6 +207,7 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

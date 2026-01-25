@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import QRCode from 'react-qr-code';
 import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { Typography } from './ui/Typography';
 
 interface ShareModalProps {
   gameCode: string;
@@ -82,13 +84,15 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
       aria-modal="true"
       aria-labelledby="share-modal-title"
     >
-      <div
+      <Card
         ref={modalRef}
-        className="glass rounded-2xl p-6 max-w-sm w-full mx-4 space-y-5 animate-fade-in"
+        rounded="lg"
+        padding="lg"
+        className="max-w-sm w-full mx-4 space-y-5 animate-fade-in"
       >
-        <h2 id="share-modal-title" className="text-xl font-bold text-center font-[family-name:var(--font-display)]">
+        <Typography variant="heading" as="h2" id="share-modal-title" className="text-center">
           Rally Your Crew
-        </h2>
+        </Typography>
 
         <div className="flex justify-center">
           <div className="bg-white p-4 rounded-xl glow-sm">
@@ -127,7 +131,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
             Done
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

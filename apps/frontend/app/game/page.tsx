@@ -16,6 +16,7 @@ import { EventBanner } from '@/components/EventBanner';
 import { Toast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Player, GameStatus, GameState, ActiveEvent } from '@/lib/types';
+import { Typography } from '@/components/ui/Typography';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
@@ -173,12 +174,12 @@ export default function GamePage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <header className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold font-[family-name:var(--font-display)]">
-              Game: <span className="text-[var(--color-accent)]">{gameCode.toUpperCase()}</span>
-            </h1>
-            <p className="text-[var(--color-text-secondary)] text-sm">
+            <Typography variant="title">
+              Game: <Typography as="span" variant="title" color="accent">{gameCode.toUpperCase()}</Typography>
+            </Typography>
+            <Typography variant="small" color="secondary">
               Rally your crew
-            </p>
+            </Typography>
           </div>
           <div className="flex items-center gap-2">
             {isHost && !isCompleted && (

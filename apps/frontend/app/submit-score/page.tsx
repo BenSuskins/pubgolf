@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { submitScore, getPenaltyOptions, PenaltyOption } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PenaltyType, PENALTY_EMOJI_MAP } from '@/lib/types';
+import { Card } from '@/components/ui/Card';
+import { Select } from '@/components/ui/Select';
+import { Counter } from '@/components/ui/Counter';
 
 export default function SubmitScorePage() {
   const [hole, setHole] = useState(1);
@@ -56,18 +59,6 @@ export default function SubmitScorePage() {
     }
   };
 
-  const incrementScore = () => {
-    if (score < 10) {
-      setScore(score + 1);
-    }
-  };
-
-  const decrementScore = () => {
-    if (score > -10) {
-      setScore(score - 1);
-    }
-  };
-
   const togglePenalty = (type: PenaltyType) => {
     setPenaltyType(penaltyType === type ? null : type);
   };
@@ -84,59 +75,29 @@ export default function SubmitScorePage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 p-6 glass rounded-xl">
-          <div>
-            <label htmlFor="hole" className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
-              Hole
-            </label>
-            <select
-              id="hole"
-              value={hole}
-              onChange={(e) => setHole(parseInt(e.target.value, 10))}
-              className="w-full px-4 py-3 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all"
-              disabled={loading}
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((h) => (
-                <option key={h} value={h}>
-                  Hole {h}
-                </option>
-              ))}
-            </select>
-          </div>
+        <form onSubmit={handleSubmit}>
+          <Card padding="lg" className="space-y-5">
+          <Select
+            label="Hole"
+            value={hole}
+            onChange={(e) => setHole(parseInt(e.target.value, 10))}
+            options={[1, 2, 3, 4, 5, 6, 7, 8, 9].map((h) => ({
+              value: h,
+              label: `Hole ${h}`,
+            }))}
+            disabled={loading}
+            fullWidth
+          />
 
-          <fieldset>
-            <legend className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
-              Sips Taken
-            </legend>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={decrementScore}
-                disabled={loading || !!penaltyType || score <= -10}
-                aria-label="Decrease sips by one"
-                className="w-16 h-16 flex items-center justify-center text-2xl font-bold glass rounded-lg hover:bg-white/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                -
-              </button>
-              <div
-                className="flex-1 h-16 flex items-center justify-center text-4xl font-bold glass rounded-lg"
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {penaltyType && selectedPenalty ? selectedPenalty.points : score}
-              </div>
-              <button
-                type="button"
-                onClick={incrementScore}
-                disabled={loading || !!penaltyType || score >= 10}
-                aria-label="Increase sips by one"
-                className="w-16 h-16 flex items-center justify-center text-2xl font-bold glass rounded-lg hover:bg-white/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                +
-              </button>
-            </div>
-          </fieldset>
+          <Counter
+            label="Sips Taken"
+            value={penaltyType && selectedPenalty ? selectedPenalty.points : score}
+            onChange={setScore}
+            min={-10}
+            max={10}
+            disabled={loading || !!penaltyType}
+            ariaLabel="Sips counter"
+          />
 
           <fieldset>
             <legend className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
@@ -188,6 +149,7 @@ export default function SubmitScorePage() {
               Back to Scoreboard
             </Link>
           </div>
+          </Card>
         </form>
       </div>
     </main>

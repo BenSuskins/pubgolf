@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CreateGameForm } from '@/components/CreateGameForm';
 import { JoinGameForm } from '@/components/JoinGameForm';
+import { Card } from '@/components/ui/Card';
+import { Typography } from '@/components/ui/Typography';
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -29,9 +31,9 @@ function HomeContent() {
         </div>
 
         <div>
-          <h1 className="text-5xl sm:text-6xl font-bold font-[family-name:var(--font-display)] gradient-text mb-3">
+          <Typography variant="display" gradient className="mb-3">
             Pub Golf
-          </h1>
+          </Typography>
           <p className="text-xl text-[var(--color-text-secondary)]">
             9 Holes. 9 Drinks. 1 Champion.
           </p>
@@ -41,7 +43,7 @@ function HomeContent() {
       {/* Action Cards */}
       <div className="space-y-4">
         {/* Start a Round */}
-        <section className="glass rounded-xl overflow-hidden">
+        <Card as="section" padding="none" className="overflow-hidden">
           <button
             onClick={() => setActiveSection(prev => prev === 'create' ? null : 'create')}
             aria-expanded={activeSection === 'create'}
@@ -79,10 +81,10 @@ function HomeContent() {
               </div>
             </div>
           </div>
-        </section>
+        </Card>
 
         {/* Join the Party */}
-        <section className="glass rounded-xl overflow-hidden">
+        <Card as="section" padding="none" className="overflow-hidden">
           <button
             onClick={() => setActiveSection(prev => prev === 'join' ? null : 'join')}
             aria-expanded={activeSection === 'join'}
@@ -120,7 +122,7 @@ function HomeContent() {
               </div>
             </div>
           </div>
-        </section>
+        </Card>
       </div>
 
       {/* Rules Link */}
