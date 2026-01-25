@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { Typography } from './ui/Typography';
 
 interface ConfirmModalProps {
   title: string;
@@ -69,17 +71,19 @@ export function ConfirmModal({
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
     >
-      <div
+      <Card
         ref={modalRef}
-        className="glass rounded-2xl p-6 max-w-sm w-full mx-4 space-y-5 animate-fade-in"
+        rounded="lg"
+        padding="lg"
+        className="max-w-sm w-full mx-4 space-y-5 animate-fade-in"
       >
-        <h2 id="confirm-modal-title" className="text-xl font-bold text-center font-[family-name:var(--font-display)]">
+        <Typography variant="heading" as="h2" id="confirm-modal-title" className="text-center">
           {title}
-        </h2>
+        </Typography>
 
-        <p className="text-center text-[var(--color-text-secondary)]">
+        <Typography as="p" color="secondary" className="text-center">
           {message}
-        </p>
+        </Typography>
 
         <div className="space-y-3">
           <Button
@@ -100,7 +104,7 @@ export function ConfirmModal({
             {cancelText}
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

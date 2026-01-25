@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { SlotMachine } from '@/components/SlotMachine';
 import { getRandomiseOptions, spinWheel, ApiError } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { Card } from '@/components/ui/Card';
+import { Typography } from '@/components/ui/Typography';
 
 const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -115,15 +117,15 @@ export default function RandomisePage() {
     <main className="min-h-full flex flex-col items-center justify-center p-6">
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2 font-[family-name:var(--font-display)]">
+          <Typography variant="title" className="mb-2">
             Randomise
-          </h1>
-          <p className="text-[var(--color-text-secondary)]">
+          </Typography>
+          <Typography as="p" color="secondary">
             Feeling adventurous? Spin the wheel!
-          </p>
+          </Typography>
         </div>
 
-        <div className="glass rounded-xl p-6 space-y-6">
+        <Card padding="lg" className="space-y-6">
           <SlotMachine
             items={items}
             winningIndex={winningIndex}
@@ -147,7 +149,7 @@ export default function RandomisePage() {
               {error}
             </div>
           )}
-        </div>
+        </Card>
 
         <div className="space-y-3">
           <button

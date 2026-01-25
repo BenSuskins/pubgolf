@@ -1,6 +1,8 @@
 'use client';
 
 import { GameEvent } from '@/lib/types';
+import { Card } from './ui/Card';
+import { Typography } from './ui/Typography';
 
 interface EventCardProps {
   event: GameEvent;
@@ -20,8 +22,9 @@ export function EventCard({
   const isDisabled = isLoading || isOtherEventActive;
 
   return (
-    <div
-      className={`glass rounded-xl p-4 transition-all ${
+    <Card
+      padding="sm"
+      className={`transition-all ${
         isActive
           ? 'ring-2 ring-[var(--color-accent)] bg-[var(--color-accent)]/10'
           : ''
@@ -29,9 +32,9 @@ export function EventCard({
     >
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-lg font-[family-name:var(--font-display)]">
+          <Typography variant="subheading" as="h3">
             {event.title}
-          </h3>
+          </Typography>
           {isActive && (
             <span className="text-xs bg-[var(--color-accent)] text-black px-2 py-0.5 rounded-full font-medium">
               Active
@@ -39,9 +42,9 @@ export function EventCard({
           )}
         </div>
 
-        <p className="text-sm text-[var(--color-text-secondary)]">
+        <Typography variant="small" color="secondary">
           {event.description}
-        </p>
+        </Typography>
 
         {!isActive && (
           <button
@@ -57,6 +60,6 @@ export function EventCard({
           </button>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

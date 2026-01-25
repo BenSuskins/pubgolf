@@ -1,6 +1,7 @@
 'use client';
 
 import { Player } from '@/lib/types';
+import { Typography } from './ui/Typography';
 
 interface CelebrationScreenProps {
   winners: Player[];
@@ -36,22 +37,22 @@ export function CelebrationScreen({ winners, onDismiss }: CelebrationScreenProps
         </div>
 
         <div className="space-y-2">
-          <p className="text-[var(--color-text-secondary)] text-lg">
+          <Typography variant="subheading" color="secondary">
             {isTie ? 'Winners' : 'Winner'}
-          </p>
-          <h1 className="text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-accent)]">
+          </Typography>
+          <Typography variant="display" as="h1" color="accent" className="text-4xl">
             {winnerNames}
-          </h1>
+          </Typography>
           {winners.length > 0 && (
-            <p className="text-2xl font-semibold">
+            <Typography variant="title" className="text-2xl">
               {winners[0].totalScore} sips
-            </p>
+            </Typography>
           )}
         </div>
 
-        <p className="text-[var(--color-text-secondary)] text-sm animate-pulse">
+        <Typography variant="small" color="secondary" className="animate-pulse">
           Tap anywhere to view results
-        </p>
+        </Typography>
       </div>
     </div>
   );

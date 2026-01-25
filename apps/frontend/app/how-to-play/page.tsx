@@ -6,6 +6,8 @@ import { getPenaltyOptions, getRoutes, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
 import { BackButton } from './BackButton';
 import { RoutesTable } from '@/components/RoutesTable';
+import { Card } from '@/components/ui/Card';
+import { Typography } from '@/components/ui/Typography';
 
 function PenaltiesSkeleton() {
   return (
@@ -85,18 +87,18 @@ export default function HowToPlayPage() {
     <main className="p-6 py-8">
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-3 font-[family-name:var(--font-display)] gradient-text">
+          <Typography variant="display" gradient className="mb-3 text-3xl">
             The Rules
-          </h1>
-          <p className="text-[var(--color-text-secondary)] max-w-md mx-auto">
+          </Typography>
+          <Typography as="p" color="secondary" className="max-w-md mx-auto">
             Drink at each hole, match or beat the par. Lowest score wins. Simple.
-          </p>
+          </Typography>
         </div>
 
-        <section className="glass rounded-xl p-6">
-          <h2 className="text-xl font-semibold mb-4 font-[family-name:var(--font-display)] flex items-center gap-2">
+        <Card as="section" padding="lg">
+          <Typography variant="heading" as="h2" className="mb-4 flex items-center gap-2">
             How It Works
-          </h2>
+          </Typography>
           <ol className="space-y-3 mb-6">
             {RULES.map((rule, index) => (
               <li key={index} className="flex gap-3 text-[var(--color-text-secondary)]">
@@ -106,9 +108,9 @@ export default function HowToPlayPage() {
             ))}
           </ol>
 
-          <h3 className="text-lg font-semibold mb-3 font-[family-name:var(--font-display)] text-[var(--color-error)]">
+          <Typography variant="subheading" as="h3" color="error" className="mb-3">
             Penalties
-          </h3>
+          </Typography>
           {isPenaltiesLoading ? (
             <PenaltiesSkeleton />
           ) : (
@@ -125,18 +127,18 @@ export default function HowToPlayPage() {
               ))}
             </div>
           )}
-        </section>
+        </Card>
 
-        <section className="glass rounded-xl p-6">
-          <h2 className="text-xl font-semibold mb-4 font-[family-name:var(--font-display)] flex items-center gap-2">
+        <Card as="section" padding="lg">
+          <Typography variant="heading" as="h2" className="mb-4 flex items-center gap-2">
             The Course
-          </h2>
+          </Typography>
           {isRoutesLoading ? (
             <RoutesTableSkeleton />
           ) : (
             <RoutesTable holes={holes} />
           )}
-        </section>
+        </Card>
 
         <div className="flex justify-center">
           <BackButton />

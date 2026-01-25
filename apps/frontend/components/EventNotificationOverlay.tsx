@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { ActiveEvent } from '@/lib/types';
+import { Typography } from './ui/Typography';
 
 interface EventNotificationOverlayProps {
   event: ActiveEvent;
@@ -42,17 +43,17 @@ export function EventNotificationOverlay({ event, onDismiss }: EventNotification
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold font-[family-name:var(--font-display)] text-[var(--color-accent)]">
+          <Typography variant="display" as="h1" color="accent" className="text-3xl">
             {event.title}
-          </h1>
-          <p className="text-lg text-[var(--color-text-secondary)]">
+          </Typography>
+          <Typography variant="subheading" color="secondary">
             {event.description}
-          </p>
+          </Typography>
         </div>
 
-        <p className="text-[var(--color-text-secondary)] text-sm animate-pulse">
+        <Typography variant="small" color="secondary" className="animate-pulse">
           Tap anywhere to dismiss
-        </p>
+        </Typography>
       </div>
     </div>
   );
