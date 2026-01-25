@@ -1,5 +1,4 @@
-import React from 'react';
-import { forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Typography component for semantic text styles.
@@ -56,7 +55,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     },
     ref
   ) => {
-    const Component = (as || defaultElements[variant] || 'p') as keyof React.JSX.IntrinsicElements;
+    const Component: React.ElementType = as || defaultElements[variant] || 'p';
 
     const variantClasses = {
       display: 'text-5xl sm:text-6xl font-bold font-display',
@@ -82,7 +81,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     const classes = `${variantClasses[variant]} ${appliedColorClass} ${gradientClass} ${className}`.trim();
 
     return (
-      <Component ref={ref} className={classes} {...rest}>
+      <Component ref={ref as any} className={classes} {...(rest as any)}>
         {children}
       </Component>
     );
