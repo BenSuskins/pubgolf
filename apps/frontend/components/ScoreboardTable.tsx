@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
+import { EmptyState } from './ui/EmptyState';
 
 interface ScoreboardTableProps {
   players: Player[];
@@ -75,6 +76,20 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
           No players yet. Rally your crew!
         </p>
       </div>
+    );
+  }
+
+  const allScoresNull = players.every((player) =>
+    player.scores.every((score) => score === null)
+  );
+
+  if (allScoresNull) {
+    return (
+      <EmptyState
+        icon="🎯"
+        title="No Scores Yet"
+        description="Scores will appear here once players start submitting them. Get the party started!"
+      />
     );
   }
 

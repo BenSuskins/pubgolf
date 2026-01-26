@@ -6,6 +6,7 @@ import { joinGame } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
+import { ErrorMessage } from './ui/ErrorMessage';
 
 export function JoinGameForm() {
   const [name, setName] = useState('');
@@ -81,11 +82,7 @@ export function JoinGameForm() {
         className="font-mono tracking-wider"
         fullWidth
       />
-      {error && (
-        <p id="join-form-error" role="alert" className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">
-          {error}
-        </p>
-      )}
+      {error && <ErrorMessage message={error} variant="inline" />}
       <Button
         type="submit"
         disabled={loading}

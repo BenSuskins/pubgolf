@@ -3,20 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { submitScore, getPenaltyOptions, PenaltyOption } from '@/lib/api';
+import { toast } from 'sonner';
+import { submitScore, getPenaltyOptions, PenaltyOption, getRoutes, getGameState } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PenaltyType, PENALTY_EMOJI_MAP } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Select } from '@/components/ui/Select';
 import { Counter } from '@/components/ui/Counter';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 export default function SubmitScorePage() {
   const [hole, setHole] = useState(1);
   const [score, setScore] = useState(0);
   const [penaltyType, setPenaltyType] = useState<PenaltyType | null>(null);
   const [penaltyOptions, setPenaltyOptions] = useState<PenaltyOption[]>([]);
+  const [pars, setPars] = useState<number[]>([]);
+  const [playerScores, setPlayerScores] = useState<(number | null)[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
 
@@ -29,10 +35,42 @@ export default function SubmitScorePage() {
   }, [getGameCode, getPlayerId, router]);
 
   useEffect(() => {
-    getPenaltyOptions()
-      .then((response) => setPenaltyOptions(response.penalties))
-      .catch(() => {});
-  }, []);
+    const fetchData = async () => {
+      const gameCode = getGameCode();
+      const playerId = getPlayerId();
+
+      if (!gameCode || !playerId) return;
+
+      try {
+        // Fetch penalty options, routes, and game state in parallel
+        const [penaltiesResponse, routesResponse, gameState] = await Promise.all([
+          getPenaltyOptions(),
+          getRoutes(),
+          getGameState(gameCode),
+        ]);
+
+        setPenaltyOptions(penaltiesResponse.penalties);
+        setPars(routesResponse.holes.map((h) => h.par));
+
+        // Find current player's scores
+        const currentPlayer = gameState.players.find((p) => p.id === playerId);
+        if (currentPlayer) {
+          setPlayerScores(currentPlayer.scores);
+
+          // Find first null score (next uncompleted hole)
+          const nextHoleIndex = currentPlayer.scores.findIndex((s) => s === null);
+          if (nextHoleIndex !== -1) {
+            setHole(nextHoleIndex + 1); // Holes are 1-indexed
+          }
+        }
+      } catch (err) {
+        // Silently fail for non-critical data
+        console.error('Failed to fetch data:', err);
+      }
+    };
+
+    fetchData();
+  }, [getGameCode, getPlayerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,14 +86,22 @@ export default function SubmitScorePage() {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       await submitScore(gameCode, playerId, hole, scoreNum, penaltyType);
-      router.push('/game');
+
+      // Show success toast with animation
+      toast.success('Score submitted!', {
+        description: `Hole ${hole}: ${scoreNum} sip${scoreNum !== 1 ? 's' : ''}`,
+      });
+
+      // Delay redirect for user feedback
+      setTimeout(() => {
+        router.push('/game');
+      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit score');
-    } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -64,6 +110,8 @@ export default function SubmitScorePage() {
   };
 
   const selectedPenalty = penaltyOptions.find((p) => p.type === penaltyType);
+  const currentPar = pars[hole - 1];
+  const completedCount = playerScores.filter((s) => s !== null).length;
 
   return (
     <main className="min-h-full flex flex-col items-center justify-center p-6">
@@ -73,21 +121,33 @@ export default function SubmitScorePage() {
           <p className="text-[var(--color-text-secondary)]">
             How&apos;d that one go down?
           </p>
+          {playerScores.length > 0 && (
+            <p className="text-sm text-[var(--color-text-secondary)] mt-2">
+              Hole {hole} of 9 • {completedCount} completed
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit}>
           <Card padding="lg" className="space-y-5">
-          <Select
-            label="Hole"
-            value={hole}
-            onChange={(e) => setHole(parseInt(e.target.value, 10))}
-            options={[1, 2, 3, 4, 5, 6, 7, 8, 9].map((h) => ({
-              value: h,
-              label: `Hole ${h}`,
-            }))}
-            disabled={loading}
-            fullWidth
-          />
+          <div>
+            <Select
+              label="Hole"
+              value={hole}
+              onChange={(e) => setHole(parseInt(e.target.value, 10))}
+              options={[1, 2, 3, 4, 5, 6, 7, 8, 9].map((h) => ({
+                value: h,
+                label: `Hole ${h}`,
+              }))}
+              disabled={submitting}
+              fullWidth
+            />
+            {currentPar !== undefined && (
+              <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                Par: {currentPar}
+              </p>
+            )}
+          </div>
 
           <Counter
             label="Sips Taken"
@@ -95,7 +155,7 @@ export default function SubmitScorePage() {
             onChange={setScore}
             min={-10}
             max={10}
-            disabled={loading || !!penaltyType}
+            disabled={submitting || !!penaltyType}
             ariaLabel="Sips counter"
           />
 
@@ -103,51 +163,58 @@ export default function SubmitScorePage() {
             <legend className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
               Penalties
             </legend>
-            <div className="grid grid-cols-3 gap-3">
-              {penaltyOptions.map((option) => (
-                <button
-                  key={option.type}
-                  type="button"
-                  onClick={() => togglePenalty(option.type as PenaltyType)}
-                  aria-label={`${option.name} penalty, adds ${option.points} sips`}
-                  aria-pressed={penaltyType === option.type}
-                  className={`p-4 rounded-lg font-medium transition-all flex flex-col items-center gap-2 min-h-[100px] ${
-                    penaltyType === option.type
-                      ? 'bg-[var(--color-error)] text-white ring-2 ring-[var(--color-error)]'
-                      : 'glass hover:bg-white/5'
-                  }`}
-                  disabled={loading}
-                >
-                  <span className="text-3xl" aria-hidden="true">
-                    {PENALTY_EMOJI_MAP[option.type as PenaltyType]}
-                  </span>
-                  <span className="text-sm text-center leading-tight">{option.name}</span>
-                  <span className="text-lg font-bold">+{option.points}</span>
-                </button>
-              ))}
-            </div>
+            {penaltyOptions.length === 0 ? (
+              <div className="py-2">
+                <EmptyState
+                  icon="✅"
+                  description="No penalties available"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                {penaltyOptions.map((option) => (
+                  <button
+                    key={option.type}
+                    type="button"
+                    onClick={() => togglePenalty(option.type as PenaltyType)}
+                    aria-label={`${option.name} penalty, adds ${option.points} sips`}
+                    aria-pressed={penaltyType === option.type}
+                    className={`p-4 rounded-lg font-medium transition-all flex flex-col items-center gap-2 min-h-[100px] ${
+                      penaltyType === option.type
+                        ? 'bg-[var(--color-error)] text-white ring-2 ring-[var(--color-error)]'
+                        : 'glass hover:bg-white/5'
+                    }`}
+                    disabled={submitting}
+                  >
+                    <span className="text-3xl" aria-hidden="true">
+                      {PENALTY_EMOJI_MAP[option.type as PenaltyType]}
+                    </span>
+                    <span className="text-sm text-center leading-tight">{option.name}</span>
+                    <span className="text-lg font-bold">+{option.points}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </fieldset>
 
-          {error && (
-            <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">
-              {error}
-            </p>
-          )}
+          {error && <ErrorMessage message={error} variant="inline" />}
 
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              disabled={loading}
+              disabled={submitting}
               className="flex-1 py-3 px-4 btn-gradient rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
-              {loading ? 'Logging...' : 'Log It'}
+              {submitting ? 'Logging...' : 'Log It'}
             </button>
-            <Link
-              href="/game"
-              className="flex-1 py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
-            >
-              Back to Scoreboard
-            </Link>
+            {!submitting && (
+              <Link
+                href="/game"
+                className="flex-1 py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
+              >
+                Back to Scoreboard
+              </Link>
+            )}
           </div>
           </Card>
         </form>

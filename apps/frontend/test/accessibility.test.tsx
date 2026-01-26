@@ -5,7 +5,6 @@ import { CreateGameForm } from '@/components/CreateGameForm';
 import { JoinGameForm } from '@/components/JoinGameForm';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { SlotMachine } from '@/components/SlotMachine';
-import { Toast } from '@/components/Toast';
 import { EventBanner } from '@/components/EventBanner';
 import { Player, ActiveEvent } from '@/lib/types';
 
@@ -111,14 +110,6 @@ describe('Accessibility Tests', () => {
           spinning={false}
           onSpinEnd={() => {}}
         />
-      );
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    test('Toast has no accessibility violations', async () => {
-      const { container } = render(
-        <Toast message="Test notification" onDismiss={() => {}} />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();

@@ -81,7 +81,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     const classes = `${variantClasses[variant]} ${appliedColorClass} ${gradientClass} ${className}`.trim();
 
     return (
-      <Component ref={ref as any} className={classes} {...(rest as any)}>
+      <Component ref={ref as React.ForwardedRef<HTMLElement>} className={classes} {...rest}>
         {children}
       </Component>
     );

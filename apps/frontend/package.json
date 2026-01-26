@@ -19,7 +19,8 @@
     "react-confetti": "^6.4.0",
     "react-dom": "19.2.3",
     "react-qr-code": "^2.0.15",
-    "sockjs-client": "^1.6.1"
+    "sockjs-client": "^1.6.1",
+    "sonner": "^1.7.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

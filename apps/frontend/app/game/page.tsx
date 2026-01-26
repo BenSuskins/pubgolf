@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, getRoutes, completeGame, getRoute } from '@/lib/api';
+import { toast } from 'sonner';
+import { getGameState, getRoutes, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
@@ -13,10 +14,9 @@ import { ShareModal } from '@/components/ShareModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
 import { EventBanner } from '@/components/EventBanner';
-import { Toast } from '@/components/Toast';
-import { ConfirmModal } from '@/components/ConfirmModal';
 import { Player, GameStatus, GameState, ActiveEvent } from '@/lib/types';
 import { Typography } from '@/components/ui/Typography';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
@@ -32,8 +32,6 @@ export default function GamePage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEventNotification, setShowEventNotification] = useState(false);
-  const [showEventEndedToast, setShowEventEndedToast] = useState(false);
-  const [completing, setCompleting] = useState(false);
   const [hasPubRoute, setHasPubRoute] = useState(false);
   const previousEventIdRef = useRef<string | null>(null);
   const router = useRouter();
@@ -55,7 +53,7 @@ export default function GamePage() {
           setShowEventNotification(true);
         }
       } else if (prevEventId && !newEventId) {
-        setShowEventEndedToast(true);
+        toast('Event ended');
       }
     }
 
@@ -119,7 +117,7 @@ export default function GamePage() {
       try {
         const routeData = await getRoute(gameCode);
         setHasPubRoute(routeData.pubs.length > 0);
-      } catch (err) {
+      } catch {
         setHasPubRoute(false);
       }
     };
@@ -161,10 +159,11 @@ export default function GamePage() {
   if (error) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
-        <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">{error}</p>
-        <Link href="/" className="text-[var(--color-primary)] hover:underline">
-          Back to Home
-        </Link>
+        <ErrorMessage
+          message={error}
+          variant="card"
+          action={{ label: "Back to Home", onClick: () => router.push('/') }}
+        />
       </main>
     );
   }
@@ -287,13 +286,6 @@ export default function GamePage() {
         <EventNotificationOverlay
           event={activeEvent}
           onDismiss={handleEventNotificationDismiss}
-        />
-      )}
-
-      {showEventEndedToast && (
-        <Toast
-          message="Event ended"
-          onDismiss={() => setShowEventEndedToast(false)}
         />
       )}
     </main>

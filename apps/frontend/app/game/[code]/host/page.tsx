@@ -8,6 +8,8 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { EventCard } from '@/components/EventCard';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { GameEvent, GameState, ActiveEvent } from '@/lib/types';
 
 export default function HostPanelPage() {
@@ -138,10 +140,11 @@ export default function HostPanelPage() {
   if (error) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
-        <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">{error}</p>
-        <Link href="/game" className="text-[var(--color-primary)] hover:underline">
-          Back to Game
-        </Link>
+        <ErrorMessage
+          message={error}
+          variant="card"
+          action={{ label: "Back to Game", onClick: () => router.push('/game') }}
+        />
       </main>
     );
   }
@@ -206,18 +209,25 @@ export default function HostPanelPage() {
 
         <section>
           <h2 className="text-lg font-semibold mb-4">Available Events</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {events.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                isActive={activeEvent?.id === event.id}
-                isOtherEventActive={activeEvent !== null && activeEvent.id !== event.id}
-                onActivate={() => setConfirmEvent(event)}
-                isLoading={activatingEventId === event.id}
-              />
-            ))}
-          </div>
+          {events.length === 0 ? (
+            <EmptyState
+              icon="📝"
+              description="No events configured for this game yet"
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {events.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  isActive={activeEvent?.id === event.id}
+                  isOtherEventActive={activeEvent !== null && activeEvent.id !== event.id}
+                  onActivate={() => setConfirmEvent(event)}
+                  isLoading={activatingEventId === event.id}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </div>
 

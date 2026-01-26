@@ -177,6 +177,66 @@ describe('Counter', () => {
     });
   });
 
+  describe('error and helper text', () => {
+    test('should render error message', () => {
+      render(<Counter value={0} onChange={() => {}} error="Invalid value" />);
+      const error = screen.getByRole('alert');
+      expect(error).toHaveTextContent('Invalid value');
+    });
+
+    test('should render helper text when no error', () => {
+      render(<Counter value={0} onChange={() => {}} helperText="Use buttons to adjust" />);
+      expect(screen.getByText('Use buttons to adjust')).toBeInTheDocument();
+    });
+
+    test('should not render helper text when error is present', () => {
+      render(
+        <Counter
+          value={0}
+          onChange={() => {}}
+          error="Error message"
+          helperText="Helper text"
+        />
+      );
+      expect(screen.queryByText('Helper text')).not.toBeInTheDocument();
+      expect(screen.getByText('Error message')).toBeInTheDocument();
+    });
+
+    test('should apply error styling to buttons when error is present', () => {
+      render(<Counter value={0} onChange={() => {}} error="Error" />);
+      const incrementButton = screen.getByRole('button', { name: /increment/i });
+      const decrementButton = screen.getByRole('button', { name: /decrement/i });
+      expect(incrementButton.className).toContain('border-[var(--color-error)]');
+      expect(decrementButton.className).toContain('border-[var(--color-error)]');
+    });
+
+    test('should apply error styling to value when error is present', () => {
+      const { container } = render(<Counter value={5} onChange={() => {}} error="Error" />);
+      const valueDisplay = container.querySelector('[aria-live="polite"]');
+      expect(valueDisplay?.className).toContain('text-[var(--color-error)]');
+    });
+
+    test('should set aria-invalid when error is present', () => {
+      const { container } = render(<Counter value={0} onChange={() => {}} error="Error" />);
+      const valueDisplay = container.querySelector('[aria-invalid]');
+      expect(valueDisplay).toHaveAttribute('aria-invalid', 'true');
+    });
+  });
+
+  describe('fullWidth prop', () => {
+    test('should apply full width class when fullWidth=true', () => {
+      const { container } = render(<Counter value={0} onChange={() => {}} fullWidth />);
+      const wrapper = container.firstChild as HTMLElement;
+      expect(wrapper).toHaveClass('w-full');
+    });
+
+    test('should not apply full width class by default', () => {
+      const { container } = render(<Counter value={0} onChange={() => {}} />);
+      const wrapper = container.firstChild as HTMLElement;
+      expect(wrapper).not.toHaveClass('w-full');
+    });
+  });
+
   describe('accessibility', () => {
     test('should have no accessibility violations (default)', async () => {
       const { container } = render(<Counter value={0} onChange={() => {}} />);
@@ -187,6 +247,22 @@ describe('Counter', () => {
     test('should have no accessibility violations (with label)', async () => {
       const { container } = render(
         <Counter value={5} onChange={() => {}} label="Sips" />
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    test('should have no accessibility violations (with error)', async () => {
+      const { container } = render(
+        <Counter value={0} onChange={() => {}} error="Error message" />
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    test('should have no accessibility violations (with helper text)', async () => {
+      const { container } = render(
+        <Counter value={0} onChange={() => {}} helperText="Helper text" />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();

@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 /**
  * Counter component with increment and decrement buttons.
  *
@@ -10,8 +12,12 @@
  * <Counter value={count} onChange={setCount} min={0} max={10} />
  *
  * @example
- * // With custom step
- * <Counter value={score} onChange={setScore} step={5} />
+ * // With error state
+ * <Counter value={score} onChange={setScore} error="Score must be positive" />
+ *
+ * @example
+ * // With helper text
+ * <Counter value={count} onChange={setCount} helperText="Use + and - buttons to adjust" />
  */
 export interface CounterProps {
   /** Current value */
@@ -26,8 +32,14 @@ export interface CounterProps {
   step?: number;
   /** Label text */
   label?: string;
+  /** Error message to display */
+  error?: string;
+  /** Helper text to display below counter */
+  helperText?: string;
   /** Disabled state */
   disabled?: boolean;
+  /** Make counter full width */
+  fullWidth?: boolean;
   /** Accessible label for screen readers */
   ariaLabel?: string;
 }
@@ -39,9 +51,15 @@ export function Counter({
   max,
   step = 1,
   label,
+  error,
+  helperText,
   disabled = false,
+  fullWidth = false,
   ariaLabel,
 }: CounterProps) {
+  const generatedId = useId();
+  const errorId = error ? `${generatedId}-error` : undefined;
+
   const handleIncrement = () => {
     if (disabled) return;
     const newValue = value + step;
@@ -59,8 +77,10 @@ export function Counter({
   const isAtMin = min !== undefined && value <= min;
   const isAtMax = max !== undefined && value >= max;
 
+  const wrapperClasses = fullWidth ? 'w-full' : '';
+
   return (
-    <div role="group" aria-label={ariaLabel}>
+    <div className={wrapperClasses} role="group" aria-label={ariaLabel} aria-describedby={errorId}>
       {label && (
         <div className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
           {label}
@@ -71,15 +91,20 @@ export function Counter({
           type="button"
           onClick={handleDecrement}
           disabled={disabled || isAtMin}
-          className="glass px-4 py-3 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`glass px-4 py-3 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            error ? 'border border-[var(--color-error)]' : ''
+          }`}
           aria-label="Decrement"
         >
           <span className="text-xl font-bold" aria-hidden="true">−</span>
         </button>
 
         <div
-          className="min-w-[3rem] text-center text-2xl font-bold font-mono"
+          className={`min-w-[3rem] text-center text-2xl font-bold font-mono ${
+            error ? 'text-[var(--color-error)]' : ''
+          }`}
           aria-live="polite"
+          aria-invalid={error ? 'true' : 'false'}
         >
           {value}
         </div>
@@ -88,12 +113,24 @@ export function Counter({
           type="button"
           onClick={handleIncrement}
           disabled={disabled || isAtMax}
-          className="glass px-4 py-3 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`glass px-4 py-3 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            error ? 'border border-[var(--color-error)]' : ''
+          }`}
           aria-label="Increment"
         >
           <span className="text-xl font-bold" aria-hidden="true">+</span>
         </button>
       </div>
+      {error && (
+        <p id={errorId} className="mt-1 text-sm text-[var(--color-error)]" role="alert">
+          {error}
+        </p>
+      )}
+      {helperText && !error && (
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+          {helperText}
+        </p>
+      )}
     </div>
   );
 }

@@ -246,6 +246,100 @@ body {
   background: transparent;
 }
 
+/* Sonner Toast Styles - Glassmorphism Theme */
+[data-sonner-toaster] {
+  /* Position toasts in top-right */
+  --normal-bg: var(--color-glass-bg);
+  --normal-border: var(--color-glass-border);
+  --normal-text: var(--color-text);
+
+  --success-bg: rgba(74, 222, 128, 0.15);
+  --success-border: rgba(74, 222, 128, 0.5);
+  --success-text: var(--color-success);
+
+  --error-bg: rgba(248, 113, 113, 0.15);
+  --error-border: rgba(248, 113, 113, 0.5);
+  --error-text: var(--color-error);
+
+  --info-bg: rgba(96, 165, 250, 0.15);
+  --info-border: rgba(96, 165, 250, 0.5);
+  --info-text: #60a5fa;
+
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --warning-border: rgba(251, 191, 36, 0.5);
+  --warning-text: var(--color-accent);
+}
+
+[data-sonner-toast] {
+  background: var(--normal-bg);
+  border: 1px solid var(--normal-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--normal-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+[data-sonner-toast][data-type='success'] {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success-text);
+}
+
+[data-sonner-toast][data-type='error'] {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
+}
+
+[data-sonner-toast][data-type='info'] {
+  background: var(--info-bg);
+  border-color: var(--info-border);
+  color: var(--info-text);
+}
+
+[data-sonner-toast][data-type='warning'] {
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: var(--warning-text);
+}
+
+[data-sonner-toast] [data-title] {
+  color: inherit;
+  font-weight: 500;
+}
+
+[data-sonner-toast] [data-description] {
+  color: var(--color-text-secondary);
+}
+
+[data-sonner-toast] [data-button] {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+[data-sonner-toast] [data-button]:hover {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+[data-sonner-toast] [data-close-button] {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: none;
+  transition: color 0.2s ease;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  color: var(--color-text);
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   :root {
