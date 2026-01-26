@@ -4,29 +4,28 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { AnimatePresence } from 'framer-motion';
 import { getGameState, getRoutes, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
+import { useOptimisticGameState } from '@/hooks/useOptimisticGameState';
 import { ScoreboardTable } from '@/components/ScoreboardTable';
 import { ScoreboardSkeleton } from '@/components/ScoreboardSkeleton';
 import { ShareModal } from '@/components/ShareModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
 import { EventBanner } from '@/components/EventBanner';
-import { Player, GameStatus, GameState, ActiveEvent } from '@/lib/types';
+import { Player, GameState } from '@/lib/types';
 import { Typography } from '@/components/ui/Typography';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
 export default function GamePage() {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [committedGameState, setCommittedGameState] = useState<GameState | null>(null);
   const [pars, setPars] = useState<number[]>(DEFAULT_PARS);
   const [gameCode, setGameCode] = useState<string>('');
-  const [status, setStatus] = useState<GameStatus>('ACTIVE');
-  const [hostPlayerId, setHostPlayerId] = useState<string | null>(null);
-  const [activeEvent, setActiveEvent] = useState<ActiveEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
@@ -38,10 +37,17 @@ export default function GamePage() {
   const { getGameCode, getPlayerId } = useLocalStorage();
   const { getLastSeenEventId, setLastSeenEventId, getQueuedEventId, setQueuedEventId } = useSessionStorage();
 
+  // Use optimistic state management
+  const { gameState, cellStates } = useOptimisticGameState(committedGameState);
+
+  // Derive values from game state
+  const players = gameState?.players || [];
+  const status = gameState?.status || 'ACTIVE';
+  const hostPlayerId = gameState?.hostPlayerId || null;
+  const activeEvent = gameState?.activeEvent || null;
+
   const handleGameStateUpdate = useCallback((state: GameState) => {
-    setPlayers(state.players);
-    setStatus(state.status);
-    setHostPlayerId(state.hostPlayerId);
+    setCommittedGameState(state);
 
     const newEventId = state.activeEvent?.id ?? null;
     const prevEventId = previousEventIdRef.current;
@@ -58,7 +64,6 @@ export default function GamePage() {
     }
 
     previousEventIdRef.current = newEventId;
-    setActiveEvent(state.activeEvent);
 
     if (state.status === 'COMPLETED') {
       setShowCelebration(true);
@@ -220,6 +225,7 @@ export default function GamePage() {
             pars={pars}
             currentPlayerId={playerId ?? undefined}
             hostPlayerId={hostPlayerId ?? undefined}
+            cellStates={cellStates}
           />
         </section>
 
@@ -268,26 +274,32 @@ export default function GamePage() {
         </nav>
       </div>
 
-      {showShareModal && (
-        <ShareModal
-          gameCode={gameCode}
-          onClose={() => setShowShareModal(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showShareModal && (
+          <ShareModal
+            gameCode={gameCode}
+            onClose={() => setShowShareModal(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {showCelebration && isCompleted && (
-        <CelebrationScreen
-          winners={getWinners()}
-          onDismiss={() => setShowCelebration(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showCelebration && isCompleted && (
+          <CelebrationScreen
+            winners={getWinners()}
+            onDismiss={() => setShowCelebration(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {showEventNotification && activeEvent && (
-        <EventNotificationOverlay
-          event={activeEvent}
-          onDismiss={handleEventNotificationDismiss}
-        />
-      )}
+      <AnimatePresence>
+        {showEventNotification && activeEvent && (
+          <EventNotificationOverlay
+            event={activeEvent}
+            onDismiss={handleEventNotificationDismiss}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 }

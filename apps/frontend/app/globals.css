@@ -125,6 +125,39 @@ body {
   }
 }
 
+@keyframes pulse-pending {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes flash-success {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(74, 222, 128, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes shake-error {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out;
 }
@@ -143,6 +176,34 @@ body {
 
 .animate-pulse-success {
   animation: pulse-success 0.4s ease-in-out;
+}
+
+.animate-pulse-pending {
+  animation: pulse-pending 1.5s ease-in-out infinite;
+}
+
+.animate-flash-success {
+  animation: flash-success 0.4s ease-out;
+}
+
+.animate-shake-error {
+  animation: shake-error 0.4s ease-out;
+}
+
+/* Optimistic UI cell states */
+.cell-pending {
+  border: 2px solid var(--color-primary);
+  animation: pulse-pending 1.5s ease-in-out infinite;
+}
+
+.cell-success {
+  animation: flash-success 0.4s ease-out;
+}
+
+.cell-error {
+  border: 2px solid var(--color-error);
+  animation: shake-error 0.4s ease-out;
+  background-color: rgba(248, 113, 113, 0.1);
 }
 
 /* Glassmorphism */

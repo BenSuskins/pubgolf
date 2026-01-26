@@ -1,14 +1,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 import { EmptyState } from './ui/EmptyState';
+import { CellState } from '@/hooks/useOptimisticGameState';
+import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
 
 interface ScoreboardTableProps {
   players: Player[];
   pars: number[];
   currentPlayerId?: string;
   hostPlayerId?: string;
+  cellStates?: Record<string, CellState>;
 }
 
 function getScoreColor(score: number | null, par: number): string {
@@ -33,12 +37,22 @@ function getPlayerRank(player: Player, players: Player[]): number {
   return distinctLowerScores.size;
 }
 
-export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }: ScoreboardTableProps) {
+export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId, cellStates = {} }: ScoreboardTableProps) {
   const [scrollState, setScrollState] = useState({
     isAtStart: true,
     isAtEnd: false,
   });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Helper to get cell key for state lookup
+  const getCellKey = (playerId: string, hole: number) => `${playerId}-${hole}`;
+
+  // Helper to get cell state classes
+  const getCellStateClass = (playerId: string, hole: number): string => {
+    const state = cellStates[getCellKey(playerId, hole)];
+    if (!state || state === 'normal') return '';
+    return `cell-${state}`;
+  };
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -138,7 +152,11 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
             <td className="px-3 py-1.5 text-center">{pars.reduce((a, b) => a + b, 0)}</td>
           </tr>
         </thead>
-        <tbody>
+        <motion.tbody
+          variants={staggerContainerVariants}
+          initial="initial"
+          animate="animate"
+        >
           {players.map((player) => {
             const isCurrentPlayer = player.id === currentPlayerId;
             const isHost = player.id === hostPlayerId;
@@ -147,8 +165,9 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
             const isLeader = rank === 0;
 
             return (
-              <tr
+              <motion.tr
                 key={player.id}
+                variants={staggerItemVariants}
                 className={`border-b border-[var(--color-border-subtle)] transition-colors duration-150 ${
                   isCurrentPlayer
                     ? 'bg-[var(--color-primary)]/10'
@@ -189,10 +208,11 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
                 {player.scores.map((score, i) => {
                   const isRandomiseHole = player.randomise && player.randomise.hole === i + 1;
                   const penalty = player.penalties?.find((p) => p.hole === i + 1);
+                  const cellStateClass = getCellStateClass(player.id, i + 1);
                   return (
                     <td
                       key={i}
-                      className={`px-3 py-3 text-center ${getScoreColor(score, pars[i])}`}
+                      className={`px-3 py-3 text-center ${getScoreColor(score, pars[i])} ${cellStateClass} transition-all`}
                     >
                       <div className="flex flex-col items-center">
                         <span className="font-medium">{score ?? '-'}</span>
@@ -217,10 +237,10 @@ export function ScoreboardTable({ players, pars, currentPlayerId, hostPlayerId }
                 <td className={`px-3 py-3 text-center font-bold ${isLeader ? 'text-[var(--color-accent)]' : ''}`}>
                   {player.totalScore}
                 </td>
-              </tr>
+              </motion.tr>
             );
           })}
-        </tbody>
+        </motion.tbody>
       </table>
       </div>
     </div>

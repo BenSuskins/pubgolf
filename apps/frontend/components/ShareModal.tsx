@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Typography } from './ui/Typography';
+import { modalVariants, overlayVariants } from '@/lib/animations';
 
 interface ShareModalProps {
   gameCode: string;
@@ -77,19 +79,29 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
   };
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="share-modal-title"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={overlayVariants}
     >
-      <Card
-        ref={modalRef}
-        rounded="lg"
-        padding="lg"
-        className="max-w-sm w-full mx-4 space-y-5 animate-fade-in"
+      <motion.div
+        variants={modalVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
       >
+        <Card
+          ref={modalRef}
+          rounded="lg"
+          padding="lg"
+          className="max-w-sm w-full mx-4 space-y-5"
+        >
         <Typography variant="heading" as="h2" id="share-modal-title" className="text-center">
           Rally Your Crew
         </Typography>
@@ -131,7 +143,8 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
             Done
           </Button>
         </div>
-      </Card>
-    </div>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

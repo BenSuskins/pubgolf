@@ -1,6 +1,24 @@
-import { afterEach, beforeEach } from 'bun:test';
+import { afterEach, beforeEach, mock } from 'bun:test';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import React from 'react';
+
+// Mock framer-motion to avoid animation complexity in tests
+mock.module('framer-motion', () => ({
+  motion: new Proxy(
+    {},
+    {
+      get: (_, prop) => {
+        // Return a component that forwards all props to the native HTML element
+        return React.forwardRef<any, any>((props, ref) => {
+          const { variants, initial, animate, exit, transition, ...rest } = props;
+          return React.createElement(prop as string, { ...rest, ref });
+        });
+      },
+    }
+  ),
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 // Cleanup after each test
 afterEach(() => {

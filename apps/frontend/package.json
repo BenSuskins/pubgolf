@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@stomp/stompjs": "^7.2.1",
+    "framer-motion": "^11.15.0",
     "maplibre-gl": "^5.16.0",
     "next": "16.1.1",
     "react": "19.2.3",

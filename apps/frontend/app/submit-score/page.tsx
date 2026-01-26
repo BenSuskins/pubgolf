@@ -21,7 +21,6 @@ export default function SubmitScorePage() {
   const [pars, setPars] = useState<number[]>([]);
   const [playerScores, setPlayerScores] = useState<(number | null)[]>([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
@@ -90,15 +89,14 @@ export default function SubmitScorePage() {
     try {
       await submitScore(gameCode, playerId, hole, scoreNum, penaltyType);
 
-      // Show success toast with animation
+      // Show success toast
       toast.success('Score submitted!', {
         description: `Hole ${hole}: ${scoreNum} sip${scoreNum !== 1 ? 's' : ''}`,
+        duration: 2000,
       });
 
-      // Delay redirect for user feedback
-      setTimeout(() => {
-        router.push('/game');
-      }, 1500);
+      // Redirect immediately - WebSocket will update the scoreboard
+      router.push('/game');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit score');
       setSubmitting(false);
