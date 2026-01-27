@@ -34,19 +34,19 @@ describe('ErrorMessage', () => {
 
   describe('variants', () => {
     test('should render inline variant by default', () => {
-      const { container } = render(<ErrorMessage message="Error" />);
+      render(<ErrorMessage message="Error" />);
       const alert = screen.getByRole('alert');
       expect(alert.className).not.toContain('glass');
     });
 
     test('should render card variant', () => {
-      const { container } = render(<ErrorMessage message="Error" variant="card" />);
+      render(<ErrorMessage message="Error" variant="card" />);
       const alert = screen.getByRole('alert');
       expect(alert.className).toContain('glass');
     });
 
     test('should apply inline styles for inline variant', () => {
-      const { container } = render(<ErrorMessage message="Error" variant="inline" />);
+      render(<ErrorMessage message="Error" variant="inline" />);
       const alert = screen.getByRole('alert');
       expect(alert.className).toContain('flex');
       expect(alert.className).toContain('items-start');

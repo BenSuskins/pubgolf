@@ -81,6 +81,7 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     const classes = `${variantClasses[variant]} ${appliedColorClass} ${gradientClass} ${className}`.trim();
 
     return (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Component ref={ref as any} className={classes} {...rest}>
         {children}
       </Component>

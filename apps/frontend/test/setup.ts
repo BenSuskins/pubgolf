@@ -10,10 +10,13 @@ mock.module('framer-motion', () => ({
     {
       get: (_, prop) => {
         // Return a component that forwards all props to the native HTML element
-        return React.forwardRef<any, any>((props, ref) => {
-          const { variants, initial, animate, exit, transition, ...rest } = props;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, react/display-name
+        const MotionComponent = React.forwardRef<any, any>((props, ref) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { variants: _variants, initial: _initial, animate: _animate, exit: _exit, transition: _transition, ...rest } = props;
           return React.createElement(prop as string, { ...rest, ref });
         });
+        return MotionComponent;
       },
     }
   ),

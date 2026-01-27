@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { GameState, Player } from '@/lib/types';
+import { GameState } from '@/lib/types';
 import { toast } from 'sonner';
 
 interface OptimisticUpdate {
@@ -51,9 +51,10 @@ export function useOptimisticGameState(
 
   // Clean up timeouts on unmount
   useEffect(() => {
+    const timeouts = successTimeouts.current;
     return () => {
-      successTimeouts.current.forEach((timeout) => clearTimeout(timeout));
-      successTimeouts.current.clear();
+      timeouts.forEach((timeout) => clearTimeout(timeout));
+      timeouts.clear();
     };
   }, []);
 
@@ -122,6 +123,7 @@ export function useOptimisticGameState(
       setCellStates(newCellStates);
       return reconciled;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [committedState]);
 
   // Add an optimistic update

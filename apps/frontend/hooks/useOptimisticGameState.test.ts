@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach, mock } from 'bun:test';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useOptimisticGameState } from './useOptimisticGameState';
 import { GameState } from '@/lib/types';
@@ -282,12 +282,14 @@ describe('useOptimisticGameState', () => {
         result.current.addOptimisticUpdate('player-1', 1, 3);
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const errorCallsBefore = (toast.error as any).mock.calls.length;
 
       act(() => {
         result.current.rollbackUpdate('player-1', 1);
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const errorCallsAfter = (toast.error as any).mock.calls.length;
       expect(errorCallsAfter).toBe(errorCallsBefore);
     });
