@@ -91,7 +91,7 @@ export function Counter({
           type="button"
           onClick={handleDecrement}
           disabled={disabled || isAtMin}
-          className={`glass px-4 py-3 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
             error ? 'border border-[var(--color-error)]' : ''
           }`}
           aria-label="Decrement"
@@ -113,7 +113,7 @@ export function Counter({
           type="button"
           onClick={handleIncrement}
           disabled={disabled || isAtMax}
-          className={`glass px-4 py-3 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
             error ? 'border border-[var(--color-error)]' : ''
           }`}
           aria-label="Increment"

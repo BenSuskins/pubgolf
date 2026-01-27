@@ -147,29 +147,68 @@ export default function SubmitScorePage() {
             )}
           </div>
 
-          <Counter
-            label="Sips Taken"
-            value={penaltyType && selectedPenalty ? selectedPenalty.points : score}
-            onChange={setScore}
-            min={-10}
-            max={10}
-            disabled={submitting || !!penaltyType}
-            ariaLabel="Sips counter"
-          />
+          <div className="flex justify-center">
+            <Counter
+              label="Sips Taken"
+              value={penaltyType && selectedPenalty ? selectedPenalty.points : score}
+              onChange={setScore}
+              min={-10}
+              max={10}
+              disabled={submitting || !!penaltyType}
+              ariaLabel="Sips counter"
+            />
+          </div>
+
+          {currentPar !== undefined && !penaltyType && score !== 0 && (
+            <div className="text-center">
+              {score === currentPar ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  On par
+                </p>
+              ) : score < currentPar ? (
+                <p className="text-sm text-[var(--color-success)] font-medium">
+                  {currentPar - score} under par ⬇️
+                </p>
+              ) : (
+                <p className="text-sm text-[var(--color-danger)] font-medium">
+                  {score - currentPar} over par ⬆️
+                </p>
+              )}
+            </div>
+          )}
 
           <fieldset>
             <legend className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
-              Penalties
+              Quick Actions
             </legend>
-            {penaltyOptions.length === 0 ? (
+            {penaltyOptions.length === 0 && currentPar === undefined ? (
               <div className="py-2">
                 <EmptyState
                   icon="✅"
-                  description="No penalties available"
+                  description="No quick actions available"
                 />
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-3">
+                {currentPar !== undefined && (
+                  <button
+                    type="button"
+                    onClick={() => setScore(currentPar)}
+                    aria-label={`Set score to par (${currentPar} sips)`}
+                    disabled={submitting || !!penaltyType}
+                    className={`p-4 rounded-lg font-medium transition-all flex flex-col items-center gap-2 min-h-[100px] ${
+                      score === currentPar && !penaltyType
+                        ? 'bg-[var(--color-accent)]/20 ring-2 ring-[var(--color-accent)]'
+                        : 'glass hover:bg-white/5 border border-[var(--color-accent)]/30'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <span className="text-3xl" aria-hidden="true">
+                      ⛳
+                    </span>
+                    <span className="text-sm text-center leading-tight">Par</span>
+                    <span className="text-lg font-bold">{currentPar}</span>
+                  </button>
+                )}
                 {penaltyOptions.map((option) => (
                   <button
                     key={option.type}
