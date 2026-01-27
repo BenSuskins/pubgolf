@@ -1,5 +1,8 @@
 package uk.co.suskins.pubgolf.controller
 
+import dev.forkhandles.result4k.Failure
+import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.Success
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
@@ -300,11 +303,12 @@ class GameController(
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody scoreRequest: ScoreRequest,
     ): ResponseEntity<*> {
-        val playerId = parsePlayerIdHeader(playerIdHeader)
-        return gameService
-            .validatePlayerInGame(gameCode, playerId)
-            .flatMap {
-                gameService.submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
+        return parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService.validatePlayerInGame(gameCode, playerId)
+                    .flatMap {
+                        gameService.submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
+                    }
             }.map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
@@ -380,11 +384,11 @@ class GameController(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
     ): ResponseEntity<*> {
-        val playerId = parsePlayerIdHeader(playerIdHeader)
-        return gameService
-            .validatePlayerInGame(gameCode, playerId)
-            .flatMap { gameService.randomise(gameCode, playerId) }
-            .map {
+        return parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService.validatePlayerInGame(gameCode, playerId)
+                    .flatMap { gameService.randomise(gameCode, playerId) }
+            }.map {
                 RandomiseResponse(
                     it.result,
                     it.hole,
@@ -476,11 +480,11 @@ class GameController(
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: UpdateGameStatusRequest,
     ): ResponseEntity<*> {
-        val playerId = parsePlayerIdHeader(playerIdHeader)
-        return gameService
-            .validatePlayerInGame(gameCode, playerId)
-            .flatMap { gameService.completeGame(gameCode, playerId) }
-            .map { it.toGameStateResponse() }
+        return parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService.validatePlayerInGame(gameCode, playerId)
+                    .flatMap { gameService.completeGame(gameCode, playerId) }
+            }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
@@ -548,9 +552,9 @@ class GameController(
     ): ResponseEntity<*> =
         gameService
             .getActiveEvent(gameCode)
-            .map { activeEvent ->
+            .map { activeEventState ->
                 ActiveEventStateResponse(
-                    activeEvent?.let {
+                    activeEventState.activeEvent?.let {
                         ActiveEventResponse(
                             it.event.id,
                             it.event.title,
@@ -636,11 +640,11 @@ class GameController(
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: SetActiveEventRequest,
     ): ResponseEntity<*> {
-        val playerId = parsePlayerIdHeader(playerIdHeader)
-        return gameService
-            .validatePlayerInGame(gameCode, playerId)
-            .flatMap { gameService.activateEvent(gameCode, playerId, request.eventId) }
-            .map { it.toGameStateResponse() }
+        return parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService.validatePlayerInGame(gameCode, playerId)
+                    .flatMap { gameService.activateEvent(gameCode, playerId, request.eventId) }
+            }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
@@ -696,11 +700,11 @@ class GameController(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
     ): ResponseEntity<*> {
-        val playerId = parsePlayerIdHeader(playerIdHeader)
-        return gameService
-            .validatePlayerInGame(gameCode, playerId)
-            .flatMap { gameService.endEvent(gameCode, playerId) }
-            .map { it.toGameStateResponse() }
+        return parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService.validatePlayerInGame(gameCode, playerId)
+                    .flatMap { gameService.endEvent(gameCode, playerId) }
+            }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
@@ -713,10 +717,10 @@ class GameController(
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: SetPubsRequest,
     ): ResponseEntity<out Any> {
-        val playerId = parsePlayerIdHeader(playerIdHeader)
-        return pubRouteService
-            .setPubsForGame(gameCode, playerId, request.pubs)
-            .map {
+        return parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                pubRouteService.setPubsForGame(gameCode, playerId, request.pubs)
+            }.map {
                 ResponseEntity.status(CREATED).build<Any>()
             }.mapFailure {
                 resolveFailure(it)
@@ -755,16 +759,14 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
-    private fun parsePlayerIdHeader(playerIdHeader: String?): PlayerId {
+    private fun parsePlayerIdHeader(playerIdHeader: String?): Result<PlayerId, PubGolfFailure> {
         if (playerIdHeader == null) {
-            throw uk.co.suskins.pubgolf.config
-                .MissingPlayerIdHeaderException("Missing required header: PubGolf-Player-Id")
+            return Failure(MissingPlayerIdHeaderFailure("Missing required header: PubGolf-Player-Id"))
         }
         return try {
-            PlayerId(java.util.UUID.fromString(playerIdHeader))
+            Success(PlayerId(java.util.UUID.fromString(playerIdHeader)))
         } catch (e: IllegalArgumentException) {
-            throw uk.co.suskins.pubgolf.config
-                .MissingPlayerIdHeaderException("Invalid player ID format in header: $playerIdHeader")
+            Failure(MissingPlayerIdHeaderFailure("Invalid player ID format in header: $playerIdHeader"))
         }
     }
 

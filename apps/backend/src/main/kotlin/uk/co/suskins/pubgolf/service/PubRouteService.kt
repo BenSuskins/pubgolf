@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameConstants
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.InvalidHostFailure
 import uk.co.suskins.pubgolf.models.InvalidPubCountFailure
@@ -90,10 +91,10 @@ class PubRouteService(
         }
 
     private fun validatePubCount(pubDtos: List<PubDto>): Result<List<PubDto>, PubGolfFailure> =
-        if (pubDtos.size == 9) {
+        if (pubDtos.size == GameConstants.MAX_HOLES) {
             Success(pubDtos)
         } else {
-            Failure(InvalidPubCountFailure("Exactly 9 pubs are required, but ${pubDtos.size} were provided"))
+            Failure(InvalidPubCountFailure("Exactly ${GameConstants.MAX_HOLES} pubs are required, but ${pubDtos.size} were provided"))
         }
 
     private fun calculateRoute(pubs: List<Pub>): RouteGeometry? =

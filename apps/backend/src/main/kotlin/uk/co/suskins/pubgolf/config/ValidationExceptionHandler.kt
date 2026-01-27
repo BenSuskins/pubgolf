@@ -10,10 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import uk.co.suskins.pubgolf.models.ErrorResponse
 
-class MissingPlayerIdHeaderException(
-    message: String,
-) : ServletRequestBindingException(message)
-
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class ValidationExceptionHandler {
@@ -28,12 +24,6 @@ class ValidationExceptionHandler {
             .badRequest()
             .body(ErrorResponse("Validation failed: $message"))
     }
-
-    @ExceptionHandler(MissingPlayerIdHeaderException::class)
-    fun handleMissingPlayerId(exception: MissingPlayerIdHeaderException): ResponseEntity<ErrorResponse> =
-        ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(exception.message ?: "Unauthorized"))
 
     @ExceptionHandler(ServletRequestBindingException::class)
     fun handleServletRequestBinding(exception: ServletRequestBindingException): ResponseEntity<ErrorResponse> =

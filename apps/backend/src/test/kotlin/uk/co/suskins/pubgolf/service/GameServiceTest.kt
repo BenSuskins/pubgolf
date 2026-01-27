@@ -570,8 +570,8 @@ class GameServiceTest {
         val result = service.getActiveEvent(gameCode)
 
         assertThat(result, isSuccess())
-        val event = result.valueOrNull()!!
-        assertThat(event!!.event, equalTo(GameEvent.PHOTO_OP))
+        val eventState = result.valueOrNull()!!
+        assertThat(eventState.activeEvent!!.event, equalTo(GameEvent.PHOTO_OP))
     }
 
     @Test
@@ -590,7 +590,7 @@ class GameServiceTest {
         val result = service.getActiveEvent(gameCode)
 
         assertThat(result, isSuccess())
-        assertThat(result.valueOrNull(), equalTo(null))
+        assertThat(result.valueOrNull()!!.activeEvent, equalTo(null))
     }
 }
 

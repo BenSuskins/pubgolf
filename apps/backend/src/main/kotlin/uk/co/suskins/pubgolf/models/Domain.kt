@@ -42,7 +42,7 @@ data class Player(
     companion object {
         fun initialScore(): Map<Hole, ScoreWithTimestamp> {
             val now = Instant.now()
-            return (1..9)
+            return (1..GameConstants.MAX_HOLES)
                 .associateWith { 0 }
                 .mapKeys { Hole(it.key) }
                 .mapValues { ScoreWithTimestamp(Score(it.value), now) }
@@ -128,6 +128,8 @@ data class ActiveEvent(
     val activatedAt: Instant,
 )
 
+data class ActiveEventState(val activeEvent: ActiveEvent?)
+
 data class Pub(
     val id: PubId,
     val gameId: GameId,
@@ -141,6 +143,10 @@ data class RouteGeometry(
     val type: String = "LineString",
     val coordinates: List<List<Double>>,
 )
+
+object GameConstants {
+    const val MAX_HOLES = 9
+}
 
 sealed interface PubGolfFailure {
     val message: String

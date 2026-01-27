@@ -9,11 +9,13 @@ import dev.forkhandles.result4k.peek
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.co.suskins.pubgolf.models.ActiveEvent
+import uk.co.suskins.pubgolf.models.ActiveEventState
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameConstants
 import uk.co.suskins.pubgolf.models.GameEvent
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameStatus
@@ -56,7 +58,7 @@ class GameService(
         return gameRepository
             .save(game)
             .peek { logger.info("Game ${it.code.value} created.") }
-            .also { gameMetrics.gameCreated() }
+            .peek { gameMetrics.gameCreated() }
     }
 
     fun joinGame(
@@ -66,7 +68,7 @@ class GameService(
         gameRepository
             .findByCodeIgnoreCase(gameCode)
             .flatMap { isNotCompleted(it, "This game has ended") }
-            .flatMap { hasPlayer(it, name) }
+            .flatMap { hasPlayerByName(it, name) }
             .flatMap { game ->
                 val player = Player(PlayerId.random(), name)
                 val updated = game.copy(players = game.players + player)
@@ -74,7 +76,7 @@ class GameService(
                     .save(updated)
                     .peek { gameStateBroadcaster.broadcast(it) }
                     .map { game.copy(players = listOf(player)) }
-                    .also { gameMetrics.playerJoined() }
+                    .peek { gameMetrics.playerJoined() }
             }
 
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
@@ -89,7 +91,7 @@ class GameService(
         gameRepository
             .findByCodeIgnoreCase(gameCode)
             .flatMap { isNotCompleted(it, "Cannot submit score to completed game") }
-            .flatMap { hasPlayer(it, playerId) }
+            .flatMap { hasPlayerById(it, playerId) }
             .flatMap { game ->
                 val updatedPlayers =
                     game.players.map {
@@ -109,7 +111,7 @@ class GameService(
                     .save(game.copy(players = updatedPlayers))
                     .peek { gameStateBroadcaster.broadcast(it) }
                     .map { }
-                    .also { gameMetrics.scoreSubmitted(hole) }
+                    .peek { gameMetrics.scoreSubmitted(hole) }
             }
 
     fun randomise(
@@ -119,7 +121,7 @@ class GameService(
         gameRepository
             .findByCodeIgnoreCase(gameCode)
             .flatMap { isNotCompleted(it, "Cannot randomise on completed game") }
-            .flatMap { hasPlayer(it, playerId) }
+            .flatMap { hasPlayerById(it, playerId) }
             .flatMap { hasUsedRandomise(it, playerId) }
             .flatMap { game ->
                 generateRandomiseResult(playerId, game).flatMap { randomiseResult ->
@@ -144,7 +146,7 @@ class GameService(
                     .save(completed)
                     .peek { gameStateBroadcaster.broadcast(it) }
                     .peek { logger.info("Game ${it.code.value} completed.") }
-                    .also { gameMetrics.gameCompleted() }
+                    .peek { gameMetrics.gameCompleted() }
             }
 
     fun getAvailableEvents(): List<GameEvent> = GameEvent.entries.toList()
@@ -163,10 +165,10 @@ class GameService(
                 }
             }
 
-    fun getActiveEvent(gameCode: GameCode): Result<ActiveEvent?, PubGolfFailure> =
+    fun getActiveEvent(gameCode: GameCode): Result<ActiveEventState, PubGolfFailure> =
         gameRepository
             .findByCodeIgnoreCase(gameCode)
-            .map { it.activeEvent }
+            .map { ActiveEventState(it.activeEvent) }
 
     fun activateEvent(
         gameCode: GameCode,
@@ -216,7 +218,7 @@ class GameService(
             Success(game)
         }
 
-    private fun hasPlayer(
+    private fun hasPlayerById(
         game: Game,
         playerId: PlayerId,
     ): Result<Game, PubGolfFailure> =
@@ -226,7 +228,7 @@ class GameService(
             Success(game)
         }
 
-    private fun hasPlayer(
+    private fun hasPlayerByName(
         game: Game,
         name: PlayerName,
     ): Result<Game, PubGolfFailure> =
@@ -275,13 +277,14 @@ class GameService(
                 .save(game.copy(players = updatedPlayers))
                 .peek { gameStateBroadcaster.broadcast(it) }
                 .flatMap {
+                    gameMetrics.randomiseUsed()
                     Success(
                         RandomiseResult(
                             result = outcome.label,
                             hole = randomiseHole,
                             outcomes = Outcomes.entries,
                         ),
-                    ).also { gameMetrics.randomiseUsed() }
+                    )
                 }
         }
     }
@@ -302,7 +305,7 @@ class GameService(
             scores.maxByOrNull { it.value.instant }?.key
                 ?: return Failure(RandomiseAlreadyUsedFailure("No scores found for player"))
 
-        return if (mostRecentHole.value == 9) {
+        return if (mostRecentHole.value == GameConstants.MAX_HOLES) {
             Failure(RandomiseAlreadyUsedFailure("No more holes left"))
         } else {
             Success(Hole(mostRecentHole.value + 1))
