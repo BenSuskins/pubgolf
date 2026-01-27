@@ -9,15 +9,13 @@ class GameEventCaptor {
 
     fun getEvents(): List<GameEvent> = capturedEvents.toList()
 
-    inline fun <reified T : GameEvent> getEventsOfType(): List<T> =
-        capturedEvents.filterIsInstance<T>()
+    inline fun <reified T : GameEvent> getEventsOfType(): List<T> = capturedEvents.filterIsInstance<T>()
 
     fun clear() {
         capturedEvents.clear()
     }
 
-    fun assertEventPublished(predicate: (GameEvent) -> Boolean): GameEvent {
-        return capturedEvents.find(predicate)
+    fun assertEventPublished(predicate: (GameEvent) -> Boolean): GameEvent =
+        capturedEvents.find(predicate)
             ?: throw AssertionError("No event matching predicate found")
-    }
 }

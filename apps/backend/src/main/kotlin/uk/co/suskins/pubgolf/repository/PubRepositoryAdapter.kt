@@ -29,8 +29,9 @@ class PubRepositoryAdapter(
             }
 
             val gameId = pubs.first().gameId
-            val gameEntity = gameStore.findById(gameId.value).orElse(null)
-                ?: return Failure(GameNotFoundFailure("Game `${gameId.value}` not found during pub save"))
+            val gameEntity =
+                gameStore.findById(gameId.value).orElse(null)
+                    ?: return Failure(GameNotFoundFailure("Game `${gameId.value}` not found during pub save"))
 
             val entities = pubs.map { it.toJpa(gameEntity) }
             val saved = store.saveAll(entities)

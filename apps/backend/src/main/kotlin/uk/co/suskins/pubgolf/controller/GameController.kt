@@ -302,18 +302,24 @@ class GameController(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody scoreRequest: ScoreRequest,
-    ): ResponseEntity<*> {
-        return parsePlayerIdHeader(playerIdHeader)
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
             .flatMap { playerId ->
-                gameService.validatePlayerInGame(gameCode, playerId)
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
                     .flatMap {
-                        gameService.submitScore(gameCode, playerId, scoreRequest.hole, scoreRequest.score, scoreRequest.penaltyType)
+                        gameService.submitScore(
+                            gameCode,
+                            playerId,
+                            scoreRequest.hole,
+                            scoreRequest.score,
+                            scoreRequest.penaltyType,
+                        )
                     }
             }.map { ResponseEntity.status(NO_CONTENT).body(null) }
             .mapFailure {
                 resolveFailure(it)
             }.get()
-    }
 
     @PostMapping("/{gameCode}/randomise")
     @SecurityRequirement(name = "PlayerIdHeader")
@@ -383,10 +389,11 @@ class GameController(
     fun randomise(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
-    ): ResponseEntity<*> {
-        return parsePlayerIdHeader(playerIdHeader)
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
             .flatMap { playerId ->
-                gameService.validatePlayerInGame(gameCode, playerId)
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
                     .flatMap { gameService.randomise(gameCode, playerId) }
             }.map {
                 RandomiseResponse(
@@ -398,7 +405,6 @@ class GameController(
             }.mapFailure {
                 resolveFailure(it)
             }.get()
-    }
 
     @PatchMapping("/{gameCode}")
     @SecurityRequirement(name = "PlayerIdHeader")
@@ -479,16 +485,16 @@ class GameController(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: UpdateGameStatusRequest,
-    ): ResponseEntity<*> {
-        return parsePlayerIdHeader(playerIdHeader)
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
             .flatMap { playerId ->
-                gameService.validatePlayerInGame(gameCode, playerId)
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
                     .flatMap { gameService.completeGame(gameCode, playerId) }
             }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
-    }
 
     @GetMapping("/{gameCode}/events")
     @ApiResponses(
@@ -639,16 +645,16 @@ class GameController(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: SetActiveEventRequest,
-    ): ResponseEntity<*> {
-        return parsePlayerIdHeader(playerIdHeader)
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
             .flatMap { playerId ->
-                gameService.validatePlayerInGame(gameCode, playerId)
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
                     .flatMap { gameService.activateEvent(gameCode, playerId, request.eventId) }
             }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
-    }
 
     @DeleteMapping("/{gameCode}/active-event")
     @SecurityRequirement(name = "PlayerIdHeader")
@@ -699,16 +705,16 @@ class GameController(
     fun deleteActiveEvent(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
-    ): ResponseEntity<*> {
-        return parsePlayerIdHeader(playerIdHeader)
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
             .flatMap { playerId ->
-                gameService.validatePlayerInGame(gameCode, playerId)
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
                     .flatMap { gameService.endEvent(gameCode, playerId) }
             }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
-    }
 
     @PutMapping("/{gameCode}/pubs")
     @SecurityRequirement(name = "PlayerIdHeader")
@@ -716,8 +722,8 @@ class GameController(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: SetPubsRequest,
-    ): ResponseEntity<out Any> {
-        return parsePlayerIdHeader(playerIdHeader)
+    ): ResponseEntity<out Any> =
+        parsePlayerIdHeader(playerIdHeader)
             .flatMap { playerId ->
                 pubRouteService.setPubsForGame(gameCode, playerId, request.pubs)
             }.map {
@@ -725,7 +731,6 @@ class GameController(
             }.mapFailure {
                 resolveFailure(it)
             }.get()
-    }
 
     @GetMapping("/{gameCode}/route")
     fun getRoute(

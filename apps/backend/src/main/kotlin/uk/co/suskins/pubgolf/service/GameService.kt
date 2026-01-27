@@ -8,7 +8,14 @@ import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.peek
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-import uk.co.suskins.pubgolf.events.*
+import uk.co.suskins.pubgolf.events.EventActivatedEvent
+import uk.co.suskins.pubgolf.events.EventEndedEvent
+import uk.co.suskins.pubgolf.events.GameCompletedEvent
+import uk.co.suskins.pubgolf.events.GameCreatedEvent
+import uk.co.suskins.pubgolf.events.GameStateChangedEvent
+import uk.co.suskins.pubgolf.events.PlayerJoinedEvent
+import uk.co.suskins.pubgolf.events.RandomiseUsedEvent
+import uk.co.suskins.pubgolf.events.ScoreSubmittedEvent
 import uk.co.suskins.pubgolf.models.ActiveEvent
 import uk.co.suskins.pubgolf.models.ActiveEventState
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
@@ -42,7 +49,6 @@ class GameService(
     private val gameRepository: GameRepository,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-
     fun createGame(name: PlayerName): Result<Game, PubGolfFailure> {
         val host = Player(PlayerId.random(), name)
         val game =
@@ -77,8 +83,7 @@ class GameService(
                     .peek { updatedGame ->
                         eventPublisher.publishEvent(PlayerJoinedEvent(updatedGame.code, player.id, player.name))
                         eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
-                    }
-                    .map { game.copy(players = listOf(player)) }
+                    }.map { game.copy(players = listOf(player)) }
             }
 
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
@@ -114,8 +119,7 @@ class GameService(
                     .peek { updatedGame ->
                         eventPublisher.publishEvent(ScoreSubmittedEvent(updatedGame.code, playerId, hole, score))
                         eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
-                    }
-                    .map { }
+                    }.map { }
             }
 
     fun randomise(
@@ -280,10 +284,16 @@ class GameService(
             return gameRepository
                 .save(game.copy(players = updatedPlayers))
                 .peek { updatedGame ->
-                    eventPublisher.publishEvent(RandomiseUsedEvent(updatedGame.code, playerId, randomiseHole, outcome.label))
+                    eventPublisher.publishEvent(
+                        RandomiseUsedEvent(
+                            updatedGame.code,
+                            playerId,
+                            randomiseHole,
+                            outcome.label,
+                        ),
+                    )
                     eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
-                }
-                .flatMap {
+                }.flatMap {
                     Success(
                         RandomiseResult(
                             result = outcome.label,

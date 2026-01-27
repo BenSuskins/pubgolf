@@ -28,7 +28,10 @@ class GameControllerTest {
     private val gameRepository = GameRepositoryFake()
     private val pubRepository = PubRepositoryFake()
     private val eventCaptor = GameEventCaptor()
-    private val eventPublisher = ApplicationEventPublisher { event -> eventCaptor.captureEvent(event as uk.co.suskins.pubgolf.events.GameEvent) }
+    private val eventPublisher =
+        ApplicationEventPublisher { event ->
+            eventCaptor.captureEvent(event as uk.co.suskins.pubgolf.events.GameEvent)
+        }
     private val gameService = GameService(gameRepository, eventPublisher)
     private val routingService = RoutingServiceFake()
     private val pubRouteService = PubRouteService(gameRepository, pubRepository, routingService, gameService)

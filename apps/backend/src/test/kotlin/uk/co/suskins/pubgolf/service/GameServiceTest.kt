@@ -9,7 +9,7 @@ import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
-import uk.co.suskins.pubgolf.events.*
+import uk.co.suskins.pubgolf.events.GameEventCaptor
 import uk.co.suskins.pubgolf.models.ActiveEvent
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
@@ -40,7 +40,8 @@ private val host = PlayerName("Ben")
 class GameServiceTest {
     private val gameRepository = GameRepositoryFake()
     private val eventCaptor = GameEventCaptor()
-    private val eventPublisher = ApplicationEventPublisher { event -> eventCaptor.captureEvent(event as uk.co.suskins.pubgolf.events.GameEvent) }
+    private val eventPublisher =
+        ApplicationEventPublisher { event -> eventCaptor.captureEvent(event as uk.co.suskins.pubgolf.events.GameEvent) }
     private val service = GameService(gameRepository, eventPublisher)
 
     @BeforeEach

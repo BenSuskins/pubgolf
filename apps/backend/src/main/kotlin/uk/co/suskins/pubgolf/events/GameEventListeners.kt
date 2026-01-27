@@ -10,7 +10,7 @@ import uk.co.suskins.pubgolf.service.GameStateBroadcaster
 
 @Component
 class GameStateBroadcasterListener(
-    private val gameStateBroadcaster: GameStateBroadcaster
+    private val gameStateBroadcaster: GameStateBroadcaster,
 ) {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun onGameStateChanged(event: GameStateChangedEvent) {
@@ -20,7 +20,7 @@ class GameStateBroadcasterListener(
 
 @Component
 class GameMetricsListener(
-    private val gameMetrics: GameMetrics
+    private val gameMetrics: GameMetrics,
 ) {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun onGameCreated(event: GameCreatedEvent) {

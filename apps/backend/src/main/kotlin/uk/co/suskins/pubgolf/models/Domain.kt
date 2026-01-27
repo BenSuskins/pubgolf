@@ -128,7 +128,9 @@ data class ActiveEvent(
     val activatedAt: Instant,
 )
 
-data class ActiveEventState(val activeEvent: ActiveEvent?)
+data class ActiveEventState(
+    val activeEvent: ActiveEvent?,
+)
 
 data class Pub(
     val id: PubId,
@@ -248,7 +250,16 @@ fun Game.toJpa(): GameEntity {
             hostPlayerId = hostPlayerId?.value,
             activeEventId = activeEvent?.event?.id,
             activeEventActivatedAt = activeEvent?.activatedAt,
-            routeGeometry = routeGeometry?.let { "${it.type}:${it.coordinates.joinToString(";") { coord -> coord.joinToString(",") }}" },
+            routeGeometry =
+                routeGeometry?.let {
+                    "${it.type}:${
+                        it.coordinates.joinToString(";") { coord ->
+                            coord.joinToString(
+                                ",",
+                            )
+                        }
+                    }"
+                },
         )
 
     players.forEach { player ->

@@ -39,7 +39,10 @@ class ValidationExceptionHandlerTest {
         val response = handler.handleValidation(exception)
 
         assertThat(response.statusCode, equalTo(HttpStatus.BAD_REQUEST))
-        assertThat(response.body?.message, equalTo("Validation failed: name: must not be blank, score: must be positive"))
+        assertThat(
+            response.body?.message,
+            equalTo("Validation failed: name: must not be blank, score: must be positive"),
+        )
     }
 
     @Test

@@ -104,7 +104,8 @@ class NominatimPlaceSearchAdapter(
         if (latitude != null && longitude != null) {
             val latDelta = 0.045
             val lngDelta = 0.045
-            val viewbox = "${longitude - lngDelta},${latitude - latDelta},${longitude + lngDelta},${latitude + latDelta}"
+            val viewbox =
+                "${longitude - lngDelta},${latitude - latDelta},${longitude + lngDelta},${latitude + latDelta}"
             params.add("viewbox=$viewbox")
             params.add("bounded=1")
         }
