@@ -119,11 +119,6 @@ export default function SubmitScorePage() {
           <p className="text-[var(--color-text-secondary)]">
             How&apos;d that one go down?
           </p>
-          {playerScores.length > 0 && (
-            <p className="text-sm text-[var(--color-text-secondary)] mt-2">
-              Hole {hole} of 9 • {completedCount} completed
-            </p>
-          )}
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -140,11 +135,6 @@ export default function SubmitScorePage() {
               disabled={submitting}
               fullWidth
             />
-            {currentPar !== undefined && (
-              <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-                Par: {currentPar}
-              </p>
-            )}
           </div>
 
           <Counter
