@@ -6,8 +6,9 @@ import dev.forkhandles.result4k.Success
 import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.peek
-import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import uk.co.suskins.pubgolf.events.*
 import uk.co.suskins.pubgolf.models.ActiveEvent
 import uk.co.suskins.pubgolf.models.ActiveEventState
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
@@ -39,10 +40,8 @@ import java.time.Instant
 @Service
 class GameService(
     private val gameRepository: GameRepository,
-    private val gameMetrics: GameMetrics,
-    private val gameStateBroadcaster: GameStateBroadcaster,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
-    private val logger = LoggerFactory.getLogger(GameService::class.java)
 
     fun createGame(name: PlayerName): Result<Game, PubGolfFailure> {
         val host = Player(PlayerId.random(), name)
@@ -57,8 +56,9 @@ class GameService(
 
         return gameRepository
             .save(game)
-            .peek { logger.info("Game ${it.code.value} created.") }
-            .peek { gameMetrics.gameCreated() }
+            .peek { savedGame ->
+                eventPublisher.publishEvent(GameCreatedEvent(savedGame.code, savedGame.id))
+            }
     }
 
     fun joinGame(
@@ -74,9 +74,11 @@ class GameService(
                 val updated = game.copy(players = game.players + player)
                 gameRepository
                     .save(updated)
-                    .peek { gameStateBroadcaster.broadcast(it) }
+                    .peek { updatedGame ->
+                        eventPublisher.publishEvent(PlayerJoinedEvent(updatedGame.code, player.id, player.name))
+                        eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                    }
                     .map { game.copy(players = listOf(player)) }
-                    .peek { gameMetrics.playerJoined() }
             }
 
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
@@ -109,9 +111,11 @@ class GameService(
                     }
                 gameRepository
                     .save(game.copy(players = updatedPlayers))
-                    .peek { gameStateBroadcaster.broadcast(it) }
+                    .peek { updatedGame ->
+                        eventPublisher.publishEvent(ScoreSubmittedEvent(updatedGame.code, playerId, hole, score))
+                        eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                    }
                     .map { }
-                    .peek { gameMetrics.scoreSubmitted(hole) }
             }
 
     fun randomise(
@@ -124,12 +128,7 @@ class GameService(
             .flatMap { hasPlayerById(it, playerId) }
             .flatMap { hasUsedRandomise(it, playerId) }
             .flatMap { game ->
-                generateRandomiseResult(playerId, game).flatMap { randomiseResult ->
-                    gameRepository
-                        .findByCodeIgnoreCase(gameCode)
-                        .peek { gameStateBroadcaster.broadcast(it) }
-                        .map { randomiseResult }
-                }
+                generateRandomiseResult(playerId, game)
             }
 
     fun completeGame(
@@ -144,9 +143,10 @@ class GameService(
                 val completed = game.copy(status = GameStatus.COMPLETED, activeEvent = null)
                 gameRepository
                     .save(completed)
-                    .peek { gameStateBroadcaster.broadcast(it) }
-                    .peek { logger.info("Game ${it.code.value} completed.") }
-                    .peek { gameMetrics.gameCompleted() }
+                    .peek { completedGame ->
+                        eventPublisher.publishEvent(GameCompletedEvent(completedGame.code))
+                        eventPublisher.publishEvent(GameStateChangedEvent(completedGame.code, completedGame))
+                    }
             }
 
     fun getAvailableEvents(): List<GameEvent> = GameEvent.entries.toList()
@@ -188,8 +188,10 @@ class GameService(
                 val updated = game.copy(activeEvent = activeEvent)
                 gameRepository
                     .save(updated)
-                    .peek { gameStateBroadcaster.broadcast(it) }
-                    .peek { logger.info("Event '${event.title}' activated for game ${it.code.value}") }
+                    .peek { updatedGame ->
+                        eventPublisher.publishEvent(EventActivatedEvent(updatedGame.code, event.id, event.title))
+                        eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                    }
             }
 
     fun endEvent(
@@ -206,8 +208,10 @@ class GameService(
                     val updated = game.copy(activeEvent = null)
                     gameRepository
                         .save(updated)
-                        .peek { gameStateBroadcaster.broadcast(it) }
-                        .peek { logger.info("Event ended for game ${it.code.value}") }
+                        .peek { updatedGame ->
+                            eventPublisher.publishEvent(EventEndedEvent(updatedGame.code))
+                            eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                        }
                 }
             }
 
@@ -275,9 +279,11 @@ class GameService(
                 }
             return gameRepository
                 .save(game.copy(players = updatedPlayers))
-                .peek { gameStateBroadcaster.broadcast(it) }
+                .peek { updatedGame ->
+                    eventPublisher.publishEvent(RandomiseUsedEvent(updatedGame.code, playerId, randomiseHole, outcome.label))
+                    eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                }
                 .flatMap {
-                    gameMetrics.randomiseUsed()
                     Success(
                         RandomiseResult(
                             result = outcome.label,

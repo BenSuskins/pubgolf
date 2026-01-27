@@ -6,8 +6,10 @@ import com.natpryce.hamkrest.isA
 import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
+import uk.co.suskins.pubgolf.events.*
 import uk.co.suskins.pubgolf.models.ActiveEvent
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
@@ -37,9 +39,14 @@ private val host = PlayerName("Ben")
 
 class GameServiceTest {
     private val gameRepository = GameRepositoryFake()
-    private val gameMetrics = GameMetrics(SimpleMeterRegistry())
-    private val gameStateBroadcaster = GameStateBroadcasterFake()
-    private val service = GameService(gameRepository, gameMetrics, gameStateBroadcaster)
+    private val eventCaptor = GameEventCaptor()
+    private val eventPublisher = ApplicationEventPublisher { event -> eventCaptor.captureEvent(event as uk.co.suskins.pubgolf.events.GameEvent) }
+    private val service = GameService(gameRepository, eventPublisher)
+
+    @BeforeEach
+    fun setup() {
+        eventCaptor.clear()
+    }
 
     @Test
     fun `can create game`() {

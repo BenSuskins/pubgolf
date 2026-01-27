@@ -2,9 +2,10 @@ package uk.co.suskins.pubgolf.controller
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
+import uk.co.suskins.pubgolf.events.GameEventCaptor
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
@@ -19,18 +20,16 @@ import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.models.UpdateGameStatusRequest
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import uk.co.suskins.pubgolf.repository.PubRepositoryFake
-import uk.co.suskins.pubgolf.service.GameMetrics
 import uk.co.suskins.pubgolf.service.GameService
-import uk.co.suskins.pubgolf.service.GameStateBroadcasterFake
 import uk.co.suskins.pubgolf.service.PubRouteService
 import uk.co.suskins.pubgolf.service.RoutingServiceFake
 
 class GameControllerTest {
     private val gameRepository = GameRepositoryFake()
     private val pubRepository = PubRepositoryFake()
-    private val gameMetrics = GameMetrics(SimpleMeterRegistry())
-    private val gameStateBroadcaster = GameStateBroadcasterFake()
-    private val gameService = GameService(gameRepository, gameMetrics, gameStateBroadcaster)
+    private val eventCaptor = GameEventCaptor()
+    private val eventPublisher = ApplicationEventPublisher { event -> eventCaptor.captureEvent(event as uk.co.suskins.pubgolf.events.GameEvent) }
+    private val gameService = GameService(gameRepository, eventPublisher)
     private val routingService = RoutingServiceFake()
     private val pubRouteService = PubRouteService(gameRepository, pubRepository, routingService, gameService)
     private val controller = GameController(gameService, pubRouteService)
