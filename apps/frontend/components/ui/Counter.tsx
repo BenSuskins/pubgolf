@@ -42,6 +42,8 @@ export interface CounterProps {
   fullWidth?: boolean;
   /** Accessible label for screen readers */
   ariaLabel?: string;
+  /** Center the controls while keeping label left-aligned */
+  centerControls?: boolean;
 }
 
 export function Counter({
@@ -56,6 +58,7 @@ export function Counter({
   disabled = false,
   fullWidth = false,
   ariaLabel,
+  centerControls = false,
 }: CounterProps) {
   const generatedId = useId();
   const errorId = error ? `${generatedId}-error` : undefined;
@@ -86,40 +89,42 @@ export function Counter({
           {label}
         </div>
       )}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleDecrement}
-          disabled={disabled || isAtMin}
-          className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
-            error ? 'border border-[var(--color-error)]' : ''
-          }`}
-          aria-label="Decrement"
-        >
-          <span className="text-xl font-bold" aria-hidden="true">−</span>
-        </button>
+      <div className={centerControls ? 'flex justify-center' : ''}>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleDecrement}
+            disabled={disabled || isAtMin}
+            className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
+              error ? 'border border-[var(--color-error)]' : ''
+            }`}
+            aria-label="Decrement"
+          >
+            <span className="text-xl font-bold" aria-hidden="true">−</span>
+          </button>
 
-        <div
-          className={`min-w-[3rem] text-center text-2xl font-bold font-mono ${
-            error ? 'text-[var(--color-error)]' : ''
-          }`}
-          aria-live="polite"
-          aria-invalid={error ? 'true' : 'false'}
-        >
-          {value}
+          <div
+            className={`min-w-[3rem] text-center text-2xl font-bold font-mono ${
+              error ? 'text-[var(--color-error)]' : ''
+            }`}
+            aria-live="polite"
+            aria-invalid={error ? 'true' : 'false'}
+          >
+            {value}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleIncrement}
+            disabled={disabled || isAtMax}
+            className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
+              error ? 'border border-[var(--color-error)]' : ''
+            }`}
+            aria-label="Increment"
+          >
+            <span className="text-xl font-bold" aria-hidden="true">+</span>
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={handleIncrement}
-          disabled={disabled || isAtMax}
-          className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
-            error ? 'border border-[var(--color-error)]' : ''
-          }`}
-          aria-label="Increment"
-        >
-          <span className="text-xl font-bold" aria-hidden="true">+</span>
-        </button>
       </div>
       {error && (
         <p id={errorId} className="mt-1 text-sm text-[var(--color-error)]" role="alert">

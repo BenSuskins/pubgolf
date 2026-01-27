@@ -147,17 +147,16 @@ export default function SubmitScorePage() {
             )}
           </div>
 
-          <div className="flex justify-center">
-            <Counter
-              label="Sips Taken"
-              value={penaltyType && selectedPenalty ? selectedPenalty.points : score}
-              onChange={setScore}
-              min={-10}
-              max={10}
-              disabled={submitting || !!penaltyType}
-              ariaLabel="Sips counter"
-            />
-          </div>
+          <Counter
+            label="Sips Taken"
+            value={penaltyType && selectedPenalty ? selectedPenalty.points : score}
+            onChange={setScore}
+            min={-10}
+            max={10}
+            disabled={submitting || !!penaltyType}
+            ariaLabel="Sips counter"
+            centerControls
+          />
 
           {currentPar !== undefined && !penaltyType && score !== 0 && (
             <div className="text-center">
