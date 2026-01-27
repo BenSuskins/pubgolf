@@ -149,18 +149,6 @@ export default function GamePage() {
     return players.filter(p => p.totalScore === minScore);
   };
 
-  if (loading) {
-    return (
-      <main className="p-4 py-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <section className="glass rounded-xl p-4">
-            <ScoreboardSkeleton />
-          </section>
-        </div>
-      </main>
-    );
-  }
-
   if (error) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
@@ -220,13 +208,17 @@ export default function GamePage() {
         )}
 
         <section className="glass rounded-xl p-4">
-          <ScoreboardTable
-            players={players}
-            pars={pars}
-            currentPlayerId={playerId ?? undefined}
-            hostPlayerId={hostPlayerId ?? undefined}
-            cellStates={cellStates}
-          />
+          {loading ? (
+            <ScoreboardSkeleton />
+          ) : (
+            <ScoreboardTable
+              players={players}
+              pars={pars}
+              currentPlayerId={playerId ?? undefined}
+              hostPlayerId={hostPlayerId ?? undefined}
+              cellStates={cellStates}
+            />
+          )}
         </section>
 
         <nav className="space-y-3">
