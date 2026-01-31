@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { toast } from 'sonner';
 import { submitScore, getPenaltyOptions, PenaltyOption, getRoutes, getGameState } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PenaltyType, PENALTY_EMOJI_MAP } from '@/lib/types';
@@ -88,12 +87,6 @@ export default function SubmitScorePage() {
     setSubmitting(true);
     try {
       await submitScore(gameCode, playerId, hole, scoreNum, penaltyType);
-
-      // Show success toast
-      toast.success('Score submitted!', {
-        description: `Hole ${hole}: ${scoreNum} sip${scoreNum !== 1 ? 's' : ''}`,
-        duration: 2000,
-      });
 
       // Redirect immediately - WebSocket will update the scoreboard
       router.push('/game');
