@@ -188,8 +188,8 @@ describe('useOptimisticGameState', () => {
       });
 
       // Should show error toast
-      expect(toast.error).toHaveBeenCalledWith('Score conflict detected', {
-        description: 'Server has different score for Hole 1',
+      expect(toast.error).toHaveBeenCalledWith('Score adjusted by server', {
+        description: 'Your Hole 1 score differed from the server — tap Log Your Sips to re-enter if incorrect.',
       });
 
       // Should use committed score

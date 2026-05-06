@@ -86,6 +86,7 @@ export default function HostPanelPage() {
     const playerId = getPlayerId();
     if (!playerId || !gameCode) return;
 
+    setError('');
     setActivatingEventId(event.id);
     setConfirmEvent(null);
     try {
@@ -102,6 +103,7 @@ export default function HostPanelPage() {
     const playerId = getPlayerId();
     if (!playerId || !gameCode) return;
 
+    setError('');
     setEndingEvent(true);
     try {
       const state = await endEvent(gameCode, playerId);
@@ -117,6 +119,7 @@ export default function HostPanelPage() {
     const playerId = getPlayerId();
     if (!playerId || !gameCode) return;
 
+    setError('');
     setCompleting(true);
     try {
       await completeGame(gameCode, playerId);

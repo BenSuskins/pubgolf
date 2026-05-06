@@ -105,8 +105,8 @@ export function useOptimisticGameState(
         } else {
           // Conflict - rollback
           newCellStates[cellKey] = 'error';
-          toast.error('Score conflict detected', {
-            description: `Server has different score for Hole ${update.hole}`,
+          toast.error('Score adjusted by server', {
+            description: `Your Hole ${update.hole} score differed from the server — tap Log Your Sips to re-enter if incorrect.`,
           });
 
           // Remove error state after animation

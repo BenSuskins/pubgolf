@@ -39,31 +39,30 @@ export default function SubmitScorePage() {
 
       if (!gameCode || !playerId) return;
 
-      try {
-        // Fetch penalty options, routes, and game state in parallel
-        const [penaltiesResponse, routesResponse, gameState] = await Promise.all([
-          getPenaltyOptions(),
-          getRoutes(),
-          getGameState(gameCode),
-        ]);
+      const [penaltiesResult, routesResult, gameStateResult] = await Promise.allSettled([
+        getPenaltyOptions(),
+        getRoutes(),
+        getGameState(gameCode),
+      ]);
 
-        setPenaltyOptions(penaltiesResponse.penalties);
-        setPars(routesResponse.holes.map((h) => h.par));
-
-        // Find current player's scores
-        const currentPlayer = gameState.players.find((p) => p.id === playerId);
+      if (penaltiesResult.status === 'fulfilled') {
+        setPenaltyOptions(penaltiesResult.value.penalties);
+      }
+      if (routesResult.status === 'fulfilled') {
+        setPars(routesResult.value.holes.map((h) => h.par));
+      }
+      if (gameStateResult.status === 'fulfilled') {
+        const currentPlayer = gameStateResult.value.players.find((p) => p.id === playerId);
         if (currentPlayer) {
           setPlayerScores(currentPlayer.scores);
-
-          // Find first null score (next uncompleted hole)
           const nextHoleIndex = currentPlayer.scores.findIndex((s) => s === null);
           if (nextHoleIndex !== -1) {
-            setHole(nextHoleIndex + 1); // Holes are 1-indexed
+            setHole(nextHoleIndex + 1);
           }
         }
-      } catch (err) {
-        // Silently fail for non-critical data
-        console.error('Failed to fetch data:', err);
+      } else {
+        console.error('Failed to load game state:', gameStateResult.reason);
+        setError('Could not load your current scores — hole selection may be incorrect');
       }
     };
 

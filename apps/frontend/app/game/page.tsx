@@ -71,7 +71,7 @@ export default function GamePage() {
     setError('');
   }, [getLastSeenEventId]);
 
-  useGameWebSocket({
+  const { connectionError } = useGameWebSocket({
     gameCode,
     playerId: getPlayerId(),
     onGameStateUpdate: handleGameStateUpdate,
@@ -104,7 +104,7 @@ export default function GamePage() {
   useEffect(() => {
     getRoutes()
       .then((response) => setPars(response.holes.map((hole) => hole.par)))
-      .catch(() => {});
+      .catch((err) => console.warn('Could not load par data, using defaults:', err));
   }, []);
 
   useEffect(() => {
@@ -155,8 +155,11 @@ export default function GamePage() {
         <ErrorMessage
           message={error}
           variant="card"
-          action={{ label: "Back to Home", onClick: () => router.push('/') }}
+          action={{ label: "Try Again", onClick: () => { setError(''); setLoading(true); fetchGame(); } }}
         />
+        <button onClick={() => router.push('/')} className="text-sm text-[var(--color-text-secondary)] hover:underline">
+          Back to Home
+        </button>
       </main>
     );
   }
@@ -194,6 +197,18 @@ export default function GamePage() {
             )}
           </div>
         </header>
+
+        {connectionError && !isCompleted && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-4 py-2 flex items-center justify-between gap-3">
+            <p className="text-sm text-yellow-400">{connectionError}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs text-yellow-400 underline shrink-0"
+            >
+              Refresh
+            </button>
+          </div>
+        )}
 
         {isCompleted && (
           <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 rounded-lg px-4 py-3 text-center">

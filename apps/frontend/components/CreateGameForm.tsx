@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { createGame, setPubs } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PlaceSearchResult, Pub } from '@/lib/types';
@@ -33,7 +34,7 @@ export function CreateGameForm() {
   };
 
   const handlePubRemove = (index: number) => {
-    setSelectedPubs(selectedPubs.slice(0, index));
+    setSelectedPubs(selectedPubs.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,6 +61,9 @@ export function CreateGameForm() {
           await setPubs(response.gameCode, response.playerId, selectedPubs);
         } catch (err) {
           console.error('Failed to set pubs:', err);
+          toast.warning('Pub route could not be saved', {
+            description: 'Game created successfully, but the route map was not saved. Try setting it again later.',
+          });
         }
       }
 

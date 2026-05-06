@@ -70,7 +70,7 @@ export function useGameWebSocket({
         setIsConnected(false);
         reconnectAttemptsRef.current += 1;
         if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-          setConnectionError('Unable to connect. Using polling fallback.');
+          setConnectionError('Live updates disconnected — scores may be delayed. Refresh to reconnect.');
         }
       },
     });
