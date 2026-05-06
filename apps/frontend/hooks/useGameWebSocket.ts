@@ -7,6 +7,8 @@ import { GameState } from '@/lib/types';
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_BASE_DELAY_MS = 5_000;
+const RECONNECT_MAX_DELAY_MS = 60_000;
 
 interface UseGameWebSocketOptions {
   gameCode: string | null;
@@ -42,7 +44,10 @@ export function useGameWebSocket({
     const client = new Client({
       webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws`),
       connectHeaders: playerId ? { 'PubGolf-Player-Id': playerId } : {},
-      reconnectDelay: 5000,
+      reconnectDelay: () => Math.min(
+        RECONNECT_BASE_DELAY_MS * Math.pow(2, reconnectAttemptsRef.current),
+        RECONNECT_MAX_DELAY_MS
+      ),
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {

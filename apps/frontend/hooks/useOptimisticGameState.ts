@@ -44,10 +44,14 @@ export function useOptimisticGameState(
 ): UseOptimisticGameStateResult {
   const [optimisticUpdates, setOptimisticUpdates] = useState<OptimisticUpdate[]>([]);
   const [cellStates, setCellStates] = useState<CellStateMap>({});
+  const cellStatesRef = useRef<CellStateMap>({});
   const successTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
-  // Helper to generate cell key
   const getCellKey = (playerId: string, hole: number) => `${playerId}-${hole}`;
+
+  useEffect(() => {
+    cellStatesRef.current = cellStates;
+  }, [cellStates]);
 
   // Clean up timeouts on unmount
   useEffect(() => {
@@ -64,7 +68,7 @@ export function useOptimisticGameState(
 
     setOptimisticUpdates((current) => {
       const reconciled: OptimisticUpdate[] = [];
-      const newCellStates: CellStateMap = { ...cellStates };
+      const newCellStates: CellStateMap = { ...cellStatesRef.current };
 
       current.forEach((update) => {
         const player = committedState.players.find((p) => p.id === update.playerId);
@@ -123,7 +127,6 @@ export function useOptimisticGameState(
       setCellStates(newCellStates);
       return reconciled;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [committedState]);
 
   // Add an optimistic update

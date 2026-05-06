@@ -70,16 +70,18 @@ export default function HowToPlayPage() {
   const [holes, setHoles] = useState<RouteHole[]>([]);
   const [isPenaltiesLoading, setIsPenaltiesLoading] = useState(true);
   const [isRoutesLoading, setIsRoutesLoading] = useState(true);
+  const [penaltiesError, setPenaltiesError] = useState(false);
+  const [routesError, setRoutesError] = useState(false);
 
   useEffect(() => {
     getPenaltyOptions()
       .then((response) => setPenalties(response.penalties))
-      .catch(() => setPenalties([]))
+      .catch(() => setPenaltiesError(true))
       .finally(() => setIsPenaltiesLoading(false));
 
     getRoutes()
       .then((response) => setHoles(response.holes))
-      .catch(() => setHoles([]))
+      .catch(() => setRoutesError(true))
       .finally(() => setIsRoutesLoading(false));
   }, []);
 
@@ -113,6 +115,8 @@ export default function HowToPlayPage() {
           </Typography>
           {isPenaltiesLoading ? (
             <PenaltiesSkeleton />
+          ) : penaltiesError ? (
+            <p className="text-sm text-[var(--color-text-secondary)]">Penalty data unavailable — check your connection.</p>
           ) : (
             <div className="flex flex-wrap gap-3">
               {penalties.map((penalty) => (
@@ -135,6 +139,8 @@ export default function HowToPlayPage() {
           </Typography>
           {isRoutesLoading ? (
             <RoutesTableSkeleton />
+          ) : routesError ? (
+            <p className="text-sm text-[var(--color-text-secondary)]">Course data unavailable — check your connection.</p>
           ) : (
             <RoutesTable holes={holes} />
           )}

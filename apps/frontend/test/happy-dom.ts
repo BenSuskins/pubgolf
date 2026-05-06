@@ -2,6 +2,11 @@ import { Window } from 'happy-dom';
 
 const window = new Window({ url: 'http://localhost:3000' });
 
+// happy-dom ≥20.8.9 references this.window.SyntaxError inside SelectorParser
+if (!window.SyntaxError) {
+  (window as unknown as Record<string, unknown>).SyntaxError = SyntaxError;
+}
+
 // Register globals
 Object.assign(globalThis, {
   window,
