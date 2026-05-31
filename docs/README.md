@@ -103,4 +103,4 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 ## License
 
-[MIT](../LICENSE)
+[GPL-2.0](../LICENSE)
