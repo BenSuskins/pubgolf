@@ -57,7 +57,7 @@ export const test = base.extend<TestFixtures>({
 
   joinGameViaApi: async ({}, use) => {
     const joinGame = async (gameCode: string, playerName: string): Promise<GameSession> => {
-      const response = await fetch(`${API_URL}/api/v1/games/${gameCode}/join`, {
+      const response = await fetch(`${API_URL}/api/v1/games/${gameCode}/players`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: playerName }),
@@ -87,10 +87,10 @@ export const test = base.extend<TestFixtures>({
       score: number
     ): Promise<void> => {
       const response = await fetch(
-        `${API_URL}/api/v1/games/${gameCode}/players/${playerId}/scores`,
+        `${API_URL}/api/v1/games/${gameCode}/scores`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'PubGolf-Player-Id': playerId },
           body: JSON.stringify({ hole, score }),
         }
       );
@@ -109,11 +109,11 @@ export const test = base.extend<TestFixtures>({
       playerId: string
     ): Promise<GameState> => {
       const response = await fetch(
-        `${API_URL}/api/v1/games/${gameCode}/complete`,
+        `${API_URL}/api/v1/games/${gameCode}`,
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId }),
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'PubGolf-Player-Id': playerId },
+          body: JSON.stringify({ status: 'COMPLETED' }),
         }
       );
 

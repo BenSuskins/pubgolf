@@ -27,14 +27,17 @@ test.describe('Full Game Flow', () => {
 
     await page.getByRole('link', { name: 'Log Your Sips' }).click();
     await page.locator('#hole').selectOption('1');
-    await page.locator('#score').fill('2');
+    await page.getByRole('button', { name: 'Increment' }).click();
+    await page.getByRole('button', { name: 'Increment' }).click();
     await page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(page).toHaveURL('/game');
 
     await player2Page.getByRole('link', { name: 'Log Your Sips' }).click();
     await player2Page.locator('#hole').selectOption('1');
-    await player2Page.locator('#score').fill('4');
+    for (let i = 0; i < 4; i++) {
+      await player2Page.getByRole('button', { name: 'Increment' }).click();
+    }
     await player2Page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(player2Page).toHaveURL('/game');

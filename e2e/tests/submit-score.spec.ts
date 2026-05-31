@@ -10,8 +10,8 @@ test.describe('Submit Score', () => {
     await expect(page).toHaveURL('/submit-score');
 
     await page.locator('#hole').selectOption('3');
-    await page.getByRole('button', { name: '+', exact: true }).click();
-    await page.getByRole('button', { name: '+', exact: true }).click();
+    await page.getByRole('button', { name: 'Increment' }).click();
+    await page.getByRole('button', { name: 'Increment' }).click();
     await page.getByRole('button', { name: 'Log It' }).click();
 
     await expect(page).toHaveURL('/game');
@@ -22,8 +22,8 @@ test.describe('Submit Score', () => {
 
     await page.goto('/submit-score');
 
-    const minusButton = page.getByRole('button', { name: '-', exact: true });
-    const plusButton = page.getByRole('button', { name: '+', exact: true });
+    const minusButton = page.getByRole('button', { name: 'Decrement' });
+    const plusButton = page.getByRole('button', { name: 'Increment' });
 
     await expect(minusButton).toBeEnabled();
 
@@ -60,8 +60,8 @@ test.describe('Submit Score', () => {
 
     await page.goto('/submit-score');
 
-    const minusButton = page.getByRole('button', { name: '-', exact: true });
-    const plusButton = page.getByRole('button', { name: '+', exact: true });
+    const minusButton = page.getByRole('button', { name: 'Decrement' });
+    const plusButton = page.getByRole('button', { name: 'Increment' });
 
     await expect(minusButton).toBeEnabled();
     await expect(plusButton).toBeEnabled();

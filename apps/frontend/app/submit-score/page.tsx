@@ -117,6 +117,7 @@ export default function SubmitScorePage() {
           <Card padding="lg" className="space-y-5">
           <div>
             <Select
+              id="hole"
               label="Hole"
               value={hole}
               onChange={(e) => setHole(parseInt(e.target.value, 10))}
@@ -195,7 +196,6 @@ export default function SubmitScorePage() {
                     key={option.type}
                     type="button"
                     onClick={() => togglePenalty(option.type as PenaltyType)}
-                    aria-label={`${option.name} penalty, adds ${option.points} sips`}
                     aria-pressed={penaltyType === option.type}
                     className={`p-4 rounded-lg font-medium transition-all flex flex-col items-center gap-2 min-h-[100px] ${
                       penaltyType === option.type

@@ -140,7 +140,7 @@ export default function GamePage() {
   const playerId = getPlayerId();
   const currentPlayer = players.find(p => p.id === playerId);
   const hasUsedRandomise = currentPlayer?.randomise != null;
-  const isHost = playerId === hostPlayerId;
+  const isHost = playerId !== null && playerId === hostPlayerId;
   const isCompleted = status === 'COMPLETED';
 
   const getWinners = (): Player[] => {

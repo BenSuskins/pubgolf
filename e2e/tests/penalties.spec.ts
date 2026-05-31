@@ -6,7 +6,6 @@ test.describe('Penalties', () => {
 
     await page.goto('/submit-score');
 
-    await expect(page.getByRole('button', { name: 'None' })).toBeVisible();
     await expect(page.getByRole('button', { name: /\+5/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /\+10/ })).toBeVisible();
   });
@@ -48,18 +47,19 @@ test.describe('Penalties', () => {
 
     await page.getByRole('button', { name: /\+5/ }).click();
 
-    await expect(page.locator('#score')).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Increment' })).toBeDisabled();
   });
 
-  test('re-enables sips input when None is selected after penalty', async ({ authenticatedPage }) => {
+  test('re-enables sips input when penalty is deselected', async ({ authenticatedPage }) => {
     const page = authenticatedPage;
 
     await page.goto('/submit-score');
 
-    await page.getByRole('button', { name: /\+5/ }).click();
-    await expect(page.locator('#score')).toBeDisabled();
+    const skipButton = page.getByRole('button', { name: /\+5/ });
+    await skipButton.click();
+    await expect(page.getByRole('button', { name: 'Increment' })).toBeDisabled();
 
-    await page.getByRole('button', { name: 'None' }).click();
-    await expect(page.locator('#score')).not.toBeDisabled();
+    await skipButton.click();
+    await expect(page.getByRole('button', { name: 'Increment' })).not.toBeDisabled();
   });
 });
