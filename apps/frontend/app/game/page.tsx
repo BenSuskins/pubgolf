@@ -32,6 +32,7 @@ export default function GamePage() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showEventNotification, setShowEventNotification] = useState(false);
   const [hasPubRoute, setHasPubRoute] = useState(false);
+  const [playerId, setPlayerId] = useState<string | null>(null);
   const previousEventIdRef = useRef<string | null>(null);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
@@ -73,7 +74,7 @@ export default function GamePage() {
 
   const { connectionError } = useGameWebSocket({
     gameCode,
-    playerId: getPlayerId(),
+    playerId,
     onGameStateUpdate: handleGameStateUpdate,
     enabled: !loading && status !== 'COMPLETED',
   });
@@ -96,6 +97,10 @@ export default function GamePage() {
       setLoading(false);
     }
   }, [getGameCode, router, handleGameStateUpdate]);
+
+  useEffect(() => {
+    setPlayerId(getPlayerId());
+  }, [getPlayerId]);
 
   useEffect(() => {
     fetchGame();
@@ -137,7 +142,6 @@ export default function GamePage() {
     }
   }, [activeEvent, setLastSeenEventId]);
 
-  const playerId = getPlayerId();
   const currentPlayer = players.find(p => p.id === playerId);
   const hasUsedRandomise = currentPlayer?.randomise != null;
   const isHost = playerId !== null && playerId === hostPlayerId;
