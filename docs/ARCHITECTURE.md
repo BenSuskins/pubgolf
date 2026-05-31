@@ -20,7 +20,7 @@ flowchart LR
     WS[STOMP / WebSocket]
 
     Browser -->|REST: create / join / score| Backend
-    Browser <-->|subscribe /topic/game/{code}| WS
+    Browser <-->|"subscribe /topic/game/{code}"| WS
     Backend --- WS
     Backend --> DB
 ```
@@ -53,10 +53,10 @@ sequenceDiagram
     participant Repo as GameRepository
     participant DB as SQLite
     participant Broadcaster as GameStateBroadcaster
-    participant Topic as STOMP /topic/game/{code}
+    participant Topic as STOMP /topic/game/:code
     participant Others as Other Browsers
 
-    Player->>API: POST /games/{code}/scores
+    Player->>API: POST /games/:code/scores
     API->>Service: submitScore(...)
     Service->>Repo: findByCode(code)
     Repo->>DB: SELECT
