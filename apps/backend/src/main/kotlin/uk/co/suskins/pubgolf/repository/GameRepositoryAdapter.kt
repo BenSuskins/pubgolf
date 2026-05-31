@@ -3,6 +3,7 @@ package uk.co.suskins.pubgolf.repository
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Success
+import dev.forkhandles.result4k.flatMap
 import dev.forkhandles.result4k.mapFailure
 import dev.forkhandles.result4k.peekFailure
 import dev.forkhandles.result4k.resultFrom
@@ -34,6 +35,14 @@ class GameRepositoryAdapter(
         }
 
     override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> =
-        store.findByCodeIgnoreCase(code.value)?.toDomain()?.let { Success(it) }
-            ?: Failure(GameNotFoundFailure("Game `${code.value}` not found."))
+        resultFrom {
+            store.findByCodeIgnoreCase(code.value)
+        }.peekFailure {
+            logger.error("Error finding game by code `${code.value}`.", it)
+        }.mapFailure {
+            PersistenceFailure(it.message ?: "Find failed")
+        }.flatMap { entity ->
+            entity?.toDomain()?.let { Success(it) }
+                ?: Failure(GameNotFoundFailure("Game `${code.value}` not found."))
+        }
 }

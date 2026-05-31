@@ -24,6 +24,7 @@ import java.util.UUID
 data class GameEntity(
     @Id
     val id: UUID,
+    @Column(unique = true)
     val code: String,
     @Enumerated(EnumType.STRING)
     val status: GameStatus = GameStatus.ACTIVE,

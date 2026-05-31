@@ -80,8 +80,8 @@ test.describe('Complete Game', () => {
 
   test.describe('Celebration Screen', () => {
     test('shows celebration with single winner', async ({ page, createGameViaApi, joinGameViaApi, submitScoreViaApi, completeGameViaApi }) => {
-      const hostSession = await createGameViaApi('Winner');
-      const player2 = await joinGameViaApi(hostSession.gameCode, 'Loser');
+      const hostSession = await createGameViaApi('Alice');
+      const player2 = await joinGameViaApi(hostSession.gameCode, 'Bob');
 
       await submitScoreViaApi(hostSession.gameCode, hostSession.playerId, 1, 1);
       await submitScoreViaApi(hostSession.gameCode, player2.playerId, 1, 5);
