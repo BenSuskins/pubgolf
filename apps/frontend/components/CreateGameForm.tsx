@@ -28,7 +28,7 @@ export function CreateGameForm() {
     setLoading(true);
     try {
       const response = await createGame(name.trim());
-      setGameSession(response.gameCode, response.playerId, response.playerName);
+      setGameSession(response.gameCode, response.playerId);
       router.push(addPubRoute ? '/game/route' : '/game');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create game');

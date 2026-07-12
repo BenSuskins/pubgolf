@@ -49,7 +49,7 @@ export function JoinGameForm() {
     setLoading(true);
     try {
       const response = await joinGame(gameCode.trim().toUpperCase(), name.trim());
-      setGameSession(response.gameCode, response.playerId, response.playerName);
+      setGameSession(response.gameCode, response.playerId);
       router.push('/game');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to join game');

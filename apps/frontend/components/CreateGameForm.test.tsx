@@ -23,7 +23,6 @@ mock.module('@/hooks/useLocalStorage', () => ({
     setGameSession: mockSetGameSession,
     getGameCode: () => null,
     getPlayerId: () => null,
-    getPlayerName: () => null,
     clearSession: () => {},
   }),
 }));
@@ -123,7 +122,7 @@ describe('CreateGameForm', () => {
       await user.click(screen.getByRole('button', { name: /tee off/i }));
 
       await waitFor(() => {
-        expect(mockSetGameSession).toHaveBeenCalledWith('ABCD', 'player-456', 'Test User');
+        expect(mockSetGameSession).toHaveBeenCalledWith('ABCD', 'player-456');
       });
     });
 

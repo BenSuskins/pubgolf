@@ -14,6 +14,17 @@ interface WheelOption {
   optionSize?: number;
 }
 
+// Repeat each option by its server weight and shuffle, so the reel's visual
+// frequency matches the real odds of the draw.
+function weightedShuffle(options: WheelOption[]): string[] {
+  const weighted = options.flatMap((opt) => Array<string>(Math.max(1, opt.optionSize ?? 1)).fill(opt.option));
+  for (let i = weighted.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [weighted[i], weighted[j]] = [weighted[j], weighted[i]];
+  }
+  return weighted;
+}
+
 export default function RandomisePage() {
   const [items, setItems] = useState<string[]>([]);
   const [spinning, setSpinning] = useState(false);
@@ -39,7 +50,7 @@ export default function RandomisePage() {
     async function fetchRandomiseOptions() {
       try {
         const data = await getRandomiseOptions();
-        setItems(data.options.map((opt: WheelOption) => opt.option));
+        setItems(weightedShuffle(data.options));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load randomise options');
       } finally {

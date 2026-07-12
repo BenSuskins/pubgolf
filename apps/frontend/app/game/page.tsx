@@ -9,7 +9,6 @@ import { getGameState, getRoutes, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
-import { useOptimisticGameState } from '@/hooks/useOptimisticGameState';
 import { Leaderboard } from '@/components/Leaderboard';
 import { ScoreboardSkeleton } from '@/components/ScoreboardSkeleton';
 import { ShareModal } from '@/components/ShareModal';
@@ -38,14 +37,11 @@ export default function GamePage() {
   const { getGameCode, getPlayerId } = useLocalStorage();
   const { getLastSeenEventId, setLastSeenEventId, getQueuedEventId, setQueuedEventId } = useSessionStorage();
 
-  // Use optimistic state management
-  const { gameState, cellStates } = useOptimisticGameState(committedGameState);
-
   // Derive values from game state
-  const players = gameState?.players || [];
-  const status = gameState?.status || 'ACTIVE';
-  const hostPlayerId = gameState?.hostPlayerId || null;
-  const activeEvent = gameState?.activeEvent || null;
+  const players = committedGameState?.players || [];
+  const status = committedGameState?.status || 'ACTIVE';
+  const hostPlayerId = committedGameState?.hostPlayerId || null;
+  const activeEvent = committedGameState?.activeEvent || null;
 
   const handleGameStateUpdate = useCallback((state: GameState) => {
     setCommittedGameState(state);
@@ -72,13 +68,6 @@ export default function GamePage() {
     setError('');
   }, [getLastSeenEventId]);
 
-  const { connectionError } = useGameWebSocket({
-    gameCode,
-    playerId,
-    onGameStateUpdate: handleGameStateUpdate,
-    enabled: !loading && status !== 'COMPLETED',
-  });
-
   const fetchGame = useCallback(async () => {
     const code = getGameCode();
     if (!code) {
@@ -98,12 +87,36 @@ export default function GamePage() {
     }
   }, [getGameCode, router, handleGameStateUpdate]);
 
+  const { connectionError } = useGameWebSocket({
+    gameCode,
+    playerId,
+    onGameStateUpdate: handleGameStateUpdate,
+    onReconnect: fetchGame,
+    enabled: !loading && status !== 'COMPLETED',
+  });
+
   useEffect(() => {
     setPlayerId(getPlayerId());
   }, [getPlayerId]);
 
   useEffect(() => {
     fetchGame();
+  }, [fetchGame]);
+
+  // Mobile browsers drop the socket while the phone is locked or backgrounded;
+  // refetch when the page becomes visible again so the board is never stale.
+  useEffect(() => {
+    const refreshIfVisible = () => {
+      if (document.visibilityState === 'visible') {
+        fetchGame();
+      }
+    };
+    document.addEventListener('visibilitychange', refreshIfVisible);
+    window.addEventListener('focus', refreshIfVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', refreshIfVisible);
+      window.removeEventListener('focus', refreshIfVisible);
+    };
   }, [fetchGame]);
 
   useEffect(() => {
@@ -241,7 +254,6 @@ export default function GamePage() {
               pars={pars}
               currentPlayerId={playerId ?? undefined}
               hostPlayerId={hostPlayerId ?? undefined}
-              cellStates={cellStates}
             />
           )}
         </section>

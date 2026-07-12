@@ -25,7 +25,6 @@ mock.module('@/hooks/useLocalStorage', () => ({
     setGameSession: mockSetGameSession,
     getGameCode: () => null,
     getPlayerId: () => null,
-    getPlayerName: () => null,
     clearSession: () => {},
   }),
 }));
@@ -145,7 +144,7 @@ describe('JoinGameForm', () => {
       await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
-        expect(mockSetGameSession).toHaveBeenCalledWith('WXYZ', 'player-789', 'Test Player');
+        expect(mockSetGameSession).toHaveBeenCalledWith('WXYZ', 'player-789');
       });
     });
 
