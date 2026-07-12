@@ -25,6 +25,21 @@ test.describe('Create Game', () => {
     await expect(page).toHaveURL('/');
   });
 
+  test('route map toggle leads to the route builder page', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('button', { name: 'Host a Round' }).click();
+    await page.locator('#create-name').fill('RouteHost');
+    await page.getByRole('switch', { name: 'Add route map' }).click();
+    await page.getByRole('button', { name: 'Tee Off' }).click();
+
+    await expect(page).toHaveURL('/game/route');
+    await expect(page.getByRole('heading', { name: 'Add Route Map' })).toBeVisible();
+
+    await page.getByRole('link', { name: 'Skip for now' }).click();
+    await expect(page).toHaveURL('/game');
+  });
+
   test('stores session in localStorage after creation', async ({ page }) => {
     await page.goto('/');
 
