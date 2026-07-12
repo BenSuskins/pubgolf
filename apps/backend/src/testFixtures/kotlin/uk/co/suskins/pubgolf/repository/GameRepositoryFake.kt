@@ -22,10 +22,12 @@ class GameRepositoryFake : GameRepository {
             store[game.code] = game
             return Success(game)
         }
-        if ((existing.version ?: 0) != (game.version ?: 0)) {
+        val existingVersion: Long = existing.version ?: 0L
+        val incomingVersion: Long = game.version ?: 0L
+        if (existingVersion != incomingVersion) {
             return Failure(ConcurrentModificationFailure("Game `${game.code.value}` was modified concurrently."))
         }
-        val saved = game.copy(version = (game.version ?: 0) + 1)
+        val saved = game.copy(version = incomingVersion + 1)
         store[game.code] = saved
         return Success(saved)
     }
