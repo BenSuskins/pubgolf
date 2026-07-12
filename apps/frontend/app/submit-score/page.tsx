@@ -110,7 +110,7 @@ export default function SubmitScorePage() {
 
   const selectedPenalty = penaltyOptions.find((p) => p.type === penaltyType);
   const currentPar = pars[hole - 1];
-  const currentPubName = pubs.find((pub) => pub.hole === hole)?.name;
+  const currentPubName = pubs.find((pub) => pub.hole === hole)?.name?.split(',')[0];
   const displayedScore = penaltyType && selectedPenalty ? selectedPenalty.points : score;
 
   const parReadout = () => {
