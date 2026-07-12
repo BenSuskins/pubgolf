@@ -4,6 +4,7 @@ import {
   joinGame,
   getGameState,
   submitScore,
+  setPubs,
   getRandomiseOptions,
   spinWheel,
   ApiError,
@@ -161,6 +162,16 @@ describe('API functions', () => {
       mockFetch.mockResolvedValueOnce(new Response(null, { status: 204 }));
 
       const result = await submitScore('ABCD', 'player-123', 1, 2);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('setPubs', () => {
+    test('should handle 201 response with empty body', async () => {
+      mockFetch.mockResolvedValueOnce(new Response(null, { status: 201 }));
+
+      const result = await setPubs('ABCD', 'player-123', []);
 
       expect(result).toBeUndefined();
     });
