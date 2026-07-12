@@ -34,7 +34,6 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
-import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.repository.GameRepository
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
@@ -657,8 +656,7 @@ class GameServiceTest {
                         gameRepository.save(game)
                     }
 
-                override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> =
-                    gameRepository.findByCodeIgnoreCase(code)
+                override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(code)
             }
         val flakyService = GameService(duplicateOnceRepository, eventPublisher)
 
