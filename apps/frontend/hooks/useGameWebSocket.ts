@@ -45,7 +45,8 @@ export function useGameWebSocket({
     if (!gameCode || !enabled) return;
 
     const client = new Client({
-      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws`),
+      // Under `/api/v1` so it is routed by the same proxy rule as the REST API.
+      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/api/v1/ws`),
       connectHeaders: playerId ? { 'PubGolf-Player-Id': playerId } : {},
       reconnectDelay: RECONNECT_BASE_DELAY_MS,
       heartbeatIncoming: 4000,
