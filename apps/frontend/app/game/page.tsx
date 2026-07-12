@@ -17,7 +17,7 @@ import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
 import { EventBanner } from '@/components/EventBanner';
 import { Player, GameState } from '@/lib/types';
-import { firstUnplayedHole } from '@/lib/scoring';
+import { firstUnplayedHole, playerParRelative } from '@/lib/scoring';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
@@ -153,8 +153,8 @@ export default function GamePage() {
 
   const getWinners = (): Player[] => {
     if (players.length === 0) return [];
-    const minScore = Math.min(...players.map(p => p.totalScore));
-    return players.filter(p => p.totalScore === minScore);
+    const best = Math.min(...players.map(p => playerParRelative(p, pars)));
+    return players.filter(p => playerParRelative(p, pars) === best);
   };
 
   if (error) {

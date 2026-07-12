@@ -83,8 +83,9 @@ class GameState : ScenarioTest() {
         val player = players[0] as Map<*, *>
         assertThat(player["id"] as String, matches(uuidPattern))
         assertThat(player["name"], equalTo(host))
-        assertThat(player["scores"], equalTo(listOf(0, 0, 0, 0, 0, 0, 0, 0, 0)))
+        assertThat(player["scores"], equalTo(List<Int?>(9) { null }))
         assertThat(player["totalScore"], equalTo(0))
+        assertThat(player["parRelative"], equalTo(0))
     }
 
     private fun gameStateValidScore(
@@ -100,8 +101,9 @@ class GameState : ScenarioTest() {
         val player = players[0] as Map<*, *>
         assertThat(player["id"] as String, matches(uuidPattern))
         assertThat(player["name"], equalTo(host))
-        assertThat(player["scores"], equalTo(listOf(-10, 0, 0, 0, 0, 0, 0, 0, 0)))
+        assertThat(player["scores"], equalTo(listOf<Int?>(-10, null, null, null, null, null, null, null, null)))
         assertThat(player["totalScore"], equalTo(-10))
+        assertThat(player["parRelative"], equalTo(-11))
     }
 
     private fun gameStateFails(response: Result<ResponseEntity<String>, Exception>) {

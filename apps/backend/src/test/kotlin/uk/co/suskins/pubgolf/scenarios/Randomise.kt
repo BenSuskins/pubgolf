@@ -15,7 +15,9 @@ class Randomise : ScenarioTest() {
     @Test
     fun `Can use the randomise button`() {
         val game = createGame("Ben")
-        submitScore(game.gameCode(), game.playerId(), 5, 0)
+        for (hole in 1..5) {
+            submitScore(game.gameCode(), game.playerId(), hole, 2)
+        }
 
         val response = randomise(game.gameCode(), game.playerId())
 
@@ -39,11 +41,12 @@ class Randomise : ScenarioTest() {
     }
 
     @Test
-    fun `Can't use the randomise button when your last hole was 9`() {
+    fun `Can't use the randomise button when every hole is played`() {
         val game = createGame("Jake")
-        submitScore(game.gameCode(), game.playerId(), 9, 2)
+        for (hole in 1..9) {
+            submitScore(game.gameCode(), game.playerId(), hole, 2)
+        }
 
-        randomise(game.gameCode(), game.playerId())
         val response = randomise(game.gameCode(), game.playerId())
 
         val restClientException = response.get() as RestClientException

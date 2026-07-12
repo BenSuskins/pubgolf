@@ -349,20 +349,12 @@ class GameService(
         playerId: PlayerId,
     ): Result<Hole, PubGolfFailure> {
         val scores = game.players.first { it.id == playerId }.scores
-
-        // Check if all timestamps are the same (no scores actually submitted)
-        val timestamps = scores.values.map { it.instant }.toSet()
-        if (timestamps.size == 1) {
-            return Success(Hole(1))
-        }
-
-        val mostRecentHole = scores.maxBy { it.value.instant }.key
-
-        return if (mostRecentHole.value == GameConstants.MAX_HOLES) {
-            Failure(NoHolesLeftFailure("No more holes left"))
-        } else {
-            Success(Hole(mostRecentHole.value + 1))
-        }
+        val firstUnplayed =
+            (1..GameConstants.MAX_HOLES)
+                .map { Hole(it) }
+                .firstOrNull { it !in scores }
+                ?: return Failure(NoHolesLeftFailure("No more holes left"))
+        return Success(firstUnplayed)
     }
 
     private fun hasUsedRandomise(

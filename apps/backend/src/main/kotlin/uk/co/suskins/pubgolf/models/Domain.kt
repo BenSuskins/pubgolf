@@ -18,7 +18,8 @@ data class Game(
 data class Player(
     val id: PlayerId,
     val name: PlayerName,
-    val scores: Map<Hole, ScoreWithTimestamp> = initialScore(),
+    // Sparse: contains only holes the player has actually submitted a score for.
+    val scores: Map<Hole, ScoreWithTimestamp> = emptyMap(),
     val randomise: Randomise? = null,
     val penalties: List<Penalty> = emptyList(),
 ) {
@@ -40,16 +41,6 @@ data class Player(
     ) = copy(penalties = penalties.filter { it.hole != hole } + Penalty(hole, penaltyType))
 
     fun removePenalty(hole: Hole) = copy(penalties = penalties.filter { it.hole != hole })
-
-    companion object {
-        fun initialScore(): Map<Hole, ScoreWithTimestamp> {
-            val now = Instant.now()
-            return (1..GameConstants.MAX_HOLES)
-                .associateWith { 0 }
-                .mapKeys { Hole(it.key) }
-                .mapValues { ScoreWithTimestamp(Score(it.value), now) }
-        }
-    }
 }
 
 data class ScoreWithTimestamp(
@@ -245,6 +236,8 @@ data class RouteHole(
 )
 
 object Routes {
+    fun par(hole: Hole): Int = holes.first { it.hole == hole.value }.par
+
     val holes: List<RouteHole> =
         listOf(
             RouteHole(1, 1, mapOf("Route A" to "Tequila", "Route B" to "Sambuca")),
@@ -368,8 +361,15 @@ fun Game.toGameStateResponse(): GameStateResponse =
                     PlayerResponse(
                         id = player.id,
                         name = player.name,
-                        scores = player.scores.map { it.value.score },
+                        scores =
+                            (1..GameConstants.MAX_HOLES).map { hole ->
+                                player.scores[Hole(hole)]?.score
+                            },
                         totalScore = player.scores.values.sumOf { it.score.value },
+                        parRelative =
+                            player.scores.entries.sumOf { (hole, score) ->
+                                score.score.value - Routes.par(hole)
+                            },
                         randomise =
                             player.randomise?.let {
                                 RandomiseOutcomeResponse(it.hole, it.result.label)
@@ -379,7 +379,12 @@ fun Game.toGameStateResponse(): GameStateResponse =
                                 PenaltyResponse(penalty.hole, penalty.type.name, penalty.type.points)
                             },
                     )
-                }.sortedBy { it.totalScore },
+                }.sortedWith(
+                    compareBy(
+                        { it.parRelative },
+                        { -it.scores.count { score -> score != null } },
+                    ),
+                ),
         activeEvent =
             activeEvent?.let {
                 ActiveEventResponse(
