@@ -1156,9 +1156,12 @@
           "name" : {
             "type" : "string",
             "minLength" : 1
+          },
+          "rejoin" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "name" ]
+        "required" : [ "name", "rejoin" ]
       },
       "JoinGameResponse" : {
         "type" : "object",

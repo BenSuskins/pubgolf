@@ -95,7 +95,7 @@ describe('API functions', () => {
       const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
       expect(url).toContain('/api/v1/games/WXYZ/players');
       expect(options.method).toBe('POST');
-      expect(JSON.parse(options.body as string)).toEqual({ name: 'Test Player' });
+      expect(JSON.parse(options.body as string)).toEqual({ name: 'Test Player', rejoin: false });
       expect(result.gameCode).toBe('WXYZ');
     });
 

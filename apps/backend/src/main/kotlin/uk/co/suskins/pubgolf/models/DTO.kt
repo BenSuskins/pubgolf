@@ -14,6 +14,8 @@ data class GameRequest(
 data class GameJoinRequest(
     @field:NotBlank(message = "Name must not be blank")
     val name: PlayerName,
+    // When true and the name matches an existing player, returns that player instead of a 400.
+    val rejoin: Boolean = false,
 )
 
 data class ScoreRequest(

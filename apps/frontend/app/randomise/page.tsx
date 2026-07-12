@@ -84,7 +84,10 @@ export default function RandomisePage() {
       setHole(data.hole);
       setSpinning(true);
     } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
+      if (err instanceof ApiError && err.status === 409 && err.message.includes('No more holes left')) {
+        setError("No holes left to spin for — you've played them all!");
+        setHasSpun(true);
+      } else if (err instanceof ApiError && err.status === 409) {
         setError('You have already used your spin for this game!');
         setHasSpun(true);
       } else {

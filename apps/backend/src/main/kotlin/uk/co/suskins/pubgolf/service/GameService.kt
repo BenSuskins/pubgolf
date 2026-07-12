@@ -87,23 +87,39 @@ class GameService(
     fun joinGame(
         gameCode: GameCode,
         name: PlayerName,
+        rejoin: Boolean = false,
     ): Result<Game, PubGolfFailure> =
         retryOnConcurrentModification {
             gameRepository
                 .findByCodeIgnoreCase(gameCode)
                 .flatMap { isNotCompleted(it, "This game has ended") }
-                .flatMap { hasPlayerByName(it, name) }
                 .flatMap { game ->
-                    val player = Player(PlayerId.random(), name)
-                    val updated = game.copy(players = game.players + player)
-                    gameRepository
-                        .save(updated)
-                        .peek { updatedGame ->
-                            eventPublisher.publishEvent(PlayerJoinedEvent(updatedGame.code, player.id, player.name))
-                            eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
-                        }.map { game.copy(players = listOf(player)) }
+                    val existing = game.players.find { it.name.value.equals(name.value, ignoreCase = true) }
+                    when {
+                        // No auth exists, so rejoining is claim-by-name. Acceptable for a
+                        // casual game; the alternative is being locked out forever after
+                        // losing local storage.
+                        existing != null && rejoin -> Success(game.copy(players = listOf(existing)))
+                        existing != null ->
+                            Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${game.code.value}`."))
+                        else -> addPlayer(game, name)
+                    }
                 }
         }
+
+    private fun addPlayer(
+        game: Game,
+        name: PlayerName,
+    ): Result<Game, PubGolfFailure> {
+        val player = Player(PlayerId.random(), name)
+        val updated = game.copy(players = game.players + player)
+        return gameRepository
+            .save(updated)
+            .peek { updatedGame ->
+                eventPublisher.publishEvent(PlayerJoinedEvent(updatedGame.code, player.id, player.name))
+                eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+            }.map { game.copy(players = listOf(player)) }
+    }
 
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
 
@@ -261,16 +277,6 @@ class GameService(
     ): Result<Game, PubGolfFailure> =
         if (game.players.none { it.matches(playerId) }) {
             Failure(PlayerNotFoundFailure("Player `${playerId.value}` not found for game `${game.code.value}`."))
-        } else {
-            Success(game)
-        }
-
-    private fun hasPlayerByName(
-        game: Game,
-        name: PlayerName,
-    ): Result<Game, PubGolfFailure> =
-        if (game.players.any { it.name.value.equals(name.value, ignoreCase = true) }) {
-            Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${game.code.value}`."))
         } else {
             Success(game)
         }
