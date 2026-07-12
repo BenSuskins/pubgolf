@@ -102,6 +102,28 @@ class GameControllerTest {
     }
 
     @Test
+    fun `returns 400 BAD_REQUEST when requesting a status other than COMPLETED`() {
+        val hostPlayer = Player(PlayerId.random(), PlayerName("Ben"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(hostPlayer),
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val response =
+            controller.updateGameStatus(
+                GameCode("ACE007"),
+                hostPlayer.id.value.toString(),
+                UpdateGameStatusRequest(GameStatus.ACTIVE),
+            )
+
+        assertThat(response.statusCode, equalTo(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
     fun `returns 409 CONFLICT when no more holes left for randomise`() {
         val player = Player(PlayerId.random(), PlayerName("Ben"))
         val game =

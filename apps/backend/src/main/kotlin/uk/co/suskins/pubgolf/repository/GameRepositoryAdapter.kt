@@ -8,7 +8,11 @@ import dev.forkhandles.result4k.mapFailure
 import dev.forkhandles.result4k.peekFailure
 import dev.forkhandles.result4k.resultFrom
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.stereotype.Repository
+import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
+import uk.co.suskins.pubgolf.models.DuplicateGameCodeFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
@@ -26,13 +30,22 @@ class GameRepositoryAdapter(
     override fun save(game: Game): Result<Game, PubGolfFailure> =
         resultFrom {
             val entity = game.toJpa()
-            val saved = store.save(entity)
+            val saved = store.saveAndFlush(entity)
             saved.toDomain()
         }.peekFailure {
-            logger.error("Error saving game `${game.code.value}.", it)
-        }.mapFailure {
-            PersistenceFailure(it.message ?: "Save failed")
+            logger.error("Error saving game `${game.code.value}`.", it)
+        }.mapFailure { error ->
+            when {
+                error is OptimisticLockingFailureException ->
+                    ConcurrentModificationFailure("Game `${game.code.value}` was modified concurrently.")
+                error is DataIntegrityViolationException && error.mentionsGameCodeConstraint() ->
+                    DuplicateGameCodeFailure("Game code `${game.code.value}` already exists.")
+                else -> PersistenceFailure(error.message ?: "Save failed")
+            }
         }
+
+    private fun Throwable.mentionsGameCodeConstraint(): Boolean =
+        generateSequence(this) { it.cause }.any { (it.message ?: "").contains("games.code") }
 
     override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> =
         resultFrom {

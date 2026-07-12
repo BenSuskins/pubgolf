@@ -12,7 +12,7 @@ import uk.co.suskins.pubgolf.service.GameStateBroadcaster
 class GameStateBroadcasterListener(
     private val gameStateBroadcaster: GameStateBroadcaster,
 ) {
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     fun onGameStateChanged(event: GameStateChangedEvent) {
         gameStateBroadcaster.broadcast(event.game)
     }
@@ -22,27 +22,27 @@ class GameStateBroadcasterListener(
 class GameMetricsListener(
     private val gameMetrics: GameMetrics,
 ) {
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     fun onGameCreated(event: GameCreatedEvent) {
         gameMetrics.gameCreated()
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     fun onPlayerJoined(event: PlayerJoinedEvent) {
         gameMetrics.playerJoined()
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     fun onScoreSubmitted(event: ScoreSubmittedEvent) {
         gameMetrics.scoreSubmitted(event.hole)
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     fun onRandomiseUsed(event: RandomiseUsedEvent) {
         gameMetrics.randomiseUsed()
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     fun onGameCompleted(event: GameCompletedEvent) {
         gameMetrics.gameCompleted()
     }
