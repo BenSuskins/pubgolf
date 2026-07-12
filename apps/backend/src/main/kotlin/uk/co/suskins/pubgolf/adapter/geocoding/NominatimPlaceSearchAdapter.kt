@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.adapter.geocoding
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.mapFailure
 import dev.forkhandles.result4k.resultFrom
@@ -18,8 +19,10 @@ import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.service.PlaceSearchService
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
+
+private const val MAX_WAIT_FOR_SLOT_MS = 5_000L
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class NominatimResponse(
@@ -44,48 +47,55 @@ class NominatimPlaceSearchAdapter(
     private val restTemplate: RestTemplate,
 ) : PlaceSearchService {
     private val logger = LoggerFactory.getLogger(NominatimPlaceSearchAdapter::class.java)
-    private val rateLimiter = Semaphore(1)
-    private val clientQueues = ConcurrentHashMap<String, String>()
+
+    // Nominatim's usage policy allows one request per second, so upstream calls are
+    // serialised with a minimum interval. Waiters are bounded: rather than queueing
+    // indefinitely on servlet threads, callers give up after MAX_WAIT_FOR_SLOT_MS.
+    private val upstreamLock = ReentrantLock(true)
+    private var nextRequestAllowedAt = 0L
 
     override fun search(
         query: String,
-        clientIdentifier: String,
+        latitude: Double?,
+        longitude: Double?,
+    ): Result<List<PlaceSearchResult>, PubGolfFailure> {
+        if (!upstreamLock.tryLock(MAX_WAIT_FOR_SLOT_MS, TimeUnit.MILLISECONDS)) {
+            return Failure(PlaceSearchFailure("Place search is busy — please try again in a moment"))
+        }
+        return try {
+            val waitMs = nextRequestAllowedAt - System.currentTimeMillis()
+            if (waitMs > 0) {
+                Thread.sleep(waitMs)
+            }
+            fetch(query, latitude, longitude)
+        } finally {
+            nextRequestAllowedAt = System.currentTimeMillis() + rateLimitDelayMs
+            upstreamLock.unlock()
+        }
+    }
+
+    private fun fetch(
+        query: String,
         latitude: Double?,
         longitude: Double?,
     ): Result<List<PlaceSearchResult>, PubGolfFailure> =
         resultFrom {
-            clientQueues[clientIdentifier] = query
-
-            rateLimiter.acquire()
-            try {
-                Thread.sleep(rateLimitDelayMs)
-
-                val currentQuery = clientQueues[clientIdentifier]
-                if (currentQuery != query) {
-                    logger.debug("Query for client $clientIdentifier has been superseded, skipping")
-                    return@resultFrom emptyList()
+            val url = buildUrl(query, latitude, longitude)
+            val headers =
+                HttpHeaders().apply {
+                    set("User-Agent", userAgent)
                 }
+            val entity = HttpEntity<String>(headers)
 
-                val url = buildUrl(query, latitude, longitude)
-                val headers =
-                    HttpHeaders().apply {
-                        set("User-Agent", userAgent)
-                    }
-                val entity = HttpEntity<String>(headers)
+            val response = restTemplate.exchange(url, HttpMethod.GET, entity, Array<NominatimResponse>::class.java)
+            val results = response.body ?: emptyArray()
 
-                val response = restTemplate.exchange(url, HttpMethod.GET, entity, Array<NominatimResponse>::class.java)
-                val results = response.body ?: emptyArray()
-
-                results.take(resultLimit).map {
-                    PlaceSearchResult(
-                        name = it.displayName,
-                        latitude = it.lat.toDouble(),
-                        longitude = it.lon.toDouble(),
-                    )
-                }
-            } finally {
-                clientQueues.remove(clientIdentifier)
-                rateLimiter.release()
+            results.take(resultLimit).map {
+                PlaceSearchResult(
+                    name = it.displayName,
+                    latitude = it.lat.toDouble(),
+                    longitude = it.lon.toDouble(),
+                )
             }
         }.mapFailure { error ->
             logger.error("Error searching Nominatim for query: $query", error)
@@ -106,8 +116,8 @@ class NominatimPlaceSearchAdapter(
             val lngDelta = 0.045
             val viewbox =
                 "${longitude - lngDelta},${latitude - latDelta},${longitude + lngDelta},${latitude + latDelta}"
+            // Bias results towards the viewbox without excluding matches outside it.
             params.add("viewbox=$viewbox")
-            params.add("bounded=1")
         }
 
         return "$searchUrl?${params.joinToString("&")}"

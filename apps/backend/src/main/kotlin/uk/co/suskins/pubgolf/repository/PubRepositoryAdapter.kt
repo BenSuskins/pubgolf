@@ -39,7 +39,7 @@ class PubRepositoryAdapter(
         }.peekFailure {
             logger.error("Error saving pubs", it)
         }.mapFailure {
-            PersistenceFailure(it.message ?: "Save pubs failed")
+            PersistenceFailure("Failed to save pubs")
         }
 
     override fun findByGameId(gameId: GameId): Result<List<Pub>, PubGolfFailure> =
@@ -49,6 +49,6 @@ class PubRepositoryAdapter(
         }.peekFailure {
             logger.error("Error finding pubs for game ${gameId.value}", it)
         }.mapFailure {
-            PersistenceFailure(it.message ?: "Find pubs failed")
+            PersistenceFailure("Failed to load pubs")
         }
 }

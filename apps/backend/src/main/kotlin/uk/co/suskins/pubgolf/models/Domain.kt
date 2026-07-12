@@ -185,10 +185,6 @@ data class EventNotFoundFailure(
     override val message: String,
 ) : PubGolfFailure
 
-data class PubsAlreadySetFailure(
-    override val message: String,
-) : PubGolfFailure
-
 data class InvalidPubCountFailure(
     override val message: String,
 ) : PubGolfFailure

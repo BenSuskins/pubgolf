@@ -9,6 +9,7 @@ import dev.forkhandles.result4k.peekFailure
 import dev.forkhandles.result4k.recover
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameConstants
@@ -20,7 +21,6 @@ import uk.co.suskins.pubgolf.models.Pub
 import uk.co.suskins.pubgolf.models.PubDto
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.PubId
-import uk.co.suskins.pubgolf.models.PubsAlreadySetFailure
 import uk.co.suskins.pubgolf.models.RouteGeometry
 import uk.co.suskins.pubgolf.repository.GameRepository
 import uk.co.suskins.pubgolf.repository.PubRepository
@@ -34,6 +34,9 @@ class PubRouteService(
 ) {
     private val logger = LoggerFactory.getLogger(PubRouteService::class.java)
 
+    // Idempotent replace: pub rows are keyed by (game, hole), so saving nine pubs
+    // overwrites any previous route and the host can edit it later.
+    @Transactional
     fun setPubsForGame(
         gameCode: GameCode,
         hostPlayerId: PlayerId,
@@ -42,7 +45,6 @@ class PubRouteService(
         validatePubCount(pubDtos)
             .flatMap { gameService.validatePlayerInGame(gameCode, hostPlayerId) }
             .flatMap { game -> validateHost(game, hostPlayerId) }
-            .flatMap { game -> validateNoPubsSet(game) }
             .flatMap { game ->
                 val pubs =
                     pubDtos.mapIndexed { index, dto ->
@@ -81,13 +83,6 @@ class PubRouteService(
             Success(game)
         } else {
             Failure(InvalidHostFailure("Only the host can set pubs for this game"))
-        }
-
-    private fun validateNoPubsSet(game: Game): Result<Game, PubGolfFailure> =
-        if (game.pubs.isEmpty()) {
-            Success(game)
-        } else {
-            Failure(PubsAlreadySetFailure("Pubs have already been set for this game"))
         }
 
     private fun validatePubCount(pubDtos: List<PubDto>): Result<List<PubDto>, PubGolfFailure> =

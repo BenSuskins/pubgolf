@@ -63,7 +63,6 @@ import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PlayerNotInGameFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.PubLocationResponse
-import uk.co.suskins.pubgolf.models.PubsAlreadySetFailure
 import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
 import uk.co.suskins.pubgolf.models.RandomiseResponse
 import uk.co.suskins.pubgolf.models.RouteGeometryResponse
@@ -730,6 +729,54 @@ class GameController(
 
     @PutMapping("/{gameCode}/pubs")
     @SecurityRequirement(name = "PlayerIdHeader")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "Pubs set for the game (replaces any existing route)",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid argument",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Missing or invalid player ID header",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Not the host",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
     fun setPubs(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -745,6 +792,30 @@ class GameController(
             }.get()
 
     @GetMapping("/{gameCode}/route")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Pub route for the game",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = RouteResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Game not found",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ErrorResponse::class),
+                    ),
+                ],
+            ),
+        ],
+    )
     fun getRoute(
         @PathVariable("gameCode") gameCode: GameCode,
     ): ResponseEntity<out Any> =
@@ -787,26 +858,32 @@ class GameController(
         }
     }
 
-    private fun resolveFailure(it: PubGolfFailure): ResponseEntity<ErrorResponse> {
-        logger.error("Failure `${it.message}` occurred.")
-        return when (it) {
-            is GameNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
-            is PlayerNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
-            is EventNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
-            is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
-            is InvalidPubCountFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
-            is InvalidStatusTransitionFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
-            is RandomiseAlreadyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
-            is NoHolesLeftFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
-            is ConcurrentModificationFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
-            is GameAlreadyCompletedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
-            is EventAlreadyActiveFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
-            is PubsAlreadySetFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
-            is NotHostPlayerFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
-            is InvalidHostFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
-            is MissingPlayerIdHeaderFailure -> ResponseEntity.status(UNAUTHORIZED).body(it.asErrorResponse())
-            is PlayerNotInGameFailure -> ResponseEntity.status(FORBIDDEN).body(it.asErrorResponse())
-            else -> ResponseEntity.status(INTERNAL_SERVER_ERROR).body(it.asErrorResponse())
+    private fun resolveFailure(failure: PubGolfFailure): ResponseEntity<ErrorResponse> {
+        val status =
+            when (failure) {
+                is GameNotFoundFailure -> NOT_FOUND
+                is PlayerNotFoundFailure -> NOT_FOUND
+                is EventNotFoundFailure -> NOT_FOUND
+                is PlayerAlreadyExistsFailure -> BAD_REQUEST
+                is InvalidPubCountFailure -> BAD_REQUEST
+                is InvalidStatusTransitionFailure -> BAD_REQUEST
+                is RandomiseAlreadyUsedFailure -> CONFLICT
+                is NoHolesLeftFailure -> CONFLICT
+                is ConcurrentModificationFailure -> CONFLICT
+                is GameAlreadyCompletedFailure -> CONFLICT
+                is EventAlreadyActiveFailure -> CONFLICT
+                is NotHostPlayerFailure -> FORBIDDEN
+                is InvalidHostFailure -> FORBIDDEN
+                is PlayerNotInGameFailure -> FORBIDDEN
+                is MissingPlayerIdHeaderFailure -> UNAUTHORIZED
+                else -> INTERNAL_SERVER_ERROR
+            }
+        // Client mistakes are routine; only server-side failures deserve an ERROR entry.
+        if (status.is5xxServerError) {
+            logger.error("Failure `${failure.message}` occurred.")
+        } else {
+            logger.info("Failure `${failure.message}` occurred.")
         }
+        return ResponseEntity.status(status).body(failure.asErrorResponse())
     }
 }

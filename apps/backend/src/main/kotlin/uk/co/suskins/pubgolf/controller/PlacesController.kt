@@ -3,7 +3,6 @@ package uk.co.suskins.pubgolf.controller
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
-import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.constraints.Size
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -31,12 +30,9 @@ class PlacesController(
         query: String,
         @RequestParam("lat", required = false) latitude: Double?,
         @RequestParam("lng", required = false) longitude: Double?,
-        request: HttpServletRequest,
-    ): ResponseEntity<Any> {
-        val clientIp = extractClientIp(request)
-
-        return placeSearchService
-            .search(query, clientIp, latitude, longitude)
+    ): ResponseEntity<Any> =
+        placeSearchService
+            .search(query, latitude, longitude)
             .map { results -> ResponseEntity.ok<Any>(results) }
             .mapFailure { failure ->
                 logger.error("Failed to search places: ${failure.message}")
@@ -48,14 +44,4 @@ class PlacesController(
                     }
                 ResponseEntity.status(status).body<Any>(failure.asErrorResponse())
             }.get()
-    }
-
-    private fun extractClientIp(request: HttpServletRequest): String {
-        val xForwardedFor = request.getHeader("X-Forwarded-For")
-        return if (xForwardedFor != null && xForwardedFor.isNotBlank()) {
-            xForwardedFor.split(",").first().trim()
-        } else {
-            request.remoteAddr
-        }
-    }
 }

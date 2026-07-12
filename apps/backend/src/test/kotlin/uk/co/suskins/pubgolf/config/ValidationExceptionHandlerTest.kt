@@ -5,9 +5,13 @@ import com.natpryce.hamkrest.equalTo
 import org.junit.jupiter.api.Test
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.mock.http.MockHttpInputMessage
+import org.springframework.transaction.UnexpectedRollbackException
 import org.springframework.validation.DataBinder
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
 class ValidationExceptionHandlerTest {
     private val handler = ValidationExceptionHandler()
@@ -43,6 +47,41 @@ class ValidationExceptionHandlerTest {
             response.body?.message,
             equalTo("Validation failed: name: must not be blank, score: must be positive"),
         )
+    }
+
+    @Test
+    fun `maps malformed request bodies to a 400 with a stable error shape`() {
+        val exception = HttpMessageNotReadableException("boom", MockHttpInputMessage(ByteArray(0)))
+
+        val response = handler.handleUnreadableBody(exception)
+
+        assertThat(response.statusCode, equalTo(HttpStatus.BAD_REQUEST))
+        assertThat(response.body?.message, equalTo("Malformed request body"))
+    }
+
+    @Test
+    fun `maps parameter type mismatches to a 400 naming the parameter`() {
+        val exception =
+            MethodArgumentTypeMismatchException(
+                "abc",
+                Double::class.java,
+                "lat",
+                methodParameter,
+                IllegalArgumentException("not a number"),
+            )
+
+        val response = handler.handleTypeMismatch(exception)
+
+        assertThat(response.statusCode, equalTo(HttpStatus.BAD_REQUEST))
+        assertThat(response.body?.message, equalTo("Invalid value for parameter `lat`"))
+    }
+
+    @Test
+    fun `maps unexpected rollbacks to a generic 500`() {
+        val response = handler.handleUnexpectedRollback(UnexpectedRollbackException("rolled back"))
+
+        assertThat(response.statusCode, equalTo(HttpStatus.INTERNAL_SERVER_ERROR))
+        assertThat(response.body?.message, equalTo("Something went wrong — please try again"))
     }
 
     @Test

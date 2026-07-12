@@ -17,7 +17,7 @@ interface PlaceSearchServiceContract {
     fun `can search for places by query`() {
         val result =
             placeSearchService
-                .search("pub", "test-client")
+                .search("pub")
                 .valueOrNull()
 
         assertNotNull(result)
@@ -32,7 +32,7 @@ interface PlaceSearchServiceContract {
     fun `respects result limit`() {
         val result =
             placeSearchService
-                .search("pub", "test-client-2")
+                .search("pub")
                 .valueOrNull()
 
         assertNotNull(result)
@@ -43,7 +43,7 @@ interface PlaceSearchServiceContract {
     fun `can search with location bias`() {
         val result =
             placeSearchService
-                .search("pub", "test-client-3", latitude = 51.5074, longitude = -0.1278)
+                .search("pub", latitude = 51.5074, longitude = -0.1278)
                 .valueOrNull()
 
         assertNotNull(result)

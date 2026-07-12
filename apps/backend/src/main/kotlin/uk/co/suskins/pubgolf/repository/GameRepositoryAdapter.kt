@@ -39,7 +39,8 @@ class GameRepositoryAdapter(
                     ConcurrentModificationFailure("Game `${game.code.value}` was modified concurrently.")
                 error.mentionsGameCodeConstraint() ->
                     DuplicateGameCodeFailure("Game code `${game.code.value}` already exists.")
-                else -> PersistenceFailure(error.message ?: "Save failed")
+                // Deliberately generic: raw persistence messages leak schema/SQL details to clients.
+                else -> PersistenceFailure("Failed to save game")
             }
         }
 
@@ -54,7 +55,7 @@ class GameRepositoryAdapter(
         }.peekFailure {
             logger.error("Error finding game by code `${code.value}`.", it)
         }.mapFailure {
-            PersistenceFailure(it.message ?: "Find failed")
+            PersistenceFailure("Failed to load game")
         }.flatMap { entity ->
             entity?.toDomain()?.let { Success(it) }
                 ?: Failure(GameNotFoundFailure("Game `${code.value}` not found."))
