@@ -97,8 +97,10 @@ class GameServiceTest {
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
         assertTrue(updatedGame.hasPlayer("Ben"))
         assertTrue(updatedGame.hasPlayer("Megan"))
-        assertTrue(updatedGame.players.find { it.name.value == "Ben" }!!.scores.isEmpty())
-        assertTrue(updatedGame.players.find { it.name.value == "Megan" }!!.scores.isEmpty())
+        val ben = updatedGame.players.find { it.name.value == "Ben" }!!
+        val megan = updatedGame.players.find { it.name.value == "Megan" }!!
+        assertTrue(ben.scores.isEmpty())
+        assertTrue(megan.scores.isEmpty())
     }
 
     @Test

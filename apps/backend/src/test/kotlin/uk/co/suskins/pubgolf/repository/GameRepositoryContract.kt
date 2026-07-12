@@ -58,7 +58,8 @@ interface GameRepositoryContract {
         assertThat(persistedGame.id, equalTo(originalGame.id))
         assertThat(persistedGame.players.size, equalTo(1))
         assertTrue(persistedGame.hasPlayer("Ben"))
-        assertTrue(persistedGame.players.find { it.name.value == "Ben" }!!.scores.isEmpty())
+        val ben = persistedGame.players.find { it.name.value == "Ben" }!!
+        assertTrue(ben.scores.isEmpty())
     }
 
     @Test
@@ -103,8 +104,8 @@ interface GameRepositoryContract {
         gameRepository.save(game)
 
         val found = gameRepository.findByCodeIgnoreCase(GameCode("SCORE001")).valueOrNull()!!
-        val foundScores = found.players.first().scores.mapValues { it.value.score }
-        assertThat(foundScores, equalTo(mapOf(Hole(2) to Score(4))))
+        val foundPlayer = found.players.first()
+        assertThat(foundPlayer.scores.mapValues { it.value.score }, equalTo(mapOf(Hole(2) to Score(4))))
     }
 
     @Test
