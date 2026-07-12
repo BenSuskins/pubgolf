@@ -52,7 +52,8 @@ export default function MiniMapPreview({ pubs }: MiniMapPreviewProps) {
     const markers: maplibregl.Marker[] = [];
     pubs.forEach((pub, index) => {
       const el = document.createElement('div');
-      el.className = 'w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-full border-2 border-white shadow-lg font-bold text-sm';
+      el.className =
+        'w-7 h-7 flex items-center justify-center bg-[var(--color-primary)] text-[var(--color-ink)] rounded-full border-2 border-[var(--color-bg)] shadow-lg font-bold text-xs';
       el.textContent = String(index + 1);
 
       const marker = new maplibregl.Marker({ element: el })
@@ -85,8 +86,14 @@ export default function MiniMapPreview({ pubs }: MiniMapPreviewProps) {
   }
 
   return (
-    <div className="w-full h-64 rounded-md overflow-hidden border border-[var(--color-border)]">
+    <div className="relative w-full h-64 rounded-2xl overflow-hidden border border-[var(--color-border)]">
       <div ref={mapContainer} className="w-full h-full" />
+      <div className="absolute bottom-3 left-3 right-3 z-10 flex justify-between items-center bg-[rgba(13,20,16,0.85)] backdrop-blur border border-[var(--color-border)] rounded-xl px-3 py-2.5 pointer-events-none">
+        <span className="text-xs text-[var(--color-text)]">
+          {pubs.length} {pubs.length === 1 ? 'hole' : 'holes'} added
+        </span>
+        <span className="text-xs text-[var(--color-text-secondary)]">{9 - pubs.length} to go</span>
+      </div>
     </div>
   );
 }

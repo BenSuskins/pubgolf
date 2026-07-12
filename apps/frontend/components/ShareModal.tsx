@@ -98,12 +98,13 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
         initial="initial"
         animate="animate"
         exit="exit"
+        className="w-full max-w-sm mx-4"
       >
         <Card
           ref={modalRef}
           rounded="lg"
           padding="lg"
-          className="max-w-sm w-full mx-4 space-y-5"
+          className="w-full space-y-5"
         >
         <Typography variant="title" as="h2" id="share-modal-title" className="text-center">
           Rally Your Crew

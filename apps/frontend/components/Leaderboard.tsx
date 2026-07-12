@@ -62,7 +62,7 @@ function HoleStrip({ player, pars, cellStates }: HoleStripProps) {
                 isPlayed ? scoreColor(score as number, pars[holeIndex]) : 'text-[var(--color-text-faint)]'
               }`}
             >
-              {isPlayed ? score : '–'}
+              {score ?? '–'}
             </div>
             {penalty && (
               <div

@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { SlotMachine } from '@/components/SlotMachine';
 import { getRandomiseOptions, spinWheel, ApiError } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
-
-const Confetti = dynamic(() => import('react-confetti'), { ssr: false });
 
 interface WheelOption {
   option: string;
@@ -152,7 +149,6 @@ export default function RandomisePage() {
 
         {hasSpun && result && !spinning && (
           <div className="text-center animate-fade-in">
-            <Confetti numberOfPieces={500} recycle={false} />
             <p className="text-sm text-[var(--color-text-faint)]">
               Landed on:{' '}
               <span className="text-[var(--color-accent)] font-bold">{result}</span>

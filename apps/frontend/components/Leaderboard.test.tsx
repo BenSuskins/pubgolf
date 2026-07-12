@@ -94,6 +94,23 @@ describe('Leaderboard', () => {
     expect(screen.getByRole('img', { name: /CHUNDER penalty on hole 1/i })).toBeInTheDocument();
   });
 
+  test('should render a zero score as 0, not a dash, when expanded', async () => {
+    const user = userEvent.setup();
+    const players = [
+      buildPlayer({
+        id: 'p1',
+        name: 'Ben',
+        scores: [3, 0, null, null, null, null, null, null, null],
+        totalScore: 3,
+      }),
+    ];
+    render(<Leaderboard players={players} pars={pars} />);
+
+    await user.click(screen.getByRole('button', { name: /Ben/ }));
+
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
   test('should show the wildcard result on its hole when expanded', async () => {
     const user = userEvent.setup();
     const players = [

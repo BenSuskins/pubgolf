@@ -8,9 +8,9 @@ export function BackButton() {
   return (
     <button
       onClick={() => router.back()}
-      className="py-3 px-8 glass rounded-lg hover:bg-white/5 transition-colors font-medium"
+      className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
     >
-      Got It
+      ← Back to Scoreboard
     </button>
   );
 }

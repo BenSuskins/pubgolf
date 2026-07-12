@@ -88,6 +88,9 @@ export default function HowToPlayPage() {
   return (
     <main className="p-5 py-6">
       <div className="max-w-md mx-auto space-y-6">
+        <div>
+          <BackButton />
+        </div>
         <div className="text-center">
           <Typography variant="display" className="mb-3 text-4xl">
             The Rules
@@ -144,9 +147,6 @@ export default function HowToPlayPage() {
           )}
         </Card>
 
-        <div className="flex justify-center">
-          <BackButton />
-        </div>
       </div>
     </main>
   );

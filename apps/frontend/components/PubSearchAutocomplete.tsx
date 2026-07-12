@@ -19,7 +19,7 @@ export default function PubSearchAutocomplete({
   onSelect,
   biasLatitude,
   biasLongitude,
-  placeholder = 'Search for a pub...',
+  placeholder = 'Search for a pub or bar…',
 }: PubSearchAutocompleteProps) {
   const [results, setResults] = useState<PlaceSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,13 +65,24 @@ export default function PubSearchAutocomplete({
   return (
     <div className="space-y-3">
       <div className="relative">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+        >
+          <circle cx="11" cy="11" r="7" stroke="var(--color-text-secondary)" strokeWidth="1.8" />
+          <path d="M21 21l-4.3-4.3" stroke="var(--color-text-secondary)" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full px-4 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent placeholder:text-[var(--color-text-secondary)]/50"
+          className="w-full py-3 pl-10 pr-4 border border-[var(--color-border-subtle)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text)] text-[14.5px] placeholder:text-[var(--color-text-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
           aria-label="Search for a pub"
           disabled={isLoading}
         />
@@ -86,29 +97,47 @@ export default function PubSearchAutocomplete({
         type="button"
         onClick={handleSearch}
         disabled={isLoading || value.length < 2}
-        className="w-full px-4 py-2 btn-gradient rounded-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+        className="w-full py-3 px-4 rounded-xl bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] font-bold text-[13px] hover:bg-[var(--color-surface-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? 'Searching...' : 'Search'}
       </button>
 
       {error && (
-        <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-lg">{error}</p>
+        <p className="text-[var(--color-error)] text-sm bg-[var(--color-error-bg)] px-3 py-2 rounded-xl">{error}</p>
       )}
 
       {results.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm text-[var(--color-text-secondary)] font-medium">Results:</p>
-          <div className="space-y-1 max-h-60 overflow-y-auto">
-            {results.map((place) => (
+        <div className="glass rounded-[14px] overflow-hidden max-h-60 overflow-y-auto" aria-label="Search results">
+          {results.map((place, index) => (
+            <div
+              key={`${place.name}-${place.latitude}-${place.longitude}`}
+              className={`flex items-center gap-3 px-3.5 py-3 ${
+                index > 0 ? 'border-t border-[var(--color-border)]/50' : ''
+              }`}
+            >
+              <span className="w-[34px] h-[34px] rounded-lg bg-[var(--color-border-subtle)] flex items-center justify-center shrink-0" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21Z"
+                    stroke="var(--color-text-secondary)"
+                    strokeWidth="1.6"
+                  />
+                  <circle cx="12" cy="9.5" r="2.4" stroke="var(--color-text-secondary)" strokeWidth="1.6" />
+                </svg>
+              </span>
+              <span className="flex-1 min-w-0 font-semibold text-[13.5px] text-[var(--color-text)] truncate">
+                {place.name}
+              </span>
               <button
-                key={`${place.name}-${place.latitude}-${place.longitude}`}
+                type="button"
                 onClick={() => handleSelect(place)}
-                className="w-full px-4 py-2 text-left bg-[var(--color-bg)] hover:bg-[var(--color-bg-hover)] rounded-md border border-[var(--color-border)] transition-colors"
+                aria-label={`Add ${place.name}`}
+                className="w-9 h-9 rounded-[9px] bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] text-lg shrink-0 hover:bg-[var(--color-surface-hover)] transition-colors"
               >
-                <div className="font-medium truncate">{place.name}</div>
+                +
               </button>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
