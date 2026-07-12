@@ -111,6 +111,40 @@ class GameServiceTest {
     }
 
     @Test
+    fun `can rejoin as an existing player by name`() {
+        val existingPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(existingPlayer),
+            )
+        gameRepository.save(game)
+
+        val result = service.joinGame(gameCode, PlayerName("ben"), rejoin = true)
+
+        assertThat(result, isSuccess())
+        val rejoined = result.valueOrNull()!!
+        assertThat(rejoined.players.single().id, equalTo(existingPlayer.id))
+    }
+
+    @Test
+    fun `rejoin with an unknown name joins as a new player`() {
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
+        gameRepository.save(game)
+
+        val result = service.joinGame(gameCode, PlayerName("Megan"), rejoin = true)
+
+        assertThat(result, isSuccess())
+        assertTrue(gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!.hasPlayer("Megan"))
+    }
+
+    @Test
     fun `fail to join a game with a name that already exists`() {
         val game =
             Game(

@@ -133,8 +133,8 @@ export async function createGame(host: string): Promise<CreateGameResponse> {
   return request('/api/v1/games', { method: 'POST', body: { host } });
 }
 
-export async function joinGame(gameCode: string, name: string): Promise<JoinGameResponse> {
-  return request(gamePath(gameCode, '/players'), { method: 'POST', body: { name } });
+export async function joinGame(gameCode: string, name: string, rejoin: boolean = false): Promise<JoinGameResponse> {
+  return request(gamePath(gameCode, '/players'), { method: 'POST', body: { name, rejoin } });
 }
 
 export async function getGameState(gameCode: string): Promise<GameState> {

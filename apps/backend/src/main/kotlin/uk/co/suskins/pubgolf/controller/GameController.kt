@@ -184,7 +184,7 @@ class GameController(
         @Valid @RequestBody gameJoinRequest: GameJoinRequest,
     ): ResponseEntity<*> =
         gameService
-            .joinGame(gameCode, gameJoinRequest.name)
+            .joinGame(gameCode, gameJoinRequest.name, gameJoinRequest.rejoin)
             .map {
                 JoinGameResponse(
                     it.id,

@@ -13,6 +13,7 @@ export function JoinGameForm() {
   const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [offerRejoin, setOfferRejoin] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setGameSession } = useLocalStorage();
@@ -32,9 +33,9 @@ export function JoinGameForm() {
     }
   }, [searchParams]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const join = async (rejoin: boolean) => {
     setError('');
+    setOfferRejoin(false);
 
     if (name.trim().length < 2) {
       setError('Name must be at least 2 characters');
@@ -48,14 +49,25 @@ export function JoinGameForm() {
 
     setLoading(true);
     try {
-      const response = await joinGame(gameCode.trim().toUpperCase(), name.trim());
+      const response = await joinGame(gameCode.trim().toUpperCase(), name.trim(), rejoin);
       setGameSession(response.gameCode, response.playerId);
       router.push('/game');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to join game');
+      const message = err instanceof Error ? err.message : 'Failed to join game';
+      setError(message);
+      // A duplicate name usually means the same person on a new device or after
+      // cleared storage; offer to reclaim the player instead of dead-ending.
+      if (!rejoin && message.includes('already taken')) {
+        setOfferRejoin(true);
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await join(false);
   };
 
   return (
@@ -83,6 +95,17 @@ export function JoinGameForm() {
         fullWidth
       />
       {error && <ErrorMessage message={error} variant="inline" />}
+      {offerRejoin && (
+        <Button
+          type="button"
+          onClick={() => join(true)}
+          disabled={loading}
+          variant="secondary"
+          className="w-full"
+        >
+          That&apos;s me — rejoin as {name.trim()}
+        </Button>
+      )}
       <Button
         type="submit"
         disabled={loading}

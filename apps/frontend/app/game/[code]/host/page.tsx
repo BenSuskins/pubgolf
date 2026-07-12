@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, getAvailableEvents, activateEvent, endEvent, completeGame } from '@/lib/api';
+import { getGameState, getAvailableEvents, activateEvent, endEvent, completeGame, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { EventCard } from '@/components/EventCard';
@@ -21,6 +21,7 @@ export default function HostPanelPage() {
   const [activatingEventId, setActivatingEventId] = useState<string | null>(null);
   const [endingEvent, setEndingEvent] = useState(false);
   const [confirmEvent, setConfirmEvent] = useState<GameEvent | null>(null);
+  const [hasRoute, setHasRoute] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [completing, setCompleting] = useState(false);
   const router = useRouter();
@@ -71,6 +72,13 @@ export default function HostPanelPage() {
         const storedCode = getStoredGameCode();
         if (playerId && (!storedCode || storedCode.toLowerCase() !== gameCode.toLowerCase())) {
           setGameSession(gameCode, playerId);
+        }
+
+        try {
+          const routeData = await getRoute(gameCode);
+          setHasRoute(routeData.pubs.length > 0);
+        } catch {
+          setHasRoute(false);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load host panel');
@@ -211,6 +219,18 @@ export default function HostPanelPage() {
             </button>
           </div>
         )}
+
+        <section>
+          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
+            Pub Route
+          </h2>
+          <Link
+            href="/game/route"
+            className="block py-3 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] hover:bg-[var(--color-surface-hover)] transition-colors text-[var(--color-text-secondary)]"
+          >
+            {hasRoute ? 'Edit route map' : 'Set up route map'}
+          </Link>
+        </section>
 
         <section>
           <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { setPubs } from '@/lib/api';
+import { setPubs, getGameState, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PlaceSearchResult, Pub } from '@/lib/types';
 import PubSearchAutocomplete from '@/components/PubSearchAutocomplete';
@@ -17,14 +17,50 @@ export default function RouteBuilderPage() {
   const [selectedPubs, setSelectedPubs] = useState<Pub[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [saving, setSaving] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
+  const [editingExisting, setEditingExisting] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
 
   useEffect(() => {
-    if (!getGameCode() || !getPlayerId()) {
+    const gameCode = getGameCode();
+    const playerId = getPlayerId();
+    if (!gameCode || !playerId) {
       router.push('/');
+      return;
     }
+
+    let cancelled = false;
+    const checkAccess = async () => {
+      try {
+        const state = await getGameState(gameCode);
+        // Only the host can save a route; bounce everyone else up front
+        // instead of letting them build nine pubs and fail at save time.
+        if (state.hostPlayerId !== playerId) {
+          router.push('/game');
+          return;
+        }
+        try {
+          const routeData = await getRoute(gameCode);
+          if (!cancelled && routeData.pubs.length > 0) {
+            setSelectedPubs(routeData.pubs.map(({ name, latitude, longitude }) => ({ name, latitude, longitude })));
+            setEditingExisting(true);
+          }
+        } catch {
+          // No existing route to prefill - start fresh.
+        }
+      } catch {
+        router.push('/game');
+        return;
+      } finally {
+        if (!cancelled) setCheckingAccess(false);
+      }
+    };
+    checkAccess();
+    return () => {
+      cancelled = true;
+    };
   }, [getGameCode, getPlayerId, router]);
 
   const handlePubSelect = (place: PlaceSearchResult) => {
@@ -59,6 +95,16 @@ export default function RouteBuilderPage() {
     }
   };
 
+  if (checkingAccess) {
+    return (
+      <main className="min-h-full flex items-center justify-center">
+        <p className="text-[var(--color-text-secondary)] animate-pulse" role="status" aria-live="polite">
+          Loading route builder...
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-full flex flex-col p-5 max-w-md mx-auto w-full">
       <div className="space-y-4 flex-1 flex flex-col">
@@ -69,7 +115,9 @@ export default function RouteBuilderPage() {
           >
             ← Skip for now
           </Link>
-          <h1 className="font-display text-2xl text-[var(--color-text)] mt-3">Add Route Map</h1>
+          <h1 className="font-display text-2xl text-[var(--color-text)] mt-3">
+            {editingExisting ? 'Edit Route Map' : 'Add Route Map'}
+          </h1>
           <p className="text-[13px] text-[var(--color-text-muted)] mt-1">
             Search for each pub, in order
           </p>

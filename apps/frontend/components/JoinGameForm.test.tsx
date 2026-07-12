@@ -131,7 +131,7 @@ describe('JoinGameForm', () => {
       await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
-        expect(mockJoinGame).toHaveBeenCalledWith('WXYZ', 'Test Player');
+        expect(mockJoinGame).toHaveBeenCalledWith('WXYZ', 'Test Player', false);
       });
     });
 
