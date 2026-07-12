@@ -133,7 +133,9 @@ class GameControllerTest {
                 players = listOf(player),
             )
         gameRepository.save(game)
-        gameService.submitScore(GameCode("ACE007"), player.id, Hole(9), Score(5))
+        for (hole in 1..9) {
+            gameService.submitScore(GameCode("ACE007"), player.id, Hole(hole), Score(2))
+        }
 
         val response = controller.randomise(GameCode("ACE007"), player.id.value.toString())
 
