@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 import { hasPlayedHole, playerParRelative, formatParRelative } from '@/lib/scoring';
-import { CellState } from '@/hooks/useOptimisticGameState';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
 
 interface LeaderboardProps {
@@ -12,7 +11,6 @@ interface LeaderboardProps {
   pars: number[];
   currentPlayerId?: string;
   hostPlayerId?: string;
-  cellStates?: Record<string, CellState>;
 }
 
 function parRelativeColor(parRelative: number, hasPlayed: boolean): string {
@@ -42,23 +40,19 @@ function holesPlayed(player: Player): number {
 interface HoleStripProps {
   player: Player;
   pars: number[];
-  cellStates: Record<string, CellState>;
 }
 
-function HoleStrip({ player, pars, cellStates }: HoleStripProps) {
+function HoleStrip({ player, pars }: HoleStripProps) {
   return (
     <div className="flex gap-1 mt-3 pt-3 border-t border-[var(--color-border-gold)]/40">
       {player.scores.map((score, holeIndex) => {
         const holeNumber = holeIndex + 1;
         const wildcard = player.randomise?.hole === holeNumber ? player.randomise : null;
         const penalty = player.penalties?.find((p) => p.hole === holeNumber);
-        const cellState = cellStates[`${player.id}-${holeNumber}`];
-        const cellStateClass = cellState && cellState !== 'normal' ? `cell-${cellState}` : '';
-
         const isPlayed = hasPlayedHole(score);
 
         return (
-          <div key={holeNumber} className={`flex-1 text-center rounded ${cellStateClass}`}>
+          <div key={holeNumber} className="flex-1 text-center rounded">
             <div className="text-[9px] text-[var(--color-text-faint)]">{holeNumber}</div>
             <div
               className={`font-display text-sm ${
@@ -99,7 +93,6 @@ export function Leaderboard({
   pars,
   currentPlayerId,
   hostPlayerId,
-  cellStates = {},
 }: LeaderboardProps) {
   const [expandedPlayerIds, setExpandedPlayerIds] = useState<Set<string>>(new Set());
   const [autoExpandedPlayerId, setAutoExpandedPlayerId] = useState<string | null>(null);
@@ -219,7 +212,7 @@ export function Leaderboard({
                   <path d="M6 9l6 6 6-6" stroke="var(--color-text-secondary)" strokeWidth="2" />
                 </svg>
               </button>
-              {isExpanded && <HoleStrip player={player} pars={pars} cellStates={cellStates} />}
+              {isExpanded && <HoleStrip player={player} pars={pars} />}
             </div>
           </motion.li>
         );

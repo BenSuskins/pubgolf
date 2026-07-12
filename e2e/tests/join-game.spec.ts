@@ -38,7 +38,7 @@ test.describe('Join Game', () => {
     await page.locator('#game-code').fill(hostSession.gameCode);
     await page.getByRole('button', { name: 'Join the Round' }).click();
 
-    await expect(page.getByText(/already exists/i)).toBeVisible();
+    await expect(page.getByText(/already taken/i)).toBeVisible();
   });
 
   test('prefills game code from URL parameter', async ({ page, createGameViaApi }) => {

@@ -212,6 +212,102 @@ describe('API functions', () => {
     });
   });
 
+  describe('retry policy', () => {
+    test('retries GETs after a network error', async () => {
+      mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ gameId: '1', gameCode: 'ABCD', players: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+
+      const result = await getGameState('ABCD');
+
+      expect(result.gameCode).toBe('ABCD');
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    test('does not retry POSTs — a timed-out mutation may have succeeded server-side', async () => {
+      mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+
+      await expect(createGame('Ben')).rejects.toThrow();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not retry the one-shot wildcard spin', async () => {
+      mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+
+      await expect(spinWheel('ABCD', 'player-1')).rejects.toThrow();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('request building', () => {
+    test('URL-encodes the game code in paths', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ gameId: '1', gameCode: 'X', players: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+
+      await getGameState('AB/CD #1');
+
+      const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/api/v1/games/AB%2FCD%20%231');
+    });
+
+    test('sends the player id header on authenticated calls', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ result: 'Beer', hole: 2 }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+
+      await spinWheel('ABCD', 'player-1');
+
+      const [, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+      const headers = options.headers as Record<string, string>;
+      expect(headers['PubGolf-Player-Id']).toBe('player-1');
+    });
+  });
+
+  describe('friendly error copy', () => {
+    test('rewrites duplicate-name errors', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Player `Ben` already exists for game `ABCD`.' }), {
+          status: 400,
+        })
+      );
+
+      await expect(joinGame('ABCD', 'Ben')).rejects.toThrow(
+        "That name's already taken in this game — try another."
+      );
+    });
+
+    test('rewrites game-not-found errors', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Game `NOPE123` not found.' }), {
+          status: 404,
+        })
+      );
+
+      await expect(getGameState('NOPE123')).rejects.toThrow('Game not found — double-check the code.');
+    });
+
+    test('passes through unrecognised backend messages', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Randomise already used' }), {
+          status: 409,
+        })
+      );
+
+      await expect(spinWheel('ABCD', 'player-1')).rejects.toThrow('Randomise already used');
+    });
+  });
+
   describe('ApiError', () => {
     test('should have correct name property', () => {
       const error = new ApiError(400, 'Bad request');

@@ -6,13 +6,14 @@ import SockJS from 'sockjs-client';
 import { GameState } from '@/lib/types';
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
-const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_BASE_DELAY_MS = 5_000;
 
 interface UseGameWebSocketOptions {
   gameCode: string | null;
   playerId: string | null;
   onGameStateUpdate: (state: GameState) => void;
+  /** Called after the connection is re-established, so callers can refetch anything missed while offline. */
+  onReconnect?: () => void;
   enabled?: boolean;
 }
 
@@ -25,17 +26,20 @@ export function useGameWebSocket({
   gameCode,
   playerId,
   onGameStateUpdate,
+  onReconnect,
   enabled = true,
 }: UseGameWebSocketOptions): UseGameWebSocketResult {
   const clientRef = useRef<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const reconnectAttemptsRef = useRef(0);
+  const hasConnectedBeforeRef = useRef(false);
   const onGameStateUpdateRef = useRef(onGameStateUpdate);
+  const onReconnectRef = useRef(onReconnect);
 
   useEffect(() => {
     onGameStateUpdateRef.current = onGameStateUpdate;
-  }, [onGameStateUpdate]);
+    onReconnectRef.current = onReconnect;
+  }, [onGameStateUpdate, onReconnect]);
 
   const connect = useCallback(() => {
     if (!gameCode || !enabled) return;
@@ -49,7 +53,12 @@ export function useGameWebSocket({
       onConnect: () => {
         setIsConnected(true);
         setConnectionError(null);
-        reconnectAttemptsRef.current = 0;
+
+        // Broadcasts sent while offline are gone; refetch to resync.
+        if (hasConnectedBeforeRef.current) {
+          onReconnectRef.current?.();
+        }
+        hasConnectedBeforeRef.current = true;
 
         client.subscribe(
           `/topic/games/${gameCode.toLowerCase()}`,
@@ -69,10 +78,8 @@ export function useGameWebSocket({
       },
       onWebSocketClose: () => {
         setIsConnected(false);
-        reconnectAttemptsRef.current += 1;
-        if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-          setConnectionError('Live updates disconnected — scores may be delayed. Refresh to reconnect.');
-        }
+        // The client keeps reconnecting on its own; let the user know updates may lag.
+        setConnectionError('Reconnecting — live updates may be delayed.');
       },
     });
 

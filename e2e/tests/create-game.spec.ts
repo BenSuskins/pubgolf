@@ -51,10 +51,8 @@ test.describe('Create Game', () => {
 
     const gameCode = await page.evaluate(() => localStorage.getItem('gameCode'));
     const playerId = await page.evaluate(() => localStorage.getItem('playerId'));
-    const playerName = await page.evaluate(() => localStorage.getItem('playerName'));
 
     expect(gameCode).toMatch(/^[A-Z]+\d{3}$/);
     expect(playerId).toMatch(/^[a-f0-9-]{36}$/i);
-    expect(playerName).toBe('StorageTest');
   });
 });

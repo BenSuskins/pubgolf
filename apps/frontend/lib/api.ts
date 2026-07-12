@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { STORAGE_KEYS } from '@/hooks/useLocalStorage';
 import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse, GameEvent, ActiveEvent, PlaceSearchResult, Pub, RouteData } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
@@ -17,22 +18,38 @@ function timedFetch(url: string, options: RequestInit = {}): Promise<Response> {
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
 }
 
+// Rewrites known backend messages into copy a player can act on.
+function friendlyMessage(status: number, backendMessage: string): string {
+  if (backendMessage.includes('already exists for game')) {
+    return "That name's already taken in this game — try another.";
+  }
+  if (backendMessage.includes('does not belong to game')) {
+    return "You're not part of this game — rejoin from the home screen.";
+  }
+  if (status === 404 && /^Game `.*` not found/.test(backendMessage)) {
+    return 'Game not found — double-check the code.';
+  }
+  if (backendMessage.includes('modified concurrently')) {
+    return 'Someone else updated the game at the same moment — please try again.';
+  }
+  return backendMessage;
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const text = await response.text().catch(() => '');
     let message = statusMessage(response.status, text);
     try {
       const json = JSON.parse(text);
-      message = json.message || message;
+      message = json.message ? friendlyMessage(response.status, json.message) : message;
     } catch {
       if (text) message = text;
     }
 
     if (response.status === 401 && typeof window !== 'undefined') {
       toast.error('Session expired', { description: 'Please rejoin the game.' });
-      localStorage.removeItem('playerId');
-      localStorage.removeItem('gameCode');
-      localStorage.removeItem('playerName');
+      localStorage.removeItem(STORAGE_KEYS.PLAYER_ID);
+      localStorage.removeItem(STORAGE_KEYS.GAME_CODE);
       setTimeout(() => { window.location.href = '/'; }, 1500);
     }
 
@@ -52,14 +69,6 @@ function statusMessage(status: number, fallback: string): string {
   if (status === 404) return 'Not found';
   if (status >= 500) return 'Server error — please try again';
   return 'Something went wrong';
-}
-
-function getAuthHeaders(playerId: string | null): Record<string, string> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (playerId) {
-    headers['PubGolf-Player-Id'] = playerId;
-  }
-  return headers;
 }
 
 async function fetchWithRetry<T>(
@@ -86,46 +95,50 @@ async function fetchWithRetry<T>(
   throw lastError;
 }
 
-export async function getRoutes(): Promise<RoutesResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/config/routes`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+interface ApiRequestOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  body?: unknown;
+  playerId?: string | null;
+}
+
+async function request<T>(path: string, { method = 'GET', body, playerId }: ApiRequestOptions = {}): Promise<T> {
+  const doFetch = async () => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (playerId) {
+      headers['PubGolf-Player-Id'] = playerId;
+    }
+    const response = await timedFetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers,
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
-    return handleResponse<RoutesResponse>(response);
-  });
+    return handleResponse<T>(response);
+  };
+
+  // Only GETs are retried: a timed-out mutation may still have succeeded
+  // server-side, and repeating it can create duplicate games or consume
+  // one-shot actions like the wildcard.
+  return method === 'GET' ? fetchWithRetry(doFetch) : doFetch();
+}
+
+function gamePath(gameCode: string, suffix: string = ''): string {
+  return `/api/v1/games/${encodeURIComponent(gameCode)}${suffix}`;
+}
+
+export async function getRoutes(): Promise<RoutesResponse> {
+  return request('/api/v1/config/routes');
 }
 
 export async function createGame(host: string): Promise<CreateGameResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ host }),
-    });
-    return handleResponse<CreateGameResponse>(response);
-  });
+  return request('/api/v1/games', { method: 'POST', body: { host } });
 }
 
 export async function joinGame(gameCode: string, name: string): Promise<JoinGameResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}/players`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-    return handleResponse<JoinGameResponse>(response);
-  });
+  return request(gamePath(gameCode, '/players'), { method: 'POST', body: { name } });
 }
 
 export async function getGameState(gameCode: string): Promise<GameState> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<GameState>(response);
-  });
+  return request(gamePath(gameCode));
 }
 
 export async function submitScore(
@@ -139,17 +152,7 @@ export async function submitScore(
   if (penaltyType) {
     body.penaltyType = penaltyType;
   }
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(
-      `${API_BASE_URL}/api/v1/games/${gameCode}/scores`,
-      {
-        method: 'POST',
-        headers: getAuthHeaders(playerId),
-        body: JSON.stringify(body),
-      }
-    );
-    return handleResponse<void>(response);
-  });
+  return request(gamePath(gameCode, '/scores'), { method: 'POST', body, playerId });
 }
 
 export interface WheelOption {
@@ -167,13 +170,7 @@ export interface SpinWheelResponse {
 }
 
 export async function getRandomiseOptions(): Promise<WheelOptionsResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/config/randomise-options`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<WheelOptionsResponse>(response);
-  });
+  return request('/api/v1/config/randomise-options');
 }
 
 export interface PenaltyOption {
@@ -187,40 +184,18 @@ export interface PenaltyOptionsResponse {
 }
 
 export async function getPenaltyOptions(): Promise<PenaltyOptionsResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/config/penalty-options`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<PenaltyOptionsResponse>(response);
-  });
+  return request('/api/v1/config/penalty-options');
 }
 
 export async function spinWheel(
   gameCode: string,
   playerId: string
 ): Promise<SpinWheelResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(
-      `${API_BASE_URL}/api/v1/games/${gameCode}/randomise`,
-      {
-        method: 'POST',
-        headers: getAuthHeaders(playerId),
-      }
-    );
-    return handleResponse<SpinWheelResponse>(response);
-  });
+  return request(gamePath(gameCode, '/randomise'), { method: 'POST', playerId });
 }
 
 export async function completeGame(gameCode: string, playerId: string): Promise<GameState> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}`, {
-      method: 'PATCH',
-      headers: getAuthHeaders(playerId),
-      body: JSON.stringify({ status: 'COMPLETED' }),
-    });
-    return handleResponse<GameState>(response);
-  });
+  return request(gamePath(gameCode), { method: 'PATCH', body: { status: 'COMPLETED' }, playerId });
 }
 
 export interface EventsResponse {
@@ -232,23 +207,11 @@ export interface ActiveEventStateResponse {
 }
 
 export async function getAvailableEvents(gameCode: string): Promise<EventsResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<EventsResponse>(response);
-  });
+  return request(gamePath(gameCode, '/events'));
 }
 
 export async function getActiveEvent(gameCode: string): Promise<ActiveEventStateResponse> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}/events/active`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<ActiveEventStateResponse>(response);
-  });
+  return request(gamePath(gameCode, '/events/active'));
 }
 
 export async function activateEvent(
@@ -256,27 +219,11 @@ export async function activateEvent(
   eventId: string,
   playerId: string
 ): Promise<GameState> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(
-      `${API_BASE_URL}/api/v1/games/${gameCode}/active-event`,
-      {
-        method: 'PUT',
-        headers: getAuthHeaders(playerId),
-        body: JSON.stringify({ eventId }),
-      }
-    );
-    return handleResponse<GameState>(response);
-  });
+  return request(gamePath(gameCode, '/active-event'), { method: 'PUT', body: { eventId }, playerId });
 }
 
 export async function endEvent(gameCode: string, playerId: string): Promise<GameState> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}/active-event`, {
-      method: 'DELETE',
-      headers: getAuthHeaders(playerId),
-    });
-    return handleResponse<GameState>(response);
-  });
+  return request(gamePath(gameCode, '/active-event'), { method: 'DELETE', playerId });
 }
 
 export async function searchPlaces(
@@ -289,14 +236,7 @@ export async function searchPlaces(
     params.append('lat', latitude.toString());
     params.append('lng', longitude.toString());
   }
-
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/places/search?${params.toString()}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<PlaceSearchResult[]>(response);
-  });
+  return request(`/api/v1/places/search?${params.toString()}`);
 }
 
 export async function setPubs(
@@ -304,24 +244,11 @@ export async function setPubs(
   playerId: string,
   pubs: Pub[]
 ): Promise<void> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}/pubs`, {
-      method: 'PUT',
-      headers: getAuthHeaders(playerId),
-      body: JSON.stringify({ pubs }),
-    });
-    return handleResponse<void>(response);
-  });
+  return request(gamePath(gameCode, '/pubs'), { method: 'PUT', body: { pubs }, playerId });
 }
 
 export async function getRoute(gameCode: string): Promise<RouteData> {
-  return fetchWithRetry(async () => {
-    const response = await timedFetch(`${API_BASE_URL}/api/v1/games/${gameCode}/route`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return handleResponse<RouteData>(response);
-  });
+  return request(gamePath(gameCode, '/route'));
 }
 
 export { ApiError };

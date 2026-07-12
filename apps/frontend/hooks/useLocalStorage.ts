@@ -2,49 +2,44 @@
 
 import { useCallback } from 'react';
 
-const KEYS = {
+export const STORAGE_KEYS = {
   GAME_CODE: 'gameCode',
   PLAYER_ID: 'playerId',
-  PLAYER_NAME: 'playerName',
 } as const;
+
+// Written by older sessions; cleared on sign-out but no longer read or set.
+const LEGACY_PLAYER_NAME_KEY = 'playerName';
 
 export function useLocalStorage() {
   const getGameCode = useCallback((): string | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem(KEYS.GAME_CODE);
+    return localStorage.getItem(STORAGE_KEYS.GAME_CODE);
   }, []);
 
   const getPlayerId = useCallback((): string | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem(KEYS.PLAYER_ID);
-  }, []);
-
-  const getPlayerName = useCallback((): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(KEYS.PLAYER_NAME);
+    return localStorage.getItem(STORAGE_KEYS.PLAYER_ID);
   }, []);
 
   const setGameSession = useCallback(
-    (gameCode: string, playerId: string, playerName: string) => {
+    (gameCode: string, playerId: string) => {
       if (typeof window === 'undefined') return;
-      localStorage.setItem(KEYS.GAME_CODE, gameCode);
-      localStorage.setItem(KEYS.PLAYER_ID, playerId);
-      localStorage.setItem(KEYS.PLAYER_NAME, playerName);
+      localStorage.setItem(STORAGE_KEYS.GAME_CODE, gameCode);
+      localStorage.setItem(STORAGE_KEYS.PLAYER_ID, playerId);
     },
     []
   );
 
   const clearSession = useCallback(() => {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem(KEYS.GAME_CODE);
-    localStorage.removeItem(KEYS.PLAYER_ID);
-    localStorage.removeItem(KEYS.PLAYER_NAME);
+    localStorage.removeItem(STORAGE_KEYS.GAME_CODE);
+    localStorage.removeItem(STORAGE_KEYS.PLAYER_ID);
+    localStorage.removeItem(LEGACY_PLAYER_NAME_KEY);
   }, []);
 
   return {
     getGameCode,
     getPlayerId,
-    getPlayerName,
     setGameSession,
     clearSession,
   };

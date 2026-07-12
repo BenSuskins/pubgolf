@@ -69,8 +69,8 @@ export default function HostPanelPage() {
         }
 
         const storedCode = getStoredGameCode();
-        if (!storedCode || storedCode.toLowerCase() !== gameCode.toLowerCase()) {
-          setGameSession(gameCode, playerId ?? '', '');
+        if (playerId && (!storedCode || storedCode.toLowerCase() !== gameCode.toLowerCase())) {
+          setGameSession(gameCode, playerId);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load host panel');
