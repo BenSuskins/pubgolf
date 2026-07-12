@@ -13,12 +13,12 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
 import uk.co.suskins.pubgolf.models.PlaceSearchFailure
 import uk.co.suskins.pubgolf.models.PlaceSearchResult
 import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.service.PlaceSearchService
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import java.net.URI
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
@@ -80,14 +80,14 @@ class NominatimPlaceSearchAdapter(
         longitude: Double?,
     ): Result<List<PlaceSearchResult>, PubGolfFailure> =
         resultFrom {
-            val url = buildUrl(query, latitude, longitude)
+            val uri = buildUri(query, latitude, longitude)
             val headers =
                 HttpHeaders().apply {
                     set("User-Agent", userAgent)
                 }
             val entity = HttpEntity<String>(headers)
 
-            val response = restTemplate.exchange(url, HttpMethod.GET, entity, Array<NominatimResponse>::class.java)
+            val response = restTemplate.exchange(uri, HttpMethod.GET, entity, Array<NominatimResponse>::class.java)
             val results = response.body ?: emptyArray()
 
             results.take(resultLimit).map {
@@ -102,24 +102,33 @@ class NominatimPlaceSearchAdapter(
             PlaceSearchFailure("Failed to search places: ${error.message}")
         }
 
-    private fun buildUrl(
+    private fun buildUri(
         query: String,
         latitude: Double?,
         longitude: Double?,
-    ): String {
-        val searchUrl = "$baseUrl/search"
-        val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8)
-        val params = mutableListOf("q=$encodedQuery", "format=json", "limit=$resultLimit")
+    ): URI {
+        val builder =
+            UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .path("/search")
+                .queryParam("q", "{query}")
+                .queryParam("format", "json")
+                .queryParam("limit", "{limit}")
+        val variables = mutableMapOf<String, Any>("query" to query, "limit" to resultLimit)
 
         if (latitude != null && longitude != null) {
             val latDelta = 0.045
             val lngDelta = 0.045
-            val viewbox =
-                "${longitude - lngDelta},${latitude - latDelta},${longitude + lngDelta},${latitude + latDelta}"
             // Bias results towards the viewbox without excluding matches outside it.
-            params.add("viewbox=$viewbox")
+            builder.queryParam("viewbox", "{viewbox}")
+            variables["viewbox"] =
+                "${longitude - lngDelta},${latitude - latDelta},${longitude + lngDelta},${latitude + latDelta}"
         }
 
-        return "$searchUrl?${params.joinToString("&")}"
+        val uri = builder.encode().buildAndExpand(variables).toUri()
+        // The search text is expanded into encoded query values only; it must never
+        // influence where the request goes. Guard the host as defence in depth.
+        require(uri.host == URI(baseUrl).host) { "Place search request escaped the configured host" }
+        return uri
     }
 }
