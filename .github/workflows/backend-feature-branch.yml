@@ -37,7 +37,16 @@ jobs:
         run: ./gradlew apps:backend:integrationTest --no-daemon
 
       # Approval tests (okeydoke) write a .actual file next to the approved
-      # one on mismatch; upload it so the diff can be inspected and applied.
+      # one on mismatch; surface it so the diff can be inspected and applied.
+      - name: Print approval actuals
+        if: failure()
+        run: |
+          find apps/backend/src/test/resources -name '*.actual' | while read -r f; do
+            echo "=== BEGIN ACTUAL $f ==="
+            cat "$f"
+            echo "=== END ACTUAL $f ==="
+          done
+
       - name: Upload approval actuals
         if: failure()
         uses: actions/upload-artifact@v4
