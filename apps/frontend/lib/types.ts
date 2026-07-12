@@ -19,8 +19,11 @@ export const PENALTY_EMOJI_MAP: Record<PenaltyType, string> = {
 export interface Player {
   id: string;
   name: string;
+  /** One entry per hole; null means the hole has not been played yet. */
   scores: (number | null)[];
   totalScore: number;
+  /** Score relative to par over played holes; used for ranking. Optional for older payloads. */
+  parRelative?: number;
   randomise: Randomise | null;
   penalties: Penalty[];
 }

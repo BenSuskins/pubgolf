@@ -75,7 +75,7 @@ class GameServiceTest {
 
         assertThat(game.players.size, equalTo(1))
         assertThat(hostPlayer.name, equalTo(host))
-        assertTrue(hostPlayer.hasInitialScore())
+        assertTrue(hostPlayer.scores.isEmpty())
     }
 
     @Test
@@ -97,8 +97,10 @@ class GameServiceTest {
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
         assertTrue(updatedGame.hasPlayer("Ben"))
         assertTrue(updatedGame.hasPlayer("Megan"))
-        assertTrue(updatedGame.players.find { it.name.value == "Ben" }!!.hasInitialScore())
-        assertTrue(updatedGame.players.find { it.name.value == "Megan" }!!.hasInitialScore())
+        val ben = updatedGame.players.find { it.name.value == "Ben" }!!
+        val megan = updatedGame.players.find { it.name.value == "Megan" }!!
+        assertTrue(ben.scores.isEmpty())
+        assertTrue(megan.scores.isEmpty())
     }
 
     @Test
@@ -170,15 +172,7 @@ class GameServiceTest {
                 .mapValues { it.value.score },
             equalTo(
                 mapOf(
-                    Hole(1) to Score(0),
                     Hole(2) to Score(4),
-                    Hole(3) to Score(0),
-                    Hole(4) to Score(0),
-                    Hole(5) to Score(0),
-                    Hole(6) to Score(0),
-                    Hole(7) to Score(0),
-                    Hole(8) to Score(0),
-                    Hole(9) to Score(0),
                 ),
             ),
         )
@@ -251,7 +245,7 @@ class GameServiceTest {
     }
 
     @Test
-    fun `fail to use randomise when most recent score is hole 9`() {
+    fun `randomise targets the first unplayed hole`() {
         val player = Player(PlayerId.random(), host)
         val game =
             Game(
@@ -260,7 +254,29 @@ class GameServiceTest {
                 players = listOf(player),
             )
         gameRepository.save(game)
-        service.submitScore(gameCode, player.id, Hole(9), Score(5))
+        service.submitScore(gameCode, player.id, Hole(1), Score(3))
+        service.submitScore(gameCode, player.id, Hole(2), Score(3))
+        service.submitScore(gameCode, player.id, Hole(9), Score(2))
+
+        val result = service.randomise(gameCode, player.id)
+
+        assertThat(result, isSuccess())
+        assertThat(result.valueOrNull()!!.hole, equalTo(Hole(3)))
+    }
+
+    @Test
+    fun `fail to use randomise when all holes are played`() {
+        val player = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(player),
+            )
+        gameRepository.save(game)
+        for (hole in 1..9) {
+            service.submitScore(gameCode, player.id, Hole(hole), Score(2))
+        }
 
         val result = service.randomise(gameCode, player.id)
 
@@ -682,12 +698,5 @@ private class FlakyGameRepository(
 }
 
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }
-
-fun Player.hasInitialScore() =
-    scores.mapValues { it.value.score } ==
-        (1..9)
-            .associateWith { 0 }
-            .mapKeys { Hole(it.key) }
-            .mapValues { (Score(it.value)) }
 
 private fun GameCode.isValidGameCode() = value.matches(Regex("[A-Za-z]+\\d{3}"))

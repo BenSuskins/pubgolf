@@ -86,8 +86,11 @@ data class HoleResponse(
 data class PlayerResponse(
     val id: PlayerId,
     val name: PlayerName,
-    val scores: List<Score>,
+    // One entry per hole; null means the hole has not been played yet.
+    val scores: List<Score?>,
     val totalScore: Int,
+    // Score relative to par, over played holes only. Used for ranking.
+    val parRelative: Int,
     val randomise: RandomiseOutcomeResponse?,
     val penalties: List<PenaltyResponse>,
 )

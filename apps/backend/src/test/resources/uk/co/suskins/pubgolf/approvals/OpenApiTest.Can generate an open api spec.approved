@@ -987,6 +987,10 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "parRelative" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "randomise" : {
             "$ref" : "#/components/schemas/RandomiseOutcomeResponse"
           },
@@ -997,7 +1001,7 @@
             }
           }
         },
-        "required" : [ "id", "name", "penalties", "scores", "totalScore" ]
+        "required" : [ "id", "name", "parRelative", "penalties", "scores", "totalScore" ]
       },
       "RandomiseOutcomeResponse" : {
         "type" : "object",

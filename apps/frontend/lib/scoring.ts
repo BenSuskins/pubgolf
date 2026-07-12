@@ -1,7 +1,14 @@
-// The backend initialises every hole to a score of 0 and never returns null,
-// so a 0 is treated as "not played yet" for display purposes.
+// The backend returns null for holes that have not been played; 0 is a real score.
 export function hasPlayedHole(score: number | null): boolean {
-  return score !== null && score !== 0;
+  return score !== null;
+}
+
+// Prefers the server-computed value; falls back to computing from scores and pars.
+export function playerParRelative(
+  player: { parRelative?: number; scores: (number | null)[] },
+  pars: number[]
+): number {
+  return player.parRelative ?? parRelativeTotal(player.scores, pars);
 }
 
 export function parRelativeTotal(scores: (number | null)[], pars: number[]): number {
