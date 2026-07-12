@@ -8,7 +8,6 @@ import dev.forkhandles.result4k.mapFailure
 import dev.forkhandles.result4k.peekFailure
 import dev.forkhandles.result4k.resultFrom
 import org.slf4j.LoggerFactory
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.stereotype.Repository
 import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
@@ -38,12 +37,14 @@ class GameRepositoryAdapter(
             when {
                 error is OptimisticLockingFailureException ->
                     ConcurrentModificationFailure("Game `${game.code.value}` was modified concurrently.")
-                error is DataIntegrityViolationException && error.mentionsGameCodeConstraint() ->
+                error.mentionsGameCodeConstraint() ->
                     DuplicateGameCodeFailure("Game code `${game.code.value}` already exists.")
                 else -> PersistenceFailure(error.message ?: "Save failed")
             }
         }
 
+    // The SQLite dialect does not reliably translate unique violations to
+    // DataIntegrityViolationException, so match on the constraint name instead.
     private fun Throwable.mentionsGameCodeConstraint(): Boolean =
         generateSequence(this) { it.cause }.any { (it.message ?: "").contains("games.code") }
 
