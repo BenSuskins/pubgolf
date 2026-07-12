@@ -1,6 +1,9 @@
 package uk.co.suskins.pubgolf.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Instant
+
+private val routeGeometryMapper = jacksonObjectMapper()
 
 data class Game(
     val id: GameId,
@@ -61,7 +64,13 @@ data class Penalty(
 data class RandomiseResult(
     val result: String,
     val hole: Hole,
-    val outcomes: List<Outcomes>,
+)
+
+// The outcome of joining: the game's identity plus the (new or reclaimed) player.
+data class JoinResult(
+    val gameId: GameId,
+    val gameCode: GameCode,
+    val player: Player,
 )
 
 enum class Outcomes(
@@ -126,7 +135,6 @@ data class ActiveEventState(
 )
 
 data class Pub(
-    val id: PubId,
     val gameId: GameId,
     val hole: Hole,
     val name: String,
@@ -258,16 +266,7 @@ fun Game.toJpa(): GameEntity {
             hostPlayerId = hostPlayerId?.value,
             activeEventId = activeEvent?.event?.id,
             activeEventActivatedAt = activeEvent?.activatedAt,
-            routeGeometry =
-                routeGeometry?.let {
-                    "${it.type}:${
-                        it.coordinates.joinToString(";") { coord ->
-                            coord.joinToString(
-                                ",",
-                            )
-                        }
-                    }"
-                },
+            routeGeometry = routeGeometry?.let { routeGeometryMapper.writeValueAsString(it) },
         )
 
     players.forEach { player ->
@@ -337,7 +336,6 @@ fun Pub.toJpa(gameEntity: GameEntity): PubEntity =
 
 fun PubEntity.toDomain(): Pub =
     Pub(
-        id = PubId(id.gameId),
         gameId = GameId(id.gameId),
         hole = Hole(id.hole),
         name = name,

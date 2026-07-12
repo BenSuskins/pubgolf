@@ -20,7 +20,6 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.Pub
 import uk.co.suskins.pubgolf.models.PubDto
 import uk.co.suskins.pubgolf.models.PubGolfFailure
-import uk.co.suskins.pubgolf.models.PubId
 import uk.co.suskins.pubgolf.models.RouteGeometry
 import uk.co.suskins.pubgolf.repository.GameRepository
 import uk.co.suskins.pubgolf.repository.PubRepository
@@ -49,7 +48,6 @@ class PubRouteService(
                 val pubs =
                     pubDtos.mapIndexed { index, dto ->
                         Pub(
-                            id = PubId.random(),
                             gameId = game.id,
                             hole = Hole(index + 1),
                             name = dto.name,

@@ -10,7 +10,6 @@ import dev.forkhandles.result4k.mapFailure
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
@@ -84,39 +83,12 @@ class GameController(
     private val logger = LoggerFactory.getLogger(GameController::class.java)
 
     @PostMapping
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "201",
-                description = "Game created",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = CreateGameResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "201",
+        description = "Game created",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = CreateGameResponse::class))],
     )
+    @StandardErrorResponses
     fun createGame(
         @Valid @RequestBody gameRequest: GameRequest,
     ): ResponseEntity<*> =
@@ -136,49 +108,12 @@ class GameController(
             }.get()
 
     @PostMapping("/{gameCode}/players")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Game joined",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = JoinGameResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Game joined",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = JoinGameResponse::class))],
     )
+    @StandardErrorResponses
     fun joinGame(
         @PathVariable("gameCode") gameCode: GameCode,
         @Valid @RequestBody gameJoinRequest: GameJoinRequest,
@@ -187,10 +122,10 @@ class GameController(
             .joinGame(gameCode, gameJoinRequest.name, gameJoinRequest.rejoin)
             .map {
                 JoinGameResponse(
-                    it.id,
-                    it.code,
-                    it.players[0].id,
-                    it.players[0].name,
+                    it.gameId,
+                    it.gameCode,
+                    it.player.id,
+                    it.player.name,
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -199,49 +134,12 @@ class GameController(
             }.get()
 
     @GetMapping("/{gameCode}")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Game state",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = GameStateResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Game state",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = GameStateResponse::class))],
     )
+    @StandardErrorResponses
     fun gameState(
         @PathVariable("gameCode") gameCode: GameCode,
     ): ResponseEntity<*> =
@@ -254,53 +152,11 @@ class GameController(
 
     @PostMapping("/{gameCode}/scores")
     @SecurityRequirement(name = "PlayerIdHeader")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "204",
-                description = "Score submitted",
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized - Missing or invalid player ID header",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game or Player not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "204",
+        description = "Score submitted",
     )
+    @StandardErrorResponses
     fun submitScore(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -326,69 +182,12 @@ class GameController(
 
     @PostMapping("/{gameCode}/randomise")
     @SecurityRequirement(name = "PlayerIdHeader")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Randomise result",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = RandomiseResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized - Missing or invalid player ID header",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game or Player not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "409",
-                description = "You've already used this",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Randomise result",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = RandomiseResponse::class))],
     )
+    @StandardErrorResponses
     fun randomise(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -411,79 +210,12 @@ class GameController(
 
     @PatchMapping("/{gameCode}")
     @SecurityRequirement(name = "PlayerIdHeader")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Game status updated",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = GameStateResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized - Missing or invalid player ID header",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Not the host",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "409",
-                description = "Game already completed",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Game status updated",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = GameStateResponse::class))],
     )
+    @StandardErrorResponses
     fun updateGameStatus(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -508,62 +240,29 @@ class GameController(
         }
 
     @GetMapping("/{gameCode}/events")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Available events",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = EventsResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Available events",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = EventsResponse::class))],
     )
     fun getAvailableEvents(
         @PathVariable("gameCode") gameCode: GameCode,
     ): ResponseEntity<*> =
-        gameService
-            .gameState(gameCode)
-            .map {
-                EventsResponse(
-                    gameService.getAvailableEvents().map { event ->
-                        EventResponse(event.id, event.title, event.description)
-                    },
-                )
-            }.map {
-                ResponseEntity.status(OK).body(it)
-            }.mapFailure {
-                resolveFailure(it)
-            }.get()
+        ResponseEntity.status(OK).body(
+            EventsResponse(
+                gameService.getAvailableEvents().map { event ->
+                    EventResponse(event.id, event.title, event.description)
+                },
+            ),
+        )
 
     @GetMapping("/{gameCode}/events/active")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Current active event",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ActiveEventStateResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Current active event",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ActiveEventStateResponse::class))],
     )
+    @StandardErrorResponses
     fun getActiveEvent(
         @PathVariable("gameCode") gameCode: GameCode,
     ): ResponseEntity<*> =
@@ -588,70 +287,12 @@ class GameController(
 
     @PutMapping("/{gameCode}/active-event")
     @SecurityRequirement(name = "PlayerIdHeader")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Event activated",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = GameStateResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized - Missing or invalid player ID header",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Not the host",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game or event not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "409",
-                description = "Event already active",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Event activated",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = GameStateResponse::class))],
     )
+    @StandardErrorResponses
     fun setActiveEvent(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -669,50 +310,12 @@ class GameController(
 
     @DeleteMapping("/{gameCode}/active-event")
     @SecurityRequirement(name = "PlayerIdHeader")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Event ended",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = GameStateResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized - Missing or invalid player ID header",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Not the host",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Event ended",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = GameStateResponse::class))],
     )
+    @StandardErrorResponses
     fun deleteActiveEvent(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -729,54 +332,11 @@ class GameController(
 
     @PutMapping("/{gameCode}/pubs")
     @SecurityRequirement(name = "PlayerIdHeader")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "201",
-                description = "Pubs set for the game (replaces any existing route)",
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid argument",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized - Missing or invalid player ID header",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Not the host",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "201",
+        description = "Pubs set for the game (replaces any existing route)",
     )
+    @StandardErrorResponses
     fun setPubs(
         @PathVariable("gameCode") gameCode: GameCode,
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
@@ -792,30 +352,12 @@ class GameController(
             }.get()
 
     @GetMapping("/{gameCode}/route")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Pub route for the game",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = RouteResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Game not found",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ErrorResponse::class),
-                    ),
-                ],
-            ),
-        ],
+    @ApiResponse(
+        responseCode = "200",
+        description = "Pub route for the game",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = RouteResponse::class))],
     )
+    @StandardErrorResponses
     fun getRoute(
         @PathVariable("gameCode") gameCode: GameCode,
     ): ResponseEntity<out Any> =

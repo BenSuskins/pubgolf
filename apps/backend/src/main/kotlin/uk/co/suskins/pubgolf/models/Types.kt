@@ -47,15 +47,6 @@ value class GameId(
     }
 }
 
-@JvmInline
-value class PubId(
-    val value: UUID,
-) {
-    companion object {
-        fun random() = PubId(UUID.randomUUID())
-    }
-}
-
 enum class GameStatus {
     ACTIVE,
     COMPLETED,

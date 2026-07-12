@@ -10,7 +10,6 @@ import uk.co.suskins.pubgolf.adapter.routing.OsrmRoutingAdapter
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Pub
-import uk.co.suskins.pubgolf.models.PubId
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -30,7 +29,6 @@ interface RoutingServiceContract {
         val pubs =
             listOf(
                 Pub(
-                    id = PubId.random(),
                     gameId = GameId.random(),
                     hole = Hole(1),
                     name = "The Red Lion",
@@ -38,7 +36,6 @@ interface RoutingServiceContract {
                     longitude = -0.1278,
                 ),
                 Pub(
-                    id = PubId.random(),
                     gameId = GameId.random(),
                     hole = Hole(2),
                     name = "The White Hart",
@@ -58,7 +55,6 @@ interface RoutingServiceContract {
         val pubs =
             listOf(
                 Pub(
-                    id = PubId.random(),
                     gameId = GameId.random(),
                     hole = Hole(2),
                     name = "Second Pub",
@@ -66,7 +62,6 @@ interface RoutingServiceContract {
                     longitude = -0.1257,
                 ),
                 Pub(
-                    id = PubId.random(),
                     gameId = GameId.random(),
                     hole = Hole(1),
                     name = "First Pub",
@@ -84,7 +79,6 @@ interface RoutingServiceContract {
         val pubs =
             listOf(
                 Pub(
-                    id = PubId.random(),
                     gameId = GameId.random(),
                     hole = Hole(1),
                     name = "The Only Pub",

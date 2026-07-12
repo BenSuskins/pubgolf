@@ -19,6 +19,7 @@ import { Player, GameState } from '@/lib/types';
 import { firstUnplayedHole, playerParRelative } from '@/lib/scoring';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
+// Fallback while /api/v1/config/routes loads; keep in sync with the backend Routes config.
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
 export default function GamePage() {

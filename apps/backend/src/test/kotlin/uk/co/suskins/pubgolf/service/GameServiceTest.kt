@@ -91,8 +91,8 @@ class GameServiceTest {
         val result = service.joinGame(gameCode, PlayerName("Megan"))
 
         assertThat(result, isSuccess())
-        val joinedGame = result.valueOrNull()!!
-        assertTrue(joinedGame.hasPlayer("Megan"))
+        val joined = result.valueOrNull()!!
+        assertThat(joined.player.name, equalTo(PlayerName("Megan")))
 
         val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
         assertTrue(updatedGame.hasPlayer("Ben"))
@@ -125,7 +125,7 @@ class GameServiceTest {
 
         assertThat(result, isSuccess())
         val rejoined = result.valueOrNull()!!
-        assertThat(rejoined.players.single().id, equalTo(existingPlayer.id))
+        assertThat(rejoined.player.id, equalTo(existingPlayer.id))
     }
 
     @Test
