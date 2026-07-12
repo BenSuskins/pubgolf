@@ -67,7 +67,7 @@ export function JoinGameForm() {
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Enter your name"
+        placeholder="e.g. Big Dave"
         disabled={loading}
         fullWidth
       />
@@ -77,9 +77,9 @@ export function JoinGameForm() {
         type="text"
         value={gameCode}
         onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-        placeholder="e.g. ABC123"
+        placeholder="e.g. PAR780"
         disabled={loading}
-        className="font-mono tracking-wider"
+        className="font-display text-lg tracking-[0.06em] text-[var(--color-accent)]"
         fullWidth
       />
       {error && <ErrorMessage message={error} variant="inline" />}
@@ -87,9 +87,10 @@ export function JoinGameForm() {
         type="submit"
         disabled={loading}
         loading={loading}
-        className="w-full"
+        size="lg"
+        className="w-full text-xl"
       >
-        {loading ? 'Joining...' : "I'm In!"}
+        {loading ? 'Joining...' : 'JOIN THE ROUND →'}
       </Button>
     </form>
   );

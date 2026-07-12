@@ -6,7 +6,7 @@ describe('PENALTY_EMOJI_MAP', () => {
     expect(PENALTY_EMOJI_MAP.SKIP).toBe('🚫');
   });
 
-  test('should map CHUNDER to vomit emoji', () => {
-    expect(PENALTY_EMOJI_MAP.CHUNDER).toBe('🤮');
+  test('should map CHUNDER to nauseated emoji', () => {
+    expect(PENALTY_EMOJI_MAP.CHUNDER).toBe('🤢');
   });
 });

@@ -83,27 +83,42 @@ export function CreateGameForm() {
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Enter your name"
+        placeholder="e.g. Big Dave"
         disabled={loading}
         fullWidth
       />
 
       <div className="space-y-4">
-        <label className="flex items-center space-x-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={addPubRoute}
-            onChange={(e) => setAddPubRoute(e.target.checked)}
+        <div className="flex items-center justify-between py-1">
+          <div>
+            <div className="text-sm font-semibold text-[var(--color-text)]">Add route map</div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-0.5">
+              Show pub order to players
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={addPubRoute}
+            aria-label="Add route map"
             disabled={loading}
-            className="w-5 h-5 rounded border-[var(--color-border)] bg-[var(--color-bg)] accent-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]"
-          />
-          <span className="text-sm font-medium text-[var(--color-text-secondary)]">
-            Add Route Map
-          </span>
-        </label>
+            onClick={() => setAddPubRoute(!addPubRoute)}
+            className={`w-11 h-[26px] rounded-full relative transition-colors shrink-0 ${
+              addPubRoute ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-border-subtle)]'
+            }`}
+          >
+            <span
+              className={`w-5 h-5 rounded-full absolute top-[3px] transition-all ${
+                addPubRoute
+                  ? 'left-[21px] bg-[var(--color-ink)]'
+                  : 'left-[3px] bg-[var(--color-text-secondary)]'
+              }`}
+            />
+          </button>
+        </div>
 
         {addPubRoute && (
-          <div className="space-y-4 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg)]">
+          <div className="space-y-4 p-4 border border-[var(--color-border)] rounded-xl bg-[var(--color-bg)]">
             <PubSearchAutocomplete
               value={searchQuery}
               onChange={setSearchQuery}
@@ -127,9 +142,10 @@ export function CreateGameForm() {
         type="submit"
         disabled={loading || (addPubRoute && selectedPubs.length !== 9)}
         loading={loading}
-        className="w-full"
+        size="lg"
+        className="w-full text-xl"
       >
-        {loading ? 'Creating...' : "Let's Go!"}
+        {loading ? 'Creating...' : 'TEE OFF →'}
       </Button>
     </form>
   );

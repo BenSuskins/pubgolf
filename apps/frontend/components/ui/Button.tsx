@@ -24,13 +24,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseClasses = 'rounded-lg font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+    const baseClasses = 'rounded-xl font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
     const variantClasses = {
       primary: 'btn-gradient focus-visible:outline-[var(--color-accent)]',
-      secondary: 'glass border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] focus-visible:outline-[var(--color-primary)]',
+      secondary: 'glass text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] focus-visible:outline-[var(--color-primary)]',
       ghost: 'bg-transparent text-[var(--color-text)] hover:bg-white/5 focus-visible:outline-[var(--color-primary)]',
-      danger: 'border border-red-500 text-red-500 hover:bg-red-500/10 focus-visible:outline-red-500',
+      danger: 'surface-danger text-[var(--color-error)] font-bold hover:bg-[var(--color-danger-border)]/40 focus-visible:outline-[var(--color-error)]',
     };
 
     const sizeClasses = {

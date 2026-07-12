@@ -62,7 +62,7 @@ describe('Button', () => {
     test('should apply danger variant classes', () => {
       render(<Button variant="danger">Danger</Button>);
       const button = screen.getByRole('button');
-      expect(button.className).toContain('border-red-500');
+      expect(button.className).toContain('surface-danger');
     });
   });
 

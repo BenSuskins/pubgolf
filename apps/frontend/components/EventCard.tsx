@@ -1,8 +1,6 @@
 'use client';
 
 import { GameEvent } from '@/lib/types';
-import { Card } from './ui/Card';
-import { Typography } from './ui/Typography';
 
 interface EventCardProps {
   event: GameEvent;
@@ -22,44 +20,35 @@ export function EventCard({
   const isDisabled = isLoading || isOtherEventActive;
 
   return (
-    <Card
-      padding="sm"
-      className={`transition-all ${
+    <div
+      className={`flex items-center justify-between gap-3 rounded-[14px] px-4 py-3.5 ${
         isActive
-          ? 'ring-2 ring-[var(--color-accent)] bg-[var(--color-accent)]/10'
-          : ''
+          ? 'bg-[rgba(201,162,75,0.1)] border-[1.5px] border-[var(--color-accent)]'
+          : 'glass'
       }`}
     >
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <Typography variant="subheading" as="h3">
-            {event.title}
-          </Typography>
-          {isActive && (
-            <span className="text-xs bg-[var(--color-accent)] text-black px-2 py-0.5 rounded-full font-medium">
-              Active
-            </span>
-          )}
-        </div>
-
-        <Typography variant="small" color="secondary">
-          {event.description}
-        </Typography>
-
-        {!isActive && (
-          <button
-            onClick={onActivate}
-            disabled={isDisabled}
-            className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all ${
-              isDisabled
-                ? 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] cursor-not-allowed opacity-50'
-                : 'btn-gradient hover:opacity-90'
-            }`}
-          >
-            {isLoading ? 'Activating...' : 'Activate'}
-          </button>
-        )}
+      <div className="min-w-0">
+        <h3 className="text-[var(--color-text)] font-semibold text-[14.5px]">{event.title}</h3>
+        <p className="text-[var(--color-text-muted)] text-[11.5px] mt-0.5">{event.description}</p>
       </div>
-    </Card>
+
+      {isActive ? (
+        <span className="shrink-0 px-3.5 py-1.5 rounded-[9px] bg-[var(--color-accent)] text-[var(--color-ink)] font-bold text-xs whitespace-nowrap">
+          Active
+        </span>
+      ) : (
+        <button
+          onClick={onActivate}
+          disabled={isDisabled}
+          className={`shrink-0 min-h-[44px] px-[18px] rounded-[10px] font-bold text-[13px] whitespace-nowrap transition-all ${
+            isDisabled
+              ? 'bg-[var(--color-surface-inset)] border border-[var(--color-border-subtle)] text-[var(--color-text-faint)] cursor-not-allowed opacity-60'
+              : 'bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)]'
+          }`}
+        >
+          {isLoading ? 'Activating...' : 'Activate'}
+        </button>
+      )}
+    </div>
   );
 }

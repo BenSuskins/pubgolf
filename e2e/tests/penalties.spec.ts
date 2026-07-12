@@ -15,7 +15,7 @@ test.describe('Penalties', () => {
 
     await page.goto('/submit-score');
 
-    await page.locator('#hole').selectOption('3');
+    await page.getByRole('button', { name: /^Hole 3,/ }).click();
     await page.getByRole('button', { name: /\+5/ }).click();
 
     await expect(page.getByText(/Skip a drink/i)).toBeVisible();
@@ -30,7 +30,7 @@ test.describe('Penalties', () => {
 
     await page.goto('/submit-score');
 
-    await page.locator('#hole').selectOption('5');
+    await page.getByRole('button', { name: /^Hole 5,/ }).click();
     await page.getByRole('button', { name: /\+10/ }).click();
 
     await expect(page.getByText(/Tactical chunder/i)).toBeVisible();

@@ -13,7 +13,7 @@ export interface Penalty {
 
 export const PENALTY_EMOJI_MAP: Record<PenaltyType, string> = {
   SKIP: '🚫',
-  CHUNDER: '🤮',
+  CHUNDER: '🤢',
 };
 
 export interface Player {

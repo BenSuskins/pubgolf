@@ -1,8 +1,6 @@
 'use client';
 
 import { ActiveEvent } from '@/lib/types';
-import { Card } from './ui/Card';
-import { Typography } from './ui/Typography';
 
 interface EventBannerProps {
   event: ActiveEvent;
@@ -10,20 +8,16 @@ interface EventBannerProps {
 
 export function EventBanner({ event }: EventBannerProps) {
   return (
-    <Card variant="accent" padding="sm" className="border-l-4 mb-6 animate-fade-in">
-      <div className="flex items-start gap-3">
-        <span className="text-2xl" role="img" aria-label="Event">
-          📣
-        </span>
-        <div className="flex-1 min-w-0">
-          <Typography variant="heading" as="h3" color="accent">
-            {event.title}
-          </Typography>
-          <Typography variant="small" color="secondary" className="mt-1">
-            {event.description}
-          </Typography>
-        </div>
+    <div className="surface-gold rounded-xl px-3 py-2.5 flex items-center gap-2.5 animate-fade-in">
+      <span className="text-[15px]" role="img" aria-label="Event">
+        📣
+      </span>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-[var(--color-accent)] font-bold text-[12.5px]">
+          {event.title} active
+        </h3>
+        <p className="text-[#b0a583] text-[10.5px] truncate">{event.description}</p>
       </div>
-    </Card>
+    </div>
   );
 }

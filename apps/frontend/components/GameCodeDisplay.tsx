@@ -40,9 +40,9 @@ export function GameCodeDisplay({ gameCode, size = 'md' }: GameCodeDisplayProps)
   return (
     <div className="flex flex-col items-center space-y-3">
       <div className="text-center">
-        <p className="text-sm text-[var(--color-text-secondary)] mb-2">Game Code</p>
+        <p className="eyebrow text-[var(--color-text-muted)] mb-2">Game Code</p>
         <p
-          className={`${sizeClasses} font-bold tracking-widest font-mono text-[var(--color-accent)] ${
+          className={`${sizeClasses} font-display tracking-[0.08em] text-[var(--color-accent)] ${
             copied ? 'animate-pulse-success' : ''
           }`}
         >

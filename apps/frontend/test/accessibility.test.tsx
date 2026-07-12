@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { CreateGameForm } from '@/components/CreateGameForm';
 import { JoinGameForm } from '@/components/JoinGameForm';
-import { ScoreboardTable } from '@/components/ScoreboardTable';
+import { Leaderboard } from '@/components/Leaderboard';
 import { SlotMachine } from '@/components/SlotMachine';
 import { EventBanner } from '@/components/EventBanner';
 import { Player, ActiveEvent } from '@/lib/types';
@@ -74,7 +74,7 @@ describe('Accessibility Tests', () => {
   });
 
   describe('Components', () => {
-    test('ScoreboardTable has no accessibility violations', async () => {
+    test('Leaderboard has no accessibility violations', async () => {
       const players: Player[] = [
         {
           id: '1',
@@ -96,7 +96,7 @@ describe('Accessibility Tests', () => {
       const pars = [1, 3, 2, 2, 2, 2, 4, 1, 1];
 
       const { container } = render(
-        <ScoreboardTable players={players} pars={pars} hostPlayerId="1" />
+        <Leaderboard players={players} pars={pars} hostPlayerId="1" />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -120,8 +120,7 @@ describe('Accessibility Tests', () => {
         id: 'event-1',
         title: 'Test Event',
         description: 'This is a test event',
-        activeFrom: 1,
-        activeTo: 5,
+        activatedAt: new Date().toISOString(),
       };
 
       const { container } = render(<EventBanner event={event} />);

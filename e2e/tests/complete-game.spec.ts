@@ -238,10 +238,10 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/');
-      await page.getByRole('button', { name: 'Join the Party' }).click();
+      await page.getByRole('button', { name: 'Join a Round' }).click();
       await page.locator('#join-name').fill('LateJoiner');
       await page.locator('#game-code').fill(hostSession.gameCode);
-      await page.getByRole('button', { name: "I'm In!" }).click();
+      await page.getByRole('button', { name: 'Join the Round' }).click();
 
       await expect(page.getByText(/completed|ended/i)).toBeVisible();
     });

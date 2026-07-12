@@ -3,30 +3,29 @@ import { test, expect } from '../fixtures/test-fixtures';
 test.describe('Full Game Flow', () => {
   test('complete game from creation to leaderboard', async ({ page, browser }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Start a Round' }).click();
+    await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('GameHost');
-    await page.getByRole('button', { name: "Let's Go!" }).click();
+    await page.getByRole('button', { name: 'Tee Off' }).click();
 
     await expect(page).toHaveURL('/game');
 
-    const gameCodeElement = page.getByRole('heading', { name: /Game:/ });
-    const gameCodeText = await gameCodeElement.textContent();
-    const gameCode = gameCodeText?.match(/[A-Z]+\d{3}/)?.[0];
+    await expect(page.getByRole('heading', { name: 'Leaderboard' })).toBeVisible();
+    const gameCode = await page.evaluate(() => localStorage.getItem('gameCode'));
     expect(gameCode).toBeTruthy();
 
     const player2Context = await browser.newContext();
     const player2Page = await player2Context.newPage();
 
     await player2Page.goto('/');
-    await player2Page.getByRole('button', { name: 'Join the Party' }).click();
+    await player2Page.getByRole('button', { name: 'Join a Round' }).click();
     await player2Page.locator('#join-name').fill('Player2');
     await player2Page.locator('#game-code').fill(gameCode!);
-    await player2Page.getByRole('button', { name: "I'm In!" }).click();
+    await player2Page.getByRole('button', { name: 'Join the Round' }).click();
 
     await expect(player2Page).toHaveURL('/game');
 
     await page.getByRole('link', { name: 'Log Your Sips' }).click();
-    await page.locator('#hole').selectOption('1');
+    await page.getByRole('button', { name: /^Hole 1,/ }).click();
     await page.getByRole('button', { name: 'Increment' }).click();
     await page.getByRole('button', { name: 'Increment' }).click();
     await page.getByRole('button', { name: 'Log It' }).click();
@@ -34,7 +33,7 @@ test.describe('Full Game Flow', () => {
     await expect(page).toHaveURL('/game');
 
     await player2Page.getByRole('link', { name: 'Log Your Sips' }).click();
-    await player2Page.locator('#hole').selectOption('1');
+    await player2Page.getByRole('button', { name: /^Hole 1,/ }).click();
     for (let i = 0; i < 4; i++) {
       await player2Page.getByRole('button', { name: 'Increment' }).click();
     }
@@ -43,7 +42,7 @@ test.describe('Full Game Flow', () => {
     await expect(player2Page).toHaveURL('/game');
 
     await page.reload();
-    const hostRow = page.locator('table tbody tr').first();
+    const hostRow = page.locator('ol[aria-label="Leaderboard"] > li').first();
     await expect(hostRow).toContainText('GameHost');
 
     await player2Context.close();
@@ -61,6 +60,6 @@ test.describe('Full Game Flow', () => {
 
     await page.goto('/game');
 
-    await expect(page.getByText('15')).toBeVisible();
+    await expect(page.getByText('+5', { exact: true })).toBeVisible();
   });
 });

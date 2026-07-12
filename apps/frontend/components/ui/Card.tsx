@@ -52,9 +52,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
     const variantClasses = {
       glass: '',
-      accent: 'border-[var(--color-accent)]',
-      danger: 'border-[var(--color-error)]',
-      primary: 'border-[var(--color-primary)]',
+      accent: 'border-[var(--color-border-gold)]',
+      danger: 'border-[var(--color-danger-border-strong)]',
+      primary: 'border-[var(--color-border-gold)]',
     };
 
     const paddingClasses = {
@@ -67,9 +67,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     const glowClasses = glow === 'sm' ? 'glow-sm' : glow === true ? 'glow' : '';
 
     const roundedClasses = {
-      md: 'rounded-md',
-      lg: 'rounded-lg',
-      xl: 'rounded-xl',
+      md: 'rounded-lg',
+      lg: 'rounded-xl',
+      xl: 'rounded-[20px]',
     };
 
     const classes = `${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${glowClasses} ${roundedClasses[rounded]} ${className}`.trim();

@@ -69,14 +69,14 @@ describe('JoinGameForm', () => {
     test('should render submit button', () => {
       render(<JoinGameForm />);
 
-      expect(screen.getByRole('button', { name: /i'm in/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /join the round/i })).toBeInTheDocument();
     });
 
     test('should have proper placeholder texts', () => {
       render(<JoinGameForm />);
 
-      expect(screen.getByPlaceholderText(/enter your name/i)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/abc123/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/big dave/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/par780/i)).toBeInTheDocument();
     });
   });
 
@@ -99,7 +99,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'A');
       await user.type(screen.getByLabelText(/game code/i), 'ABCD');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       expect(screen.getByText(/must be at least 2 characters/i)).toBeInTheDocument();
     });
@@ -109,7 +109,7 @@ describe('JoinGameForm', () => {
       render(<JoinGameForm />);
 
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       expect(screen.getByText(/game code is required/i)).toBeInTheDocument();
     });
@@ -129,7 +129,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), '  Test Player  ');
       await user.type(screen.getByLabelText(/game code/i), 'wxyz');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
         expect(mockJoinGame).toHaveBeenCalledWith('WXYZ', 'Test Player');
@@ -142,7 +142,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'Test Player');
       await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
         expect(mockSetGameSession).toHaveBeenCalledWith('WXYZ', 'player-789', 'Test Player');
@@ -155,7 +155,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'Test Player');
       await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/game');
@@ -174,7 +174,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'Test Player');
       await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       expect(screen.getByRole('button', { name: /joining/i })).toBeInTheDocument();
     });
@@ -189,7 +189,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'Test Player');
       await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       expect(screen.getByLabelText(/your name/i)).toBeDisabled();
       expect(screen.getByLabelText(/game code/i)).toBeDisabled();
@@ -205,7 +205,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'Test Player');
       await user.type(screen.getByLabelText(/game code/i), 'INVALID');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
         expect(screen.getByText(/game not found/i)).toBeInTheDocument();
@@ -220,7 +220,7 @@ describe('JoinGameForm', () => {
 
       await user.type(screen.getByLabelText(/your name/i), 'Test Player');
       await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
-      await user.click(screen.getByRole('button', { name: /i'm in/i }));
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
         expect(screen.getByText(/failed to join game/i)).toBeInTheDocument();

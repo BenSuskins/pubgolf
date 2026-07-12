@@ -19,7 +19,7 @@ test.describe('Leaderboard', () => {
 
     await page.goto('/game');
 
-    const playerRows = page.locator('table tbody tr');
+    const playerRows = page.locator('ol[aria-label="Leaderboard"] > li');
     await expect(playerRows).toHaveCount(3);
 
     const firstRowText = await playerRows.first().textContent();

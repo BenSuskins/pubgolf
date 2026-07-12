@@ -58,9 +58,9 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(
     const Component: React.ElementType = as || defaultElements[variant] || 'p';
 
     const variantClasses = {
-      display: 'text-5xl sm:text-6xl font-bold font-display',
-      title: 'text-2xl font-bold font-display',
-      heading: 'text-xl font-semibold font-display',
+      display: 'text-5xl sm:text-6xl font-display uppercase leading-[0.95]',
+      title: 'text-2xl font-display uppercase',
+      heading: 'text-xl font-display uppercase',
       subheading: 'text-lg font-medium',
       body: 'text-base',
       small: 'text-sm',
