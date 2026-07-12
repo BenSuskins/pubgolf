@@ -31,6 +31,7 @@ import uk.co.suskins.pubgolf.models.GameEvent
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.JoinResult
 import uk.co.suskins.pubgolf.models.NoHolesLeftFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.Outcomes
@@ -88,7 +89,7 @@ class GameService(
         gameCode: GameCode,
         name: PlayerName,
         rejoin: Boolean = false,
-    ): Result<Game, PubGolfFailure> =
+    ): Result<JoinResult, PubGolfFailure> =
         retryOnConcurrentModification {
             gameRepository
                 .findByCodeIgnoreCase(gameCode)
@@ -99,7 +100,7 @@ class GameService(
                         // No auth exists, so rejoining is claim-by-name. Acceptable for a
                         // casual game; the alternative is being locked out forever after
                         // losing local storage.
-                        existing != null && rejoin -> Success(game.copy(players = listOf(existing)))
+                        existing != null && rejoin -> Success(JoinResult(game.id, game.code, existing))
                         existing != null ->
                             Failure(PlayerAlreadyExistsFailure("Player `${name.value}` already exists for game `${game.code.value}`."))
                         else -> addPlayer(game, name)
@@ -110,7 +111,7 @@ class GameService(
     private fun addPlayer(
         game: Game,
         name: PlayerName,
-    ): Result<Game, PubGolfFailure> {
+    ): Result<JoinResult, PubGolfFailure> {
         val player = Player(PlayerId.random(), name)
         val updated = game.copy(players = game.players + player)
         return gameRepository
@@ -118,7 +119,7 @@ class GameService(
             .peek { updatedGame ->
                 eventPublisher.publishEvent(PlayerJoinedEvent(updatedGame.code, player.id, player.name))
                 eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
-            }.map { game.copy(players = listOf(player)) }
+            }.map { JoinResult(game.id, game.code, player) }
     }
 
     fun gameState(gameCode: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(gameCode)
@@ -339,13 +340,7 @@ class GameService(
                     )
                     eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
                 }.flatMap {
-                    Success(
-                        RandomiseResult(
-                            result = outcome.label,
-                            hole = randomiseHole,
-                            outcomes = Outcomes.entries,
-                        ),
-                    )
+                    Success(RandomiseResult(result = outcome.label, hole = randomiseHole))
                 }
         }
     }

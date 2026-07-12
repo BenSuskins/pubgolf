@@ -1,5 +1,7 @@
 package uk.co.suskins.pubgolf.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
@@ -227,17 +229,24 @@ fun GameEntity.toDomain(): Game =
             pubs
                 .sortedBy { it.id.hole }
                 .map { it.toDomain() },
-        routeGeometry =
-            routeGeometry?.let { routeString ->
-                val parts = routeString.split(":")
-                if (parts.size == 2) {
-                    val coordinates =
-                        parts[1].split(";").map { coord ->
-                            coord.split(",").map { it.toDouble() }
-                        }
-                    RouteGeometry(type = parts[0], coordinates = coordinates)
-                } else {
-                    null
-                }
-            },
+        routeGeometry = routeGeometry?.let { parseRouteGeometry(it) },
     )
+
+private val routeGeometryMapper = jacksonObjectMapper()
+
+// Stored as JSON; rows written before V9-era code used "LineString:lng,lat;lng,lat".
+private fun parseRouteGeometry(stored: String): RouteGeometry? =
+    if (stored.startsWith("{")) {
+        runCatching { routeGeometryMapper.readValue<RouteGeometry>(stored) }.getOrNull()
+    } else {
+        val parts = stored.split(":")
+        if (parts.size == 2) {
+            val coordinates =
+                parts[1].split(";").map { coord ->
+                    coord.split(",").map { it.toDouble() }
+                }
+            RouteGeometry(type = parts[0], coordinates = coordinates)
+        } else {
+            null
+        }
+    }
