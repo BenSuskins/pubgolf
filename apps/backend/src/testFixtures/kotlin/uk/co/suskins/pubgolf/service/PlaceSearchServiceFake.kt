@@ -8,7 +8,6 @@ import uk.co.suskins.pubgolf.models.PubGolfFailure
 class PlaceSearchServiceFake : PlaceSearchService {
     override fun search(
         query: String,
-        clientIdentifier: String,
         latitude: Double?,
         longitude: Double?,
     ): Result<List<PlaceSearchResult>, PubGolfFailure> {

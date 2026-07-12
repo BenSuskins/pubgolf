@@ -15,8 +15,11 @@ import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
+import uk.co.suskins.pubgolf.models.PubDto
+import uk.co.suskins.pubgolf.models.RouteResponse
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.models.ScoreRequest
+import uk.co.suskins.pubgolf.models.SetPubsRequest
 import uk.co.suskins.pubgolf.models.UpdateGameStatusRequest
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import uk.co.suskins.pubgolf.repository.PubRepositoryFake
@@ -122,6 +125,55 @@ class GameControllerTest {
 
         assertThat(response.statusCode, equalTo(HttpStatus.BAD_REQUEST))
     }
+
+    @Test
+    fun `host can replace an existing pub route`() {
+        val hostPlayer = Player(PlayerId.random(), PlayerName("Ben"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(hostPlayer),
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+        val hostId = hostPlayer.id.value.toString()
+
+        val first = controller.setPubs(GameCode("ACE007"), hostId, SetPubsRequest(pubDtos("Old")))
+        assertThat(first.statusCode, equalTo(HttpStatus.CREATED))
+
+        val second = controller.setPubs(GameCode("ACE007"), hostId, SetPubsRequest(pubDtos("New")))
+        assertThat(second.statusCode, equalTo(HttpStatus.CREATED))
+
+        val route = controller.getRoute(GameCode("ACE007"))
+        val body = route.body as RouteResponse
+        assertThat(body.pubs.first().name, equalTo("New 1"))
+    }
+
+    @Test
+    fun `returns 403 FORBIDDEN when non-host sets pubs`() {
+        val hostPlayer = Player(PlayerId.random(), PlayerName("Ben"))
+        val otherPlayer = Player(PlayerId.random(), PlayerName("Other"))
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("ACE007"),
+                players = listOf(hostPlayer, otherPlayer),
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val response =
+            controller.setPubs(
+                GameCode("ACE007"),
+                otherPlayer.id.value.toString(),
+                SetPubsRequest(pubDtos("Pub")),
+            )
+
+        assertThat(response.statusCode, equalTo(HttpStatus.FORBIDDEN))
+    }
+
+    private fun pubDtos(prefix: String) = (1..9).map { PubDto("$prefix $it", 51.5 + it * 0.001, -0.1 + it * 0.001) }
 
     @Test
     fun `returns 409 CONFLICT when no more holes left for randomise`() {
