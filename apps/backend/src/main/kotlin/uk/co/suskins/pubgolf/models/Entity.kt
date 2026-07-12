@@ -15,6 +15,7 @@ import jakarta.persistence.MapsId
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.io.Serializable
 import java.time.Instant
 import java.util.UUID
@@ -36,6 +37,13 @@ data class GameEntity(
     val activeEventActivatedAt: Instant? = null,
     @Column(name = "route_geometry")
     val routeGeometry: String? = null,
+    // Nullable so Spring Data treats a null version as a new entity (persist, not merge).
+    @Version
+    var version: Long? = null,
+    // Touched on every save so the games row is always dirty, forcing the
+    // version check/increment even when only child rows (scores etc.) changed.
+    @Column(name = "last_modified")
+    var lastModified: Instant = Instant.now(),
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
     val players: MutableList<PlayerEntity> = mutableListOf(),
@@ -173,6 +181,7 @@ fun GameEntity.toDomain(): Game =
         id = GameId(id),
         code = GameCode(code),
         status = status,
+        version = version,
         hostPlayerId = hostPlayerId?.let { PlayerId(it) },
         activeEvent =
             activeEventId?.let { eventId ->

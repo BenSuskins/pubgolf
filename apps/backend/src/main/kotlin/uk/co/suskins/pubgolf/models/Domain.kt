@@ -11,6 +11,8 @@ data class Game(
     val activeEvent: ActiveEvent? = null,
     val pubs: List<Pub> = emptyList(),
     val routeGeometry: RouteGeometry? = null,
+    // Optimistic-lock version carried from the entity so stale saves are rejected; null until first persisted.
+    val version: Long? = null,
 )
 
 data class Player(
@@ -220,6 +222,22 @@ data class PlayerNotInGameFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class ConcurrentModificationFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class DuplicateGameCodeFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class NoHolesLeftFailure(
+    override val message: String,
+) : PubGolfFailure
+
+data class InvalidStatusTransitionFailure(
+    override val message: String,
+) : PubGolfFailure
+
 data class RouteHole(
     val hole: Int,
     val par: Int,
@@ -247,6 +265,7 @@ fun Game.toJpa(): GameEntity {
             id = id.value,
             code = code.value,
             status = status,
+            version = version,
             hostPlayerId = hostPlayerId?.value,
             activeEventId = activeEvent?.event?.id,
             activeEventActivatedAt = activeEvent?.activatedAt,

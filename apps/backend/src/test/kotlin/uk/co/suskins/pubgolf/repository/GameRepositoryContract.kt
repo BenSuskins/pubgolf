@@ -2,6 +2,7 @@ package uk.co.suskins.pubgolf.repository
 
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import dev.forkhandles.result4k.failureOrNull
 import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.Tag
@@ -9,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
+import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
+import uk.co.suskins.pubgolf.models.DuplicateGameCodeFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
+import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
 import uk.co.suskins.pubgolf.models.Penalty
 import uk.co.suskins.pubgolf.models.PenaltyType
@@ -50,7 +54,7 @@ interface GameRepositoryContract {
         persistedGame: Game,
         originalGame: Game,
     ) {
-        assertThat(persistedGame, equalTo(originalGame))
+        assertThat(persistedGame.copy(version = null), equalTo(originalGame.copy(version = null)))
         assertThat(persistedGame.id, equalTo(originalGame.id))
         assertThat(persistedGame.players.size, equalTo(1))
         assertTrue(persistedGame.hasPlayer("Ben"))
@@ -84,6 +88,45 @@ interface GameRepositoryContract {
         val mixedCase = gameRepository.findByCodeIgnoreCase(GameCode("AcE007")).valueOrNull()
         assertTrue(mixedCase != null)
         assertThat(mixedCase.code, equalTo(GameCode("ACE007")))
+    }
+
+    @Test
+    fun `rejects a stale save after a concurrent update`() {
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("STALE001"),
+                players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
+            )
+        val saved = gameRepository.save(game).valueOrNull()!!
+
+        val updated = gameRepository.save(saved.copy(status = GameStatus.COMPLETED))
+        assertThat(updated.valueOrNull()!!.status, equalTo(GameStatus.COMPLETED))
+
+        val stale = gameRepository.save(saved.copy(status = GameStatus.ACTIVE))
+        assertTrue(stale.failureOrNull() is ConcurrentModificationFailure)
+    }
+
+    @Test
+    fun `rejects a new game with a duplicate code`() {
+        gameRepository.save(
+            Game(
+                id = GameId.random(),
+                code = GameCode("DUPE001"),
+                players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
+            ),
+        )
+
+        val result =
+            gameRepository.save(
+                Game(
+                    id = GameId.random(),
+                    code = GameCode("DUPE001"),
+                    players = listOf(Player(PlayerId.random(), PlayerName("Megan"))),
+                ),
+            )
+
+        assertTrue(result.failureOrNull() is DuplicateGameCodeFailure)
     }
 
     @Test

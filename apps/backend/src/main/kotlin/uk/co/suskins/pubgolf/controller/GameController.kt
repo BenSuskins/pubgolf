@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.co.suskins.pubgolf.models.ActiveEventResponse
 import uk.co.suskins.pubgolf.models.ActiveEventStateResponse
+import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
 import uk.co.suskins.pubgolf.models.CreateGameResponse
 import uk.co.suskins.pubgolf.models.ErrorResponse
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
@@ -48,10 +49,13 @@ import uk.co.suskins.pubgolf.models.GameJoinRequest
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
+import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.InvalidHostFailure
 import uk.co.suskins.pubgolf.models.InvalidPubCountFailure
+import uk.co.suskins.pubgolf.models.InvalidStatusTransitionFailure
 import uk.co.suskins.pubgolf.models.JoinGameResponse
 import uk.co.suskins.pubgolf.models.MissingPlayerIdHeaderFailure
+import uk.co.suskins.pubgolf.models.NoHolesLeftFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
@@ -486,7 +490,8 @@ class GameController(
         @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
         @Valid @RequestBody request: UpdateGameStatusRequest,
     ): ResponseEntity<*> =
-        parsePlayerIdHeader(playerIdHeader)
+        validateStatusTransition(request)
+            .flatMap { parsePlayerIdHeader(playerIdHeader) }
             .flatMap { playerId ->
                 gameService
                     .validatePlayerInGame(gameCode, playerId)
@@ -495,6 +500,13 @@ class GameController(
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }
             .get()
+
+    private fun validateStatusTransition(request: UpdateGameStatusRequest): Result<Unit, PubGolfFailure> =
+        if (request.status != GameStatus.COMPLETED) {
+            Failure(InvalidStatusTransitionFailure("Only a transition to COMPLETED is supported"))
+        } else {
+            Success(Unit)
+        }
 
     @GetMapping("/{gameCode}/events")
     @ApiResponses(
@@ -783,7 +795,10 @@ class GameController(
             is EventNotFoundFailure -> ResponseEntity.status(NOT_FOUND).body(it.asErrorResponse())
             is PlayerAlreadyExistsFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
             is InvalidPubCountFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
+            is InvalidStatusTransitionFailure -> ResponseEntity.status(BAD_REQUEST).body(it.asErrorResponse())
             is RandomiseAlreadyUsedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is NoHolesLeftFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
+            is ConcurrentModificationFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is GameAlreadyCompletedFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is EventAlreadyActiveFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())
             is PubsAlreadySetFailure -> ResponseEntity.status(CONFLICT).body(it.asErrorResponse())

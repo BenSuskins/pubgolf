@@ -24,6 +24,9 @@ test.describe('Full Game Flow', () => {
 
     await expect(player2Page).toHaveURL('/game');
 
+    // Live update: the host's scoreboard shows Player2 joining without a reload
+    await expect(page.locator('ol[aria-label="Leaderboard"] > li')).toHaveCount(2, { timeout: 15_000 });
+
     await page.getByRole('link', { name: 'Log Your Sips' }).click();
     await page.getByRole('button', { name: /^Hole 1,/ }).click();
     await page.getByRole('button', { name: 'Increment' }).click();
@@ -41,9 +44,10 @@ test.describe('Full Game Flow', () => {
 
     await expect(player2Page).toHaveURL('/game');
 
-    await page.reload();
+    // Live update: both scores reach the host's leaderboard without a reload
     const hostRow = page.locator('ol[aria-label="Leaderboard"] > li').first();
-    await expect(hostRow).toContainText('GameHost');
+    await expect(hostRow).toContainText('GameHost', { timeout: 15_000 });
+    await expect(hostRow).toContainText('+1');
 
     await player2Context.close();
   });

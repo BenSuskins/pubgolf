@@ -3,6 +3,9 @@ package uk.co.suskins.pubgolf.service
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.isA
+import dev.forkhandles.result4k.Failure
+import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.failureOrNull
 import dev.forkhandles.result4k.hamkrest.isFailure
 import dev.forkhandles.result4k.hamkrest.isSuccess
 import dev.forkhandles.result4k.valueOrNull
@@ -11,6 +14,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
 import uk.co.suskins.pubgolf.events.GameEventCaptor
 import uk.co.suskins.pubgolf.models.ActiveEvent
+import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
+import uk.co.suskins.pubgolf.models.DuplicateGameCodeFailure
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.Game
@@ -21,14 +26,16 @@ import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.NoHolesLeftFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerAlreadyExistsFailure
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
-import uk.co.suskins.pubgolf.models.RandomiseAlreadyUsedFailure
+import uk.co.suskins.pubgolf.models.PubGolfFailure
 import uk.co.suskins.pubgolf.models.Score
+import uk.co.suskins.pubgolf.repository.GameRepository
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import java.time.Instant
 import java.util.UUID
@@ -257,7 +264,7 @@ class GameServiceTest {
 
         val result = service.randomise(gameCode, player.id)
 
-        assertThat(result, isFailure(RandomiseAlreadyUsedFailure("No more holes left")))
+        assertThat(result, isFailure(NoHolesLeftFailure("No more holes left")))
     }
 
     @Test
@@ -432,7 +439,7 @@ class GameServiceTest {
 
         val result = service.activateEvent(gameCode, otherPlayer.id, "photo-op")
 
-        assertThat(result, isFailure(NotHostPlayerFailure("Only the host can complete this game")))
+        assertThat(result, isFailure(NotHostPlayerFailure("Only the host can activate events")))
     }
 
     @Test
@@ -600,6 +607,78 @@ class GameServiceTest {
         assertThat(result, isSuccess())
         assertThat(result.valueOrNull()!!.activeEvent, equalTo(null))
     }
+
+    @Test
+    fun `join retries after a concurrent modification and succeeds`() {
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
+        gameRepository.save(game)
+
+        val flakyService = GameService(FlakyGameRepository(gameRepository, failuresRemaining = 1), eventPublisher)
+
+        val result = flakyService.joinGame(gameCode, PlayerName("Megan"))
+
+        assertThat(result, isSuccess())
+        assertTrue(gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!.hasPlayer("Megan"))
+    }
+
+    @Test
+    fun `gives up after repeated concurrent modification failures`() {
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(Player(PlayerId.random(), host)),
+            )
+        gameRepository.save(game)
+
+        val staleService = GameService(FlakyGameRepository(gameRepository, failuresRemaining = Int.MAX_VALUE), eventPublisher)
+
+        val result = staleService.joinGame(gameCode, PlayerName("Megan"))
+
+        assertTrue(result.failureOrNull() is ConcurrentModificationFailure)
+    }
+
+    @Test
+    fun `create game retries when the generated code already exists`() {
+        val duplicateOnceRepository =
+            object : GameRepository {
+                var failuresRemaining = 1
+
+                override fun save(game: Game): Result<Game, PubGolfFailure> =
+                    if (failuresRemaining-- > 0) {
+                        Failure(DuplicateGameCodeFailure("Game code `${game.code.value}` already exists."))
+                    } else {
+                        gameRepository.save(game)
+                    }
+
+                override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> = gameRepository.findByCodeIgnoreCase(code)
+            }
+        val flakyService = GameService(duplicateOnceRepository, eventPublisher)
+
+        val result = flakyService.createGame(host)
+
+        assertThat(result, isSuccess())
+    }
+}
+
+private class FlakyGameRepository(
+    private val delegate: GameRepositoryFake,
+    private var failuresRemaining: Int,
+) : GameRepository {
+    override fun save(game: Game): Result<Game, PubGolfFailure> =
+        if (failuresRemaining > 0) {
+            failuresRemaining--
+            Failure(ConcurrentModificationFailure("Game `${game.code.value}` was modified concurrently."))
+        } else {
+            delegate.save(game)
+        }
+
+    override fun findByCodeIgnoreCase(code: GameCode): Result<Game, PubGolfFailure> = delegate.findByCodeIgnoreCase(code)
 }
 
 fun Game.hasPlayer(name: String) = players.any { it.name.value == name }
