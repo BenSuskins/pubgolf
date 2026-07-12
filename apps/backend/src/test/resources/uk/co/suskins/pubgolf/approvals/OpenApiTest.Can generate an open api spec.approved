@@ -75,7 +75,7 @@
             }
           },
           "403" : {
-            "description" : "Not the host",
+            "description" : "Forbidden - Not the host or not in this game",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -85,7 +85,27 @@
             }
           },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -161,7 +181,7 @@
             }
           },
           "403" : {
-            "description" : "Not the host",
+            "description" : "Forbidden - Not the host or not in this game",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -171,7 +191,7 @@
             }
           },
           "404" : {
-            "description" : "Game or event not found",
+            "description" : "Game, player or event not found",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -181,7 +201,17 @@
             }
           },
           "409" : {
-            "description" : "Event already active",
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -224,6 +254,16 @@
               }
             }
           },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized - Missing or invalid player ID header",
             "content" : {
@@ -235,7 +275,7 @@
             }
           },
           "403" : {
-            "description" : "Not the host",
+            "description" : "Forbidden - Not the host or not in this game",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -245,7 +285,27 @@
             }
           },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -295,8 +355,48 @@
               }
             }
           },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "500" : {
-            "description" : "Internal Server Error",
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -368,8 +468,28 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
-            "description" : "Game or Player not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -379,7 +499,7 @@
             }
           },
           "500" : {
-            "description" : "Internal Server Error",
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -444,8 +564,18 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
-            "description" : "Game or Player not found",
+            "description" : "Game, player or event not found",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -455,7 +585,7 @@
             }
           },
           "409" : {
-            "description" : "You've already used this",
+            "description" : "Conflict with the game's current state",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -465,7 +595,7 @@
             }
           },
           "500" : {
-            "description" : "Internal Server Error",
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -523,8 +653,38 @@
               }
             }
           },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -534,7 +694,7 @@
             }
           },
           "500" : {
-            "description" : "Internal Server Error",
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -579,8 +739,38 @@
               }
             }
           },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -590,7 +780,7 @@
             }
           },
           "500" : {
-            "description" : "Internal Server Error",
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -661,7 +851,7 @@
             }
           },
           "403" : {
-            "description" : "Not the host",
+            "description" : "Forbidden - Not the host or not in this game",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -671,7 +861,7 @@
             }
           },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -681,7 +871,7 @@
             }
           },
           "409" : {
-            "description" : "Game already completed",
+            "description" : "Conflict with the game's current state",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -691,7 +881,7 @@
             }
           },
           "500" : {
-            "description" : "Internal Server Error",
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -773,8 +963,58 @@
               }
             }
           },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -835,8 +1075,58 @@
               }
             }
           },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404" : {
-            "description" : "Game not found",
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
             "content" : {
               "application/json" : {
                 "schema" : {
