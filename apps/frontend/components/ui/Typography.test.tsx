@@ -75,7 +75,7 @@ describe('Typography', () => {
       const { container } = render(<Typography variant="display">Display</Typography>);
       const element = container.firstChild as HTMLElement;
       expect(element.className).toContain('text-5xl');
-      expect(element.className).toContain('font-bold');
+      expect(element.className).toContain('uppercase');
       expect(element.className).toContain('font-display');
     });
 
@@ -83,7 +83,7 @@ describe('Typography', () => {
       const { container } = render(<Typography variant="title">Title</Typography>);
       const element = container.firstChild as HTMLElement;
       expect(element.className).toContain('text-2xl');
-      expect(element.className).toContain('font-bold');
+      expect(element.className).toContain('uppercase');
       expect(element.className).toContain('font-display');
     });
 
@@ -91,7 +91,7 @@ describe('Typography', () => {
       const { container } = render(<Typography variant="heading">Heading</Typography>);
       const element = container.firstChild as HTMLElement;
       expect(element.className).toContain('text-xl');
-      expect(element.className).toContain('font-semibold');
+      expect(element.className).toContain('uppercase');
       expect(element.className).toContain('font-display');
     });
 

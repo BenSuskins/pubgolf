@@ -32,9 +32,8 @@ describe('GameCodeDisplay', () => {
     test('should display game code with proper styling', () => {
       render(<GameCodeDisplay gameCode="TEST" />);
       const codeElement = screen.getByText('TEST');
-      expect(codeElement.className).toContain('font-mono');
-      expect(codeElement.className).toContain('tracking-widest');
-      expect(codeElement.className).toContain('font-bold');
+      expect(codeElement.className).toContain('font-display');
+      expect(codeElement.className).toContain('tracking-[0.08em]');
     });
 
     test('should render copy button', () => {

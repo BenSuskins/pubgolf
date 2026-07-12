@@ -85,17 +85,20 @@ export function SlotMachine({
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-xl"
+      className="relative w-full overflow-hidden rounded-xl pt-4"
       role="region"
-      aria-label="Randomise wheel"
+      aria-label="Wildcard wheel"
       aria-live="polite"
     >
       {/* Gradient fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[var(--color-bg)] to-transparent z-10 pointer-events-none" aria-hidden="true" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[var(--color-bg)] to-transparent z-10 pointer-events-none" aria-hidden="true" />
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[var(--color-surface)] to-transparent z-10 pointer-events-none" aria-hidden="true" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[var(--color-surface)] to-transparent z-10 pointer-events-none" aria-hidden="true" />
 
-      {/* Center indicator */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-1 -ml-0.5 bg-[var(--color-accent)] z-20 pointer-events-none rounded-full glow-sm" aria-hidden="true" />
+      {/* Gold pointer marking the selected card */}
+      <div
+        className="absolute left-1/2 top-0 -translate-x-1/2 z-20 pointer-events-none w-0 h-0 border-l-8 border-r-8 border-t-[12px] border-l-transparent border-r-transparent border-t-[var(--color-accent)]"
+        aria-hidden="true"
+      />
 
       <div
         ref={containerRef}
@@ -109,11 +112,11 @@ export function SlotMachine({
         {repeatedItems.map((item, index) => (
           <div
             key={index}
-            className="flex-shrink-0 flex items-center justify-center px-2"
+            className="flex-shrink-0 flex items-center justify-center px-1"
             style={{ width: itemWidth }}
             role="listitem"
           >
-            <div className="w-full h-16 flex items-center justify-center bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] text-[var(--color-bg)] font-semibold text-sm rounded-xl px-3 text-center leading-tight shadow-lg">
+            <div className="w-full h-20 flex items-center justify-center bg-[var(--color-bg)] border border-[var(--color-border-subtle)] text-[var(--color-text-secondary)] font-semibold text-[12.5px] rounded-[14px] px-3 text-center leading-tight">
               {item}
             </div>
           </div>

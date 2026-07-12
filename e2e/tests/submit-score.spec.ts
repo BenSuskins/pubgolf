@@ -9,7 +9,7 @@ test.describe('Submit Score', () => {
 
     await expect(page).toHaveURL('/submit-score');
 
-    await page.locator('#hole').selectOption('3');
+    await page.getByRole('button', { name: /^Hole 3,/ }).click();
     await page.getByRole('button', { name: 'Increment' }).click();
     await page.getByRole('button', { name: 'Increment' }).click();
     await page.getByRole('button', { name: 'Log It' }).click();

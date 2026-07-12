@@ -21,21 +21,21 @@ export function RoutesTable({ holes }: RoutesTableProps) {
 
 function SingleRouteList({ holes }: { holes: RouteHole[] }) {
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-0">
       {holes.map((hole) => {
         const drinkName = Object.values(hole.drinks)[0];
         return (
           <li
             key={hole.hole}
-            className="flex items-center justify-between py-2 border-b border-[var(--color-border-subtle)]"
+            className="flex items-center justify-between py-2.5 border-b border-[var(--color-border-subtle)]/50 last:border-b-0"
           >
             <div className="flex items-center gap-3">
-              <span className="text-[var(--color-accent)] font-bold font-mono w-6">
-                {hole.hole}.
+              <span className="font-display text-[var(--color-primary)] w-5">
+                {hole.hole}
               </span>
-              <span>{drinkName}</span>
+              <span className="text-[12.5px] text-[var(--color-text-secondary)]">{drinkName}</span>
             </div>
-            <span className="font-medium text-[var(--color-text-secondary)]">
+            <span className="text-[12.5px] font-medium text-[var(--color-accent)]">
               Par {hole.par}
             </span>
           </li>
@@ -53,22 +53,22 @@ function MultiRouteTable({
   routeNames: string[];
 }) {
   return (
-    <div className="overflow-x-auto -mx-2">
-      <table className="w-full border-collapse text-sm">
+    <div className="overflow-x-auto -mx-2 px-2">
+      <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-[var(--color-border)]">
-            <th className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]">
-              Hole
+            <th className="pr-2 pb-2 text-left eyebrow font-semibold text-[var(--color-text-muted)]">
+              #
             </th>
             {routeNames.map((name) => (
               <th
                 key={name}
-                className="px-3 py-3 text-left font-semibold text-[var(--color-text-secondary)]"
+                className="px-2 pb-2 text-left eyebrow text-[var(--color-text-muted)]"
               >
                 {name}
               </th>
             ))}
-            <th className="px-3 py-3 text-center font-semibold text-[var(--color-accent)]">
+            <th className="pl-2 pb-2 text-right eyebrow text-[var(--color-accent)]">
               Par
             </th>
           </tr>
@@ -77,17 +77,17 @@ function MultiRouteTable({
           {holes.map((hole) => (
             <tr
               key={hole.hole}
-              className="border-b border-[var(--color-border-subtle)] hover:bg-white/5 transition-colors"
+              className="border-b border-[var(--color-border-subtle)]/50 last:border-b-0"
             >
-              <td className="px-3 py-3 font-bold text-[var(--color-accent)]">
+              <td className="pr-2 py-2.5 font-display text-[var(--color-primary)]">
                 {hole.hole}
               </td>
               {routeNames.map((name) => (
-                <td key={name} className="px-3 py-3">
+                <td key={name} className="px-2 py-2.5 text-[12.5px] text-[var(--color-text-secondary)]">
                   {hole.drinks[name]}
                 </td>
               ))}
-              <td className="px-3 py-3 text-center font-medium">{hole.par}</td>
+              <td className="pl-2 py-2.5 text-right text-[12.5px] text-[var(--color-accent)]">{hole.par}</td>
             </tr>
           ))}
         </tbody>

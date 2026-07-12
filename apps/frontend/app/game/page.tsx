@@ -10,14 +10,14 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { useOptimisticGameState } from '@/hooks/useOptimisticGameState';
-import { ScoreboardTable } from '@/components/ScoreboardTable';
+import { Leaderboard } from '@/components/Leaderboard';
 import { ScoreboardSkeleton } from '@/components/ScoreboardSkeleton';
 import { ShareModal } from '@/components/ShareModal';
 import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
 import { EventBanner } from '@/components/EventBanner';
 import { Player, GameState } from '@/lib/types';
-import { Typography } from '@/components/ui/Typography';
+import { firstUnplayedHole } from '@/lib/scoring';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
@@ -143,9 +143,13 @@ export default function GamePage() {
   }, [activeEvent, setLastSeenEventId]);
 
   const currentPlayer = players.find(p => p.id === playerId);
-  const hasUsedRandomise = currentPlayer?.randomise != null;
+  const hasUsedWildcard = currentPlayer?.randomise != null;
   const isHost = playerId !== null && playerId === hostPlayerId;
   const isCompleted = status === 'COMPLETED';
+
+  const holeCount = pars.length || 9;
+  const referencePlayer = currentPlayer ?? players[0];
+  const currentHole = referencePlayer ? firstUnplayedHole(referencePlayer.scores, holeCount) : 1;
 
   const getWinners = (): Player[] => {
     if (players.length === 0) return [];
@@ -169,45 +173,47 @@ export default function GamePage() {
   }
 
   return (
-    <main className="p-4 py-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <main className="p-4 py-5">
+      <div className="max-w-4xl mx-auto space-y-4">
         <header className="flex items-start justify-between gap-4">
           <div>
-            <Typography variant="title">
-              Game: <Typography as="span" variant="title" color="accent">{gameCode.toUpperCase()}</Typography>
-            </Typography>
-            <Typography variant="small" color="secondary">
-              Rally your crew
-            </Typography>
+            <p className="eyebrow text-[var(--color-text-muted)]">
+              {gameCode.toUpperCase()} · Hole {currentHole} of {holeCount}
+            </p>
+            <h1 className="font-display text-[22px] text-[var(--color-text)]">Leaderboard</h1>
           </div>
           <div className="flex items-center gap-2">
-            {isHost && !isCompleted && (
-              <>
-                <Link
-                  href={`/game/${gameCode.toLowerCase()}/host`}
-                  className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
-                >
-                  Host Panel
-                </Link>
-              </>
-            )}
+            <Link
+              href="/how-to-play"
+              className="flex items-center gap-1.5 h-11 px-3.5 rounded-[10px] bg-[var(--color-surface-inset)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-hover)] transition-colors shrink-0"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 3h9l6 6v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="var(--color-primary)" strokeWidth="1.6" />
+                <path d="M15 3v6h6" stroke="var(--color-primary)" strokeWidth="1.6" />
+              </svg>
+              <span className="text-[var(--color-primary)] text-xs font-bold">Rules</span>
+            </Link>
             {!isCompleted && (
               <button
                 onClick={() => setShowShareModal(true)}
-                className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 flex items-center gap-2"
+                className="flex items-center gap-1.5 h-11 px-3.5 rounded-[10px] bg-[var(--color-surface-inset)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-hover)] transition-colors shrink-0"
               >
-                <span>Invite</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="4" y="4" width="16" height="16" rx="2" stroke="var(--color-primary)" strokeWidth="1.6" />
+                  <path d="M8 8h3v3H8zM13 8h3v3h-3zM8 13h3v3H8z" fill="var(--color-primary)" />
+                </svg>
+                <span className="text-[var(--color-primary)] text-xs font-bold">Invite</span>
               </button>
             )}
           </div>
         </header>
 
         {connectionError && !isCompleted && (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-4 py-2 flex items-center justify-between gap-3">
-            <p className="text-sm text-yellow-400">{connectionError}</p>
+          <div className="bg-[rgba(224,185,93,0.08)] border border-[var(--color-border-gold)] rounded-xl px-4 py-2 flex items-center justify-between gap-3">
+            <p className="text-sm text-[var(--color-accent)]">{connectionError}</p>
             <button
               onClick={() => window.location.reload()}
-              className="text-xs text-yellow-400 underline shrink-0"
+              className="text-xs text-[var(--color-accent)] underline shrink-0"
             >
               Refresh
             </button>
@@ -226,11 +232,11 @@ export default function GamePage() {
           <EventBanner event={activeEvent} />
         )}
 
-        <section className="glass rounded-xl p-4">
+        <section>
           {loading ? (
             <ScoreboardSkeleton />
           ) : (
-            <ScoreboardTable
+            <Leaderboard
               players={players}
               pars={pars}
               currentPlayerId={playerId ?? undefined}
@@ -240,44 +246,52 @@ export default function GamePage() {
           )}
         </section>
 
-        <nav className="space-y-3">
+        <nav className="space-y-2.5 pt-2">
           {playerId && !isCompleted && (
-            <div className="flex flex-col sm:flex-row gap-3">
+            <>
               <Link
                 href="/submit-score"
-                className="flex-1 py-3 px-4 btn-gradient text-center font-medium rounded-lg"
+                className="block w-full py-[19px] px-4 btn-gradient text-center text-[19px] rounded-2xl"
               >
-                Log Your Sips
+                LOG YOUR SIPS
               </Link>
-              {hasUsedRandomise ? (
-                <div
-                  role="status"
-                  aria-label="Randomise feature already used for this game"
-                  className="flex-1 py-3 px-4 bg-[var(--color-border)] text-[var(--color-text-secondary)] text-center font-medium rounded-lg cursor-not-allowed opacity-50"
-                >
-                  Randomise Used
-                </div>
-              ) : (
-                <Link
-                  href="/randomise"
-                  aria-label="Go to randomise wheel page"
-                  className="flex-1 py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors border border-[var(--color-primary)]/30"
-                >
-                  Randomise
-                </Link>
-              )}
-            </div>
+              <div className="flex gap-2.5">
+                {hasUsedWildcard ? (
+                  <div
+                    role="status"
+                    aria-label="Wildcard already used for this game"
+                    className="flex-1 py-3.5 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] text-[var(--color-text-faint)] cursor-not-allowed opacity-60"
+                  >
+                    Wildcard Used
+                  </div>
+                ) : (
+                  <Link
+                    href="/randomise"
+                    aria-label="Go to wildcard page"
+                    className="flex-1 py-3.5 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] hover:bg-[var(--color-surface-hover)] transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" stroke="var(--color-primary)" strokeWidth="1.6" />
+                      <path d="M12 3v18M3 12h18" stroke="var(--color-primary)" strokeWidth="1.6" />
+                    </svg>
+                    Wildcard
+                  </Link>
+                )}
+                {isHost && (
+                  <Link
+                    href={`/game/${gameCode.toLowerCase()}/host`}
+                    className="flex-1 py-3.5 px-4 text-center font-bold text-[13.5px] rounded-[14px] bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                  >
+                    Host Panel
+                  </Link>
+                )}
+              </div>
+            </>
           )}
-          <Link
-            href="/how-to-play"
-            className="block py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
-          >
-            The Rules
-          </Link>
           {hasPubRoute && (
             <Link
               href="/game/map"
-              className="block py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
+              className="block py-3 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] hover:bg-[var(--color-surface-hover)] transition-colors text-[var(--color-text-secondary)]"
             >
               See Route
             </Link>

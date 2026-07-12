@@ -5,147 +5,69 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CreateGameForm } from '@/components/CreateGameForm';
 import { JoinGameForm } from '@/components/JoinGameForm';
+import { GolfBallLogo } from '@/components/GolfBallLogo';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Card } from '@/components/ui/Card';
-import { Typography } from '@/components/ui/Typography';
+
+type Mode = 'host' | 'join';
 
 function HomeContent() {
   const searchParams = useSearchParams();
   const hasGameCode = searchParams.get('gameCode');
-  const [activeSection, setActiveSection] = useState<'create' | 'join' | null>(
-    hasGameCode ? 'join' : null
-  );
+  const [mode, setMode] = useState<Mode>(hasGameCode ? 'join' : 'host');
 
   return (
-    <div className="w-full max-w-lg space-y-10">
-      {/* Hero Section */}
-      <div className="text-center space-y-6">
-        {/* Hero illustration with glow effect */}
-        <div className="relative w-48 h-48 mx-auto animate-float">
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] opacity-20 blur-2xl absolute inset-0" />
-          {/* Golf flag + beer icon placeholder - replace with AI image when ready */}
-          <div className="relative z-10 w-full h-full flex items-center justify-center">
-            <div className="text-8xl drop-shadow-2xl" role="img" aria-label="Golf and beer">
-              🏌️‍♂️🍺
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <Typography variant="display" gradient className="mb-3">
-            Pub Golf
-          </Typography>
-          <p className="text-xl text-[var(--color-text-secondary)]">
-            9 Holes. 9 Drinks. 1 Champion.
-          </p>
+    <div className="w-full max-w-md space-y-5">
+      <div className="text-center pt-6">
+        <GolfBallLogo size={72} className="mx-auto mb-4" />
+        <h1 className="font-display text-[52px] leading-[0.95] text-[var(--color-text)]">
+          PUB
+          <br />
+          GOLF
+        </h1>
+        <div className="flex items-center justify-center gap-2.5 mt-3.5">
+          <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
+          <span className="eyebrow text-[var(--color-text-secondary)]">
+            9 Holes · 9 Rounds · 1 Champion
+          </span>
+          <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
         </div>
       </div>
 
-      {/* Action Cards */}
-      <div className="space-y-4">
-        {/* Start a Round */}
-        <Card as="section" padding="none" className="overflow-hidden">
-          <button
-            onClick={() => setActiveSection(prev => prev === 'create' ? null : 'create')}
-            aria-expanded={activeSection === 'create'}
-            aria-controls="create-game-section"
-            aria-label="Start a Round"
-            className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl" aria-hidden="true">🏌️</span>
-              <span className="text-xl font-semibold font-[family-name:var(--font-display)]">Start a Round</span>
-            </div>
-            <svg
-              className={`w-5 h-5 text-[var(--color-text-secondary)] transition-transform duration-200 ${activeSection === 'create' ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div
-            id="create-game-section"
-            role="region"
-            aria-labelledby="create-button-label"
-            className="grid transition-[grid-template-rows] duration-200 ease-out"
-            style={{ gridTemplateRows: activeSection === 'create' ? '1fr' : '0fr' }}
-          >
-            <div className="overflow-hidden">
-              <div className="p-5 pt-0 border-t border-[var(--color-glass-border)]">
-                <div className="pt-5">
-                  <CreateGameForm />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+      <SegmentedControl<Mode>
+        ariaLabel="Host or join a round"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: 'host', label: 'Host a Round' },
+          { value: 'join', label: 'Join a Round' },
+        ]}
+      />
 
-        {/* Join the Party */}
-        <Card as="section" padding="none" className="overflow-hidden">
-          <button
-            onClick={() => setActiveSection(prev => prev === 'join' ? null : 'join')}
-            aria-expanded={activeSection === 'join'}
-            aria-controls="join-game-section"
-            aria-label="Join the Party"
-            className="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl" aria-hidden="true">🍻</span>
-              <span className="text-xl font-semibold font-[family-name:var(--font-display)]">Join the Party</span>
-            </div>
-            <svg
-              className={`w-5 h-5 text-[var(--color-text-secondary)] transition-transform duration-200 ${activeSection === 'join' ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div
-            id="join-game-section"
-            role="region"
-            aria-labelledby="join-button-label"
-            className="grid transition-[grid-template-rows] duration-200 ease-out"
-            style={{ gridTemplateRows: activeSection === 'join' ? '1fr' : '0fr' }}
-          >
-            <div className="overflow-hidden">
-              <div className="p-5 pt-0 border-t border-[var(--color-glass-border)]">
-                <div className="pt-5">
-                  <JoinGameForm />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+      <Card as="section" padding="lg" rounded="xl">
+        {mode === 'host' ? <CreateGameForm /> : <JoinGameForm />}
+      </Card>
+
+      <div className="text-center">
+        <Link
+          href="/how-to-play"
+          className="text-[13px] text-[var(--color-text-muted)] border-b border-dashed border-[var(--color-border-subtle)] pb-0.5 hover:text-[var(--color-text-secondary)] transition-colors"
+        >
+          First time? Learn the rules
+        </Link>
       </div>
-
-      {/* Rules Link */}
-      <Link
-        href="/how-to-play"
-        className="block w-full p-4 glass rounded-xl text-center hover:bg-white/5 transition-colors group"
-      >
-        <span className="text-lg font-medium text-[var(--color-text-secondary)] group-hover:text-[var(--color-text)] transition-colors">
-          First time? Learn the rules →
-        </span>
-      </Link>
     </div>
   );
 }
 
 export default function HomePage() {
   return (
-    <section className="min-h-full flex flex-col items-center justify-center p-6 py-12">
-      <Suspense fallback={
-        <div className="text-[var(--color-text-secondary)] animate-pulse">
-          Loading...
-        </div>
-      }>
+    <section className="min-h-full flex flex-col items-center justify-start bg-ambient p-6 pb-12">
+      <Suspense
+        fallback={
+          <div className="text-[var(--color-text-secondary)] animate-pulse">Loading...</div>
+        }
+      >
         <HomeContent />
       </Suspense>
     </section>

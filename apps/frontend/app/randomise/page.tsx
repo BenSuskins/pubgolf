@@ -114,18 +114,27 @@ export default function RandomisePage() {
   }
 
   return (
-    <main className="min-h-full flex flex-col items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-6">
+    <main className="min-h-full flex flex-col p-5 max-w-md mx-auto w-full">
+      <div className="w-full space-y-6 flex-1 flex flex-col">
+        <div>
+          <Link
+            href="/game"
+            className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+          >
+            ← Back to Scoreboard
+          </Link>
+        </div>
+
         <div className="text-center">
-          <Typography variant="title" className="mb-2">
-            Randomise
+          <Typography variant="title" className="text-3xl">
+            Wildcard
           </Typography>
-          <Typography as="p" color="secondary">
-            Feeling adventurous? Spin the wheel!
+          <Typography as="p" color="secondary" className="mt-2 text-[13.5px]">
+            One spin per game. Feeling lucky?
           </Typography>
         </div>
 
-        <Card padding="lg" className="space-y-6">
+        <Card padding="md" className="space-y-4">
           <SlotMachine
             items={items}
             winningIndex={winningIndex}
@@ -134,43 +143,37 @@ export default function RandomisePage() {
             spinDuration={3}
           />
 
-          {hasSpun && result && !spinning && (
-            <div className="space-y-2 text-center animate-fade-in">
-              <Confetti numberOfPieces={500} recycle={false} />
-              <p className="text-xl font-bold">
-                <span className="text-[var(--color-accent)]">{result}</span>
-                <span className="text-[var(--color-text-secondary)]"> for Hole {hole}!</span>
-              </p>
-            </div>
-          )}
-
           {error && (
-            <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-lg text-center text-sm">
+            <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-xl text-center text-sm">
               {error}
             </div>
           )}
         </Card>
 
-        <div className="space-y-3">
-          <button
-            onClick={handleSpin}
-            disabled={spinning || hasSpun}
-            className={`w-full py-3 px-4 font-medium rounded-lg transition-all ${
-              spinning || hasSpun
-                ? 'bg-[var(--color-border)] text-[var(--color-text-secondary)] cursor-not-allowed opacity-50'
-                : 'btn-gradient animate-pulse-glow'
-            }`}
-          >
-            {spinning ? 'Spinning...' : hasSpun ? 'Already Spun' : 'Spin the Wheel'}
-          </button>
+        {hasSpun && result && !spinning && (
+          <div className="text-center animate-fade-in">
+            <Confetti numberOfPieces={500} recycle={false} />
+            <p className="text-sm text-[var(--color-text-faint)]">
+              Landed on:{' '}
+              <span className="text-[var(--color-accent)] font-bold">{result}</span>
+              <span className="text-[var(--color-text-secondary)]"> — Hole {hole}</span>
+            </p>
+          </div>
+        )}
 
-          <Link
-            href="/game"
-            className="block w-full py-3 px-4 glass text-center font-medium rounded-lg hover:bg-white/5 transition-colors"
-          >
-            Back to Scoreboard
-          </Link>
-        </div>
+        <div className="flex-1" />
+
+        <button
+          onClick={handleSpin}
+          disabled={spinning || hasSpun}
+          className={`w-full py-[19px] px-4 rounded-2xl text-lg transition-all ${
+            spinning || hasSpun
+              ? 'font-display bg-[var(--color-border)] text-[var(--color-text-secondary)] cursor-not-allowed opacity-50'
+              : 'btn-gradient'
+          }`}
+        >
+          {spinning ? 'SPINNING...' : hasSpun ? 'WILDCARD USED' : 'SPIN THE WHEEL'}
+        </button>
       </div>
     </main>
   );

@@ -49,7 +49,7 @@ describe('ShareModal', () => {
     test('should render "Copy Invite Link" and "Done" buttons', () => {
       render(<ShareModal gameCode="ABCD" onClose={mockOnClose} />);
 
-      expect(screen.getByText('Copy Invite Link')).toBeInTheDocument();
+      expect(screen.getByText('COPY INVITE LINK')).toBeInTheDocument();
       expect(screen.getByText('Done')).toBeInTheDocument();
     });
 
@@ -96,10 +96,10 @@ describe('ShareModal', () => {
       const user = userEvent.setup();
       render(<ShareModal gameCode="ABCD" onClose={mockOnClose} />);
 
-      await user.click(screen.getByText('Copy Invite Link'));
+      await user.click(screen.getByText('COPY INVITE LINK'));
 
       await waitFor(() => {
-        expect(screen.getByText('Copied!')).toBeInTheDocument();
+        expect(screen.getByText('COPIED!')).toBeInTheDocument();
       });
     });
   });

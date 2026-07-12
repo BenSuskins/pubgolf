@@ -86,57 +86,55 @@ export default function HowToPlayPage() {
   }, []);
 
   return (
-    <main className="p-6 py-8">
-      <div className="max-w-2xl mx-auto space-y-8">
+    <main className="p-5 py-6">
+      <div className="max-w-md mx-auto space-y-6">
         <div className="text-center">
-          <Typography variant="display" gradient className="mb-3 text-3xl">
+          <Typography variant="display" className="mb-3 text-4xl">
             The Rules
           </Typography>
-          <Typography as="p" color="secondary" className="max-w-md mx-auto">
+          <Typography as="p" color="secondary" className="max-w-md mx-auto text-[13.5px] leading-relaxed">
             Drink at each hole, match or beat the par. Lowest score wins. Simple.
           </Typography>
         </div>
 
-        <Card as="section" padding="lg">
-          <Typography variant="heading" as="h2" className="mb-4 flex items-center gap-2">
-            How It Works
-          </Typography>
+        <Card as="section" padding="lg" rounded="lg">
+          <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-3.5">How It Works</h2>
           <ol className="space-y-3 mb-6">
             {RULES.map((rule, index) => (
-              <li key={index} className="flex gap-3 text-[var(--color-text-secondary)]">
-                <span className="text-[var(--color-accent)] font-bold font-mono">{index + 1}.</span>
+              <li key={index} className="flex gap-2.5 text-[13.5px] leading-normal text-[var(--color-text-secondary)]">
+                <span className="font-display text-sm text-[var(--color-primary)]">{index + 1}</span>
                 <span>{rule}</span>
               </li>
             ))}
           </ol>
 
-          <Typography variant="subheading" as="h3" color="error" className="mb-3">
-            Penalties
-          </Typography>
+          <h3 className="text-[var(--color-error)] font-bold text-sm mb-2.5">Penalties</h3>
           {isPenaltiesLoading ? (
             <PenaltiesSkeleton />
           ) : penaltiesError ? (
             <p className="text-sm text-[var(--color-text-secondary)]">Penalty data unavailable — check your connection.</p>
           ) : (
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-2">
               {penalties.map((penalty) => (
                 <div
                   key={penalty.type}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-error-bg)] text-sm"
+                  className="flex items-center justify-between surface-danger rounded-xl px-3.5 py-3 text-sm"
                 >
-                  <span>{PENALTY_EMOJI_MAP[penalty.type as PenaltyType]}</span>
-                  <span className="text-[var(--color-text-secondary)]">{penalty.name}</span>
-                  <span className="text-[var(--color-error)] font-bold">+{penalty.points}</span>
+                  <span className="text-[var(--color-danger-text)] text-[13.5px]">
+                    <span className="mr-2" role="img" aria-hidden="true">
+                      {PENALTY_EMOJI_MAP[penalty.type as PenaltyType]}
+                    </span>
+                    {penalty.name}
+                  </span>
+                  <span className="font-display text-[15px] text-[var(--color-error)]">+{penalty.points}</span>
                 </div>
               ))}
             </div>
           )}
         </Card>
 
-        <Card as="section" padding="lg">
-          <Typography variant="heading" as="h2" className="mb-4 flex items-center gap-2">
-            The Course
-          </Typography>
+        <Card as="section" padding="lg" rounded="lg">
+          <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-3">The Course</h2>
           {isRoutesLoading ? (
             <RoutesTableSkeleton />
           ) : routesError ? (

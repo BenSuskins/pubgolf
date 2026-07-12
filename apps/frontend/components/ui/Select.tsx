@@ -70,10 +70,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       lg: 'py-4 px-5 text-lg',
     };
 
-    const baseClasses = 'w-full border rounded-lg bg-[var(--color-bg)] focus:outline-none focus:ring-2 transition-all';
+    const baseClasses = 'w-full border rounded-xl bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 transition-all';
     const errorClasses = error
       ? 'border-[var(--color-error)] focus:ring-[var(--color-error)]'
-      : 'border-[var(--color-border)] focus:ring-[var(--color-primary)] focus:border-transparent';
+      : 'border-[var(--color-border-subtle)] focus:ring-[var(--color-primary)] focus:border-transparent';
 
     const selectClasses = `${baseClasses} ${sizeClasses[size]} ${errorClasses} ${className}`.trim();
 
@@ -82,7 +82,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className={wrapperClasses}>
         {label && (
-          <label htmlFor={id} className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
+          <label htmlFor={id} className="eyebrow block mb-2 text-[var(--color-text-secondary)]">
             {label}
           </label>
         )}

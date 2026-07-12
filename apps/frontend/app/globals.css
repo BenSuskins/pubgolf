@@ -1,48 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  /* Background layers - Dark theme */
-  --color-bg: #0d1117;
-  --color-surface: #161b22;
-  --color-surface-hover: #21262d;
+  /* Background layers - Clubhouse dark green */
+  --color-bg: #0d1410;
+  --color-surface: #141f18;
+  --color-surface-hover: #1a281e;
+  --color-surface-inset: #152119;
 
   /* Borders */
-  --color-border: #30363d;
-  --color-border-subtle: #21262d;
+  --color-border: #263a2a;
+  --color-border-subtle: #2a3d2e;
+  --color-border-gold: #4a3d1e;
 
   /* Text */
-  --color-text: #f0f6fc;
-  --color-text-secondary: #8b949e;
+  --color-text: #f4ead9;
+  --color-text-secondary: #8ea38f;
+  --color-text-muted: #71877a;
+  --color-text-faint: #5f7466;
+  --color-text-faintest: #3d4d42;
 
-  /* Primary action - Gold/Amber */
-  --color-primary: #f59e0b;
-  --color-primary-hover: #d97706;
-  --color-primary-disabled: #78350f;
-  --color-accent: #fbbf24;
+  /* Primary action - Brass/Gold */
+  --color-primary: #c9a24b;
+  --color-primary-hover: #b8923f;
+  --color-primary-disabled: #5c4a22;
+  --color-accent: #e0b95d;
+  --color-ink: #1c1404;
 
   /* Semantic */
-  --color-error: #f87171;
-  --color-error-bg: rgba(127, 29, 29, 0.3);
-  --color-success: #4ade80;
-  --color-danger: #f87171;
+  --color-error: #e8735f;
+  --color-error-bg: rgba(58, 32, 32, 0.35);
+  --color-success: #5ee38a;
+  --color-danger: #e8735f;
+  --color-danger-surface: #1e1414;
+  --color-danger-border: #3a2020;
+  --color-danger-border-strong: #4a2020;
+  --color-danger-text: #e3cdcd;
 
   /* Medals */
-  --color-gold: #fbbf24;
+  --color-gold: #e0b95d;
   --color-silver: #9ca3af;
   --color-bronze: #cd7c2f;
 
   /* Effects */
-  --color-glow: rgba(245, 158, 11, 0.4);
-  --color-glass-bg: rgba(22, 27, 34, 0.8);
-  --color-glass-border: rgba(48, 54, 61, 0.8);
+  --color-glow: rgba(201, 162, 75, 0.5);
+  --color-glass-bg: rgba(20, 31, 24, 0.9);
+  --color-glass-border: rgba(38, 58, 42, 0.9);
 }
 
 @theme inline {
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-display);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-space-grotesk);
+  --font-display: var(--font-anton);
 }
 
 html {
@@ -52,7 +62,7 @@ html {
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   /* Safe area insets for notched devices */
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
@@ -61,6 +71,22 @@ body {
   /* Use dvh to account for mobile browser chrome and safe areas */
   min-height: 100dvh;
   box-sizing: border-box;
+}
+
+/* Display face - Anton for headlines, big numbers, CTAs, game codes */
+.font-display {
+  font-family: var(--font-anton), "Anton", sans-serif;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+/* Eyebrow/label style from the design system */
+.eyebrow {
+  font-family: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 /* Animations */
@@ -139,7 +165,7 @@ body {
     background-color: transparent;
   }
   50% {
-    background-color: rgba(74, 222, 128, 0.3);
+    background-color: rgba(94, 227, 138, 0.3);
   }
   100% {
     background-color: transparent;
@@ -203,15 +229,33 @@ body {
 .cell-error {
   border: 2px solid var(--color-error);
   animation: shake-error 0.4s ease-out;
-  background-color: rgba(248, 113, 113, 0.1);
+  background-color: rgba(232, 115, 95, 0.1);
 }
 
-/* Glassmorphism */
-.glass {
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-glass-border);
+/* Card surface (formerly glassmorphism) */
+@layer components {
+  .glass {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  /* Inset surface for pills, chips, segmented controls */
+  .surface-inset {
+    background: var(--color-surface-inset);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  /* Gold-tinted highlight surface (active event banner, rank-1 row) */
+  .surface-gold {
+    background: linear-gradient(90deg, rgba(201, 162, 75, 0.16), rgba(201, 162, 75, 0.03));
+    border: 1px solid var(--color-border-gold);
+  }
+
+  /* Destructive surface (penalty rows, End Game) */
+  .surface-danger {
+    background: var(--color-danger-surface);
+    border: 1px solid var(--color-danger-border);
+  }
 }
 
 .glass:focus-visible {
@@ -238,17 +282,20 @@ body {
   animation: gradient-shift 3s ease infinite;
 }
 
-/* Gradient button */
+/* Primary CTA - brass gradient with ink text */
 .btn-gradient {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-  color: #0d1117;
-  font-weight: 600;
+  background: linear-gradient(180deg, var(--color-accent), var(--color-primary));
+  color: var(--color-ink);
+  font-family: var(--font-anton), "Anton", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  box-shadow: 0 10px 24px -8px var(--color-glow);
   transition: all 0.2s ease;
 }
 
 .btn-gradient:hover,
 .btn-gradient:focus-visible {
-  box-shadow: 0 0 20px var(--color-glow);
+  box-shadow: 0 10px 30px -6px var(--color-glow);
   transform: translateY(-1px);
 }
 
@@ -261,12 +308,9 @@ body {
   outline-offset: 2px;
 }
 
-/* Ambient background gradient */
+/* Hero background - clubhouse radial gradient (Home / Invite) */
 .bg-ambient {
-  background:
-    radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
-    var(--color-bg);
+  background: radial-gradient(120% 90% at 50% -10%, #1c3626 0%, #0d1410 55%);
   background-attachment: fixed;
 }
 
@@ -285,49 +329,48 @@ body {
 
 /* MapLibre popup dark theme */
 .dark-popup .maplibregl-popup-content {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   padding: 0;
 }
 
 .dark-popup .maplibregl-popup-tip {
-  border-top-color: #161b22;
-  border-bottom-color: #161b22;
+  border-top-color: var(--color-surface);
+  border-bottom-color: var(--color-surface);
 }
 
 .dark-popup .maplibregl-popup-close-button {
-  color: #8b949e;
+  color: var(--color-text-secondary);
   font-size: 20px;
   padding: 4px 8px;
 }
 
 .dark-popup .maplibregl-popup-close-button:hover {
-  color: #f0f6fc;
+  color: var(--color-text);
   background: transparent;
 }
 
-/* Sonner Toast Styles - Glassmorphism Theme */
+/* Sonner Toast Styles */
 [data-sonner-toaster] {
-  /* Position toasts in top-right */
   --normal-bg: var(--color-glass-bg);
   --normal-border: var(--color-glass-border);
   --normal-text: var(--color-text);
 
-  --success-bg: rgba(74, 222, 128, 0.15);
-  --success-border: rgba(74, 222, 128, 0.5);
+  --success-bg: rgba(94, 227, 138, 0.15);
+  --success-border: rgba(94, 227, 138, 0.5);
   --success-text: var(--color-success);
 
-  --error-bg: rgba(248, 113, 113, 0.15);
-  --error-border: rgba(248, 113, 113, 0.5);
+  --error-bg: rgba(232, 115, 95, 0.15);
+  --error-border: rgba(232, 115, 95, 0.5);
   --error-text: var(--color-error);
 
-  --info-bg: rgba(96, 165, 250, 0.15);
-  --info-border: rgba(96, 165, 250, 0.5);
-  --info-text: #60a5fa;
+  --info-bg: rgba(224, 185, 93, 0.15);
+  --info-border: rgba(224, 185, 93, 0.5);
+  --info-text: var(--color-accent);
 
-  --warning-bg: rgba(251, 191, 36, 0.15);
-  --warning-border: rgba(251, 191, 36, 0.5);
+  --warning-bg: rgba(224, 185, 93, 0.15);
+  --warning-border: rgba(224, 185, 93, 0.5);
   --warning-text: var(--color-accent);
 }
 
@@ -405,10 +448,10 @@ body {
 @media (prefers-contrast: high) {
   :root {
     --color-text: #ffffff;
-    --color-text-secondary: #d0d6dd;
-    --color-border: #58606a;
-    --color-primary: #fbbf24;
-    --color-accent: #fde047;
+    --color-text-secondary: #c3d0c4;
+    --color-border: #4a5f4e;
+    --color-primary: #e0b95d;
+    --color-accent: #f0cd77;
   }
 
   .glass {

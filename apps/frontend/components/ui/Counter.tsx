@@ -85,27 +85,27 @@ export function Counter({
   return (
     <div className={wrapperClasses} role="group" aria-label={ariaLabel} aria-describedby={errorId}>
       {label && (
-        <div className="block text-sm font-medium mb-2 text-[var(--color-text-secondary)]">
+        <div className="eyebrow block mb-2 text-[var(--color-text-muted)]">
           {label}
         </div>
       )}
       <div className={centerControls ? 'flex justify-center' : ''}>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
           <button
             type="button"
             onClick={handleDecrement}
             disabled={disabled || isAtMin}
-            className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
-              error ? 'border border-[var(--color-error)]' : ''
+            className={`w-[52px] h-[52px] rounded-full bg-[var(--color-bg)] border text-[var(--color-text-secondary)] hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              error ? 'border-[var(--color-error)]' : 'border-[var(--color-border-subtle)]'
             }`}
             aria-label="Decrement"
           >
-            <span className="text-xl font-bold" aria-hidden="true">−</span>
+            <span className="text-2xl" aria-hidden="true">−</span>
           </button>
 
           <div
-            className={`min-w-[3rem] text-center text-2xl font-bold font-mono ${
-              error ? 'text-[var(--color-error)]' : ''
+            className={`min-w-[5rem] text-center text-6xl font-display ${
+              error ? 'text-[var(--color-error)]' : 'text-[var(--color-accent)]'
             }`}
             aria-live="polite"
             aria-invalid={error ? 'true' : 'false'}
@@ -117,12 +117,12 @@ export function Counter({
             type="button"
             onClick={handleIncrement}
             disabled={disabled || isAtMax}
-            className={`glass px-6 py-4 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] ${
-              error ? 'border border-[var(--color-error)]' : ''
+            className={`w-[52px] h-[52px] rounded-full bg-[var(--color-bg)] border text-[var(--color-text-secondary)] hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              error ? 'border-[var(--color-error)]' : 'border-[var(--color-border-subtle)]'
             }`}
             aria-label="Increment"
           >
-            <span className="text-xl font-bold" aria-hidden="true">+</span>
+            <span className="text-2xl" aria-hidden="true">+</span>
           </button>
         </div>
       </div>

@@ -153,72 +153,76 @@ export default function HostPanelPage() {
   }
 
   return (
-    <main className="p-4 py-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <main className="p-5 py-5">
+      <div className="max-w-4xl mx-auto space-y-5">
+        <div>
+          <Link
+            href="/game"
+            className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+          >
+            ← Back to Scoreboard
+          </Link>
+        </div>
+
         <header className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold font-[family-name:var(--font-display)]">
-              Host Panel
+            <div className="flex items-center gap-1.5 mb-1">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5Z"
+                  stroke="var(--color-accent)"
+                  strokeWidth="1.8"
+                />
+              </svg>
+              <span className="eyebrow text-[var(--color-accent)]">Host Mode</span>
+            </div>
+            <h1 className="font-display text-2xl text-[var(--color-text)]">
+              {gameCode.toUpperCase()}
             </h1>
-            <p className="text-[var(--color-text-secondary)] text-sm">
-              Game: <span className="text-[var(--color-accent)]">{gameCode.toUpperCase()}</span>
-            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowEndGameModal(true)}
-              className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)]"
-            >
-              End Game
-            </button>
-            <Link
-              href="/game"
-              className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0"
-            >
-              Back to Game
-            </Link>
-          </div>
+          <button
+            onClick={() => setShowEndGameModal(true)}
+            className="px-3.5 py-2.5 surface-danger rounded-[10px] text-[var(--color-error)] font-bold text-[12.5px] shrink-0 hover:bg-[var(--color-danger-border)]/40 transition-colors"
+          >
+            End Game
+          </button>
         </header>
 
         {activeEvent && (
-          <div className="glass rounded-xl p-4 border-l-4 border-[var(--color-accent)]">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl" role="img" aria-label="Active Event">
-                  📣
-                </span>
-                <div>
-                  <p className="text-xs text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">
-                    Active Event
-                  </p>
-                  <h3 className="font-bold text-[var(--color-accent)] font-[family-name:var(--font-display)]">
-                    {activeEvent.title}
-                  </h3>
-                  <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-                    {activeEvent.description}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleEndEvent}
-                disabled={endingEvent}
-                className="px-4 py-2 glass rounded-lg hover:bg-white/5 transition-colors text-sm shrink-0 border border-[var(--color-danger)]/30 text-[var(--color-danger)] disabled:opacity-50"
-              >
-                {endingEvent ? 'Ending...' : 'End Event'}
-              </button>
+          <div className="surface-gold rounded-[14px] px-3.5 py-3 flex items-center gap-2.5">
+            <span className="text-base" role="img" aria-label="Active Event">
+              📣
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="eyebrow text-[10px] text-[var(--color-text-muted)]">Active Event</p>
+              <h3 className="text-[var(--color-accent)] font-bold text-sm mt-0.5">
+                {activeEvent.title}
+              </h3>
+              <p className="text-[11.5px] text-[#b0a583] mt-px truncate">
+                {activeEvent.description}
+              </p>
             </div>
+            <button
+              onClick={handleEndEvent}
+              disabled={endingEvent}
+              className="min-h-[40px] px-3.5 surface-danger rounded-[9px] text-[var(--color-error)] font-bold text-[12.5px] whitespace-nowrap shrink-0 disabled:opacity-50 hover:bg-[var(--color-danger-border)]/40 transition-colors"
+            >
+              {endingEvent ? 'Ending...' : 'End Event'}
+            </button>
           </div>
         )}
 
         <section>
-          <h2 className="text-lg font-semibold mb-4">Available Events</h2>
+          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
+            Trigger an Event
+          </h2>
           {events.length === 0 ? (
             <EmptyState
               icon="📝"
               description="No events configured for this game yet"
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
               {events.map((event) => (
                 <EventCard
                   key={event.id}

@@ -1,23 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Anton, Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const anton = Anton({
+  variable: "--font-anton",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "400",
 });
 
 const spaceGrotesk = Space_Grotesk({
-  variable: "--font-display",
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -68,7 +64,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: "#0d1117",
+  themeColor: "#0d1410",
 };
 
 export default function RootLayout({
@@ -79,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col bg-ambient`}
+        className={`${anton.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col`}
       >
         <script
           type="application/ld+json"
@@ -105,31 +101,33 @@ export default function RootLayout({
           }}
         />
         <main className="flex-1">{children}</main>
-        <footer className="text-center text-sm text-[var(--color-text-secondary)] space-y-2 py-4">
-          <p>© 2025 Ben Suskins | Pub Golf</p>
-          <p className="space-x-2">
+        <footer className="text-center space-y-1 py-4">
+          <p className="text-[11px] text-[var(--color-text-faint)] space-x-1">
+            <a
+              href="https://github.com/BenSuskins/pubgolf/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[var(--color-text-secondary)] hover:underline"
+            >
+              Report an issue
+            </a>
+            <span>·</span>
             <Link
               href="/terms"
-              className="text-[var(--color-primary)] hover:underline"
+              className="hover:text-[var(--color-text-secondary)] hover:underline"
             >
               Terms & Conditions
             </Link>
             <span>·</span>
             <Link
               href="/privacy"
-              className="text-[var(--color-primary)] hover:underline"
+              className="hover:text-[var(--color-text-secondary)] hover:underline"
             >
               Privacy Policy
             </Link>
-            <span>·</span>
-            <a
-              href="https://github.com/BenSuskins/pubgolf/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[var(--color-primary)] hover:underline"
-            >
-              Report an issue
-            </a>
+          </p>
+          <p className="text-[10.5px] text-[var(--color-text-faintest)]">
+            © 2026 Ben Suskins · Pub Golf
           </p>
         </footer>
         <Toaster />

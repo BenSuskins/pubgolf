@@ -56,19 +56,19 @@ describe('Card', () => {
     test('should apply accent variant border', () => {
       const { container } = render(<Card variant="accent">Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('border-[var(--color-accent)]');
+      expect(card.className).toContain('border-[var(--color-border-gold)]');
     });
 
     test('should apply danger variant border', () => {
       const { container } = render(<Card variant="danger">Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('border-[var(--color-error)]');
+      expect(card.className).toContain('border-[var(--color-danger-border-strong)]');
     });
 
     test('should apply primary variant border', () => {
       const { container } = render(<Card variant="primary">Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('border-[var(--color-primary)]');
+      expect(card.className).toContain('border-[var(--color-border-gold)]');
     });
   });
 
@@ -122,19 +122,19 @@ describe('Card', () => {
     test('should apply extra-large rounded by default', () => {
       const { container } = render(<Card>Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('rounded-xl');
+      expect(card.className).toContain('rounded-[20px]');
     });
 
     test('should apply medium rounded', () => {
       const { container } = render(<Card rounded="md">Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('rounded-md');
+      expect(card.className).toContain('rounded-lg');
     });
 
     test('should apply large rounded', () => {
       const { container } = render(<Card rounded="lg">Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card.className).toContain('rounded-lg');
+      expect(card.className).toContain('rounded-xl');
     });
   });
 
