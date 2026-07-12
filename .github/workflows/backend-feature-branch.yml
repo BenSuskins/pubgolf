@@ -35,3 +35,13 @@ jobs:
 
       - name: Integration Test
         run: ./gradlew apps:backend:integrationTest --no-daemon
+
+      # Approval tests (okeydoke) write a .actual file next to the approved
+      # one on mismatch; upload it so the diff can be inspected and applied.
+      - name: Upload approval actuals
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: approval-actuals
+          path: apps/backend/src/test/resources/**/*.actual
+          if-no-files-found: ignore
