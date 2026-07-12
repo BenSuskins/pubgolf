@@ -17,9 +17,12 @@ class WebSocketConfig(
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry
-            .addEndpoint("/ws")
-            .setAllowedOrigins(*applicationProperties.origins.toTypedArray())
-            .withSockJS()
+        // `/api/v1/ws` rides the same reverse-proxy rule as the REST API; `/ws` is kept for older clients.
+        listOf("/ws", "/api/v1/ws").forEach { path ->
+            registry
+                .addEndpoint(path)
+                .setAllowedOrigins(*applicationProperties.origins.toTypedArray())
+                .withSockJS()
+        }
     }
 }
