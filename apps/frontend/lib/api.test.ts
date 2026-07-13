@@ -6,6 +6,7 @@ import {
   submitScore,
   getRandomiseOptions,
   spinWheel,
+  setPubs,
   ApiError,
 } from './api';
 
@@ -163,6 +164,21 @@ describe('API functions', () => {
       const result = await submitScore('ABCD', 'player-123', 1, 2);
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('setPubs', () => {
+    test('should handle 201 created response with empty body', async () => {
+      mockFetch.mockResolvedValueOnce(new Response(null, { status: 201 }));
+
+      const result = await setPubs('ABCD', 'player-123', [
+        { name: 'The Red Lion', latitude: 51.5, longitude: -0.1 },
+      ]);
+
+      expect(result).toBeUndefined();
+      const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toContain('/api/v1/games/ABCD/pubs');
+      expect(options.method).toBe('PUT');
     });
   });
 

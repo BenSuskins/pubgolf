@@ -56,11 +56,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
     throw new ApiError(response.status, message);
   }
 
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json();
+  // Some success responses carry no body (204, or 201 from the route save).
+  const text = await response.text();
+  return text ? JSON.parse(text) : (undefined as T);
 }
 
 function statusMessage(status: number, fallback: string): string {

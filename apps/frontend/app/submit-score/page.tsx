@@ -110,7 +110,8 @@ export default function SubmitScorePage() {
 
   const selectedPenalty = penaltyOptions.find((p) => p.type === penaltyType);
   const currentPar = pars[hole - 1];
-  const currentPubName = pubs.find((pub) => pub.hole === hole)?.name;
+  // Place-search names include the full address; keep only the part before the first comma.
+  const currentPubName = pubs.find((pub) => pub.hole === hole)?.name.split(',')[0].trim();
   const displayedScore = penaltyType && selectedPenalty ? selectedPenalty.points : score;
 
   const parReadout = () => {
