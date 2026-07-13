@@ -45,6 +45,12 @@
   --color-glow: rgba(201, 162, 75, 0.5);
   --color-glass-bg: rgba(20, 31, 24, 0.9);
   --color-glass-border: rgba(38, 58, 42, 0.9);
+
+  /* Wildcard wheel wedges */
+  --color-wheel-wedge-1: #27492f;
+  --color-wheel-wedge-2: #3c3115;
+  --color-wheel-wedge-3: #17301f;
+  --color-wheel-wedge-4: #4a3d1e;
 }
 
 @theme inline {

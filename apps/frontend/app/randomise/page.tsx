@@ -3,32 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { SlotMachine } from '@/components/SlotMachine';
-import { getRandomiseOptions, spinWheel, ApiError } from '@/lib/api';
+import { SpinWheel } from '@/components/SpinWheel';
+import { getRandomiseOptions, spinWheel, ApiError, WheelOption } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
 
-interface WheelOption {
-  option: string;
-  optionSize?: number;
-}
-
-// Repeat each option by its server weight and shuffle, so the reel's visual
-// frequency matches the real odds of the draw.
-function weightedShuffle(options: WheelOption[]): string[] {
-  const weighted = options.flatMap((opt) => Array<string>(Math.max(1, opt.optionSize ?? 1)).fill(opt.option));
-  for (let i = weighted.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [weighted[i], weighted[j]] = [weighted[j], weighted[i]];
-  }
-  return weighted;
-}
-
 export default function RandomisePage() {
-  const [items, setItems] = useState<string[]>([]);
+  const [options, setOptions] = useState<WheelOption[]>([]);
   const [spinning, setSpinning] = useState(false);
-  const [winningIndex, setWinningIndex] = useState<number | null>(null);
+  const [winningOption, setWinningOption] = useState<string | null>(null);
   const [hasSpun, setHasSpun] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [hole, setHole] = useState<number | null>(null);
@@ -50,7 +34,7 @@ export default function RandomisePage() {
     async function fetchRandomiseOptions() {
       try {
         const data = await getRandomiseOptions();
-        setItems(weightedShuffle(data.options));
+        setOptions(data.options);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load randomise options');
       } finally {
@@ -74,12 +58,11 @@ export default function RandomisePage() {
     try {
       const data = await spinWheel(gameCode, playerId);
 
-      const index = items.findIndex((item) => item === data.result);
-      if (index === -1) {
+      if (!options.some((opt) => opt.option === data.result)) {
         throw new Error(`Result "${data.result}" not found in wheel options`);
       }
 
-      setWinningIndex(index);
+      setWinningOption(data.result);
       setResult(data.result);
       setHole(data.hole);
       setSpinning(true);
@@ -111,7 +94,7 @@ export default function RandomisePage() {
     );
   }
 
-  if (items.length === 0) {
+  if (options.length === 0) {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
         <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">
@@ -146,9 +129,9 @@ export default function RandomisePage() {
         </div>
 
         <Card padding="md" className="space-y-4">
-          <SlotMachine
-            items={items}
-            winningIndex={winningIndex}
+          <SpinWheel
+            options={options}
+            winningOption={winningOption}
             spinning={spinning}
             onSpinEnd={handleSpinEnd}
             spinDuration={3}

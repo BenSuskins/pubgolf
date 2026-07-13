@@ -4,7 +4,7 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { CreateGameForm } from '@/components/CreateGameForm';
 import { JoinGameForm } from '@/components/JoinGameForm';
 import { Leaderboard } from '@/components/Leaderboard';
-import { SlotMachine } from '@/components/SlotMachine';
+import { SpinWheel } from '@/components/SpinWheel';
 import { EventBanner } from '@/components/EventBanner';
 import { Player, ActiveEvent } from '@/lib/types';
 
@@ -102,11 +102,15 @@ describe('Accessibility Tests', () => {
       expect(results).toHaveNoViolations();
     });
 
-    test('SlotMachine has no accessibility violations', async () => {
+    test('SpinWheel has no accessibility violations', async () => {
       const { container } = render(
-        <SlotMachine
-          items={['Option 1', 'Option 2', 'Option 3']}
-          winningIndex={null}
+        <SpinWheel
+          options={[
+            { option: 'Option 1', optionSize: 1 },
+            { option: 'Option 2', optionSize: 2 },
+            { option: 'Option 3', optionSize: 5 },
+          ]}
+          winningOption={null}
           spinning={false}
           onSpinEnd={() => {}}
         />
