@@ -3,13 +3,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, getAvailableEvents, activateEvent, endEvent, completeGame, getRoute } from '@/lib/api';
+import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { EventCard } from '@/components/EventCard';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { Input } from '@/components/ui/Input';
 import { GameEvent, GameState, ActiveEvent } from '@/lib/types';
 
 export default function HostPanelPage() {
@@ -21,6 +22,9 @@ export default function HostPanelPage() {
   const [activatingEventId, setActivatingEventId] = useState<string | null>(null);
   const [endingEvent, setEndingEvent] = useState(false);
   const [confirmEvent, setConfirmEvent] = useState<GameEvent | null>(null);
+  const [customTitle, setCustomTitle] = useState('');
+  const [customDescription, setCustomDescription] = useState('');
+  const [activatingCustom, setActivatingCustom] = useState(false);
   const [hasRoute, setHasRoute] = useState(false);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -104,6 +108,27 @@ export default function HostPanelPage() {
       setError(err instanceof Error ? err.message : 'Failed to activate event');
     } finally {
       setActivatingEventId(null);
+    }
+  };
+
+  const handleActivateCustomEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const playerId = getPlayerId();
+    const title = customTitle.trim();
+    const description = customDescription.trim();
+    if (!playerId || !gameCode || !title) return;
+
+    setError('');
+    setActivatingCustom(true);
+    try {
+      const state = await activateCustomEvent(gameCode, title, description, playerId);
+      setActiveEvent(state.activeEvent);
+      setCustomTitle('');
+      setCustomDescription('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to activate custom event');
+    } finally {
+      setActivatingCustom(false);
     }
   };
 
@@ -255,6 +280,37 @@ export default function HostPanelPage() {
               ))}
             </div>
           )}
+        </section>
+
+        <section>
+          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
+            Trigger a Custom Event
+          </h2>
+          <form onSubmit={handleActivateCustomEvent} className="flex flex-col gap-2">
+            <Input
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              placeholder="Custom event name"
+              maxLength={255}
+              disabled={activeEvent !== null || activatingCustom}
+              aria-label="Custom event name"
+            />
+            <Input
+              value={customDescription}
+              onChange={(e) => setCustomDescription(e.target.value)}
+              placeholder="Description (optional)"
+              maxLength={500}
+              disabled={activeEvent !== null || activatingCustom}
+              aria-label="Custom event description"
+            />
+            <button
+              type="submit"
+              disabled={activeEvent !== null || activatingCustom || customTitle.trim().length === 0}
+              className="min-h-[44px] px-[18px] rounded-[10px] font-bold text-[13px] whitespace-nowrap transition-all self-end bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {activatingCustom ? 'Triggering...' : 'Trigger'}
+            </button>
+          </form>
         </section>
       </div>
 

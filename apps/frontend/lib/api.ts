@@ -227,6 +227,19 @@ export async function activateEvent(
   return request(gamePath(gameCode, '/active-event'), { method: 'PUT', body: { eventId }, playerId });
 }
 
+export async function activateCustomEvent(
+  gameCode: string,
+  title: string,
+  description: string,
+  playerId: string
+): Promise<GameState> {
+  return request(gamePath(gameCode, '/active-event/custom'), {
+    method: 'PUT',
+    body: { title, description },
+    playerId,
+  });
+}
+
 export async function endEvent(gameCode: string, playerId: string): Promise<GameState> {
   return request(gamePath(gameCode, '/active-event'), { method: 'DELETE', playerId });
 }

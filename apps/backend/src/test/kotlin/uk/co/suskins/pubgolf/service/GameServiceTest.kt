@@ -502,7 +502,13 @@ class GameServiceTest {
                 players = listOf(hostPlayer),
                 status = GameStatus.ACTIVE,
                 hostPlayerId = hostPlayer.id,
-                activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now()),
+                activeEvent =
+                    ActiveEvent(
+                        event = GameEvent.PHOTO_OP,
+                        customTitle = null,
+                        customDescription = null,
+                        activatedAt = Instant.now(),
+                    ),
             )
         gameRepository.save(game)
 
@@ -555,6 +561,130 @@ class GameServiceTest {
     }
 
     @Test
+    fun `host can activate custom event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.activateCustomEvent(gameCode, hostPlayer.id, "  Nachos time  ", "  Everyone orders nachos  ")
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        val activeEvent = updatedGame.activeEvent!!
+        assertThat(activeEvent.customTitle, equalTo("Nachos time"))
+        assertThat(activeEvent.customDescription, equalTo("Everyone orders nachos"))
+        assertThat(activeEvent.event, equalTo(null))
+    }
+
+    @Test
+    fun `host can activate custom event with no description`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+            )
+        gameRepository.save(game)
+
+        val result = service.activateCustomEvent(gameCode, hostPlayer.id, "Nachos time", null)
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        val activeEvent = updatedGame.activeEvent!!
+        assertThat(activeEvent.customTitle, equalTo("Nachos time"))
+        assertThat(activeEvent.customDescription, equalTo(null))
+    }
+
+    @Test
+    fun `cannot activate custom event when a built-in event is already active`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent =
+                    ActiveEvent(
+                        event = GameEvent.PHOTO_OP,
+                        customTitle = null,
+                        customDescription = null,
+                        activatedAt = Instant.now(),
+                    ),
+            )
+        gameRepository.save(game)
+
+        val result = service.activateCustomEvent(gameCode, hostPlayer.id, "Nachos time", null)
+
+        assertThat(
+            result,
+            isFailure(
+                EventAlreadyActiveFailure(
+                    "An event is already active. End the current event before activating a new one.",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun `cannot activate a built-in event when a custom event is already active`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent = ActiveEvent(event = null, customTitle = "Nachos time", customDescription = null, activatedAt = Instant.now()),
+            )
+        gameRepository.save(game)
+
+        val result = service.activateEvent(gameCode, hostPlayer.id, "photo-op")
+
+        assertThat(
+            result,
+            isFailure(
+                EventAlreadyActiveFailure(
+                    "An event is already active. End the current event before activating a new one.",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun `host can end active custom event`() {
+        val hostPlayer = Player(PlayerId.random(), host)
+        val game =
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = GameStatus.ACTIVE,
+                hostPlayerId = hostPlayer.id,
+                activeEvent = ActiveEvent(event = null, customTitle = "Nachos time", customDescription = null, activatedAt = Instant.now()),
+            )
+        gameRepository.save(game)
+
+        val result = service.endEvent(gameCode, hostPlayer.id)
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(updatedGame.activeEvent, equalTo(null))
+    }
+
+    @Test
     fun `host can end active event`() {
         val hostPlayer = Player(PlayerId.random(), host)
         val game =
@@ -564,7 +694,13 @@ class GameServiceTest {
                 players = listOf(hostPlayer),
                 status = GameStatus.ACTIVE,
                 hostPlayerId = hostPlayer.id,
-                activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now()),
+                activeEvent =
+                    ActiveEvent(
+                        event = GameEvent.PHOTO_OP,
+                        customTitle = null,
+                        customDescription = null,
+                        activatedAt = Instant.now(),
+                    ),
             )
         gameRepository.save(game)
 
@@ -605,7 +741,13 @@ class GameServiceTest {
                 players = listOf(hostPlayer),
                 status = GameStatus.ACTIVE,
                 hostPlayerId = hostPlayer.id,
-                activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now()),
+                activeEvent =
+                    ActiveEvent(
+                        event = GameEvent.PHOTO_OP,
+                        customTitle = null,
+                        customDescription = null,
+                        activatedAt = Instant.now(),
+                    ),
             )
         gameRepository.save(game)
 
@@ -620,7 +762,7 @@ class GameServiceTest {
     @Test
     fun `get active event returns current event`() {
         val hostPlayer = Player(PlayerId.random(), host)
-        val activeEvent = ActiveEvent(GameEvent.PHOTO_OP, Instant.now())
+        val activeEvent = ActiveEvent(event = GameEvent.PHOTO_OP, customTitle = null, customDescription = null, activatedAt = Instant.now())
         val game =
             Game(
                 id = GameId.random(),

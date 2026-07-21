@@ -181,3 +181,11 @@ data class SetActiveEventRequest(
     @field:NotBlank(message = "Event ID must not be blank")
     val eventId: String,
 )
+
+data class SetCustomActiveEventRequest(
+    @field:NotBlank(message = "Custom event title must not be blank")
+    @field:Size(max = 255, message = "Custom event title must be 255 characters or fewer")
+    val title: String,
+    @field:Size(max = 500, message = "Custom event description must be 500 characters or fewer")
+    val description: String? = null,
+)
