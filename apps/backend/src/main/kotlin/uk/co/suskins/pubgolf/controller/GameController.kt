@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.co.suskins.pubgolf.models.ActiveEventResponse
 import uk.co.suskins.pubgolf.models.ActiveEventStateResponse
 import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
 import uk.co.suskins.pubgolf.models.CreateGameResponse
@@ -68,9 +67,11 @@ import uk.co.suskins.pubgolf.models.RouteGeometryResponse
 import uk.co.suskins.pubgolf.models.RouteResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.models.SetActiveEventRequest
+import uk.co.suskins.pubgolf.models.SetCustomActiveEventRequest
 import uk.co.suskins.pubgolf.models.SetPubsRequest
 import uk.co.suskins.pubgolf.models.UpdateGameStatusRequest
 import uk.co.suskins.pubgolf.models.toGameStateResponse
+import uk.co.suskins.pubgolf.models.toResponse
 import uk.co.suskins.pubgolf.service.GameService
 import uk.co.suskins.pubgolf.service.PubRouteService
 
@@ -270,14 +271,7 @@ class GameController(
             .getActiveEvent(gameCode)
             .map { activeEventState ->
                 ActiveEventStateResponse(
-                    activeEventState.activeEvent?.let {
-                        ActiveEventResponse(
-                            it.event.id,
-                            it.event.title,
-                            it.event.description,
-                            it.activatedAt,
-                        )
-                    },
+                    activeEventState.activeEvent?.toResponse(),
                 )
             }.map {
                 ResponseEntity.status(OK).body(it)
@@ -303,6 +297,29 @@ class GameController(
                 gameService
                     .validatePlayerInGame(gameCode, playerId)
                     .flatMap { gameService.activateEvent(gameCode, playerId, request.eventId) }
+            }.map { it.toGameStateResponse() }
+            .map { ResponseEntity.status(OK).body(it) }
+            .mapFailure { resolveFailure(it) }
+            .get()
+
+    @PutMapping("/{gameCode}/active-event/custom")
+    @SecurityRequirement(name = "PlayerIdHeader")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Custom event activated",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = GameStateResponse::class))],
+    )
+    @StandardErrorResponses
+    fun setCustomActiveEvent(
+        @PathVariable("gameCode") gameCode: GameCode,
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+        @Valid @RequestBody request: SetCustomActiveEventRequest,
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
+                    .flatMap { gameService.activateCustomEvent(gameCode, playerId, request.title, request.description) }
             }.map { it.toGameStateResponse() }
             .map { ResponseEntity.status(OK).body(it) }
             .mapFailure { resolveFailure(it) }

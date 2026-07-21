@@ -231,12 +231,45 @@ class GameService(
                     val event =
                         GameEvent.fromId(eventId)
                             ?: return@flatMap Failure(EventNotFoundFailure("Event '$eventId' not found"))
-                    val activeEvent = ActiveEvent(event, Instant.now())
+                    val activeEvent =
+                        ActiveEvent(event = event, customTitle = null, customDescription = null, activatedAt = Instant.now())
                     val updated = game.copy(activeEvent = activeEvent)
                     gameRepository
                         .save(updated)
                         .peek { updatedGame ->
                             eventPublisher.publishEvent(EventActivatedEvent(updatedGame.code, event.id, event.title))
+                            eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                        }
+                }
+        }
+
+    fun activateCustomEvent(
+        gameCode: GameCode,
+        playerId: PlayerId,
+        title: String,
+        description: String?,
+    ): Result<Game, PubGolfFailure> =
+        retryOnConcurrentModification {
+            gameRepository
+                .findByCodeIgnoreCase(gameCode)
+                .flatMap { isNotCompleted(it, "Cannot activate event on completed game") }
+                .flatMap { isHost(it, playerId, "activate events") }
+                .flatMap { hasNoActiveEvent(it) }
+                .flatMap { game ->
+                    val trimmedTitle = title.trim()
+                    val trimmedDescription = description?.trim().takeUnless { it.isNullOrEmpty() }
+                    val activeEvent =
+                        ActiveEvent(
+                            event = null,
+                            customTitle = trimmedTitle,
+                            customDescription = trimmedDescription,
+                            activatedAt = Instant.now(),
+                        )
+                    val updated = game.copy(activeEvent = activeEvent)
+                    gameRepository
+                        .save(updated)
+                        .peek { updatedGame ->
+                            eventPublisher.publishEvent(EventActivatedEvent(updatedGame.code, "custom", trimmedTitle))
                             eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
                         }
                 }

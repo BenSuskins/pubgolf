@@ -126,9 +126,28 @@ enum class GameEvent(
 }
 
 data class ActiveEvent(
-    val event: GameEvent,
+    val event: GameEvent?,
+    val customTitle: String?,
+    val customDescription: String?,
     val activatedAt: Instant,
-)
+) {
+    init {
+        require((event == null) != (customTitle == null)) {
+            "ActiveEvent requires exactly one of event/customTitle"
+        }
+        require(event == null || customDescription == null) {
+            "customDescription is only valid for custom events"
+        }
+    }
+}
+
+fun ActiveEvent.toResponse() =
+    ActiveEventResponse(
+        id = event?.id ?: "custom",
+        title = event?.title ?: customTitle!!,
+        description = event?.description ?: customDescription.orEmpty(),
+        activatedAt = activatedAt,
+    )
 
 data class ActiveEventState(
     val activeEvent: ActiveEvent?,
@@ -265,6 +284,8 @@ fun Game.toJpa(): GameEntity {
             version = version,
             hostPlayerId = hostPlayerId?.value,
             activeEventId = activeEvent?.event?.id,
+            activeEventCustomTitle = activeEvent?.customTitle,
+            activeEventCustomDescription = activeEvent?.customDescription,
             activeEventActivatedAt = activeEvent?.activatedAt,
             routeGeometry = routeGeometry?.let { routeGeometryMapper.writeValueAsString(it) },
         )
@@ -379,13 +400,5 @@ fun Game.toGameStateResponse(): GameStateResponse =
                         { -it.scores.count { score -> score != null } },
                     ),
                 ),
-        activeEvent =
-            activeEvent?.let {
-                ActiveEventResponse(
-                    id = it.event.id,
-                    title = it.event.title,
-                    description = it.event.description,
-                    activatedAt = it.activatedAt,
-                )
-            },
+        activeEvent = activeEvent?.toResponse(),
     )

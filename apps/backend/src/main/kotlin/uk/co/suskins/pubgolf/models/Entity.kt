@@ -35,6 +35,10 @@ data class GameEntity(
     val hostPlayerId: UUID? = null,
     @Column(name = "active_event_id")
     val activeEventId: String? = null,
+    @Column(name = "active_event_custom_title")
+    val activeEventCustomTitle: String? = null,
+    @Column(name = "active_event_custom_description")
+    val activeEventCustomDescription: String? = null,
     @Column(name = "active_event_activated_at")
     val activeEventActivatedAt: Instant? = null,
     @Column(name = "route_geometry")
@@ -190,9 +194,18 @@ fun GameEntity.toDomain(): Game =
                 GameEvent.fromId(eventId)?.let { event ->
                     ActiveEvent(
                         event = event,
+                        customTitle = null,
+                        customDescription = null,
                         activatedAt = activeEventActivatedAt ?: Instant.now(),
                     )
                 }
+            } ?: activeEventCustomTitle?.let { customTitle ->
+                ActiveEvent(
+                    event = null,
+                    customTitle = customTitle,
+                    customDescription = activeEventCustomDescription,
+                    activatedAt = activeEventActivatedAt ?: Instant.now(),
+                )
             },
         players =
             players.map {
