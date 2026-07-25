@@ -11,6 +11,8 @@
   --color-border: #263a2a;
   --color-border-subtle: #2a3d2e;
   --color-border-gold: #4a3d1e;
+  /* Neutral outline for ghost buttons and the bottom-sheet drag handle */
+  --color-border-outline: #3d5342;
 
   /* Text */
   --color-text: #f4ead9;
@@ -18,6 +20,8 @@
   --color-text-muted: #71877a;
   --color-text-faint: #5f7466;
   --color-text-faintest: #3d4d42;
+  /* Text on outline (ghost) buttons */
+  --color-text-outline: #c3d0c4;
 
   /* Primary action - Brass/Gold */
   --color-primary: #c9a24b;
@@ -25,6 +29,8 @@
   --color-primary-disabled: #5c4a22;
   --color-accent: #e0b95d;
   --color-ink: #1c1404;
+  /* Fill for the selected route chip in the host panel */
+  --color-chip-active: #1c2e22;
 
   /* Semantic */
   --color-error: #e8735f;
@@ -261,6 +267,14 @@ body {
   .surface-danger {
     background: var(--color-danger-surface);
     border: 1px solid var(--color-danger-border);
+  }
+
+  /* Neutral outline button - the Cancel side of a bottom sheet's action row */
+  .btn-outline {
+    background: none;
+    border: 1px solid var(--color-border-outline);
+    color: var(--color-text-outline);
+    font-weight: 700;
   }
 }
 

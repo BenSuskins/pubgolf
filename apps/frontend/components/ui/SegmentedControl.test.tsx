@@ -54,4 +54,61 @@ describe('SegmentedControl', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  describe('numbered tab bar', () => {
+    const tabs = [
+      { value: 'events', label: 'Events', badge: '1', controls: 'panel' },
+      { value: 'course', label: 'Course', badge: '2', controls: 'panel' },
+    ];
+
+    test('should render a badge alongside each label without changing its name', () => {
+      render(
+        <SegmentedControl
+          size="sm"
+          ariaLabel="Host panel section"
+          options={tabs}
+          value="events"
+          onChange={() => {}}
+        />
+      );
+
+      expect(screen.getByRole('button', { name: 'Events' })).toBeInTheDocument();
+      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(screen.getByText('2')).toBeInTheDocument();
+    });
+
+    test('should point each segment at the panel it controls', () => {
+      render(
+        <SegmentedControl
+          size="sm"
+          ariaLabel="Host panel section"
+          options={tabs}
+          value="events"
+          onChange={() => {}}
+        />
+      );
+
+      expect(screen.getByRole('button', { name: 'Course' })).toHaveAttribute(
+        'aria-controls',
+        'panel'
+      );
+    });
+
+    test('should have no accessibility violations', async () => {
+      const { container } = render(
+        <div>
+          <SegmentedControl
+            size="sm"
+            ariaLabel="Host panel section"
+            options={tabs}
+            value="events"
+            onChange={() => {}}
+          />
+          <div id="panel" />
+        </div>
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
 });

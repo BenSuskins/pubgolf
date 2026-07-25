@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Typography } from './ui/Typography';
 import { modalVariants, overlayVariants } from '@/lib/animations';
+import { useDialogDismiss } from '@/hooks/useDialogDismiss';
 
 interface ShareModalProps {
   gameCode: string;
@@ -15,8 +16,11 @@ interface ShareModalProps {
 
 export function ShareModal({ gameCode, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { containerRef, onBackdropClick } = useDialogDismiss({
+    onDismiss: onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   const getShareLink = () => {
     if (typeof window !== 'undefined') {
@@ -24,36 +28,6 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
     }
     return '';
   };
-
-  useEffect(() => {
-    closeButtonRef.current?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-
-      if (e.key === 'Tab' && modalRef.current) {
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
 
   const handleCopy = async () => {
     const link = getShareLink();
@@ -75,16 +49,10 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
     }
   };
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
     <motion.div
       className="fixed inset-0 bg-[rgba(13,20,16,0.85)] backdrop-blur-sm flex items-center justify-center z-50"
-      onClick={handleBackdropClick}
+      onClick={onBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="share-modal-title"
@@ -101,7 +69,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
         className="w-full max-w-sm mx-4"
       >
         <Card
-          ref={modalRef}
+          ref={containerRef}
           rounded="lg"
           padding="lg"
           className="w-full space-y-5"
