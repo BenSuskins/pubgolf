@@ -6,6 +6,10 @@ import { JoinGameForm } from '@/components/JoinGameForm';
 import { Leaderboard } from '@/components/Leaderboard';
 import { SpinWheel } from '@/components/SpinWheel';
 import { EventBanner } from '@/components/EventBanner';
+import { HostEventsTab } from '@/components/HostEventsTab';
+import { HostCourseTab } from '@/components/HostCourseTab';
+import { CustomEventSheet } from '@/components/CustomEventSheet';
+import { AddRouteSheet } from '@/components/AddRouteSheet';
 import { Player, ActiveEvent } from '@/lib/types';
 
 // Mock next/navigation
@@ -128,6 +132,55 @@ describe('Accessibility Tests', () => {
       };
 
       const { container } = render(<EventBanner event={event} />);
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    test('HostEventsTab has no accessibility violations', async () => {
+      const { container } = render(
+        <HostEventsTab
+          events={[{ id: 'photo-op', title: 'Photo Op', description: 'Group photo' }]}
+          activeEvent={null}
+          activatingEventId={null}
+          onActivate={() => {}}
+          onOpenCustomEvent={() => {}}
+        />
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    test('HostCourseTab has no accessibility violations', async () => {
+      const { container } = render(
+        <HostCourseTab
+          pubs={[{ hole: 1, name: 'Crown & Anchor', latitude: 51.5, longitude: -0.1 }]}
+          course={[{ hole: 1, par: 4, drinks: { 'Ale Trail': 'Espresso Martini' } }]}
+          onSaveCourse={async () => {}}
+        />
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    test('CustomEventSheet has no accessibility violations', async () => {
+      const { container } = render(
+        <CustomEventSheet onTrigger={async () => {}} onClose={() => {}} />
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    test('AddRouteSheet has no accessibility violations', async () => {
+      const { container } = render(
+        <AddRouteSheet
+          pars={[4, 3]}
+          existingNames={['Ale Trail']}
+          maxNameLength={40}
+          maxDrinkLength={100}
+          onCreate={() => {}}
+          onClose={() => {}}
+        />
+      );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });

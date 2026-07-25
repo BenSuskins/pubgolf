@@ -1,4 +1,11 @@
 import { test, expect } from '../fixtures/test-fixtures';
+import type { Page } from '@playwright/test';
+
+/** The panel opens on Events; course setup lives behind the second tab. */
+async function openCourseTab(page: Page) {
+  await page.getByRole('button', { name: 'Course' }).click();
+  await expect(page.getByText('Drinks & Pars')).toBeVisible();
+}
 
 test.describe('Host Course Editing', () => {
   test('host edits drinks and pars and players see the new course', async ({
@@ -15,6 +22,7 @@ test.describe('Host Course Editing', () => {
     }, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
+    await openCourseTab(page);
 
     // Seeded from the default course until the host edits it.
     const firstDrink = page.getByLabel('Hole 1 drink on Route A');
@@ -22,7 +30,7 @@ test.describe('Host Course Editing', () => {
 
     await firstDrink.fill('Espresso Martini');
     await page.getByLabel('Hole 1 par').fill('4');
-    await page.getByRole('button', { name: 'Save Drinks & Pars' }).click();
+    await page.getByRole('button', { name: 'SAVE COURSE' }).click();
 
     await expect(page.getByText('Saved — all players updated')).toBeVisible();
 
@@ -35,7 +43,37 @@ test.describe('Host Course Editing', () => {
     await expect(page.getByText(/Par 4 · how many did it take\?/)).toBeVisible();
   });
 
-  test('host can rename a route', async ({ page, createGameViaApi }) => {
+  test('tapping a route chip swaps the drinks but not the shared par', async ({
+    page,
+    createGameViaApi,
+  }) => {
+    const hostSession = await createGameViaApi('ChipHost');
+
+    await page.goto('/');
+    await page.evaluate((session) => {
+      localStorage.setItem('gameCode', session.gameCode);
+      localStorage.setItem('playerId', session.playerId);
+      localStorage.setItem('playerName', session.playerName);
+    }, hostSession);
+
+    await page.goto(`/game/${hostSession.gameCode}/host`);
+    await openCourseTab(page);
+
+    await expect(page.getByLabel('Hole 1 drink on Route A')).toHaveValue('Tequila');
+    await expect(page.getByLabel('Hole 1 par')).toHaveValue('1');
+
+    await page.getByRole('button', { name: 'Route B', exact: true }).click();
+
+    await expect(page.getByLabel('Hole 1 drink on Route B')).toHaveValue('Sambuca');
+    await expect(page.getByLabel('Hole 1 drink on Route A')).toHaveCount(0);
+    // Par is game-level state, so it is the same whichever route is shown.
+    await expect(page.getByLabel('Hole 1 par')).toHaveValue('1');
+  });
+
+  test('host can rename a route by tapping the selected chip again', async ({
+    page,
+    createGameViaApi,
+  }) => {
     const hostSession = await createGameViaApi('RenameHost');
 
     await page.goto('/');
@@ -46,14 +84,51 @@ test.describe('Host Course Editing', () => {
     }, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
+    await openCourseTab(page);
 
+    // Route A is selected on arrival, so one more tap opens rename.
+    await page.getByRole('button', { name: 'Route A', exact: true }).click();
     await page.getByLabel('Route 1 name').fill('Ale Trail');
-    await page.getByRole('button', { name: 'Save Drinks & Pars' }).click();
+    await page.getByRole('button', { name: 'SAVE COURSE' }).click();
 
     await expect(page.getByText('Saved — all players updated')).toBeVisible();
 
     await page.goto('/how-to-play');
     await expect(page.getByRole('columnheader', { name: 'Ale Trail' })).toBeVisible();
+  });
+
+  test('host adds a route from the sheet with par carried over', async ({
+    page,
+    createGameViaApi,
+  }) => {
+    const hostSession = await createGameViaApi('AddRouteHost');
+
+    await page.goto('/');
+    await page.evaluate((session) => {
+      localStorage.setItem('gameCode', session.gameCode);
+      localStorage.setItem('playerId', session.playerId);
+      localStorage.setItem('playerName', session.playerName);
+    }, hostSession);
+
+    await page.goto(`/game/${hostSession.gameCode}/host`);
+    await openCourseTab(page);
+
+    await page.getByRole('button', { name: '+ Route' }).click();
+    await expect(page.getByRole('heading', { name: 'New Route' })).toBeVisible();
+
+    await page.getByLabel('Route name').fill('Wine Walk');
+    for (let hole = 1; hole <= 9; hole++) {
+      await page.getByLabel(`New route drink for hole ${hole}`).fill(`Wine ${hole}`);
+    }
+    await page.getByRole('button', { name: 'CREATE ROUTE' }).click();
+
+    // The new route is selected straight away, then persisted with the course.
+    await expect(page.getByLabel('Hole 1 drink on Wine Walk')).toHaveValue('Wine 1');
+    await page.getByRole('button', { name: 'SAVE COURSE' }).click();
+    await expect(page.getByText('Saved — all players updated')).toBeVisible();
+
+    await page.goto('/how-to-play');
+    await expect(page.getByRole('columnheader', { name: 'Wine Walk' })).toBeVisible();
   });
 
   test('blank drink is rejected before saving', async ({ page, createGameViaApi }) => {
@@ -67,9 +142,10 @@ test.describe('Host Course Editing', () => {
     }, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
+    await openCourseTab(page);
 
     await page.getByLabel('Hole 2 drink on Route A').fill('');
-    await page.getByRole('button', { name: 'Save Drinks & Pars' }).click();
+    await page.getByRole('button', { name: 'SAVE COURSE' }).click();
 
     await expect(page.getByText('Every route needs a drink for hole 2')).toBeVisible();
   });
@@ -91,6 +167,7 @@ test.describe('Host Course Editing', () => {
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
 
-    await expect(page.getByRole('button', { name: 'Save Drinks & Pars' })).toHaveCount(0);
+    await expect(page).toHaveURL(/\/game$/);
+    await expect(page.getByRole('button', { name: 'Course', exact: true })).toHaveCount(0);
   });
 });

@@ -36,7 +36,9 @@ test.describe('Create Game', () => {
     await expect(page.getByRole('switch', { name: 'Add route map' })).toHaveCount(0);
 
     await page.getByRole('link', { name: 'Host Panel' }).click();
-    await page.getByRole('link', { name: 'Set up route map' }).click();
+    // Route setup lives on the panel's Course tab; Events is the landing tab.
+    await page.getByRole('button', { name: 'Course', exact: true }).click();
+    await page.getByRole('link', { name: 'Set up →' }).click();
 
     await expect(page).toHaveURL('/game/route');
     await expect(page.getByRole('heading', { name: 'Add Route Map' })).toBeVisible();

@@ -3,33 +3,40 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { AnimatePresence } from 'framer-motion';
 import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute, setHoles } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
-import { EventCard } from '@/components/EventCard';
-import { CourseEditor } from '@/components/CourseEditor';
+import { HostEventsTab } from '@/components/HostEventsTab';
+import { HostCourseTab } from '@/components/HostCourseTab';
+import { CustomEventSheet } from '@/components/CustomEventSheet';
 import { ConfirmModal } from '@/components/ConfirmModal';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { Input } from '@/components/ui/Input';
-import { GameEvent, GameState, ActiveEvent, RouteHole } from '@/lib/types';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { GameEvent, GameState, ActiveEvent, RouteHole, PubLocation } from '@/lib/types';
+
+type HostTab = 'events' | 'course';
+
+const TAB_PANEL_ID = 'host-panel-tabpanel';
 
 export default function HostPanelPage() {
   const [events, setEvents] = useState<GameEvent[]>([]);
   const [activeEvent, setActiveEvent] = useState<ActiveEvent | null>(null);
   const [gameStatus, setGameStatus] = useState<'ACTIVE' | 'COMPLETED'>('ACTIVE');
   const [loading, setLoading] = useState(true);
+  // A failed load leaves nothing to show; a failed action just annotates the panel.
+  const [loadError, setLoadError] = useState('');
   const [error, setError] = useState('');
   const [activatingEventId, setActivatingEventId] = useState<string | null>(null);
   const [endingEvent, setEndingEvent] = useState(false);
   const [confirmEvent, setConfirmEvent] = useState<GameEvent | null>(null);
-  const [customTitle, setCustomTitle] = useState('');
-  const [customDescription, setCustomDescription] = useState('');
-  const [activatingCustom, setActivatingCustom] = useState(false);
-  const [hasRoute, setHasRoute] = useState(false);
+  const [customEventSheetOpen, setCustomEventSheetOpen] = useState(false);
+  const [pubs, setPubs] = useState<PubLocation[]>([]);
   const [course, setCourse] = useState<RouteHole[]>([]);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [completing, setCompleting] = useState(false);
+  // Events is what a host needs mid-round; course setup is a one-time job before it.
+  const [tab, setTab] = useState<HostTab>('events');
   const router = useRouter();
   const params = useParams();
   const gameCode = (params.code as string) ?? '';
@@ -84,12 +91,12 @@ export default function HostPanelPage() {
 
         try {
           const routeData = await getRoute(gameCode);
-          setHasRoute(routeData.pubs.length > 0);
+          setPubs(routeData.pubs);
         } catch {
-          setHasRoute(false);
+          setPubs([]);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load host panel');
+        setLoadError(err instanceof Error ? err.message : 'Failed to load host panel');
       } finally {
         setLoading(false);
       }
@@ -115,25 +122,13 @@ export default function HostPanelPage() {
     }
   };
 
-  const handleActivateCustomEvent = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleActivateCustomEvent = async (title: string, description: string) => {
     const playerId = getPlayerId();
-    const title = customTitle.trim();
-    const description = customDescription.trim();
-    if (!playerId || !gameCode || !title) return;
+    if (!playerId || !gameCode) return;
 
     setError('');
-    setActivatingCustom(true);
-    try {
-      const state = await activateCustomEvent(gameCode, title, description, playerId);
-      setActiveEvent(state.activeEvent);
-      setCustomTitle('');
-      setCustomDescription('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to activate custom event');
-    } finally {
-      setActivatingCustom(false);
-    }
+    const state = await activateCustomEvent(gameCode, title, description, playerId);
+    setActiveEvent(state.activeEvent);
   };
 
   const handleEndEvent = async () => {
@@ -179,163 +174,121 @@ export default function HostPanelPage() {
 
   if (loading) {
     return (
-      <main className="min-h-full flex items-center justify-center">
+      <div className="flex min-h-full items-center justify-center">
         <p className="text-[var(--color-text-secondary)] animate-pulse">Loading host panel...</p>
-      </main>
+      </div>
     );
   }
 
-  if (error) {
+  if (loadError) {
     return (
-      <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
+      <div className="flex min-h-full flex-col items-center justify-center gap-4 p-4">
         <ErrorMessage
-          message={error}
+          message={loadError}
           variant="card"
-          action={{ label: "Back to Game", onClick: () => router.push('/game') }}
+          action={{ label: 'Back to Game', onClick: () => router.push('/game') }}
         />
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="p-5 py-5">
-      <div className="max-w-4xl mx-auto space-y-5">
+    <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-3.5 p-5">
+      <div>
+        <Link
+          href="/game"
+          className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+        >
+          ← Back to Scoreboard
+        </Link>
+      </div>
+
+      <header className="flex items-start justify-between gap-4">
         <div>
-          <Link
-            href="/game"
-            className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
-          >
-            ← Back to Scoreboard
-          </Link>
-        </div>
-
-        <header className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5Z"
-                  stroke="var(--color-accent)"
-                  strokeWidth="1.8"
-                />
-              </svg>
-              <span className="eyebrow text-[var(--color-accent)]">Host Mode</span>
-            </div>
-            <h1 className="font-display text-2xl text-[var(--color-text)]">
-              {gameCode.toUpperCase()}
-            </h1>
+          <div className="flex items-center gap-1.5 mb-1">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5Z"
+                stroke="var(--color-accent)"
+                strokeWidth="1.8"
+              />
+            </svg>
+            <span className="eyebrow text-[var(--color-accent)]">Host Mode</span>
           </div>
-          <button
-            onClick={() => setShowEndGameModal(true)}
-            className="px-3.5 py-2.5 surface-danger rounded-[10px] text-[var(--color-error)] font-bold text-[12.5px] shrink-0 hover:bg-[var(--color-danger-border)]/40 transition-colors"
-          >
-            End Game
-          </button>
-        </header>
+          <h1 className="font-display text-2xl text-[var(--color-text)]">
+            {gameCode.toUpperCase()}
+          </h1>
+        </div>
+        <button
+          onClick={() => setShowEndGameModal(true)}
+          className="px-3.5 py-2.5 surface-danger rounded-[10px] text-[var(--color-error)] font-bold text-[12.5px] shrink-0 hover:bg-[var(--color-danger-border)]/40 transition-colors"
+        >
+          End Game
+        </button>
+      </header>
 
-        {activeEvent && (
-          <div className="surface-gold rounded-[14px] px-3.5 py-3 flex items-center gap-2.5">
-            <span className="text-base" role="img" aria-label="Active Event">
-              📣
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="eyebrow text-[10px] text-[var(--color-text-muted)]">Active Event</p>
-              <h3 className="text-[var(--color-accent)] font-bold text-sm mt-0.5">
-                {activeEvent.title}
-              </h3>
+      <SegmentedControl<HostTab>
+        size="sm"
+        ariaLabel="Host panel section"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'events', label: 'Events', badge: '1', controls: TAB_PANEL_ID },
+          { value: 'course', label: 'Course', badge: '2', controls: TAB_PANEL_ID },
+        ]}
+      />
+
+      {/* The active event is game-wide state, so it renders the same on both tabs. */}
+      {activeEvent && (
+        <div className="surface-gold rounded-[14px] px-3.5 py-3 flex items-center gap-2.5">
+          <span className="text-base" role="img" aria-label="Active Event">
+            📣
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="eyebrow text-[10px] text-[var(--color-text-muted)]">Active Event</p>
+            <h3 className="text-[var(--color-accent)] font-bold text-sm mt-0.5">
+              {activeEvent.title}
+            </h3>
+            {activeEvent.description && (
               <p className="text-[11.5px] text-[#b0a583] mt-px truncate">
                 {activeEvent.description}
               </p>
-            </div>
-            <button
-              onClick={handleEndEvent}
-              disabled={endingEvent}
-              className="min-h-[40px] px-3.5 surface-danger rounded-[9px] text-[var(--color-error)] font-bold text-[12.5px] whitespace-nowrap shrink-0 disabled:opacity-50 hover:bg-[var(--color-danger-border)]/40 transition-colors"
-            >
-              {endingEvent ? 'Ending...' : 'End Event'}
-            </button>
+            )}
           </div>
-        )}
-
-        <section>
-          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
-            Pub Route
-          </h2>
-          <Link
-            href="/game/route"
-            className="block py-3 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] hover:bg-[var(--color-surface-hover)] transition-colors text-[var(--color-text-secondary)]"
+          <button
+            onClick={handleEndEvent}
+            disabled={endingEvent}
+            className="min-h-[40px] px-3.5 surface-danger rounded-[9px] text-[var(--color-error)] font-bold text-[12.5px] whitespace-nowrap shrink-0 disabled:opacity-50 hover:bg-[var(--color-danger-border)]/40 transition-colors"
           >
-            {hasRoute ? 'Edit route map' : 'Set up route map'}
-          </Link>
-        </section>
+            {endingEvent ? 'Ending...' : 'End Event'}
+          </button>
+        </div>
+      )}
 
-        <section>
-          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
-            Drinks &amp; Pars
-          </h2>
-          {course.length === 0 ? (
-            <EmptyState icon="🍺" description="Course unavailable — reload to try again" />
-          ) : (
-            <CourseEditor holes={course} onSave={handleSaveCourse} />
-          )}
-        </section>
+      {error && <ErrorMessage message={error} variant="inline" />}
 
-        <section>
-          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
-            Trigger an Event
-          </h2>
-          {events.length === 0 ? (
-            <EmptyState
-              icon="📝"
-              description="No events configured for this game yet"
-            />
-          ) : (
-            <div className="flex flex-col gap-2">
-              {events.map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  isActive={activeEvent?.id === event.id}
-                  isOtherEventActive={activeEvent !== null && activeEvent.id !== event.id}
-                  onActivate={() => setConfirmEvent(event)}
-                  isLoading={activatingEventId === event.id}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section>
-          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
-            Trigger a Custom Event
-          </h2>
-          <form onSubmit={handleActivateCustomEvent} className="flex flex-col gap-2">
-            <Input
-              value={customTitle}
-              onChange={(e) => setCustomTitle(e.target.value)}
-              placeholder="Custom event name"
-              maxLength={255}
-              disabled={activeEvent !== null || activatingCustom}
-              aria-label="Custom event name"
-            />
-            <Input
-              value={customDescription}
-              onChange={(e) => setCustomDescription(e.target.value)}
-              placeholder="Description (optional)"
-              maxLength={500}
-              disabled={activeEvent !== null || activatingCustom}
-              aria-label="Custom event description"
-            />
-            <button
-              type="submit"
-              disabled={activeEvent !== null || activatingCustom || customTitle.trim().length === 0}
-              className="min-h-[44px] px-[18px] rounded-[10px] font-bold text-[13px] whitespace-nowrap transition-all self-end bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {activatingCustom ? 'Triggering...' : 'Trigger'}
-            </button>
-          </form>
-        </section>
+      <div id={TAB_PANEL_ID} className="flex min-h-0 flex-1 flex-col">
+        {tab === 'events' ? (
+          <HostEventsTab
+            events={events}
+            activeEvent={activeEvent}
+            activatingEventId={activatingEventId}
+            onActivate={setConfirmEvent}
+            onOpenCustomEvent={() => setCustomEventSheetOpen(true)}
+          />
+        ) : (
+          <HostCourseTab pubs={pubs} course={course} onSaveCourse={handleSaveCourse} />
+        )}
       </div>
+
+      <AnimatePresence>
+        {customEventSheetOpen && (
+          <CustomEventSheet
+            onTrigger={handleActivateCustomEvent}
+            onClose={() => setCustomEventSheetOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {confirmEvent && (
         <ConfirmModal
@@ -360,6 +313,6 @@ export default function HostPanelPage() {
           loading={completing}
         />
       )}
-    </main>
+    </div>
   );
 }

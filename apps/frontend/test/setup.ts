@@ -3,20 +3,31 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 
-// Mock framer-motion to avoid animation complexity in tests
+// Mock framer-motion to avoid animation complexity in tests.
+// Components are cached per tag: returning a fresh component type on every property
+// access would give React a new element type each render, remounting the subtree and
+// dropping focus mid-keystroke inside modals and sheets.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const motionComponents = new Map<string, any>();
+
 mock.module('framer-motion', () => ({
   motion: new Proxy(
     {},
     {
       get: (_, prop) => {
-        // Return a component that forwards all props to the native HTML element
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, react/display-name
-        const MotionComponent = React.forwardRef<any, any>((props, ref) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { variants: _variants, initial: _initial, animate: _animate, exit: _exit, transition: _transition, ...rest } = props;
-          return React.createElement(prop as string, { ...rest, ref });
-        });
-        return MotionComponent;
+        const tag = prop as string;
+        if (!motionComponents.has(tag)) {
+          // Forward all props to the native HTML element
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const MotionComponent = React.forwardRef<any, any>((props, ref) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { variants: _variants, initial: _initial, animate: _animate, exit: _exit, transition: _transition, ...rest } = props;
+            return React.createElement(tag, { ...rest, ref });
+          });
+          MotionComponent.displayName = `motion.${tag}`;
+          motionComponents.set(tag, MotionComponent);
+        }
+        return motionComponents.get(tag);
       },
     }
   ),
