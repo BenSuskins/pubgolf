@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Instant
 
 private val routeGeometryMapper = jacksonObjectMapper()
+private val drinksMapper = jacksonObjectMapper()
 
 data class Game(
     val id: GameId,
@@ -14,9 +15,15 @@ data class Game(
     val activeEvent: ActiveEvent? = null,
     val pubs: List<Pub> = emptyList(),
     val routeGeometry: RouteGeometry? = null,
+    // Empty until the host customises the course; games then fall back to the default course.
+    val holes: List<CourseHole> = emptyList(),
     // Optimistic-lock version carried from the entity so stale saves are rejected; null until first persisted.
     val version: Long? = null,
-)
+) {
+    fun course(): List<CourseHole> = holes.ifEmpty { Routes.defaultCourse }
+
+    fun par(hole: Hole): Int = course().firstOrNull { it.hole == hole }?.par ?: Routes.par(hole)
+}
 
 data class Player(
     val id: PlayerId,
@@ -216,6 +223,10 @@ data class InvalidPubCountFailure(
     override val message: String,
 ) : PubGolfFailure
 
+data class InvalidCourseFailure(
+    override val message: String,
+) : PubGolfFailure
+
 data class InvalidHostFailure(
     override val message: String,
 ) : PubGolfFailure
@@ -258,8 +269,28 @@ data class RouteHole(
     val drinks: Map<String, String>,
 )
 
+// A hole on a game's own course: one par, and one drink per named route.
+// Iteration order of `drinks` is the order the routes are displayed in.
+data class CourseHole(
+    val hole: Hole,
+    val par: Int,
+    val drinks: Map<String, String>,
+)
+
+fun CourseHoleDto.toCourseHole(): CourseHole =
+    CourseHole(
+        hole = Hole(hole),
+        par = par,
+        drinks = drinks,
+    )
+
 object Routes {
     fun par(hole: Hole): Int = holes.first { it.hole == hole.value }.par
+
+    // Seeds a new game's editable course and answers /config/routes for visitors without a game.
+    val defaultCourse: List<CourseHole> by lazy {
+        holes.map { CourseHole(Hole(it.hole), it.par, it.drinks) }
+    }
 
     val holes: List<RouteHole> =
         listOf(
@@ -343,8 +374,20 @@ fun Game.toJpa(): GameEntity {
         gameEntity.addPub(pubEntity)
     }
 
+    holes.forEach { hole ->
+        gameEntity.addHole(hole.toJpa(gameEntity))
+    }
+
     return gameEntity
 }
+
+fun CourseHole.toJpa(gameEntity: GameEntity): GameHoleEntity =
+    GameHoleEntity(
+        id = GameHoleId(gameId = gameEntity.id, hole = hole.value),
+        game = gameEntity,
+        par = par,
+        drinks = drinksMapper.writeValueAsString(drinks),
+    )
 
 fun Pub.toJpa(gameEntity: GameEntity): PubEntity =
     PubEntity(
@@ -383,7 +426,7 @@ fun Game.toGameStateResponse(): GameStateResponse =
                         totalScore = player.scores.values.sumOf { it.score.value },
                         parRelative =
                             player.scores.entries.sumOf { (hole, score) ->
-                                score.score.value - Routes.par(hole)
+                                score.score.value - par(hole)
                             },
                         randomise =
                             player.randomise?.let {
@@ -401,4 +444,5 @@ fun Game.toGameStateResponse(): GameStateResponse =
                     ),
                 ),
         activeEvent = activeEvent?.toResponse(),
+        holes = course().map { HoleResponse(it.hole.value, it.par, it.drinks) },
     )

@@ -3,15 +3,16 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute } from '@/lib/api';
+import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute, setHoles } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
 import { EventCard } from '@/components/EventCard';
+import { CourseEditor } from '@/components/CourseEditor';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Input } from '@/components/ui/Input';
-import { GameEvent, GameState, ActiveEvent } from '@/lib/types';
+import { GameEvent, GameState, ActiveEvent, RouteHole } from '@/lib/types';
 
 export default function HostPanelPage() {
   const [events, setEvents] = useState<GameEvent[]>([]);
@@ -26,6 +27,7 @@ export default function HostPanelPage() {
   const [customDescription, setCustomDescription] = useState('');
   const [activatingCustom, setActivatingCustom] = useState(false);
   const [hasRoute, setHasRoute] = useState(false);
+  const [course, setCourse] = useState<RouteHole[]>([]);
   const [showEndGameModal, setShowEndGameModal] = useState(false);
   const [completing, setCompleting] = useState(false);
   const router = useRouter();
@@ -36,6 +38,7 @@ export default function HostPanelPage() {
   const handleGameStateUpdate = useCallback((state: GameState) => {
     setActiveEvent(state.activeEvent);
     setGameStatus(state.status);
+    setCourse(state.holes);
   }, []);
 
   useGameWebSocket({
@@ -60,6 +63,7 @@ export default function HostPanelPage() {
 
         setActiveEvent(state.activeEvent);
         setGameStatus(state.status);
+        setCourse(state.holes);
         setEvents(eventsResponse.events);
 
         const playerId = getPlayerId();
@@ -146,6 +150,14 @@ export default function HostPanelPage() {
     } finally {
       setEndingEvent(false);
     }
+  };
+
+  const handleSaveCourse = async (updated: RouteHole[]) => {
+    const playerId = getPlayerId();
+    if (!playerId || !gameCode) return;
+
+    const state = await setHoles(gameCode, playerId, updated);
+    setCourse(state.holes);
   };
 
   const handleCompleteGame = async () => {
@@ -255,6 +267,17 @@ export default function HostPanelPage() {
           >
             {hasRoute ? 'Edit route map' : 'Set up route map'}
           </Link>
+        </section>
+
+        <section>
+          <h2 className="eyebrow text-[12.5px] text-[var(--color-text-muted)] mb-2.5">
+            Drinks &amp; Pars
+          </h2>
+          {course.length === 0 ? (
+            <EmptyState icon="🍺" description="Course unavailable — reload to try again" />
+          ) : (
+            <CourseEditor holes={course} onSave={handleSaveCourse} />
+          )}
         </section>
 
         <section>

@@ -48,6 +48,7 @@ import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameRequest
 import uk.co.suskins.pubgolf.models.GameStateResponse
 import uk.co.suskins.pubgolf.models.GameStatus
+import uk.co.suskins.pubgolf.models.InvalidCourseFailure
 import uk.co.suskins.pubgolf.models.InvalidHostFailure
 import uk.co.suskins.pubgolf.models.InvalidPubCountFailure
 import uk.co.suskins.pubgolf.models.InvalidStatusTransitionFailure
@@ -68,8 +69,10 @@ import uk.co.suskins.pubgolf.models.RouteResponse
 import uk.co.suskins.pubgolf.models.ScoreRequest
 import uk.co.suskins.pubgolf.models.SetActiveEventRequest
 import uk.co.suskins.pubgolf.models.SetCustomActiveEventRequest
+import uk.co.suskins.pubgolf.models.SetHolesRequest
 import uk.co.suskins.pubgolf.models.SetPubsRequest
 import uk.co.suskins.pubgolf.models.UpdateGameStatusRequest
+import uk.co.suskins.pubgolf.models.toCourseHole
 import uk.co.suskins.pubgolf.models.toGameStateResponse
 import uk.co.suskins.pubgolf.models.toResponse
 import uk.co.suskins.pubgolf.service.GameService
@@ -368,6 +371,29 @@ class GameController(
                 resolveFailure(it)
             }.get()
 
+    @PutMapping("/{gameCode}/holes")
+    @SecurityRequirement(name = "PlayerIdHeader")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Course set for the game (replaces any existing drinks and pars)",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = GameStateResponse::class))],
+    )
+    @StandardErrorResponses
+    fun setHoles(
+        @PathVariable("gameCode") gameCode: GameCode,
+        @RequestHeader(value = "PubGolf-Player-Id", required = false) playerIdHeader: String?,
+        @Valid @RequestBody request: SetHolesRequest,
+    ): ResponseEntity<*> =
+        parsePlayerIdHeader(playerIdHeader)
+            .flatMap { playerId ->
+                gameService
+                    .validatePlayerInGame(gameCode, playerId)
+                    .flatMap { gameService.setCourse(gameCode, playerId, request.holes.map { it.toCourseHole() }) }
+            }.map { it.toGameStateResponse() }
+            .map { ResponseEntity.status(OK).body(it) }
+            .mapFailure { resolveFailure(it) }
+            .get()
+
     @GetMapping("/{gameCode}/route")
     @ApiResponse(
         responseCode = "200",
@@ -425,6 +451,7 @@ class GameController(
                 is EventNotFoundFailure -> NOT_FOUND
                 is PlayerAlreadyExistsFailure -> BAD_REQUEST
                 is InvalidPubCountFailure -> BAD_REQUEST
+                is InvalidCourseFailure -> BAD_REQUEST
                 is InvalidStatusTransitionFailure -> BAD_REQUEST
                 is RandomiseAlreadyUsedFailure -> CONFLICT
                 is NoHolesLeftFailure -> CONFLICT

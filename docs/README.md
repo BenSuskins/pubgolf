@@ -19,6 +19,7 @@ scores come in.
 
 - Real-time leaderboard updates over WebSocket (STOMP)
 - Custom game creation with configurable rules
+- Host panel: per-game drinks and pars, pub route, and live events
 - QR code game invitations
 - Randomise wheel for in-game twists (double drink, half score, etc.)
 - Penalty tracking per hole

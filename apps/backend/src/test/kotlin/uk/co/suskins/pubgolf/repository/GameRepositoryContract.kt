@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
+import uk.co.suskins.pubgolf.models.CourseHole
 import uk.co.suskins.pubgolf.models.DuplicateGameCodeFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameCode
@@ -23,6 +24,7 @@ import uk.co.suskins.pubgolf.models.PenaltyType
 import uk.co.suskins.pubgolf.models.Player
 import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
+import uk.co.suskins.pubgolf.models.Routes
 import uk.co.suskins.pubgolf.models.Score
 import uk.co.suskins.pubgolf.service.hasPlayer
 import kotlin.test.Test
@@ -145,6 +147,51 @@ interface GameRepositoryContract {
             )
 
         assertTrue(result.failureOrNull() is DuplicateGameCodeFailure)
+    }
+
+    @Test
+    fun `can save and find a game with a custom course`() {
+        val course =
+            (1..9).map { hole ->
+                CourseHole(Hole(hole), hole % 4 + 1, linkedMapOf("Ale Trail" to "Ale $hole", "Spirit Run" to "Spirit $hole"))
+            }
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("COURSE001"),
+                players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
+                holes = course,
+            )
+
+        val saved = gameRepository.save(game).valueOrNull()!!
+        assertThat(saved.holes, equalTo(course))
+
+        val found = gameRepository.findByCodeIgnoreCase(GameCode("COURSE001")).valueOrNull()!!
+        assertThat(found.holes, equalTo(course))
+        // Route order round-trips, because it drives the column order players see.
+        assertThat(
+            found.holes
+                .first()
+                .drinks.keys
+                .toList(),
+            equalTo(listOf("Ale Trail", "Spirit Run")),
+        )
+    }
+
+    @Test
+    fun `a game with no custom course falls back to the default course`() {
+        val game =
+            Game(
+                id = GameId.random(),
+                code = GameCode("COURSE002"),
+                players = listOf(Player(PlayerId.random(), PlayerName("Ben"))),
+            )
+
+        gameRepository.save(game)
+
+        val found = gameRepository.findByCodeIgnoreCase(GameCode("COURSE002")).valueOrNull()!!
+        assertTrue(found.holes.isEmpty())
+        assertThat(found.course(), equalTo(Routes.defaultCourse))
     }
 
     @Test

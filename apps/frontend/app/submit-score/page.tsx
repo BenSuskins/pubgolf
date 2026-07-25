@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { submitScore, getPenaltyOptions, PenaltyOption, getRoutes, getGameState, getRoute } from '@/lib/api';
+import { submitScore, getPenaltyOptions, PenaltyOption, getGameState, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { PenaltyType, PubLocation } from '@/lib/types';
 import { firstUnplayedHole } from '@/lib/scoring';
@@ -41,9 +41,8 @@ export default function SubmitScorePage() {
 
       if (!gameCode || !playerId) return;
 
-      const [penaltiesResult, routesResult, gameStateResult, routeResult] = await Promise.allSettled([
+      const [penaltiesResult, gameStateResult, routeResult] = await Promise.allSettled([
         getPenaltyOptions(),
-        getRoutes(),
         getGameState(gameCode),
         getRoute(gameCode),
       ]);
@@ -51,13 +50,12 @@ export default function SubmitScorePage() {
       if (penaltiesResult.status === 'fulfilled') {
         setPenaltyOptions(penaltiesResult.value.penalties);
       }
-      if (routesResult.status === 'fulfilled') {
-        setPars(routesResult.value.holes.map((h) => h.par));
-      }
       if (routeResult.status === 'fulfilled') {
         setPubs(routeResult.value.pubs);
       }
       if (gameStateResult.status === 'fulfilled') {
+        // Pars are the host's, not global config, so they ride along with game state.
+        setPars(gameStateResult.value.holes.map((h) => h.par));
         const currentPlayer = gameStateResult.value.players.find((p) => p.id === playerId);
         if (currentPlayer) {
           setPlayerScores(currentPlayer.scores);

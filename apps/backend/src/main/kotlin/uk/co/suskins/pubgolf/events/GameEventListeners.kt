@@ -71,4 +71,9 @@ class GameLoggingListener {
     fun onEventEnded(event: EventEndedEvent) {
         logger.info("Event ended for game ${event.gameCode.value}")
     }
+
+    @EventListener
+    fun onCourseUpdated(event: CourseUpdatedEvent) {
+        logger.info("Course updated for game ${event.gameCode.value} with routes ${event.routeNames}")
+    }
 }

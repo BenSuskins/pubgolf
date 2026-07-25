@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { AnimatePresence } from 'framer-motion';
-import { getGameState, getRoutes, getRoute } from '@/lib/api';
+import { getGameState, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';
@@ -19,12 +19,8 @@ import { Player, GameState } from '@/lib/types';
 import { firstUnplayedHole, playerParRelative } from '@/lib/scoring';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
-// Fallback while /api/v1/config/routes loads; keep in sync with the backend Routes config.
-const DEFAULT_PARS = [1, 3, 2, 2, 2, 2, 4, 1, 1];
-
 export default function GamePage() {
   const [committedGameState, setCommittedGameState] = useState<GameState | null>(null);
-  const [pars, setPars] = useState<number[]>(DEFAULT_PARS);
   const [gameCode, setGameCode] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,6 +39,8 @@ export default function GamePage() {
   const status = committedGameState?.status || 'ACTIVE';
   const hostPlayerId = committedGameState?.hostPlayerId || null;
   const activeEvent = committedGameState?.activeEvent || null;
+  // The course comes with game state, so a host's par edit re-ranks the board live.
+  const pars = (committedGameState?.holes ?? []).map((hole) => hole.par);
 
   const handleGameStateUpdate = useCallback((state: GameState) => {
     setCommittedGameState(state);
@@ -119,12 +117,6 @@ export default function GamePage() {
       window.removeEventListener('focus', refreshIfVisible);
     };
   }, [fetchGame]);
-
-  useEffect(() => {
-    getRoutes()
-      .then((response) => setPars(response.holes.map((hole) => hole.par)))
-      .catch((err) => console.warn('Could not load par data, using defaults:', err));
-  }, []);
 
   useEffect(() => {
     const queuedEventId = getQueuedEventId();

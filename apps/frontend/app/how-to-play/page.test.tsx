@@ -16,9 +16,27 @@ const mockGetRoutes = mock(() => Promise.resolve({
   ]
 }));
 
+const mockGetGameState = mock(() => Promise.resolve({
+  holes: [
+    { hole: 1, par: 4, drinks: { 'Ale Trail': 'Guinness' } }
+  ]
+}));
+
 mock.module('@/lib/api', () => ({
   getPenaltyOptions: mockGetPenaltyOptions,
   getRoutes: mockGetRoutes,
+  getGameState: mockGetGameState,
+}));
+
+// No stored game by default, so the page falls back to the default course.
+const mockGetGameCode = mock<() => string | null>(() => null);
+mock.module('@/hooks/useLocalStorage', () => ({
+  useLocalStorage: () => ({
+    getGameCode: mockGetGameCode,
+    getPlayerId: () => null,
+    setGameSession: () => {},
+    clearSession: () => {},
+  }),
 }));
 
 mock.module('next/navigation', () => ({
@@ -40,6 +58,10 @@ describe('HowToPlayPage', () => {
         { hole: 1, par: 1, drinks: { 'Route A': 'Beer', 'Route B': 'Wine' } }
       ]
     }));
+    mockGetPenaltyOptions.mockClear();
+    mockGetRoutes.mockClear();
+    mockGetGameState.mockClear();
+    mockGetGameCode.mockImplementation(() => null);
   });
 
   describe('loading states', () => {
@@ -108,6 +130,28 @@ describe('HowToPlayPage', () => {
       render(<HowToPlayPage />);
 
       expect(screen.getByText(/finish your drink in as few sips/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('game course', () => {
+    test("should render the game's own course when in a game", async () => {
+      mockGetGameCode.mockImplementation(() => 'ACE007');
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Guinness')).toBeInTheDocument();
+      });
+      expect(mockGetGameState).toHaveBeenCalledWith('ACE007');
+      expect(mockGetRoutes).not.toHaveBeenCalled();
+    });
+
+    test('should fall back to the default course when not in a game', async () => {
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Route A')).toBeInTheDocument();
+      });
+      expect(mockGetGameState).not.toHaveBeenCalled();
     });
   });
 

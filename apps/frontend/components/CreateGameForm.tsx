@@ -12,7 +12,6 @@ export function CreateGameForm() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [addPubRoute, setAddPubRoute] = useState(false);
   const router = useRouter();
   const { setGameSession } = useLocalStorage();
 
@@ -29,7 +28,7 @@ export function CreateGameForm() {
     try {
       const response = await createGame(name.trim());
       setGameSession(response.gameCode, response.playerId);
-      router.push(addPubRoute ? '/game/route' : '/game');
+      router.push('/game');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create game');
     } finally {
@@ -49,34 +48,6 @@ export function CreateGameForm() {
         disabled={loading}
         fullWidth
       />
-
-      <div className="flex items-center justify-between py-1">
-        <div>
-          <div className="text-sm font-semibold text-[var(--color-text)]">Add route map</div>
-          <div className="text-xs text-[var(--color-text-muted)] mt-0.5">
-            Show pub order to players
-          </div>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={addPubRoute}
-          aria-label="Add route map"
-          disabled={loading}
-          onClick={() => setAddPubRoute(!addPubRoute)}
-          className={`w-11 h-[26px] rounded-full relative transition-colors shrink-0 ${
-            addPubRoute ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-border-subtle)]'
-          }`}
-        >
-          <span
-            className={`w-5 h-5 rounded-full absolute top-[3px] transition-all ${
-              addPubRoute
-                ? 'left-[21px] bg-[var(--color-ink)]'
-                : 'left-[3px] bg-[var(--color-text-secondary)]'
-            }`}
-          />
-        </button>
-      </div>
 
       {error && <ErrorMessage message={error} variant="inline" />}
       <Button

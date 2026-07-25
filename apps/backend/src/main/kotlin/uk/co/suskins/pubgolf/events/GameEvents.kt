@@ -65,3 +65,9 @@ data class EventEndedEvent(
     override val gameCode: GameCode,
     override val timestamp: Instant = Instant.now(),
 ) : GameEvent
+
+data class CourseUpdatedEvent(
+    override val gameCode: GameCode,
+    val routeNames: List<String>,
+    override val timestamp: Instant = Instant.now(),
+) : GameEvent

@@ -9,6 +9,7 @@ import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.peek
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import uk.co.suskins.pubgolf.events.CourseUpdatedEvent
 import uk.co.suskins.pubgolf.events.EventActivatedEvent
 import uk.co.suskins.pubgolf.events.EventEndedEvent
 import uk.co.suskins.pubgolf.events.GameCompletedEvent
@@ -20,6 +21,7 @@ import uk.co.suskins.pubgolf.events.ScoreSubmittedEvent
 import uk.co.suskins.pubgolf.models.ActiveEvent
 import uk.co.suskins.pubgolf.models.ActiveEventState
 import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
+import uk.co.suskins.pubgolf.models.CourseHole
 import uk.co.suskins.pubgolf.models.DuplicateGameCodeFailure
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
@@ -31,6 +33,7 @@ import uk.co.suskins.pubgolf.models.GameEvent
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.InvalidCourseFailure
 import uk.co.suskins.pubgolf.models.JoinResult
 import uk.co.suskins.pubgolf.models.NoHolesLeftFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
@@ -51,6 +54,11 @@ import java.time.Instant
 
 private const val CREATE_GAME_ATTEMPTS = 5
 private const val CONCURRENT_MODIFICATION_ATTEMPTS = 3
+private const val MIN_PAR = 1
+private const val MAX_PAR = 10
+private const val MAX_ROUTES = 4
+private const val MAX_ROUTE_NAME_LENGTH = 40
+private const val MAX_DRINK_LENGTH = 100
 
 @Service
 class GameService(
@@ -297,6 +305,99 @@ class GameService(
                     }
                 }
         }
+
+    // Replaces the whole course. Pars feed par-relative ranking, so an edit mid-game
+    // re-ranks the leaderboard as soon as the new state is broadcast.
+    fun setCourse(
+        gameCode: GameCode,
+        playerId: PlayerId,
+        holes: List<CourseHole>,
+    ): Result<Game, PubGolfFailure> =
+        retryOnConcurrentModification {
+            validateCourse(holes)
+                .flatMap { gameRepository.findByCodeIgnoreCase(gameCode) }
+                .flatMap { isNotCompleted(it, "Cannot change the course of a completed game") }
+                .flatMap { isHost(it, playerId, "change drinks and pars") }
+                .flatMap { game ->
+                    val course = normaliseCourse(holes)
+                    gameRepository
+                        .save(game.copy(holes = course))
+                        .peek { updatedGame ->
+                            eventPublisher.publishEvent(CourseUpdatedEvent(updatedGame.code, routeNames(course)))
+                            eventPublisher.publishEvent(GameStateChangedEvent(updatedGame.code, updatedGame))
+                        }
+                }
+        }
+
+    private fun validateCourse(holes: List<CourseHole>): Result<List<CourseHole>, PubGolfFailure> {
+        val expectedHoles = (1..GameConstants.MAX_HOLES).map { Hole(it) }
+        if (holes.map { it.hole }.sortedBy { it.value } != expectedHoles) {
+            return Failure(InvalidCourseFailure("Each hole from 1 to ${GameConstants.MAX_HOLES} must be set exactly once"))
+        }
+        holes.firstOrNull { it.par < MIN_PAR || it.par > MAX_PAR }?.let {
+            return Failure(InvalidCourseFailure("Par for hole ${it.hole.value} must be between $MIN_PAR and $MAX_PAR"))
+        }
+
+        val routes = routeNames(holes)
+        if (routes.isEmpty() || routes.size > MAX_ROUTES) {
+            return Failure(InvalidCourseFailure("A course needs between 1 and $MAX_ROUTES routes"))
+        }
+        if (routes.any { it.isBlank() }) {
+            return Failure(InvalidCourseFailure("Route names must not be blank"))
+        }
+        routes.firstOrNull { it.trim().length > MAX_ROUTE_NAME_LENGTH }?.let {
+            return Failure(InvalidCourseFailure("Route name `$it` must be $MAX_ROUTE_NAME_LENGTH characters or fewer"))
+        }
+        if (routes.map { it.trim().lowercase() }.distinct().size != routes.size) {
+            return Failure(InvalidCourseFailure("Route names must be unique"))
+        }
+
+        val trimmedRoutes = routes.map { it.trim() }
+        val expectedRoutes = trimmedRoutes.toSet()
+        holes.forEach { hole ->
+            // Set comparison: a hole may list its routes in any order, and normaliseCourse
+            // then rewrites every hole into the order hole 1 declared.
+            val holeRoutes =
+                hole.drinks.keys
+                    .map { it.trim() }
+                    .toSet()
+            if (hole.drinks.size != trimmedRoutes.size || holeRoutes != expectedRoutes) {
+                return Failure(InvalidCourseFailure("Hole ${hole.hole.value} must have a drink for every route"))
+            }
+            hole.drinks.forEach { (route, drink) ->
+                if (drink.isBlank()) {
+                    return Failure(InvalidCourseFailure("Drink for hole ${hole.hole.value} on `$route` must not be blank"))
+                }
+                if (drink.trim().length > MAX_DRINK_LENGTH) {
+                    return Failure(
+                        InvalidCourseFailure("Drink for hole ${hole.hole.value} on `$route` must be $MAX_DRINK_LENGTH characters or fewer"),
+                    )
+                }
+            }
+        }
+
+        return Success(holes)
+    }
+
+    // Sorts by hole and trims names so stored key order is the display order for every hole.
+    private fun normaliseCourse(holes: List<CourseHole>): List<CourseHole> {
+        val routes = routeNames(holes).map { it.trim() }
+        return holes
+            .sortedBy { it.hole.value }
+            .map { hole ->
+                val trimmed = hole.drinks.entries.associate { (route, drink) -> route.trim() to drink.trim() }
+                hole.copy(drinks = routes.associateWith { trimmed.getValue(it) })
+            }
+    }
+
+    // Route order comes from the lowest-numbered hole; every hole is validated to match it.
+    private fun routeNames(holes: List<CourseHole>): List<String> =
+        holes
+            .minByOrNull { it.hole.value }
+            ?.drinks
+            ?.keys
+            ?.toList()
+            .orEmpty()
 
     private fun hasNoActiveEvent(game: Game): Result<Game, PubGolfFailure> =
         if (game.activeEvent != null) {

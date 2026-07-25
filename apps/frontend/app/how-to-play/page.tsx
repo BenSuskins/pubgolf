@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { RULES } from '@/lib/constants';
-import { getPenaltyOptions, getRoutes, PenaltyOption } from '@/lib/api';
+import { getPenaltyOptions, getRoutes, getGameState, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { BackButton } from './BackButton';
 import { RoutesTable } from '@/components/RoutesTable';
 import { Card } from '@/components/ui/Card';
@@ -72,6 +73,7 @@ export default function HowToPlayPage() {
   const [isRoutesLoading, setIsRoutesLoading] = useState(true);
   const [penaltiesError, setPenaltiesError] = useState(false);
   const [routesError, setRoutesError] = useState(false);
+  const { getGameCode } = useLocalStorage();
 
   useEffect(() => {
     getPenaltyOptions()
@@ -79,11 +81,18 @@ export default function HowToPlayPage() {
       .catch(() => setPenaltiesError(true))
       .finally(() => setIsPenaltiesLoading(false));
 
-    getRoutes()
-      .then((response) => setHoles(response.holes))
+    // In a game, show that game's course (the host can have customised it);
+    // otherwise fall back to the default course.
+    const gameCode = getGameCode();
+    const course = gameCode
+      ? getGameState(gameCode).then((state) => state.holes)
+      : getRoutes().then((response) => response.holes);
+
+    course
+      .then(setHoles)
       .catch(() => setRoutesError(true))
       .finally(() => setIsRoutesLoading(false));
-  }, []);
+  }, [getGameCode]);
 
   return (
     <main className="p-5 py-6">

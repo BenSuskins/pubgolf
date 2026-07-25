@@ -120,6 +120,112 @@
         } ]
       }
     },
+    "/api/v1/games/{gameCode}/holes" : {
+      "put" : {
+        "tags" : [ "game-controller" ],
+        "operationId" : "setHoles-oU5FXdQ",
+        "parameters" : [ {
+          "name" : "gameCode",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "PubGolf-Player-Id",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SetHolesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Course set for the game (replaces any existing drinks and pars)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStateResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid argument",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid player ID header",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Not the host or not in this game",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Game, player or event not found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict with the game's current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "PlayerIdHeader" : [ ]
+        } ]
+      }
+    },
     "/api/v1/games/{gameCode}/active-event" : {
       "put" : {
         "tags" : [ "game-controller" ],
@@ -1346,15 +1452,43 @@
         },
         "required" : [ "message" ]
       },
-      "SetActiveEventRequest" : {
+      "CourseHoleDto" : {
         "type" : "object",
         "properties" : {
-          "eventId" : {
-            "type" : "string",
-            "minLength" : 1
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 9,
+            "minimum" : 1
+          },
+          "par" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 10,
+            "minimum" : 1
+          },
+          "drinks" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "eventId" ]
+        "required" : [ "drinks", "hole", "par" ]
+      },
+      "SetHolesRequest" : {
+        "type" : "object",
+        "properties" : {
+          "holes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CourseHoleDto"
+            },
+            "maxItems" : 9,
+            "minItems" : 9
+          }
+        },
+        "required" : [ "holes" ]
       },
       "ActiveEventResponse" : {
         "type" : "object",
@@ -1401,9 +1535,35 @@
           },
           "activeEvent" : {
             "$ref" : "#/components/schemas/ActiveEventResponse"
+          },
+          "holes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/HoleResponse"
+            }
           }
         },
-        "required" : [ "gameCode", "gameId", "players", "status" ]
+        "required" : [ "gameCode", "gameId", "holes", "players", "status" ]
+      },
+      "HoleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hole" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "par" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "drinks" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "drinks", "hole", "par" ]
       },
       "PenaltyResponse" : {
         "type" : "object",
@@ -1480,6 +1640,16 @@
           }
         },
         "required" : [ "value" ]
+      },
+      "SetActiveEventRequest" : {
+        "type" : "object",
+        "properties" : {
+          "eventId" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "eventId" ]
       },
       "SetCustomActiveEventRequest" : {
         "type" : "object",
@@ -1694,26 +1864,6 @@
             "$ref" : "#/components/schemas/ActiveEventResponse"
           }
         }
-      },
-      "HoleResponse" : {
-        "type" : "object",
-        "properties" : {
-          "hole" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "par" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "drinks" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          }
-        },
-        "required" : [ "drinks", "hole", "par" ]
       },
       "RoutesResponse" : {
         "type" : "object",

@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import { STORAGE_KEYS } from '@/hooks/useLocalStorage';
-import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RoutesResponse, GameEvent, ActiveEvent, PlaceSearchResult, Pub, RouteData } from './types';
+import { CreateGameResponse, JoinGameResponse, GameState, PenaltyType, RouteHole, RoutesResponse, GameEvent, ActiveEvent, PlaceSearchResult, Pub, RouteData } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
 const FETCH_TIMEOUT_MS = 15_000;
@@ -267,6 +267,16 @@ export async function setPubs(
 
 export async function getRoute(gameCode: string): Promise<RouteData> {
   return request(gamePath(gameCode, '/route'));
+}
+
+// Replaces the game's whole course. Returns the updated state, which is also
+// broadcast to every connected player.
+export async function setHoles(
+  gameCode: string,
+  playerId: string,
+  holes: RouteHole[]
+): Promise<GameState> {
+  return request(gamePath(gameCode, '/holes'), { method: 'PUT', body: { holes }, playerId });
 }
 
 export { ApiError };

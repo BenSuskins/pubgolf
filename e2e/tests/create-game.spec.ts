@@ -25,13 +25,18 @@ test.describe('Create Game', () => {
     await expect(page).toHaveURL('/');
   });
 
-  test('route map toggle leads to the route builder page', async ({ page }) => {
+  test('route map is set up from the host panel', async ({ page }) => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('RouteHost');
-    await page.getByRole('switch', { name: 'Add route map' }).click();
     await page.getByRole('button', { name: 'Tee Off' }).click();
+
+    await expect(page).toHaveURL('/game');
+    await expect(page.getByRole('switch', { name: 'Add route map' })).toHaveCount(0);
+
+    await page.getByRole('link', { name: 'Host Panel' }).click();
+    await page.getByRole('link', { name: 'Set up route map' }).click();
 
     await expect(page).toHaveURL('/game/route');
     await expect(page.getByRole('heading', { name: 'Add Route Map' })).toBeVisible();
