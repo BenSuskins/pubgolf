@@ -12,20 +12,25 @@ import dev.forkhandles.result4k.valueOrNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
+import uk.co.suskins.pubgolf.events.CourseUpdatedEvent
 import uk.co.suskins.pubgolf.events.GameEventCaptor
+import uk.co.suskins.pubgolf.events.GameStateChangedEvent
 import uk.co.suskins.pubgolf.models.ActiveEvent
 import uk.co.suskins.pubgolf.models.ConcurrentModificationFailure
+import uk.co.suskins.pubgolf.models.CourseHole
 import uk.co.suskins.pubgolf.models.DuplicateGameCodeFailure
 import uk.co.suskins.pubgolf.models.EventAlreadyActiveFailure
 import uk.co.suskins.pubgolf.models.EventNotFoundFailure
 import uk.co.suskins.pubgolf.models.Game
 import uk.co.suskins.pubgolf.models.GameAlreadyCompletedFailure
 import uk.co.suskins.pubgolf.models.GameCode
+import uk.co.suskins.pubgolf.models.GameConstants
 import uk.co.suskins.pubgolf.models.GameEvent
 import uk.co.suskins.pubgolf.models.GameId
 import uk.co.suskins.pubgolf.models.GameNotFoundFailure
 import uk.co.suskins.pubgolf.models.GameStatus
 import uk.co.suskins.pubgolf.models.Hole
+import uk.co.suskins.pubgolf.models.InvalidCourseFailure
 import uk.co.suskins.pubgolf.models.NoHolesLeftFailure
 import uk.co.suskins.pubgolf.models.NotHostPlayerFailure
 import uk.co.suskins.pubgolf.models.Player
@@ -34,7 +39,9 @@ import uk.co.suskins.pubgolf.models.PlayerId
 import uk.co.suskins.pubgolf.models.PlayerName
 import uk.co.suskins.pubgolf.models.PlayerNotFoundFailure
 import uk.co.suskins.pubgolf.models.PubGolfFailure
+import uk.co.suskins.pubgolf.models.Routes
 import uk.co.suskins.pubgolf.models.Score
+import uk.co.suskins.pubgolf.models.toGameStateResponse
 import uk.co.suskins.pubgolf.repository.GameRepository
 import uk.co.suskins.pubgolf.repository.GameRepositoryFake
 import java.time.Instant
@@ -817,6 +824,235 @@ class GameServiceTest {
         assertThat(result, isSuccess())
         assertTrue(gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!.hasPlayer("Megan"))
     }
+
+    @Test
+    fun `host can set drinks and pars`() {
+        val hostPlayer = hostGame()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course())
+
+        assertThat(result, isSuccess())
+        val updatedGame = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        assertThat(updatedGame.holes.size, equalTo(GameConstants.MAX_HOLES))
+        assertThat(updatedGame.par(Hole(1)), equalTo(2))
+        assertThat(updatedGame.holes.first().drinks, equalTo(mapOf("Ale Trail" to "Drink 1")))
+        assertThat(eventCaptor.getEventsOfType<CourseUpdatedEvent>().single().routeNames, equalTo(listOf("Ale Trail")))
+        assertTrue(eventCaptor.getEventsOfType<GameStateChangedEvent>().isNotEmpty())
+    }
+
+    @Test
+    fun `setting the course trims names and orders holes and routes consistently`() {
+        val hostPlayer = hostGame()
+        val jumbled =
+            course(routes = listOf(" Ale Trail ", "Spirit Run"))
+                .reversed()
+                .map { hole ->
+                    // Route order differs per hole on the wire; the saved course must not.
+                    if (hole.hole.value % 2 ==
+                        0
+                    ) {
+                        hole.copy(
+                            drinks =
+                                hole.drinks.entries
+                                    .reversed()
+                                    .associate { it.key to it.value },
+                        )
+                    } else {
+                        hole
+                    }
+                }
+
+        val result = service.setCourse(gameCode, hostPlayer.id, jumbled)
+
+        assertThat(result, isSuccess())
+        val saved = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!.holes
+        assertThat(saved.map { it.hole.value }, equalTo((1..GameConstants.MAX_HOLES).toList()))
+        saved.forEach { hole ->
+            assertThat(hole.drinks.keys.toList(), equalTo(listOf("Ale Trail", "Spirit Run")))
+        }
+    }
+
+    @Test
+    fun `par relative uses the game's own pars`() {
+        val hostPlayer = hostGame()
+        service.setCourse(gameCode, hostPlayer.id, course())
+        service.submitScore(gameCode, hostPlayer.id, Hole(1), Score(3))
+
+        val response = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!.toGameStateResponse()
+
+        // Par 2 on the custom course where the default course has par 1.
+        assertThat(response.players.first().parRelative, equalTo(1))
+        assertThat(response.holes.first().par, equalTo(2))
+    }
+
+    @Test
+    fun `game state falls back to the default course until the host edits it`() {
+        hostGame()
+
+        val response = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!.toGameStateResponse()
+
+        assertThat(response.holes.size, equalTo(GameConstants.MAX_HOLES))
+        assertThat(response.holes.first().par, equalTo(Routes.holes.first().par))
+        assertThat(response.holes.first().drinks, equalTo(Routes.holes.first().drinks))
+    }
+
+    @Test
+    fun `only the host can set drinks and pars`() {
+        hostGame()
+        val otherPlayer = Player(PlayerId.random(), PlayerName("Megan"))
+        val game = gameRepository.findByCodeIgnoreCase(gameCode).valueOrNull()!!
+        gameRepository.save(game.copy(players = game.players + otherPlayer))
+
+        val result = service.setCourse(gameCode, otherPlayer.id, course())
+
+        assertThat(result, isFailure(NotHostPlayerFailure("Only the host can change drinks and pars")))
+    }
+
+    @Test
+    fun `cannot set drinks and pars on a completed game`() {
+        val hostPlayer = hostGame(status = GameStatus.COMPLETED)
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course())
+
+        assertThat(result, isFailure(GameAlreadyCompletedFailure("Cannot change the course of a completed game")))
+    }
+
+    @Test
+    fun `cannot set a course with a missing hole`() {
+        val hostPlayer = hostGame()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course().drop(1))
+
+        assertThat(result, isFailure(InvalidCourseFailure("Each hole from 1 to 9 must be set exactly once")))
+    }
+
+    @Test
+    fun `cannot set a course with a duplicated hole`() {
+        val hostPlayer = hostGame()
+        val holes = course()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, holes.dropLast(1) + holes.first())
+
+        assertThat(result, isFailure(InvalidCourseFailure("Each hole from 1 to 9 must be set exactly once")))
+    }
+
+    @Test
+    fun `cannot set a par outside the allowed range`() {
+        val hostPlayer = hostGame()
+        val holes = course().map { if (it.hole == Hole(4)) it.copy(par = 11) else it }
+
+        val result = service.setCourse(gameCode, hostPlayer.id, holes)
+
+        assertThat(result, isFailure(InvalidCourseFailure("Par for hole 4 must be between 1 and 10")))
+    }
+
+    @Test
+    fun `cannot set a course with no routes`() {
+        val hostPlayer = hostGame()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course(routes = emptyList()))
+
+        assertThat(result, isFailure(InvalidCourseFailure("A course needs between 1 and 4 routes")))
+    }
+
+    @Test
+    fun `cannot set a course with too many routes`() {
+        val hostPlayer = hostGame()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course(routes = listOf("A", "B", "C", "D", "E")))
+
+        assertThat(result, isFailure(InvalidCourseFailure("A course needs between 1 and 4 routes")))
+    }
+
+    @Test
+    fun `cannot set a blank route name`() {
+        val hostPlayer = hostGame()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course(routes = listOf("  ")))
+
+        assertThat(result, isFailure(InvalidCourseFailure("Route names must not be blank")))
+    }
+
+    @Test
+    fun `cannot set duplicate route names`() {
+        val hostPlayer = hostGame()
+        val holes =
+            (1..GameConstants.MAX_HOLES).map { hole ->
+                // Same name in different cases still collides once trimmed and lowercased.
+                CourseHole(Hole(hole), 2, mapOf("Ale Trail" to "Drink $hole", "ale trail " to "Drink $hole"))
+            }
+
+        val result = service.setCourse(gameCode, hostPlayer.id, holes)
+
+        assertThat(result, isFailure(InvalidCourseFailure("Route names must be unique")))
+    }
+
+    @Test
+    fun `cannot set a route name that is too long`() {
+        val hostPlayer = hostGame()
+
+        val result = service.setCourse(gameCode, hostPlayer.id, course(routes = listOf("R".repeat(41))))
+
+        assertThat(result.failureOrNull() is InvalidCourseFailure, equalTo(true))
+    }
+
+    @Test
+    fun `cannot set a hole that is missing a route`() {
+        val hostPlayer = hostGame()
+        val holes =
+            course(routes = listOf("Ale Trail", "Spirit Run"))
+                .map { if (it.hole == Hole(7)) it.copy(drinks = mapOf("Ale Trail" to "Guinness")) else it }
+
+        val result = service.setCourse(gameCode, hostPlayer.id, holes)
+
+        assertThat(result, isFailure(InvalidCourseFailure("Hole 7 must have a drink for every route")))
+    }
+
+    @Test
+    fun `cannot set a blank drink`() {
+        val hostPlayer = hostGame()
+        val holes = course().map { if (it.hole == Hole(3)) it.copy(drinks = mapOf("Ale Trail" to " ")) else it }
+
+        val result = service.setCourse(gameCode, hostPlayer.id, holes)
+
+        assertThat(result, isFailure(InvalidCourseFailure("Drink for hole 3 on `Ale Trail` must not be blank")))
+    }
+
+    @Test
+    fun `cannot set a drink that is too long`() {
+        val hostPlayer = hostGame()
+        val holes = course().map { if (it.hole == Hole(3)) it.copy(drinks = mapOf("Ale Trail" to "D".repeat(101))) else it }
+
+        val result = service.setCourse(gameCode, hostPlayer.id, holes)
+
+        assertThat(result.failureOrNull() is InvalidCourseFailure, equalTo(true))
+    }
+
+    @Test
+    fun `cannot set drinks and pars for a game that doesn't exist`() {
+        val result = service.setCourse(gameCode, PlayerId.random(), course())
+
+        assertThat(result, isFailure(GameNotFoundFailure("Game `ACE007` not found.")))
+    }
+
+    private fun hostGame(status: GameStatus = GameStatus.ACTIVE): Player {
+        val hostPlayer = Player(PlayerId.random(), host)
+        gameRepository.save(
+            Game(
+                id = GameId.random(),
+                code = gameCode,
+                players = listOf(hostPlayer),
+                status = status,
+                hostPlayerId = hostPlayer.id,
+            ),
+        )
+        return hostPlayer
+    }
+
+    private fun course(routes: List<String> = listOf("Ale Trail")): List<CourseHole> =
+        (1..GameConstants.MAX_HOLES).map { hole ->
+            CourseHole(Hole(hole), 2, routes.associateWith { "Drink $hole" })
+        }
 
     @Test
     fun `gives up after repeated concurrent modification failures`() {

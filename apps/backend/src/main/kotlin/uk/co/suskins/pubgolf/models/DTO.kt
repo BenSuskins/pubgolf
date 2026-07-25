@@ -49,6 +49,8 @@ data class GameStateResponse(
     val hostPlayerId: PlayerId?,
     val players: List<PlayerResponse>,
     val activeEvent: ActiveEventResponse?,
+    // The game's own course: the host's customisation, or the default course if never edited.
+    val holes: List<HoleResponse>,
 )
 
 data class RandomiseResponse(
@@ -171,6 +173,23 @@ data class RouteGeometryResponse(
 data class RouteResponse(
     val pubs: List<PubLocationResponse>,
     val route: RouteGeometryResponse?,
+)
+
+data class CourseHoleDto(
+    @field:Min(value = 1, message = "Hole must be between 1 and 9")
+    @field:Max(value = 9, message = "Hole must be between 1 and 9")
+    val hole: Int,
+    @field:Min(value = 1, message = "Par must be between 1 and 10")
+    @field:Max(value = 10, message = "Par must be between 1 and 10")
+    val par: Int,
+    // Route name to drink. Key order sets the display order and must match across holes.
+    val drinks: Map<String, String>,
+)
+
+data class SetHolesRequest(
+    @field:Size(min = 9, max = 9, message = "Exactly 9 holes are required")
+    @field:Valid
+    val holes: List<CourseHoleDto>,
 )
 
 data class UpdateGameStatusRequest(

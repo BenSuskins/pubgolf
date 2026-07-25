@@ -50,6 +50,8 @@ export interface GameState {
   hostPlayerId: string | null;
   players: Player[];
   activeEvent: ActiveEvent | null;
+  /** The game's own course — the host's drinks/pars, or the defaults if never edited. */
+  holes: RouteHole[];
 }
 
 export interface CreateGameResponse {

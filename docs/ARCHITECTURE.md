@@ -29,7 +29,7 @@ flowchart LR
 
 | Component | Responsibility | Location |
 |-----------|----------------|----------|
-| REST controllers | HTTP endpoints for game lifecycle, scoring, randomise, pubs | `apps/backend/src/main/kotlin/uk/co/suskins/pubgolf/controller` |
+| REST controllers | HTTP endpoints for game lifecycle, scoring, randomise, pubs, course | `apps/backend/src/main/kotlin/uk/co/suskins/pubgolf/controller` |
 | Services | Business logic, returns `Result<T, PubGolfFailure>` | `apps/backend/src/main/kotlin/uk/co/suskins/pubgolf/service` |
 | Repositories | Data access interfaces + JPA adapters | `apps/backend/src/main/kotlin/uk/co/suskins/pubgolf/repository` |
 | Domain models | `Game`, `Player`, `Score`, `Pub`, etc. | `apps/backend/src/main/kotlin/uk/co/suskins/pubgolf/models/Domain.kt` |
@@ -97,6 +97,7 @@ sequenceDiagram
 erDiagram
     GAME ||--o{ PLAYER : has
     GAME ||--o{ PUB : visits
+    GAME ||--o{ COURSE_HOLE : "drinks & pars"
     PLAYER ||--o{ SCORE : records
     PLAYER ||--o{ PENALTY : incurs
     PLAYER ||--o| RANDOMISE : "current twist"
@@ -124,13 +125,20 @@ erDiagram
         int order
         string name
     }
+    COURSE_HOLE {
+        Hole hole
+        int par
+        map drinks
+    }
     RANDOMISE {
         Hole hole
         Outcomes result
     }
 ```
 
-`Game` is the aggregate root: it owns its `Player`s, the `Pub` route, and the active twist.
+`Game` is the aggregate root: it owns its `Player`s, the `Pub` route, its course (drinks and
+pars per hole, set by the host) and the active twist. A game with no saved course falls back to
+the default in `Routes`, so par-relative ranking and the course view always resolve.
 Scores are a `Map<Hole, ScoreWithTimestamp>` per player, initialised to zero for every hole
 up to `GameConstants.MAX_HOLES`.
 

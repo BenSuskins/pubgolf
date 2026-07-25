@@ -56,6 +56,9 @@ data class GameEntity(
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_id")
     val pubs: MutableList<PubEntity> = mutableListOf(),
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "game_id")
+    val holes: MutableList<GameHoleEntity> = mutableListOf(),
 ) {
     fun addPlayer(playerEntity: PlayerEntity) {
         this.players.add(playerEntity)
@@ -63,6 +66,10 @@ data class GameEntity(
 
     fun addPub(pubEntity: PubEntity) {
         this.pubs.add(pubEntity)
+    }
+
+    fun addHole(gameHoleEntity: GameHoleEntity) {
+        this.holes.add(gameHoleEntity)
     }
 }
 
@@ -182,6 +189,40 @@ data class PubEntity(
     val longitude: Double,
 )
 
+@Embeddable
+data class GameHoleId(
+    @Column(name = "game_id")
+    val gameId: UUID = UUID.randomUUID(),
+    @Column(name = "hole")
+    val hole: Int = 0,
+) : Serializable
+
+@Entity
+@Table(name = "game_holes")
+data class GameHoleEntity(
+    @EmbeddedId
+    val id: GameHoleId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("gameId")
+    @JoinColumn(name = "game_id", nullable = false)
+    val game: GameEntity,
+    @Column(name = "par", nullable = false)
+    val par: Int,
+    // JSON object of route name to drink; key order is the display order of the routes.
+    @Column(name = "drinks", nullable = false)
+    val drinks: String,
+)
+
+fun GameHoleEntity.toDomain(): CourseHole =
+    CourseHole(
+        hole = Hole(id.hole),
+        par = par,
+        drinks = parseDrinks(drinks),
+    )
+
+private fun parseDrinks(stored: String): Map<String, String> =
+    runCatching { drinksMapper.readValue<LinkedHashMap<String, String>>(stored) }.getOrDefault(emptyMap())
+
 fun GameEntity.toDomain(): Game =
     Game(
         id = GameId(id),
@@ -242,10 +283,15 @@ fun GameEntity.toDomain(): Game =
             pubs
                 .sortedBy { it.id.hole }
                 .map { it.toDomain() },
+        holes =
+            holes
+                .sortedBy { it.id.hole }
+                .map { it.toDomain() },
         routeGeometry = routeGeometry?.let { parseRouteGeometry(it) },
     )
 
 private val routeGeometryMapper = jacksonObjectMapper()
+private val drinksMapper = jacksonObjectMapper()
 
 // Stored as JSON; rows written before V9-era code used "LineString:lng,lat;lng,lat".
 private fun parseRouteGeometry(stored: String): RouteGeometry? =
