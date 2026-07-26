@@ -6,6 +6,7 @@ import { getPenaltyOptions, getRoutes, getGameState, PenaltyOption } from '@/lib
 import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { BackButton } from './BackButton';
+import { FREQUENTLY_ASKED_QUESTIONS } from './faq';
 import { RoutesTable } from '@/components/RoutesTable';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
@@ -106,10 +107,12 @@ export default function HowToPlayPage() {
         </div>
         <div className="text-center">
           <Typography variant="display" className="mb-3 text-4xl">
-            The Rules
+            How to Play Pub Golf
           </Typography>
           <Typography as="p" color="secondary" className="max-w-md mx-auto text-[13.5px] leading-relaxed">
-            Drink at each hole, match or beat the par. Lowest score wins. Simple.
+            Pub golf turns your pub crawl into a round of golf: every pub is a hole with a
+            set drink and a par. Drink at each hole, match or beat the par in sips. Lowest
+            score wins. Simple.
           </Typography>
         </div>
 
@@ -158,6 +161,24 @@ export default function HowToPlayPage() {
           ) : (
             <RoutesTable holes={holes} />
           )}
+        </Card>
+
+        <Card as="section" padding="lg" rounded="lg">
+          <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-3.5">
+            Pub Golf FAQ
+          </h2>
+          <dl className="space-y-4">
+            {FREQUENTLY_ASKED_QUESTIONS.map((faq) => (
+              <div key={faq.question}>
+                <dt className="text-[var(--color-text)] font-bold text-[13.5px] mb-1">
+                  {faq.question}
+                </dt>
+                <dd className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
+                  {faq.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
       </div>

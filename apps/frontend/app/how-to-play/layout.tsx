@@ -1,15 +1,44 @@
 import type { Metadata } from "next";
+import { FREQUENTLY_ASKED_QUESTIONS } from "./faq";
 
 export const metadata: Metadata = {
-  title: "How to Play Pub Golf - Rules & Scoring",
+  title: {
+    absolute: "How to Play Pub Golf — Rules, Scoring & Penalties",
+  },
   description:
-    "Learn the rules of Pub Golf. 9 holes, 9 drinks, beat the par at each stop. Complete guide to scoring, penalties, and the drink course.",
+    "The complete pub golf rules: how scoring works, what to drink at each hole, penalties, and the course. Learn how to play, then host a free round for your pub crawl.",
+  alternates: {
+    canonical: "/how-to-play",
+  },
 };
+
+// Static, compile-time FAQ content; "<" is escaped as recommended for JSON-LD
+// so the payload can never terminate the script element early.
+const faqJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FREQUENTLY_ASKED_QUESTIONS.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+}).replace(/</g, "\\u003c");
 
 export default function HowToPlayLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: faqJsonLd }}
+      />
+      {children}
+    </>
+  );
 }
