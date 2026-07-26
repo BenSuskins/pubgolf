@@ -1,111 +1,20 @@
-'use client';
-
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Link from 'next/link';
-import { CreateGameForm } from '@/components/CreateGameForm';
-import { JoinGameForm } from '@/components/JoinGameForm';
 import { GolfBallLogo } from '@/components/GolfBallLogo';
-import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { Card } from '@/components/ui/Card';
-import { getGameState, ApiError } from '@/lib/api';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { HomeGameEntry } from '@/components/HomeGameEntry';
 
-type Mode = 'host' | 'join';
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
 
-function ResumeBanner() {
-  const [resumeCode, setResumeCode] = useState<string | null>(null);
-  const { getGameCode, getPlayerId, clearSession } = useLocalStorage();
-
-  useEffect(() => {
-    const code = getGameCode();
-    const playerId = getPlayerId();
-    if (!code || !playerId) return;
-
-    let cancelled = false;
-    getGameState(code)
-      .then((state) => {
-        if (cancelled) return;
-        const stillInGame = state.players.some((player) => player.id === playerId);
-        if (state.status === 'ACTIVE' && stillInGame) {
-          setResumeCode(state.gameCode);
-        } else if (!stillInGame) {
-          clearSession();
-        }
-      })
-      .catch((err) => {
-        if (!cancelled && err instanceof ApiError && err.status === 404) {
-          clearSession();
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [getGameCode, getPlayerId, clearSession]);
-
-  if (!resumeCode) return null;
-
+function GameEntryFallback() {
   return (
-    <Link
-      href="/game"
-      className="block glass rounded-[14px] px-4 py-3 text-center border border-[var(--color-border-gold)] hover:bg-[var(--color-surface-hover)] transition-colors"
-    >
-      <span className="text-[13px] text-[var(--color-text-secondary)]">You&apos;re in round </span>
-      <span className="font-display text-[15px] tracking-[0.06em] text-[var(--color-accent)]">
-        {resumeCode.toUpperCase()}
-      </span>
-      <span className="text-[13px] text-[var(--color-text-secondary)]"> — resume →</span>
-    </Link>
-  );
-}
-
-function HomeContent() {
-  const searchParams = useSearchParams();
-  const hasGameCode = searchParams.get('gameCode');
-  const [mode, setMode] = useState<Mode>(hasGameCode ? 'join' : 'host');
-
-  return (
-    <div className="w-full max-w-md space-y-5">
-      <div className="text-center pt-6">
-        <GolfBallLogo size={72} className="mx-auto mb-4" />
-        <h1 className="font-display text-[52px] leading-[0.95] text-[var(--color-text)]">
-          PUB
-          <br />
-          GOLF
-        </h1>
-        <div className="flex items-center justify-center gap-2.5 mt-3.5">
-          <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
-          <span className="eyebrow text-[var(--color-text-secondary)]">
-            9 Holes · 9 Rounds · 1 Champion
-          </span>
-          <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
-        </div>
-      </div>
-
-      <ResumeBanner />
-
-      <SegmentedControl<Mode>
-        ariaLabel="Host or join a round"
-        value={mode}
-        onChange={setMode}
-        options={[
-          { value: 'host', label: 'Host a Round' },
-          { value: 'join', label: 'Join a Round' },
-        ]}
-      />
-
-      <Card as="section" padding="lg" rounded="xl">
-        {mode === 'host' ? <CreateGameForm /> : <JoinGameForm />}
-      </Card>
-
-      <div className="text-center">
-        <Link
-          href="/how-to-play"
-          className="text-[13px] text-[var(--color-text-muted)] border-b border-dashed border-[var(--color-border-subtle)] pb-0.5 hover:text-[var(--color-text-secondary)] transition-colors"
-        >
-          First time? Learn the rules
-        </Link>
-      </div>
+    <div className="space-y-5" role="status" aria-label="Loading game options">
+      <div className="h-11 rounded-[14px] bg-[var(--color-border)] animate-pulse" />
+      <div className="h-64 rounded-2xl bg-[var(--color-border)] animate-pulse" />
     </div>
   );
 }
@@ -113,13 +22,78 @@ function HomeContent() {
 export default function HomePage() {
   return (
     <section className="min-h-full flex flex-col items-center justify-start bg-ambient p-6 pb-12">
-      <Suspense
-        fallback={
-          <div className="text-[var(--color-text-secondary)] animate-pulse">Loading...</div>
-        }
-      >
-        <HomeContent />
-      </Suspense>
+      <div className="w-full max-w-md space-y-5">
+        <div className="text-center pt-6">
+          <GolfBallLogo size={72} className="mx-auto mb-4" />
+          <h1 className="font-display text-[52px] leading-[0.95] text-[var(--color-text)]">
+            PUB
+            <br />
+            GOLF
+          </h1>
+          <div className="flex items-center justify-center gap-2.5 mt-3.5">
+            <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
+            <p className="eyebrow text-[var(--color-text-secondary)]">
+              9 Holes · 9 Drinks · 1 Champion
+            </p>
+            <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
+          </div>
+        </div>
+
+        <Suspense fallback={<GameEntryFallback />}>
+          <HomeGameEntry />
+        </Suspense>
+
+        <div className="text-center">
+          <Link
+            href="/how-to-play"
+            className="text-[13px] text-[var(--color-text-muted)] border-b border-dashed border-[var(--color-border-subtle)] pb-0.5 hover:text-[var(--color-text-secondary)] transition-colors"
+          >
+            First time? Learn the rules
+          </Link>
+        </div>
+
+        <section className="pt-8 space-y-6 text-center">
+          <div>
+            <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-2">
+              What is Pub Golf?
+            </h2>
+            <p className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
+              Pub golf is a drinking game played like a round of golf across your favourite
+              pubs. Each pub is a hole with a set drink and a par — finish your drink in
+              fewer sips than par to go under. Lowest score at the end of the crawl wins.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-2">
+              A free pub golf score tracker
+            </h2>
+            <p className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
+              Host a round, share the game code, and everyone submits their sips from their
+              own phone. The live leaderboard keeps score across all nine holes — no paper
+              scorecard, no sign-up, and nothing to download.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-2">
+              Built for your pub crawl
+            </h2>
+            <p className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
+              Customise the course and drinks for your route, add penalties for
+              rule-breakers, and spin the randomiser when someone needs a surprise. Perfect
+              for birthdays, stag and hen dos, or any night out.{' '}
+              <Link
+                href="/how-to-play"
+                className="text-[var(--color-text-muted)] underline decoration-dashed underline-offset-4 hover:text-[var(--color-text-secondary)] transition-colors"
+              >
+                Read the full pub golf rules
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
+      </div>
     </section>
   );
 }

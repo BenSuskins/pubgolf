@@ -18,8 +18,12 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pubgolf.me"),
-  title: "Pub Golf",
-  description: "9 Holes. 9 Drinks. 1 Champion.",
+  title: {
+    default: "Pub Golf — Free Score Tracker for Your Pub Crawl",
+    template: "%s | Pub Golf",
+  },
+  description:
+    "Free pub golf score tracker. Host a round, share the game code, and track every sip on a live leaderboard across nine holes. No sign-up, nothing to download.",
   keywords: [
     "pub golf",
     "bar golf",
@@ -28,29 +32,24 @@ export const metadata: Metadata = {
     "bar crawl",
     "pub golf app",
     "pub golf scorecard",
+    "pub golf score tracker",
+    "pub golf rules",
   ],
   authors: [{ name: "Ben Suskins" }],
   openGraph: {
-    title: "Pub Golf",
-    description: "9 Holes. 9 Drinks. 1 Champion.",
+    title: "Pub Golf — Free Score Tracker for Your Pub Crawl",
+    description:
+      "Host a round, share the game code, and track every sip on a live leaderboard. 9 Holes. 9 Drinks. 1 Champion.",
     url: "https://pubgolf.me",
     siteName: "Pub Golf",
     type: "website",
     locale: "en_GB",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Pub Golf - 9 Holes. 9 Drinks. 1 Champion.",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pub Golf",
-    description: "9 Holes. 9 Drinks. 1 Champion.",
-    images: ["/og-image.png"],
+    title: "Pub Golf — Free Score Tracker for Your Pub Crawl",
+    description:
+      "Host a round, share the game code, and track every sip on a live leaderboard. 9 Holes. 9 Drinks. 1 Champion.",
   },
   appleWebApp: {
     capable: true,
@@ -90,7 +89,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               name: "Pub Golf",
-              description: "9 Holes. 9 Drinks. 1 Champion.",
+              description:
+                "Free pub golf score tracker. Host a round, share the game code, and track every sip on a live leaderboard across nine holes.",
               url: "https://pubgolf.me",
               applicationCategory: "GameApplication",
               operatingSystem: "Any",

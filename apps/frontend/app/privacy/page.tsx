@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Pub Golf",
+  title: "Privacy Policy",
   description:
     "Privacy policy for Pub Golf. Learn what data we collect, how we use it, and your rights under UK GDPR.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {
