@@ -93,6 +93,52 @@ function PencilIcon() {
   );
 }
 
+interface ParStepperProps {
+  hole: number;
+  par: number;
+  onChange: (par: number) => void;
+  disabled: boolean;
+}
+
+/**
+ * Par is a stepper rather than a number field: a 34px-wide input was a fiddly tap target,
+ * and every edit opened the numeric keyboard over the very list being edited. Stepping
+ * also keeps par inside MIN_PAR..MAX_PAR by construction instead of at save time.
+ */
+function ParStepper({ hole, par, onChange, disabled }: ParStepperProps) {
+  const buttonClasses =
+    'flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg)] text-sm leading-none text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] disabled:opacity-40';
+
+  return (
+    <div className="flex items-center gap-1" role="group" aria-label={`Hole ${hole} par`}>
+      <button
+        type="button"
+        onClick={() => onChange(par - 1)}
+        disabled={disabled || par <= MIN_PAR}
+        aria-label={`Decrease hole ${hole} par`}
+        className={buttonClasses}
+      >
+        <span aria-hidden="true">−</span>
+      </button>
+      <span
+        className="w-4 text-center text-xs font-bold text-[var(--color-accent)]"
+        aria-live="polite"
+      >
+        {par}
+      </span>
+      <button
+        type="button"
+        onClick={() => onChange(par + 1)}
+        disabled={disabled || par >= MAX_PAR}
+        aria-label={`Increase hole ${hole} par`}
+        className={buttonClasses}
+      >
+        <span aria-hidden="true">+</span>
+      </button>
+    </div>
+  );
+}
+
 export function CourseEditor({ holes, onSave, disabled = false }: CourseEditorProps) {
   const initial = useMemo(() => toDraft(holes), [holes]);
   // The draft deliberately survives incoming game-state updates so an edit in
@@ -150,9 +196,10 @@ export function CourseEditor({ holes, onSave, disabled = false }: CourseEditorPr
   };
 
   const setPar = (holeIndex: number, par: number) => {
+    const clamped = Math.min(MAX_PAR, Math.max(MIN_PAR, par));
     update({
       ...draft,
-      holes: draft.holes.map((hole, i) => (i === holeIndex ? { ...hole, par } : hole)),
+      holes: draft.holes.map((hole, i) => (i === holeIndex ? { ...hole, par: clamped } : hole)),
     });
   };
 
@@ -279,17 +326,17 @@ export function CourseEditor({ holes, onSave, disabled = false }: CourseEditorPr
           )}
         </div>
 
-        <div className="grid grid-cols-[16px_1fr_34px] gap-x-2.5 border-b border-[var(--color-border)] pb-1.5 text-[9.5px] uppercase tracking-[0.05em] text-[var(--color-text-faint)]">
+        <div className="grid grid-cols-[16px_1fr_88px] gap-x-2.5 border-b border-[var(--color-border)] pb-1.5 text-[9.5px] uppercase tracking-[0.05em] text-[var(--color-text-faint)]">
           <span />
           <span className="text-[var(--color-accent)]">{selectedRouteName} — drink names</span>
-          <span className="text-right text-[var(--color-accent)]">Par</span>
+          <span className="text-center text-[var(--color-accent)]">Par</span>
         </div>
 
         <ul className="flex-1 overflow-y-auto">
           {draft.holes.map((hole, holeIndex) => (
             <li
               key={hole.hole}
-              className="grid grid-cols-[16px_1fr_34px] items-center gap-x-2.5 border-b border-[var(--color-border-subtle)]/60 py-1.5 last:border-b-0"
+              className="grid grid-cols-[16px_1fr_88px] items-center gap-x-2.5 border-b border-[var(--color-border-subtle)]/60 py-1.5 last:border-b-0"
             >
               <span className="font-display text-xs text-[var(--color-primary)]" aria-hidden="true">
                 {hole.hole}
@@ -303,15 +350,11 @@ export function CourseEditor({ holes, onSave, disabled = false }: CourseEditorPr
                 aria-label={`Hole ${hole.hole} drink on ${selectedRouteName || `route ${selectedRoute + 1}`}`}
                 className="min-w-0 border-none bg-transparent py-1 text-xs text-[var(--color-text-secondary)] placeholder:text-[var(--color-text-faint)] focus:outline-none focus:text-[var(--color-text)] disabled:opacity-60"
               />
-              <input
-                type="number"
-                min={MIN_PAR}
-                max={MAX_PAR}
-                value={hole.par}
-                onChange={(e) => setPar(holeIndex, Number(e.target.value))}
+              <ParStepper
+                hole={hole.hole}
+                par={hole.par}
+                onChange={(par) => setPar(holeIndex, par)}
                 disabled={busy}
-                aria-label={`Hole ${hole.hole} par`}
-                className="w-full border-none bg-transparent py-1 text-right text-xs font-bold text-[var(--color-accent)] [appearance:textfield] focus:outline-none disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </li>
           ))}

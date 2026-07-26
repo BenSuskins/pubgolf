@@ -7,6 +7,12 @@ import { useEffect, useRef, type RefObject } from 'react';
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+// Fields that pop the on-screen keyboard the moment they take focus. A dialog never
+// auto-focuses one - on a phone that covers half the sheet before the user has decided
+// to type - so focus lands on the dialog surface instead and typing starts on a tap.
+const TEXT_ENTRY_SELECTOR =
+  'textarea, input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"])';
+
 interface UseDialogDismissOptions {
   /** Called on Escape and on a click that lands on the backdrop itself. */
   onDismiss: () => void;
@@ -34,15 +40,25 @@ export function useDialogDismiss<Container extends HTMLElement = HTMLDivElement>
 }: UseDialogDismissOptions): UseDialogDismissResult<Container> {
   const containerRef = useRef<Container>(null);
 
+  // Mount only: re-running this on every render would yank focus back out of whatever
+  // the user is typing in, since callers pass inline `onDismiss` closures.
   useEffect(() => {
-    const focusables = () =>
-      Array.from(containerRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []);
+    const firstFocusable = containerRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
 
     if (initialFocusRef?.current) {
       initialFocusRef.current.focus();
+    } else if (firstFocusable && !firstFocusable.matches(TEXT_ENTRY_SELECTOR)) {
+      firstFocusable.focus();
     } else {
-      focusables()[0]?.focus();
+      // Needs tabindex="-1" on the surface, which every dialog here sets.
+      containerRef.current?.focus();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const focusables = () =>
+      Array.from(containerRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? []);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -56,7 +72,11 @@ export function useDialogDismiss<Container extends HTMLElement = HTMLDivElement>
       const first = elements[0];
       const last = elements[elements.length - 1];
 
-      if (event.shiftKey && document.activeElement === first) {
+      // Shift+Tab off the surface itself wraps to the end, same as off the first element.
+      const atStart =
+        document.activeElement === first || document.activeElement === containerRef.current;
+
+      if (event.shiftKey && atStart) {
         event.preventDefault();
         last?.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
@@ -67,7 +87,7 @@ export function useDialogDismiss<Container extends HTMLElement = HTMLDivElement>
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onDismiss, locked, initialFocusRef]);
+  }, [onDismiss, locked]);
 
   const onBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget && !locked) {

@@ -133,6 +133,66 @@ describe('HowToPlayPage', () => {
     });
   });
 
+  describe('route rule', () => {
+    test('should use generic wording before the course loads', () => {
+      mockGetRoutes.mockImplementation(() => new Promise(() => {}));
+      render(<HowToPlayPage />);
+
+      expect(
+        screen.getByText('Pick your route at the start. No switching mid-game.')
+      ).toBeInTheDocument();
+    });
+
+    test("should name the course's routes once loaded", async () => {
+      mockGetRoutes.mockImplementation(() => Promise.resolve({
+        holes: [
+          {
+            hole: 1,
+            par: 1,
+            drinks: {
+              'Ale Trail': 'Beer',
+              'Spirit Run': 'Vodka',
+              'Wine Walk': 'Merlot',
+              'Soft Stroll': 'Lemonade',
+            },
+          },
+        ],
+      }));
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            'Pick Ale Trail, Spirit Run, Wine Walk, or Soft Stroll at the start. No switching mid-game.'
+          )
+        ).toBeInTheDocument();
+      });
+    });
+
+    test('should drop the choice when the course has one route', async () => {
+      mockGetGameCode.mockImplementation(() => 'ACE007');
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Everyone plays Ale Trail. One route, no switching mid-game.')
+        ).toBeInTheDocument();
+      });
+    });
+
+    test('should keep generic wording when the course fails to load', async () => {
+      mockGetRoutes.mockImplementation(() => Promise.reject(new Error('Network error')));
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Skip')).toBeInTheDocument();
+      });
+      expect(
+        screen.getByText('Pick your route at the start. No switching mid-game.')
+      ).toBeInTheDocument();
+    });
+  });
+
   describe('game course', () => {
     test("should render the game's own course when in a game", async () => {
       mockGetGameCode.mockImplementation(() => 'ACE007');

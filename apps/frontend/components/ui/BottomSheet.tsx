@@ -51,6 +51,9 @@ export function BottomSheet({
     >
       <motion.div
         ref={containerRef}
+        // Focus target on open, so the sheet is announced without a text field grabbing
+        // focus and opening the keyboard.
+        tabIndex={-1}
         variants={slideFromBottomVariants}
         initial="initial"
         animate="animate"
