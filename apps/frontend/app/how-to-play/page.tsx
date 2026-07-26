@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { RULES } from '@/lib/constants';
+import { buildRules } from '@/lib/constants';
 import { getPenaltyOptions, getRoutes, getGameState, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -75,6 +75,10 @@ export default function HowToPlayPage() {
   const [routesError, setRoutesError] = useState(false);
   const { getGameCode } = useLocalStorage();
 
+  // Route names come from the course itself, so the rules name the host's
+  // routes. Before the course loads this falls back to generic wording.
+  const rules = buildRules(holes.length > 0 ? Object.keys(holes[0].drinks) : []);
+
   useEffect(() => {
     getPenaltyOptions()
       .then((response) => setPenalties(response.penalties))
@@ -112,7 +116,7 @@ export default function HowToPlayPage() {
         <Card as="section" padding="lg" rounded="lg">
           <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-3.5">How It Works</h2>
           <ol className="space-y-3 mb-6">
-            {RULES.map((rule, index) => (
+            {rules.map((rule, index) => (
               <li key={index} className="flex gap-2.5 text-[13.5px] leading-normal text-[var(--color-text-secondary)]">
                 <span className="font-display text-sm text-[var(--color-primary)]">{index + 1}</span>
                 <span>{rule}</span>

@@ -65,6 +65,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: "#0d1410",
+  // iOS Safari zooms the page in whenever a focused field's text is under 16px, which
+  // this app's compact inputs (the inline course editor especially) are by design.
+  // Capping the scale stops that lurch on focus; pinch-to-zoom is still a user gesture
+  // iOS honours, and user-scalable stays on for assistive zoom settings.
+  maximumScale: 1,
+  userScalable: true,
 };
 
 export default function RootLayout({
