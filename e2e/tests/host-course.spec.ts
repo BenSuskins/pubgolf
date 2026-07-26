@@ -1,6 +1,13 @@
 import { test, expect } from '../fixtures/test-fixtures';
 import type { Page } from '@playwright/test';
 
+/** The par stepper's current value, scoped inside the stepper's own group. */
+function parValue(page: Page, hole: number, par: number) {
+  return page
+    .getByRole('group', { name: `Hole ${hole} par` })
+    .getByText(String(par), { exact: true });
+}
+
 /** The panel opens on Events; course setup lives behind the second tab. */
 async function openCourseTab(page: Page) {
   await page.getByRole('button', { name: 'Course' }).click();
@@ -29,7 +36,12 @@ test.describe('Host Course Editing', () => {
     await expect(firstDrink).toHaveValue('Tequila');
 
     await firstDrink.fill('Espresso Martini');
-    await page.getByLabel('Hole 1 par').fill('4');
+    // Par steps up rather than being typed: hole 1 starts at par 1.
+    const stepUp = page.getByRole('button', { name: 'Increase hole 1 par' });
+    await stepUp.click();
+    await stepUp.click();
+    await stepUp.click();
+    await expect(parValue(page, 1, 4)).toBeVisible();
     await page.getByRole('button', { name: 'SAVE COURSE' }).click();
 
     await expect(page.getByText('Saved — all players updated')).toBeVisible();
@@ -60,14 +72,14 @@ test.describe('Host Course Editing', () => {
     await openCourseTab(page);
 
     await expect(page.getByLabel('Hole 1 drink on Route A')).toHaveValue('Tequila');
-    await expect(page.getByLabel('Hole 1 par')).toHaveValue('1');
+    await expect(parValue(page, 1, 1)).toBeVisible();
 
     await page.getByRole('button', { name: 'Route B', exact: true }).click();
 
     await expect(page.getByLabel('Hole 1 drink on Route B')).toHaveValue('Sambuca');
     await expect(page.getByLabel('Hole 1 drink on Route A')).toHaveCount(0);
     // Par is game-level state, so it is the same whichever route is shown.
-    await expect(page.getByLabel('Hole 1 par')).toHaveValue('1');
+    await expect(parValue(page, 1, 1)).toBeVisible();
   });
 
   test('host can rename a route by tapping the selected chip again', async ({

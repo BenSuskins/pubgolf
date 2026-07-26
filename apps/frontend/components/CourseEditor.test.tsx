@@ -11,6 +11,13 @@ const holes: RouteHole[] = [
 
 const save = () => screen.getByRole('button', { name: 'SAVE COURSE' });
 
+/** The par stepper reads as a group; its value is the text inside. */
+const par = (hole: number) => screen.getByRole('group', { name: `Hole ${hole} par` });
+const stepUp = (hole: number) =>
+  screen.getByRole('button', { name: `Increase hole ${hole} par` });
+const stepDown = (hole: number) =>
+  screen.getByRole('button', { name: `Decrease hole ${hole} par` });
+
 /** Tap a chip to view that route; tap the selected one again to rename it. */
 async function selectRoute(user: ReturnType<typeof userEvent.setup>, name: string) {
   await user.click(screen.getByRole('button', { name }));
@@ -37,7 +44,7 @@ describe('CourseEditor', () => {
 
       expect(screen.getByLabelText('Hole 1 drink on Route A')).toHaveValue('Tequila');
       expect(screen.getByLabelText('Hole 2 drink on Route A')).toHaveValue('Beer');
-      expect(screen.getByLabelText('Hole 2 par')).toHaveValue(3);
+      expect(par(2)).toHaveTextContent('3');
       // Only the selected route's column is shown.
       expect(screen.queryByLabelText('Hole 1 drink on Route B')).not.toBeInTheDocument();
     });
@@ -49,7 +56,7 @@ describe('CourseEditor', () => {
       await selectRoute(user, 'Route B');
 
       expect(screen.getByLabelText('Hole 1 drink on Route B')).toHaveValue('Sambuca');
-      expect(screen.getByLabelText('Hole 2 par')).toHaveValue(3);
+      expect(par(2)).toHaveTextContent('3');
       expect(screen.queryByLabelText('Hole 1 drink on Route A')).not.toBeInTheDocument();
     });
 
@@ -208,17 +215,50 @@ describe('CourseEditor', () => {
       expect(onSave).not.toHaveBeenCalled();
     });
 
-    test('should reject a par outside the allowed range', async () => {
+    test('should step par up and down and save the new value', async () => {
       const user = userEvent.setup();
       const onSave = mock(async () => {});
       render(<CourseEditor holes={holes} onSave={onSave} />);
 
-      await user.clear(screen.getByLabelText('Hole 1 par'));
-      await user.type(screen.getByLabelText('Hole 1 par'), '11');
+      await user.click(stepUp(1));
+      await user.click(stepUp(1));
+      await user.click(stepDown(2));
+      expect(par(1)).toHaveTextContent('3');
+      expect(par(2)).toHaveTextContent('2');
+
       await user.click(save());
 
-      expect(screen.getByText(/par for hole 1 must be between 1 and 10/i)).toBeInTheDocument();
-      expect(onSave).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledWith([
+          { hole: 1, par: 3, drinks: { 'Route A': 'Tequila', 'Route B': 'Sambuca' } },
+          { hole: 2, par: 2, drinks: { 'Route A': 'Beer', 'Route B': 'Vodka' } },
+        ]);
+      });
+    });
+
+    test('should stop stepping at the allowed range', async () => {
+      const user = userEvent.setup();
+      render(<CourseEditor holes={holes} onSave={mock(async () => {})} />);
+
+      // Hole 1 starts at the minimum par of 1.
+      expect(stepDown(1)).toBeDisabled();
+
+      for (let i = 0; i < 9; i++) {
+        await user.click(stepUp(1));
+      }
+
+      expect(par(1)).toHaveTextContent('10');
+      expect(stepUp(1)).toBeDisabled();
+    });
+
+    test('should leave par alone when a drink is edited', async () => {
+      const user = userEvent.setup();
+      render(<CourseEditor holes={holes} onSave={mock(async () => {})} />);
+
+      await user.clear(screen.getByLabelText('Hole 1 drink on Route A'));
+      await user.type(screen.getByLabelText('Hole 1 drink on Route A'), 'Cider');
+
+      expect(par(1)).toHaveTextContent('1');
     });
   });
 
