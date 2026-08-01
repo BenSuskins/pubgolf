@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { GolfBallLogo } from '@/components/GolfBallLogo';
 import { HomeGameEntry } from '@/components/HomeGameEntry';
+import { homeStructuredDataJson } from './homeStructuredData';
 
 export const metadata: Metadata = {
   alternates: {
@@ -22,6 +23,10 @@ function GameEntryFallback() {
 export default function HomePage() {
   return (
     <section className="min-h-full flex flex-col items-center justify-start bg-ambient p-6 pb-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: homeStructuredDataJson }}
+      />
       <div className="w-full max-w-md space-y-5">
         <div className="text-center pt-6">
           <GolfBallLogo size={72} className="mx-auto mb-4" />

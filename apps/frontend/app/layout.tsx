@@ -86,30 +86,6 @@ export default function RootLayout({
       <body
         className={`${anton.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col`}
       >
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "Pub Golf",
-              description:
-                "Free pub golf score tracker. Host a round, share the game code, and track every sip on a live leaderboard across nine holes.",
-              url: "https://pubgolf.me",
-              applicationCategory: "GameApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "GBP",
-              },
-              author: {
-                "@type": "Person",
-                name: "Ben Suskins",
-              },
-            }),
-          }}
-        />
         <main className="flex-1">{children}</main>
         <footer className="text-center space-y-1 py-4">
           <p className="text-[11px] text-[var(--color-text-faint)] space-x-1">
