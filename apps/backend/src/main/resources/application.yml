@@ -37,3 +37,9 @@ management:
   endpoint:
     prometheus:
       enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      maximum-expected-value:
+        http.server.requests: 5s
