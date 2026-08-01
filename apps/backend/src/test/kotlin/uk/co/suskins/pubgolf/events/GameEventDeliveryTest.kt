@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.test.context.ActiveProfiles
 import uk.co.suskins.pubgolf.models.PlayerName
+import uk.co.suskins.pubgolf.service.GameMetrics
 import uk.co.suskins.pubgolf.service.GameService
 import uk.co.suskins.pubgolf.service.GameStateBroadcasterFake
 import kotlin.test.assertTrue
@@ -53,16 +54,16 @@ class GameEventDeliveryTest {
 
     @Test
     fun `game lifecycle events reach the metrics listener`() {
-        val createdBefore = meterRegistry.find("pubgolf.game.created").counter()?.count() ?: 0.0
-        val joinedBefore = meterRegistry.find("pubgolf.player.joined").counter()?.count() ?: 0.0
+        val startedBefore = meterRegistry.find(GameMetrics.GAME_STARTED).counter()?.count() ?: 0.0
+        val joinedBefore = meterRegistry.find(GameMetrics.PLAYER_JOINED).counter()?.count() ?: 0.0
 
         val game = gameService.createGame(PlayerName("MetricsHost")).valueOrNull()!!
         gameService.joinGame(game.code, PlayerName("MetricsGuest"))
 
-        val createdAfter = meterRegistry.find("pubgolf.game.created").counter()?.count() ?: 0.0
-        val joinedAfter = meterRegistry.find("pubgolf.player.joined").counter()?.count() ?: 0.0
+        val startedAfter = meterRegistry.find(GameMetrics.GAME_STARTED).counter()?.count() ?: 0.0
+        val joinedAfter = meterRegistry.find(GameMetrics.PLAYER_JOINED).counter()?.count() ?: 0.0
 
-        assertTrue(createdAfter > createdBefore, "Expected pubgolf.game.created to increment")
-        assertTrue(joinedAfter > joinedBefore, "Expected pubgolf.player.joined to increment")
+        assertTrue(startedAfter > startedBefore, "Expected ${GameMetrics.GAME_STARTED} to increment")
+        assertTrue(joinedAfter > joinedBefore, "Expected ${GameMetrics.PLAYER_JOINED} to increment")
     }
 }
