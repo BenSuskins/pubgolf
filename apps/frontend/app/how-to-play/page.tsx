@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { buildRules } from '@/lib/constants';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { buildRules, isFromGame } from '@/lib/constants';
 import { getPenaltyOptions, getRoutes, getGameState, PenaltyOption } from '@/lib/api';
 import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -67,6 +67,24 @@ function RoutesTableSkeleton() {
   );
 }
 
+// The query string is fixed for the life of the page, so there is nothing to
+// subscribe to.
+const noSubscription = () => () => {};
+
+/**
+ * Whether the page was opened from a game. The marker lives in the URL, but
+ * reading it with useSearchParams would opt the whole page out of static
+ * prerendering — and these rules are a landing page for search engines. The
+ * server snapshot keeps the prerendered markup honest instead.
+ */
+function useFromGame(): boolean {
+  return useSyncExternalStore(
+    noSubscription,
+    () => isFromGame(window.location.search),
+    () => false
+  );
+}
+
 export default function HowToPlayPage() {
   const [penalties, setPenalties] = useState<PenaltyOption[]>([]);
   const [holes, setHoles] = useState<RouteHole[]>([]);
@@ -74,6 +92,7 @@ export default function HowToPlayPage() {
   const [isRoutesLoading, setIsRoutesLoading] = useState(true);
   const [penaltiesError, setPenaltiesError] = useState(false);
   const [routesError, setRoutesError] = useState(false);
+  const fromGame = useFromGame();
   const { getGameCode } = useLocalStorage();
 
   // Route names come from the course itself, so the rules name the host's
@@ -86,9 +105,13 @@ export default function HowToPlayPage() {
       .catch(() => setPenaltiesError(true))
       .finally(() => setIsPenaltiesLoading(false));
 
-    // In a game, show that game's course (the host can have customised it);
-    // otherwise fall back to the default course.
-    const gameCode = getGameCode();
+    // Opened from a game, show that game's course — the host can have
+    // customised it. Everywhere else, the home page or a search result, these
+    // are the general rules, so they show the default course even when this
+    // browser is still in a game. Read here rather than from the render above,
+    // which reports the server's snapshot until hydration finishes and would
+    // fetch the default course before switching.
+    const gameCode = isFromGame(window.location.search) ? getGameCode() : null;
     const course = gameCode
       ? getGameState(gameCode).then((state) => state.holes)
       : getRoutes().then((response) => response.holes);
@@ -103,7 +126,7 @@ export default function HowToPlayPage() {
     <main className="p-5 py-6">
       <div className="max-w-md mx-auto space-y-6">
         <div>
-          <BackButton />
+          <BackButton fromGame={fromGame} />
         </div>
         <div className="text-center">
           <Typography variant="display" className="mb-3 text-4xl">

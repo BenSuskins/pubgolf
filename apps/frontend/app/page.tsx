@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { GolfBallLogo } from '@/components/GolfBallLogo';
 import { HomeGameEntry } from '@/components/HomeGameEntry';
 import { homeStructuredDataJson } from './homeStructuredData';
+import { RULES_HREF } from '@/lib/constants';
 
 export const metadata: Metadata = {
   alternates: {
@@ -50,7 +51,7 @@ export default function HomePage() {
 
         <div className="text-center">
           <Link
-            href="/how-to-play"
+            href={RULES_HREF}
             className="text-[13px] text-[var(--color-text-muted)] border-b border-dashed border-[var(--color-border-subtle)] pb-0.5 hover:text-[var(--color-text-secondary)] transition-colors"
           >
             First time? Learn the rules
@@ -89,7 +90,7 @@ export default function HomePage() {
               rule-breakers, and spin the randomiser when someone needs a surprise. Perfect
               for birthdays, stag and hen dos, or any night out.{' '}
               <Link
-                href="/how-to-play"
+                href={RULES_HREF}
                 className="text-[var(--color-text-muted)] underline decoration-dashed underline-offset-4 hover:text-[var(--color-text-secondary)] transition-colors"
               >
                 Read the full pub golf rules

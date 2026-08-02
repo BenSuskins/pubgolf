@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { RULES, buildRules, routeRule } from './constants';
+import { RULES, buildRules, routeRule, isFromGame, GAME_RULES_HREF, RULES_HREF } from './constants';
 
 describe('RULES', () => {
   test('should export an array of 4 rules', () => {
@@ -76,5 +76,25 @@ describe('buildRules', () => {
     expect(rules[0]).toBe(RULES[0]);
     expect(rules[2]).toBe(RULES[2]);
     expect(rules[3]).toBe(RULES[3]);
+  });
+});
+
+describe('isFromGame', () => {
+  test('should recognise the in-game rules link', () => {
+    expect(isFromGame(new URL(`http://localhost${GAME_RULES_HREF}`).search)).toBe(true);
+  });
+
+  test('should reject the plain rules link', () => {
+    expect(isFromGame(new URL(`http://localhost${RULES_HREF}`).search)).toBe(false);
+    expect(isFromGame('')).toBe(false);
+  });
+
+  test('should reject other origins', () => {
+    expect(isFromGame('?from=home')).toBe(false);
+    expect(isFromGame('?game=true')).toBe(false);
+  });
+
+  test('should ignore unrelated query params', () => {
+    expect(isFromGame('?utm_source=x&from=game')).toBe(true);
   });
 });

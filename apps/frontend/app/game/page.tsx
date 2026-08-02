@@ -17,6 +17,7 @@ import { EventNotificationOverlay } from '@/components/EventNotificationOverlay'
 import { EventBanner } from '@/components/EventBanner';
 import { Player, GameState } from '@/lib/types';
 import { firstUnplayedHole, playerParRelative } from '@/lib/scoring';
+import { GAME_RULES_HREF } from '@/lib/constants';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 export default function GamePage() {
@@ -190,7 +191,7 @@ export default function GamePage() {
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href="/how-to-play"
+              href={GAME_RULES_HREF}
               className="flex items-center gap-1.5 h-11 px-3.5 rounded-[10px] bg-[var(--color-surface-inset)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-surface-hover)] transition-colors shrink-0"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">

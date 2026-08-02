@@ -46,9 +46,18 @@ test.describe('Host Course Editing', () => {
 
     await expect(page.getByText('Saved — all players updated')).toBeVisible();
 
-    // The rules page reads the game's course, not the global default.
-    await page.goto('/how-to-play');
+    // Opened from the game, the rules page reads that game's course rather
+    // than the global default.
+    await page.goto('/how-to-play?from=game');
     await expect(page.getByText('Espresso Martini')).toBeVisible();
+
+    // Opened from the home page it is the generic rules, so the default course
+    // shows even though this browser is still in a game.
+    await page.goto('/');
+    await page.getByRole('link', { name: /learn the rules/i }).click();
+    await expect(page.getByRole('heading', { name: /The Course/i })).toBeVisible();
+    await expect(page.getByText('Tequila')).toBeVisible();
+    await expect(page.getByText('Espresso Martini')).toHaveCount(0);
 
     // Par drives the log-score screen too.
     await page.goto('/submit-score');
@@ -105,7 +114,7 @@ test.describe('Host Course Editing', () => {
 
     await expect(page.getByText('Saved — all players updated')).toBeVisible();
 
-    await page.goto('/how-to-play');
+    await page.goto('/how-to-play?from=game');
     await expect(page.getByRole('columnheader', { name: 'Ale Trail' })).toBeVisible();
   });
 
@@ -139,7 +148,7 @@ test.describe('Host Course Editing', () => {
     await page.getByRole('button', { name: 'SAVE COURSE' }).click();
     await expect(page.getByText('Saved — all players updated')).toBeVisible();
 
-    await page.goto('/how-to-play');
+    await page.goto('/how-to-play?from=game');
     await expect(page.getByRole('columnheader', { name: 'Wine Walk' })).toBeVisible();
   });
 

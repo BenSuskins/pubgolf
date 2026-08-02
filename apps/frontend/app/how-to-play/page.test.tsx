@@ -45,8 +45,17 @@ mock.module('next/navigation', () => ({
   }),
 }));
 
+// The page reads the entry point off the URL rather than useSearchParams, so
+// the route keeps prerendering statically for search engines.
+function visit(search: string) {
+  (window as unknown as { happyDOM: { setURL: (url: string) => void } }).happyDOM.setURL(
+    `http://localhost:3000/how-to-play${search}`
+  );
+}
+
 describe('HowToPlayPage', () => {
   beforeEach(() => {
+    visit('');
     mockGetPenaltyOptions.mockImplementation(() => Promise.resolve({
       penalties: [
         { type: 'SKIP', name: 'Skip', points: 5 },
@@ -170,6 +179,7 @@ describe('HowToPlayPage', () => {
     });
 
     test('should drop the choice when the course has one route', async () => {
+      visit('?from=game');
       mockGetGameCode.mockImplementation(() => 'ACE007');
       render(<HowToPlayPage />);
 
@@ -194,7 +204,8 @@ describe('HowToPlayPage', () => {
   });
 
   describe('game course', () => {
-    test("should render the game's own course when in a game", async () => {
+    test("should render the game's own course when opened from the game", async () => {
+      visit('?from=game');
       mockGetGameCode.mockImplementation(() => 'ACE007');
       render(<HowToPlayPage />);
 
@@ -206,12 +217,46 @@ describe('HowToPlayPage', () => {
     });
 
     test('should fall back to the default course when not in a game', async () => {
+      visit('?from=game');
       render(<HowToPlayPage />);
 
       await waitFor(() => {
         expect(screen.getByText('Route A')).toBeInTheDocument();
       });
       expect(mockGetGameState).not.toHaveBeenCalled();
+    });
+
+    test('should show the default course when opened outside a game', async () => {
+      mockGetGameCode.mockImplementation(() => 'ACE007');
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Route A')).toBeInTheDocument();
+      });
+      expect(mockGetGameState).not.toHaveBeenCalled();
+      expect(mockGetRoutes).toHaveBeenCalled();
+    });
+  });
+
+  describe('back link', () => {
+    test('should go home when opened outside a game', () => {
+      mockGetGameCode.mockImplementation(() => 'ACE007');
+      render(<HowToPlayPage />);
+
+      const back = screen.getByRole('link', { name: /back to home/i });
+      expect(back).toHaveAttribute('href', '/');
+      expect(screen.queryByText(/back to scoreboard/i)).not.toBeInTheDocument();
+    });
+
+    test('should go back to the scoreboard when opened from the game', async () => {
+      visit('?from=game');
+      mockGetGameCode.mockImplementation(() => 'ACE007');
+      render(<HowToPlayPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /back to scoreboard/i })).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/back to home/i)).not.toBeInTheDocument();
     });
   });
 
