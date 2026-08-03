@@ -34,3 +34,18 @@ export function buildRules(routeNames: string[] = []): string[] {
 
 /** Generic rules, used before a course has loaded. */
 export const RULES = buildRules();
+
+/** The rules page, showing the default course everyone can read about. */
+export const RULES_HREF = '/how-to-play';
+
+/**
+ * The rules page as opened from inside a game. The marker is what unlocks the
+ * host's customised course: without it the page always shows the default one,
+ * so a stored game never bleeds into the rules read from the home page.
+ */
+export const GAME_RULES_HREF = `${RULES_HREF}?from=game`;
+
+/** Whether a location's query string came from the in-game rules link. */
+export function isFromGame(search: string): boolean {
+  return new URLSearchParams(search).get('from') === 'game';
+}

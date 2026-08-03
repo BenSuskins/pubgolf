@@ -36,4 +36,18 @@ test.describe('Routes on How To Play', () => {
     await expect(page.getByText('VK')).toBeVisible();
     await expect(page.getByText('Smirnoff Ice')).toBeVisible();
   });
+
+  test('back link returns home when not opened from a game', async ({ page }) => {
+    await page.goto('/how-to-play');
+
+    await page.getByRole('link', { name: /back to home/i }).click();
+
+    await expect(page).toHaveURL(/\/$/);
+  });
+
+  test('back link returns to the scoreboard when opened from a game', async ({ page }) => {
+    await page.goto('/how-to-play?from=game');
+
+    await expect(page.getByRole('button', { name: /back to scoreboard/i })).toBeVisible();
+  });
 });
