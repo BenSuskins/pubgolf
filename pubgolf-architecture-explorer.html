@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PubGolf Architecture Explorer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 250px 1fr 350px;
+      height: calc(100% - 200px);
+      gap: 1px;
+      background: #333;
+    }
+
+    .panel {
+      background: #2a2a2a;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .controls {
+      border-right: 1px solid #444;
+    }
+
+    .preview {
+      position: relative;
+      padding: 40px;
+      overflow: hidden;
+    }
+
+    .details {
+      border-left: 1px solid #444;
+    }
+
+    h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #4a9eff;
+    }
+
+    .control-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: #aaa;
+    }
+
+    select, input[type="range"], button {
+      width: 100%;
+      padding: 8px;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-size: 13px;
+    }
+
+    button {
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    .preset-btn {
+      background: #2a4a6a;
+    }
+
+    .preset-btn:hover {
+      background: #3a5a7a;
+    }
+
+    input[type="range"] {
+      padding: 0;
+    }
+
+    .range-value {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 12px;
+      color: #4a9eff;
+    }
+
+    #canvas {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: auto;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-width: 1200px;
+      min-height: 800px;
+    }
+
+    .node {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .node:hover rect,
+    .node:hover circle {
+      stroke-width: 3;
+      filter: brightness(1.2);
+    }
+
+    .node.selected rect,
+    .node.selected circle {
+      stroke: #4a9eff;
+      stroke-width: 3;
+    }
+
+    .node text {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .connection {
+      fill: none;
+      stroke: #555;
+      stroke-width: 2;
+      opacity: 0.6;
+    }
+
+    .connection.highlighted {
+      stroke: #4a9eff;
+      stroke-width: 3;
+      opacity: 1;
+    }
+
+    .layer-label {
+      font-size: 16px;
+      font-weight: 600;
+      fill: #888;
+    }
+
+    .detail-content {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .detail-content p {
+      margin-bottom: 12px;
+    }
+
+    .detail-content code {
+      background: #1a1a1a;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      color: #4a9eff;
+    }
+
+    .detail-content ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .detail-content li {
+      margin-bottom: 6px;
+    }
+
+    .interaction-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #444;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+
+    .ask-btn {
+      background: #2a6a4a;
+    }
+
+    .ask-btn:hover {
+      background: #3a7a5a;
+    }
+
+    .prompt-section {
+      background: #2a2a2a;
+      border-top: 1px solid #444;
+      padding: 20px;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    #prompt-output {
+      flex: 1;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e0e0e0;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    .copy-btn {
+      padding: 6px 16px;
+      width: auto;
+      background: #4a9eff;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+    }
+
+    .copy-btn:hover {
+      background: #5aaeff;
+    }
+
+    .copy-btn.copied {
+      background: #2a6a4a;
+    }
+
+    .checkbox-group {
+      margin-bottom: 12px;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel controls">
+      <h2>View Controls</h2>
+
+      <div class="control-group">
+        <label>Presets</label>
+        <button class="preset-btn" onclick="applyPreset('overview')">Full Overview</button>
+        <button class="preset-btn" onclick="applyPreset('backend')">Backend Focus</button>
+        <button class="preset-btn" onclick="applyPreset('frontend')">Frontend Focus</button>
+        <button class="preset-btn" onclick="applyPreset('dataflow')">Data Flow</button>
+        <button class="preset-btn" onclick="applyPreset('testing')">Testing Architecture</button>
+      </div>
+
+      <div class="control-group">
+        <label>Layer Visibility</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="show-frontend" checked onchange="updateAll()"> Frontend</label>
+          <label><input type="checkbox" id="show-backend" checked onchange="updateAll()"> Backend</label>
+          <label><input type="checkbox" id="show-database" checked onchange="updateAll()"> Database</label>
+          <label><input type="checkbox" id="show-e2e" checked onchange="updateAll()"> E2E Tests</label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Connection Visibility</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="show-rest" checked onchange="updateAll()"> REST API</label>
+          <label><input type="checkbox" id="show-websocket" checked onchange="updateAll()"> WebSocket</label>
+          <label><input type="checkbox" id="show-data" checked onchange="updateAll()"> Data Access</label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Zoom Level <span class="range-value" id="zoom-value">100%</span></label>
+        <input type="range" id="zoom" min="50" max="150" value="100" oninput="updateZoom(this.value)">
+      </div>
+    </div>
+
+    <div class="panel preview">
+      <div id="canvas"></div>
+    </div>
+
+    <div class="panel details">
+      <div id="detail-content">
+        <h3>Architecture Overview</h3>
+        <p style="font-size: 13px; line-height: 1.6; color: #aaa;">
+          Click on any component to view details and explore the architecture.
+          The pubgolf app is a full-stack real-time game platform built with Kotlin/Spring Boot backend and Next.js frontend.
+        </p>
+        <div style="margin-top: 20px; padding: 12px; background: #1a1a1a; border-radius: 4px;">
+          <p style="font-size: 12px; color: #888; margin-bottom: 8px;">Key Patterns:</p>
+          <ul style="font-size: 12px; color: #aaa; margin-left: 20px;">
+            <li>Result4k for error handling</li>
+            <li>Contract tests with Fakes</li>
+            <li>Domain-driven models</li>
+            <li>Real-time WebSocket updates</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-section">
+    <div class="prompt-header">
+      <h2>Generated Prompt</h2>
+      <button class="copy-btn" onclick="copyPrompt()">Copy to Clipboard</button>
+    </div>
+    <div id="prompt-output">Click on a component to generate a prompt about it...</div>
+  </div>
+
+  <script>
+    const state = {
+      selectedNode: null,
+      showFrontend: true,
+      showBackend: true,
+      showDatabase: true,
+      showE2E: true,
+      showREST: true,
+      showWebSocket: true,
+      showData: true,
+      zoom: 100,
+      userQuestion: ''
+    };
+
+    const nodes = {
+      // Frontend Layer
+      'frontend-pages': {
+        id: 'frontend-pages',
+        label: 'App Router\nPages',
+        x: 150,
+        y: 50,
+        layer: 'frontend',
+        color: '#4a7c9e',
+        shape: 'rect',
+        details: {
+          title: 'App Router Pages',
+          description: 'Next.js App Router pages for game UI',
+          files: ['app/page.tsx', 'app/game/[code]/page.tsx', 'app/randomise/page.tsx', 'app/submit-score/page.tsx'],
+          responsibilities: ['Game creation and joining', 'Live scoreboard display', 'Randomise wheel animation', 'Score submission forms'],
+          connections: ['Uses Components', 'Calls API Client', 'Connects via WebSocket']
+        }
+      },
+      'frontend-components': {
+        id: 'frontend-components',
+        label: 'React\nComponents',
+        x: 300,
+        y: 50,
+        layer: 'frontend',
+        color: '#4a7c9e',
+        shape: 'rect',
+        details: {
+          title: 'React Components',
+          description: 'Reusable UI components',
+          files: ['components/'],
+          responsibilities: ['UI presentation', 'User interaction handling', 'Accessibility'],
+          patterns: ['Composition pattern', 'Props-based configuration']
+        }
+      },
+      'frontend-hooks': {
+        id: 'frontend-hooks',
+        label: 'Custom\nHooks',
+        x: 450,
+        y: 50,
+        layer: 'frontend',
+        color: '#4a7c9e',
+        shape: 'rect',
+        details: {
+          title: 'Custom Hooks',
+          description: 'React hooks for state and side effects',
+          files: ['hooks/useGameWebSocket.ts', 'hooks/useLocalStorage.ts'],
+          responsibilities: ['WebSocket connection management', 'Local state persistence', 'Real-time game updates'],
+          patterns: ['Hook composition', 'Subscription management']
+        }
+      },
+      'frontend-api': {
+        id: 'frontend-api',
+        label: 'API Client',
+        x: 150,
+        y: 150,
+        layer: 'frontend',
+        color: '#5a8cae',
+        shape: 'rect',
+        details: {
+          title: 'API Client',
+          description: 'REST API communication layer',
+          files: ['lib/api.ts'],
+          responsibilities: ['HTTP request/response handling', 'Error handling', 'Type-safe API calls'],
+          env: 'NEXT_PUBLIC_API_URL (defaults to https://api.pubgolf.me)'
+        }
+      },
+      'frontend-websocket': {
+        id: 'frontend-websocket',
+        label: 'STOMP\nWebSocket',
+        x: 450,
+        y: 150,
+        layer: 'frontend',
+        color: '#5a8cae',
+        shape: 'rect',
+        details: {
+          title: 'STOMP WebSocket Client',
+          description: 'Real-time bidirectional communication',
+          library: '@stomp/stompjs',
+          responsibilities: ['Subscribe to game state updates', 'Receive live score changes', 'Handle connection lifecycle'],
+          patterns: ['Observer pattern', 'Event-driven updates']
+        }
+      },
+
+      // Backend Layer
+      'backend-controllers': {
+        id: 'backend-controllers',
+        label: 'REST\nControllers',
+        x: 150,
+        y: 300,
+        layer: 'backend',
+        color: '#7c4a9e',
+        shape: 'rect',
+        details: {
+          title: 'REST Controllers',
+          description: 'HTTP endpoint handlers',
+          files: ['controller/'],
+          responsibilities: ['Request validation', 'DTO mapping', 'HTTP response formatting'],
+          patterns: ['Result4k for error handling', 'Spring Boot REST conventions']
+        }
+      },
+      'backend-websocket-handler': {
+        id: 'backend-websocket-handler',
+        label: 'WebSocket\nHandler',
+        x: 450,
+        y: 300,
+        layer: 'backend',
+        color: '#7c4a9e',
+        shape: 'rect',
+        details: {
+          title: 'WebSocket Handler',
+          description: 'STOMP/WebSocket message broker',
+          files: ['config/WebSocketConfig.kt'],
+          responsibilities: ['STOMP endpoint configuration', 'Message routing', 'Connection management'],
+          tech: 'Spring WebSocket + STOMP'
+        }
+      },
+      'backend-services': {
+        id: 'backend-services',
+        label: 'Services\n(Business Logic)',
+        x: 300,
+        y: 400,
+        layer: 'backend',
+        color: '#8c5aae',
+        shape: 'rect',
+        details: {
+          title: 'Service Layer',
+          description: 'Core business logic with Result4k error handling',
+          files: ['service/GameService.kt', 'service/'],
+          responsibilities: ['Game state management', 'Score calculation', 'Validation rules', 'Broadcasting updates'],
+          patterns: ['Result<T, PubGolfFailure> return types', 'Functional error handling', 'Dependency injection']
+        }
+      },
+      'backend-models': {
+        id: 'backend-models',
+        label: 'Models\n(Domain/DTO/Entity)',
+        x: 150,
+        y: 500,
+        layer: 'backend',
+        color: '#9c6abe',
+        shape: 'rect',
+        details: {
+          title: 'Model Layer',
+          description: 'Separate Domain, DTO, and Entity representations',
+          files: ['models/Domain.kt', 'models/DTO.kt', 'models/Entity.kt', 'models/Types.kt'],
+          responsibilities: ['Domain models (Game, Player)', 'API DTOs for request/response', 'JPA entities for persistence', 'Type aliases and value classes'],
+          patterns: ['Domain-driven design', 'Clear layer separation']
+        }
+      },
+      'backend-repositories': {
+        id: 'backend-repositories',
+        label: 'Repository\nInterfaces',
+        x: 300,
+        y: 600,
+        layer: 'backend',
+        color: '#ac7ace',
+        shape: 'rect',
+        details: {
+          title: 'Repository Interfaces',
+          description: 'Data access abstraction with contract tests',
+          files: ['repository/'],
+          responsibilities: ['Data access interface', 'JPA implementation', 'Contract tests for behavior'],
+          patterns: ['Repository pattern', 'Interface segregation', 'Contract testing']
+        }
+      },
+      'backend-fakes': {
+        id: 'backend-fakes',
+        label: 'Test Fakes',
+        x: 500,
+        y: 600,
+        layer: 'backend',
+        color: '#6a9a4a',
+        shape: 'rect',
+        details: {
+          title: 'Test Fixtures (Fakes)',
+          description: 'In-memory implementations for testing',
+          files: ['testFixtures/GameRepositoryFake.kt', 'testFixtures/GameStateBroadcasterFake.kt'],
+          responsibilities: ['Fast test execution', 'Contract compliance', 'Deterministic behavior'],
+          patterns: ['Fake pattern (not mocks)', 'Contract test verification']
+        }
+      },
+      'backend-broadcaster': {
+        id: 'backend-broadcaster',
+        label: 'State\nBroadcaster',
+        x: 450,
+        y: 500,
+        layer: 'backend',
+        color: '#9c6abe',
+        shape: 'rect',
+        details: {
+          title: 'Game State Broadcaster',
+          description: 'Pushes real-time updates to connected clients',
+          files: ['service/GameStateBroadcaster.kt'],
+          responsibilities: ['Broadcast game state changes', 'Send updates via WebSocket', 'Notify all subscribers'],
+          patterns: ['Observer pattern', 'Event broadcasting']
+        }
+      },
+
+      // Database Layer
+      'database': {
+        id: 'database',
+        label: 'SQLite\nDatabase',
+        x: 300,
+        y: 720,
+        layer: 'database',
+        color: '#4a6a9e',
+        shape: 'cylinder',
+        details: {
+          title: 'SQLite Database',
+          description: 'Local development database',
+          file: 'apps/backend/pubgolf.db',
+          tech: ['SQLite', 'JPA/Hibernate', 'Flyway migrations'],
+          responsibilities: ['Persistent storage', 'ACID transactions', 'Schema versioning']
+        }
+      },
+
+      // E2E Layer
+      'e2e-tests': {
+        id: 'e2e-tests',
+        label: 'Playwright\nE2E Tests',
+        x: 600,
+        y: 150,
+        layer: 'e2e',
+        color: '#9e6a4a',
+        shape: 'rect',
+        details: {
+          title: 'End-to-End Tests',
+          description: 'Full user journey testing',
+          files: ['e2e/'],
+          responsibilities: ['User flow validation', 'Integration testing', 'Cross-browser testing'],
+          commands: ['make e2e', 'make e2e-ui (interactive mode)']
+        }
+      }
+    };
+
+    const connections = [
+      // Frontend to Backend REST
+      { from: 'frontend-api', to: 'backend-controllers', type: 'rest', label: 'HTTP REST' },
+      { from: 'frontend-pages', to: 'frontend-api', type: 'rest', label: 'uses' },
+
+      // Frontend to Backend WebSocket
+      { from: 'frontend-websocket', to: 'backend-websocket-handler', type: 'websocket', label: 'STOMP' },
+      { from: 'frontend-hooks', to: 'frontend-websocket', type: 'websocket', label: 'uses' },
+      { from: 'frontend-pages', to: 'frontend-hooks', type: 'websocket', label: 'uses' },
+
+      // Frontend internal
+      { from: 'frontend-pages', to: 'frontend-components', type: 'internal', label: 'uses' },
+
+      // Backend flow
+      { from: 'backend-controllers', to: 'backend-services', type: 'internal', label: 'calls' },
+      { from: 'backend-websocket-handler', to: 'backend-services', type: 'internal', label: 'calls' },
+      { from: 'backend-services', to: 'backend-models', type: 'internal', label: 'uses' },
+      { from: 'backend-services', to: 'backend-repositories', type: 'data', label: 'uses' },
+      { from: 'backend-services', to: 'backend-broadcaster', type: 'internal', label: 'triggers' },
+      { from: 'backend-broadcaster', to: 'backend-websocket-handler', type: 'websocket', label: 'sends via' },
+
+      // Data access
+      { from: 'backend-repositories', to: 'database', type: 'data', label: 'JPA' },
+
+      // Testing
+      { from: 'backend-fakes', to: 'backend-repositories', type: 'internal', label: 'implements' },
+      { from: 'e2e-tests', to: 'frontend-pages', type: 'test', label: 'tests' },
+      { from: 'e2e-tests', to: 'backend-controllers', type: 'test', label: 'tests' }
+    ];
+
+    function drawArchitecture() {
+      const canvas = document.getElementById('canvas');
+      const zoom = state.zoom / 100;
+
+      let svg = `<svg viewBox="0 0 800 800" style="transform: scale(${zoom})">`;
+
+      // Draw layer labels
+      if (state.showFrontend) {
+        svg += `<text x="10" y="30" class="layer-label">Frontend (Next.js)</text>`;
+      }
+      if (state.showBackend) {
+        svg += `<text x="10" y="280" class="layer-label">Backend (Kotlin/Spring Boot)</text>`;
+      }
+      if (state.showDatabase) {
+        svg += `<text x="10" y="700" class="layer-label">Database</text>`;
+      }
+      if (state.showE2E) {
+        svg += `<text x="580" y="30" class="layer-label">E2E</text>`;
+      }
+
+      // Draw connections first (so they appear behind nodes)
+      connections.forEach(conn => {
+        const from = nodes[conn.from];
+        const to = nodes[conn.to];
+
+        // Check visibility
+        if (!shouldShowNode(from) || !shouldShowNode(to)) return;
+        if (!shouldShowConnection(conn.type)) return;
+
+        const highlighted = state.selectedNode === conn.from || state.selectedNode === conn.to;
+        const className = highlighted ? 'connection highlighted' : 'connection';
+
+        // Simple curved path
+        const midX = (from.x + to.x) / 2;
+        const midY = (from.y + to.y) / 2;
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const offset = 30;
+        const ctrlX = midX + (dy > 0 ? offset : -offset);
+        const ctrlY = midY;
+
+        svg += `<path class="${className}" d="M ${from.x + 60} ${from.y + 30} Q ${ctrlX} ${ctrlY} ${to.x + 60} ${to.y + 30}" />`;
+      });
+
+      // Draw nodes
+      Object.values(nodes).forEach(node => {
+        if (!shouldShowNode(node)) return;
+
+        const selected = state.selectedNode === node.id;
+        const className = selected ? 'node selected' : 'node';
+
+        if (node.shape === 'cylinder') {
+          // Database cylinder
+          svg += `
+            <g class="${className}" onclick="selectNode('${node.id}')">
+              <ellipse cx="${node.x + 60}" cy="${node.y}" rx="50" ry="15" fill="${node.color}" stroke="#fff" stroke-width="2"/>
+              <rect x="${node.x + 10}" y="${node.y}" width="100" height="50" fill="${node.color}" stroke="none"/>
+              <ellipse cx="${node.x + 60}" cy="${node.y + 50}" rx="50" ry="15" fill="${node.color}" stroke="#fff" stroke-width="2"/>
+              <text x="${node.x + 60}" y="${node.y + 30}" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">${node.label.split('\n')[0]}</text>
+              <text x="${node.x + 60}" y="${node.y + 45}" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">${node.label.split('\n')[1] || ''}</text>
+            </g>
+          `;
+        } else {
+          // Rectangle
+          svg += `
+            <g class="${className}" onclick="selectNode('${node.id}')">
+              <rect x="${node.x}" y="${node.y}" width="120" height="60" rx="6" fill="${node.color}" stroke="#fff" stroke-width="2"/>
+              <text x="${node.x + 60}" y="${node.y + 28}" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">${node.label.split('\n')[0]}</text>
+              <text x="${node.x + 60}" y="${node.y + 44}" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">${node.label.split('\n')[1] || ''}</text>
+            </g>
+          `;
+        }
+      });
+
+      svg += '</svg>';
+      canvas.innerHTML = svg;
+    }
+
+    function shouldShowNode(node) {
+      if (node.layer === 'frontend' && !state.showFrontend) return false;
+      if (node.layer === 'backend' && !state.showBackend) return false;
+      if (node.layer === 'database' && !state.showDatabase) return false;
+      if (node.layer === 'e2e' && !state.showE2E) return false;
+      return true;
+    }
+
+    function shouldShowConnection(type) {
+      if (type === 'rest' && !state.showREST) return false;
+      if (type === 'websocket' && !state.showWebSocket) return false;
+      if (type === 'data' && !state.showData) return false;
+      return true;
+    }
+
+    function selectNode(nodeId) {
+      state.selectedNode = nodeId;
+      updateAll();
+    }
+
+    function updateDetails() {
+      const detailDiv = document.getElementById('detail-content');
+
+      if (!state.selectedNode) {
+        detailDiv.innerHTML = `
+          <h3>Architecture Overview</h3>
+          <p style="font-size: 13px; line-height: 1.6; color: #aaa;">
+            Click on any component to view details and explore the architecture.
+            The pubgolf app is a full-stack real-time game platform built with Kotlin/Spring Boot backend and Next.js frontend.
+          </p>
+          <div style="margin-top: 20px; padding: 12px; background: #1a1a1a; border-radius: 4px;">
+            <p style="font-size: 12px; color: #888; margin-bottom: 8px;">Key Patterns:</p>
+            <ul style="font-size: 12px; color: #aaa; margin-left: 20px;">
+              <li>Result4k for error handling</li>
+              <li>Contract tests with Fakes</li>
+              <li>Domain-driven models</li>
+              <li>Real-time WebSocket updates</li>
+            </ul>
+          </div>
+        `;
+        return;
+      }
+
+      const node = nodes[state.selectedNode];
+      const details = node.details;
+
+      let html = `<h3>${details.title}</h3>`;
+      html += `<div class="detail-content">`;
+      html += `<p>${details.description}</p>`;
+
+      if (details.files) {
+        html += `<p><strong>Files:</strong></p><ul>`;
+        details.files.forEach(f => html += `<li><code>${f}</code></li>`);
+        html += `</ul>`;
+      }
+
+      if (details.file) {
+        html += `<p><strong>File:</strong> <code>${details.file}</code></p>`;
+      }
+
+      if (details.responsibilities) {
+        html += `<p><strong>Responsibilities:</strong></p><ul>`;
+        details.responsibilities.forEach(r => html += `<li>${r}</li>`);
+        html += `</ul>`;
+      }
+
+      if (details.patterns) {
+        html += `<p><strong>Patterns:</strong></p><ul>`;
+        details.patterns.forEach(p => html += `<li>${p}</li>`);
+        html += `</ul>`;
+      }
+
+      if (details.tech) {
+        if (Array.isArray(details.tech)) {
+          html += `<p><strong>Technology:</strong> ${details.tech.join(', ')}</p>`;
+        } else {
+          html += `<p><strong>Technology:</strong> ${details.tech}</p>`;
+        }
+      }
+
+      if (details.library) {
+        html += `<p><strong>Library:</strong> <code>${details.library}</code></p>`;
+      }
+
+      if (details.env) {
+        html += `<p><strong>Environment:</strong> <code>${details.env}</code></p>`;
+      }
+
+      if (details.commands) {
+        html += `<p><strong>Commands:</strong></p><ul>`;
+        details.commands.forEach(c => html += `<li><code>${c}</code></li>`);
+        html += `</ul>`;
+      }
+
+      if (details.connections) {
+        html += `<p><strong>Connections:</strong></p><ul>`;
+        details.connections.forEach(c => html += `<li>${c}</li>`);
+        html += `</ul>`;
+      }
+
+      html += `</div>`;
+
+      // Add interaction section
+      html += `
+        <div class="interaction-section">
+          <h3>Ask About This Component</h3>
+          <textarea id="user-question" placeholder="Ask a question or describe what you'd like to change about this component...">${state.userQuestion}</textarea>
+          <button class="ask-btn" onclick="generateQuestionPrompt()">Generate Prompt</button>
+        </div>
+      `;
+
+      detailDiv.innerHTML = html;
+    }
+
+    function updatePrompt() {
+      const output = document.getElementById('prompt-output');
+
+      if (!state.selectedNode) {
+        output.textContent = 'Click on a component to generate a prompt about it...';
+        return;
+      }
+
+      const node = nodes[state.selectedNode];
+      const question = document.getElementById('user-question')?.value || state.userQuestion;
+
+      if (question.trim()) {
+        // User has a specific question
+        let prompt = `I have a question about the ${node.details.title} component in the pubgolf codebase.\n\n`;
+
+        if (node.details.files) {
+          prompt += `Relevant files: ${node.details.files.join(', ')}\n\n`;
+        } else if (node.details.file) {
+          prompt += `Relevant file: ${node.details.file}\n\n`;
+        }
+
+        prompt += `Question: ${question}`;
+        output.textContent = prompt;
+      } else {
+        // General overview prompt
+        let prompt = `Show me the implementation details for the ${node.details.title} component.\n\n`;
+
+        if (node.details.files) {
+          prompt += `Files to review: ${node.details.files.join(', ')}\n\n`;
+        } else if (node.details.file) {
+          prompt += `File to review: ${node.details.file}\n\n`;
+        }
+
+        prompt += `Context: ${node.details.description}`;
+        output.textContent = prompt;
+      }
+    }
+
+    function generateQuestionPrompt() {
+      const question = document.getElementById('user-question').value;
+      state.userQuestion = question;
+      updatePrompt();
+    }
+
+    function updateZoom(value) {
+      state.zoom = parseInt(value);
+      document.getElementById('zoom-value').textContent = value + '%';
+      drawArchitecture();
+    }
+
+    function applyPreset(preset) {
+      switch(preset) {
+        case 'overview':
+          state.showFrontend = true;
+          state.showBackend = true;
+          state.showDatabase = true;
+          state.showE2E = true;
+          state.showREST = true;
+          state.showWebSocket = true;
+          state.showData = true;
+          state.zoom = 100;
+          break;
+        case 'backend':
+          state.showFrontend = false;
+          state.showBackend = true;
+          state.showDatabase = true;
+          state.showE2E = false;
+          state.showREST = false;
+          state.showWebSocket = false;
+          state.showData = true;
+          state.zoom = 120;
+          break;
+        case 'frontend':
+          state.showFrontend = true;
+          state.showBackend = false;
+          state.showDatabase = false;
+          state.showE2E = false;
+          state.showREST = false;
+          state.showWebSocket = false;
+          state.showData = false;
+          state.zoom = 120;
+          break;
+        case 'dataflow':
+          state.showFrontend = true;
+          state.showBackend = true;
+          state.showDatabase = true;
+          state.showE2E = false;
+          state.showREST = true;
+          state.showWebSocket = true;
+          state.showData = true;
+          state.zoom = 100;
+          break;
+        case 'testing':
+          state.showFrontend = false;
+          state.showBackend = true;
+          state.showDatabase = false;
+          state.showE2E = true;
+          state.showREST = false;
+          state.showWebSocket = false;
+          state.showData = false;
+          state.zoom = 100;
+          break;
+      }
+
+      // Update checkboxes
+      document.getElementById('show-frontend').checked = state.showFrontend;
+      document.getElementById('show-backend').checked = state.showBackend;
+      document.getElementById('show-database').checked = state.showDatabase;
+      document.getElementById('show-e2e').checked = state.showE2E;
+      document.getElementById('show-rest').checked = state.showREST;
+      document.getElementById('show-websocket').checked = state.showWebSocket;
+      document.getElementById('show-data').checked = state.showData;
+      document.getElementById('zoom').value = state.zoom;
+      document.getElementById('zoom-value').textContent = state.zoom + '%';
+
+      updateAll();
+    }
+
+    function updateAll() {
+      // Update state from checkboxes
+      state.showFrontend = document.getElementById('show-frontend').checked;
+      state.showBackend = document.getElementById('show-backend').checked;
+      state.showDatabase = document.getElementById('show-database').checked;
+      state.showE2E = document.getElementById('show-e2e').checked;
+      state.showREST = document.getElementById('show-rest').checked;
+      state.showWebSocket = document.getElementById('show-websocket').checked;
+      state.showData = document.getElementById('show-data').checked;
+
+      drawArchitecture();
+      updateDetails();
+      updatePrompt();
+    }
+
+    function copyPrompt() {
+      const output = document.getElementById('prompt-output');
+      const btn = document.querySelector('.copy-btn');
+
+      navigator.clipboard.writeText(output.textContent).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Initialize
+    updateAll();
+  </script>
+</body>
+</html>
