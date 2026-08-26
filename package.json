@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "happy-dom": "20.0.11",
-    "next": "16.1.1"
+    "happy-dom": "20.8.9",
+    "next": "16.2.11"
   }
 }
