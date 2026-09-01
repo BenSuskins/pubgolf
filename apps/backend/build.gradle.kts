@@ -1,13 +1,13 @@
 plugins {
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.4.10"
     id("java-test-fixtures")
-    kotlin("plugin.spring") version "2.3.0"
+    kotlin("plugin.spring") version "2.4.10"
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.3.0"
+    kotlin("plugin.jpa") version "2.4.10"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
-    id("org.jetbrains.kotlinx.kover") version "0.9.5"
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    id("org.jetbrains.kotlinx.kover") version "0.9.9"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "uk.co.suskins"
