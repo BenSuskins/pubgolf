@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import QRCode from 'react-qr-code';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { ActiveEvent } from '@/lib/types';
 import { Typography } from './ui/Typography';
 import { overlayVariants, slideFromTopVariants, fadeInVariants } from '@/lib/animations';

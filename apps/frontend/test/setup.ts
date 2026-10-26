@@ -3,14 +3,14 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 
-// Mock framer-motion to avoid animation complexity in tests.
+// Mock Motion to avoid animation complexity in tests.
 // Components are cached per tag: returning a fresh component type on every property
 // access would give React a new element type each render, remounting the subtree and
 // dropping focus mid-keystroke inside modals and sheets.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const motionComponents = new Map<string, any>();
 
-mock.module('framer-motion', () => ({
+mock.module('motion/react', () => ({
   motion: new Proxy(
     {},
     {

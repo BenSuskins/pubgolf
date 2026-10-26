@@ -23,10 +23,9 @@ export default function MapPage() {
       return;
     }
 
-    setLoading(true);
-    setError('');
     try {
       const data = await getRoute(gameCode);
+      setError('');
       if (data.pubs.length === 0) {
         setError('No pub route configured for this game');
         return;
@@ -40,6 +39,8 @@ export default function MapPage() {
   }, [getGameCode, router]);
 
   useEffect(() => {
+    // The request settles before fetchRouteData updates state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchRouteData();
 
     if ('geolocation' in navigator) {
@@ -76,7 +77,10 @@ export default function MapPage() {
           <div className="flex flex-col gap-3">
             {isTransient && (
               <button
-                onClick={fetchRouteData}
+                onClick={() => {
+                  setLoading(true);
+                  void fetchRouteData();
+                }}
                 className="inline-block px-6 py-3 btn-gradient rounded-lg"
               >
                 Try Again

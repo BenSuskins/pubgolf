@@ -23,7 +23,7 @@ updates:
           - "patch"
 
   # Frontend
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/apps/frontend"
     schedule:
       interval: "weekly"
