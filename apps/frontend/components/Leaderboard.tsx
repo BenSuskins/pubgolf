@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
 import { hasPlayedHole, playerParRelative, formatParRelative } from '@/lib/scoring';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';

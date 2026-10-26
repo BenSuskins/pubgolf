@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import type { RouteHole } from '@/lib/types';
 import { AddRouteSheet } from './AddRouteSheet';
 import { ErrorMessage } from './ui/ErrorMessage';

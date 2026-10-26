@@ -1,7 +1,7 @@
 'use client';
 
 import { useId } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { overlayVariants, slideFromBottomVariants } from '@/lib/animations';
 import { useDialogDismiss } from '@/hooks/useDialogDismiss';
 

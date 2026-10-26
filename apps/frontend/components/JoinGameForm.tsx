@@ -9,21 +9,21 @@ import { Input } from './ui/Input';
 import { ErrorMessage } from './ui/ErrorMessage';
 
 export function JoinGameForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState('');
-  const [gameCode, setGameCode] = useState('');
+  const [gameCode, setGameCode] = useState(
+    () => searchParams.get('gameCode')?.toUpperCase() ?? ''
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [offerRejoin, setOfferRejoin] = useState(false);
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { setGameSession } = useLocalStorage();
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const codeFromUrl = searchParams.get('gameCode');
     if (codeFromUrl) {
-      setGameCode(codeFromUrl.toUpperCase());
-
       // Auto-focus name input after a short delay to allow accordion animation
       const timer = setTimeout(() => {
         nameInputRef.current?.focus();

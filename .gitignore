@@ -42,6 +42,7 @@ out/
 
 ## Frontend
 /apps/frontend/node_modules/
+/plans/
 
 # dependencies
 /node_modules

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Player } from '@/lib/types';
 import { Typography } from './ui/Typography';
 import { overlayVariants, celebrationVariants, fadeInVariants } from '@/lib/animations';

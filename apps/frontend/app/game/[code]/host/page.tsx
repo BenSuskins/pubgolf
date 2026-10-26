@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute, setHoles } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameWebSocket } from '@/hooks/useGameWebSocket';

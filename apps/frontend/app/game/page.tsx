@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import { getGameState, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
@@ -60,13 +60,19 @@ export default function GamePage() {
       }
     }
 
+    const queuedEventId = getQueuedEventId();
+    if (queuedEventId && state.activeEvent?.id === queuedEventId) {
+      setShowEventNotification(true);
+      setQueuedEventId(null);
+    }
+
     previousEventIdRef.current = newEventId;
 
     if (state.status === 'COMPLETED') {
       setShowCelebration(true);
     }
     setError('');
-  }, [getLastSeenEventId]);
+  }, [getLastSeenEventId, getQueuedEventId, setQueuedEventId]);
 
   const fetchGame = useCallback(async () => {
     const code = getGameCode();
@@ -75,17 +81,17 @@ export default function GamePage() {
       return;
     }
 
-    setGameCode(code);
-
     try {
       const state = await getGameState(code);
       handleGameStateUpdate(state);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load game');
     } finally {
+      setGameCode(code);
+      setPlayerId(getPlayerId());
       setLoading(false);
     }
-  }, [getGameCode, router, handleGameStateUpdate]);
+  }, [getGameCode, getPlayerId, router, handleGameStateUpdate]);
 
   const { connectionError } = useGameWebSocket({
     gameCode,
@@ -96,10 +102,8 @@ export default function GamePage() {
   });
 
   useEffect(() => {
-    setPlayerId(getPlayerId());
-  }, [getPlayerId]);
-
-  useEffect(() => {
+    // The request settles before fetchGame updates state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGame();
   }, [fetchGame]);
 
@@ -118,14 +122,6 @@ export default function GamePage() {
       window.removeEventListener('focus', refreshIfVisible);
     };
   }, [fetchGame]);
-
-  useEffect(() => {
-    const queuedEventId = getQueuedEventId();
-    if (queuedEventId && activeEvent && activeEvent.id === queuedEventId) {
-      setShowEventNotification(true);
-      setQueuedEventId(null);
-    }
-  }, [activeEvent, getQueuedEventId, setQueuedEventId]);
 
   useEffect(() => {
     if (!gameCode) return;
