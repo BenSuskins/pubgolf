@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - pubgolf-data:/data
+      - pubgolf-go-data:/data
 
   frontend:
     build:
@@ -20,4 +20,4 @@ services:
       - backend
 
 volumes:
-  pubgolf-data:
+  pubgolf-go-data:

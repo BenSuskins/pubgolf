@@ -6,7 +6,7 @@
 version: 2
 updates:
   # Backend
-  - package-ecosystem: "gradle"
+  - package-ecosystem: "gomod"
     directory: "/apps/backend"
     schedule:
       interval: "weekly"

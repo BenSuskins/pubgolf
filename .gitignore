@@ -82,3 +82,7 @@ next-env.d.ts
 /apps/frontend/public/__ENV.js
 CLAUDE.md
 /apps/backend/pubgolf.db
+
+# Go backend
+/apps/backend/build/
+/apps/backend/*.db*

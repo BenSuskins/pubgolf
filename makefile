@@ -1,21 +1,25 @@
-.PHONY: backend backend-test backend-lint frontend frontend-test frontend-lint setup e2e e2e-ui lint
+.PHONY: setup backend backend-build backend-test backend-lint frontend frontend-test frontend-lint e2e e2e-ui lint
 
 setup:
-	./gradlew clean build
-	cd apps/frontend && bun install
-	cd e2e && bun install
+	cd apps/backend && go mod download
+	cd apps/frontend && bun install --frozen-lockfile
+	cd e2e && bun install --frozen-lockfile
 
 backend:
-	./gradlew apps:backend:bootRun --args='--spring.profiles.active=local'
+	cd apps/backend && go run ./cmd/pubgolf
+
+backend-build:
+	cd apps/backend && go build -o build/pubgolf ./cmd/pubgolf
 
 backend-test:
-	./gradlew test
+	cd apps/backend && go test -race ./...
 
 backend-lint:
-	./gradlew ktlintCheck
+	cd apps/backend && test -z "$$(gofmt -l cmd internal)"
+	cd apps/backend && go vet ./...
 
 frontend:
-	cd apps/frontend && bun run dev
+	cd apps/frontend && NEXT_PUBLIC_API_URL=http://localhost:8080 bun run dev
 
 frontend-test:
 	cd apps/frontend && bun run test

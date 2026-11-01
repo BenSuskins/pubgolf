@@ -43,7 +43,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(increase(pubgolf_game_total[$window])) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_started_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -219,7 +219,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(increase(pubgolf_game_completed_total[$window])) / sum(increase(pubgolf_game_total[$window])) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_completed_total[$window])) / sum(increase(pubgolf_game_started_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -276,7 +276,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(rate(pubgolf_game_total[$__rate_interval])) * 3600",
+          "expr": "sum(rate(pubgolf_game_started_total[$__rate_interval])) * 3600",
           "legendFormat": "Games Created",
           "refId": "A"
         },
@@ -524,7 +524,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(increase(pubgolf_player_joined_total[$window])) / sum(increase(pubgolf_game_total[$window])) or vector(0)",
+          "expr": "sum(increase(pubgolf_player_joined_total[$window])) / sum(increase(pubgolf_game_started_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -598,7 +598,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(increase(pubgolf_game_randomise_total[$window])) / sum(increase(pubgolf_game_total[$window])) or vector(0)",
+          "expr": "sum(increase(pubgolf_game_randomise_total[$window])) / sum(increase(pubgolf_game_started_total[$window])) or vector(0)",
           "refId": "A"
         }
       ],

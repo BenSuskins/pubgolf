@@ -1,56 +1,32 @@
-name: Build Backend
-
+name: Verify Backend
 on:
   pull_request:
+    branches: [main]
     paths:
       - 'apps/backend/**'
-      - '.github/workflows/backend-feature-branch.yml'
-    branches:
-      - main
-
+      - 'makefile'
+      - '.github/workflows/backend*.yml'
+permissions:
+  contents: read
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  verify:
+    uses: bensuskins/repo-templates/.github/workflows/verify-go.yml@main
+    with:
+      go-version: '1.25'
+      working-directory: apps/backend
+      test-command: go test -race ./...
+      pre-test-commands: test -z "$(gofmt -l cmd internal)"
+  openapi:
+    uses: bensuskins/repo-templates/.github/workflows/verify-openapi.yml@main
+    with:
+      spec-path: apps/backend/internal/adapters/httpapi/openapi.json
+  container:
     permissions:
       contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Lint
-        run: ./gradlew apps:backend:ktlintCheck
-
-      - name: Build
-        run: ./gradlew apps:backend:assemble --no-daemon
-
-      - name: Unit Test
-        run: ./gradlew apps:backend:test --no-daemon
-
-      - name: Integration Test
-        run: ./gradlew apps:backend:integrationTest --no-daemon
-
-      # Approval tests (okeydoke) write a .actual file next to the approved
-      # one on mismatch; surface it so the diff can be inspected and applied.
-      - name: Print approval actuals
-        if: failure()
-        run: |
-          find apps/backend/src/test/resources -name '*.actual' | while read -r f; do
-            echo "=== BEGIN ACTUAL $f ==="
-            cat "$f"
-            echo "=== END ACTUAL $f ==="
-          done
-
-      - name: Upload approval actuals
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: approval-actuals
-          path: apps/backend/src/test/resources/**/*.actual
-          if-no-files-found: ignore
+      packages: write
+    uses: bensuskins/repo-templates/.github/workflows/publish-container.yml@main
+    with:
+      image: ghcr.io/bensuskins/pubgolf-backend
+      context: ./apps/backend
+      tags: ${{ github.sha }}
+      push: false

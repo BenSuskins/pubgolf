@@ -1,0 +1,1756 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/v1/games",
+    "body": {
+      "host": "Alice"
+    },
+    "actor": null,
+    "status": 201,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "playerId": "${host}",
+      "playerName": "Alice"
+    },
+    "capture": {
+      "gameCode": "gameCode",
+      "gameId": "gameId",
+      "host": "playerId"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/${gameCode}",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": 0,
+          "randomise": null,
+          "penalties": []
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/config/routes",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/config/penalty-options",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "penalties": [
+        {
+          "type": "SKIP",
+          "name": "Skip a drink",
+          "points": 5
+        },
+        {
+          "type": "CHUNDER",
+          "name": "Tactical chunder",
+          "points": 10
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/config/randomise-options",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "options": [
+        {
+          "option": "Double Drink",
+          "optionSize": 4
+        },
+        {
+          "option": "Half Score",
+          "optionSize": 2
+        },
+        {
+          "option": "Double Score",
+          "optionSize": 3
+        },
+        {
+          "option": "Free Choice",
+          "optionSize": 1
+        },
+        {
+          "option": "Tequila",
+          "optionSize": 5
+        },
+        {
+          "option": "Beer",
+          "optionSize": 5
+        },
+        {
+          "option": "Wine",
+          "optionSize": 5
+        },
+        {
+          "option": "Cider",
+          "optionSize": 5
+        },
+        {
+          "option": "Cocktail",
+          "optionSize": 5
+        },
+        {
+          "option": "Spirit w/ Mixer",
+          "optionSize": 5
+        },
+        {
+          "option": "Guinness",
+          "optionSize": 5
+        },
+        {
+          "option": "J\u00e4gerbomb",
+          "optionSize": 5
+        },
+        {
+          "option": "VK",
+          "optionSize": 5
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/players",
+    "body": {
+      "name": "Bob"
+    },
+    "actor": null,
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "playerId": "${bob}",
+      "playerName": "Bob"
+    },
+    "capture": {
+      "bob": "playerId"
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/players",
+    "body": {
+      "name": "Bob"
+    },
+    "actor": null,
+    "status": 400,
+    "response": {
+      "message": "Player `Bob` already exists for game `${gameCode}`."
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/players",
+    "body": {
+      "name": "bOB",
+      "rejoin": true
+    },
+    "actor": null,
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "playerId": "${bob}",
+      "playerName": "Bob"
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/scores",
+    "body": {
+      "hole": 1,
+      "score": 0
+    },
+    "actor": null,
+    "status": 401,
+    "response": {
+      "message": "Missing required header: PubGolf-Player-Id"
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/scores",
+    "body": {
+      "hole": 1,
+      "score": 0
+    },
+    "actor": "nonsense",
+    "status": 401,
+    "response": {
+      "message": "Invalid player ID format in header: nonsense"
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/scores",
+    "body": {
+      "hole": 1,
+      "score": 0
+    },
+    "actor": "host",
+    "status": 204,
+    "response": null,
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/scores",
+    "body": {
+      "hole": 2,
+      "score": 3,
+      "penaltyType": "SKIP"
+    },
+    "actor": "bob",
+    "status": 204,
+    "response": null,
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/${gameCode}",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -1,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 2,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/${gameCode}/events",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "events": [
+        {
+          "id": "photo-op",
+          "title": "Photo Op!",
+          "description": "Everyone must take a group photo at the current venue"
+        },
+        {
+          "id": "speed-round",
+          "title": "Speed Round",
+          "description": "Finish your current drink within 2 minutes"
+        },
+        {
+          "id": "halftime",
+          "title": "Halftime",
+          "description": "Take a 5-minute break"
+        },
+        {
+          "id": "last-orders",
+          "title": "Last Orders",
+          "description": "Final warning before moving to next venue"
+        },
+        {
+          "id": "club-swap",
+          "title": "Club Swap",
+          "description": "You must drink with your non-dominant hand, getting caught is a +1 penalty"
+        },
+        {
+          "id": "stranger-danger",
+          "title": "Stranger Danger",
+          "description": "Convince a stranger to buy you a drink, -2 points"
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/${gameCode}/events/active",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "activeEvent": null
+    },
+    "capture": null
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/games/${gameCode}/active-event",
+    "body": {
+      "eventId": "photo-op"
+    },
+    "actor": "bob",
+    "status": 403,
+    "response": {
+      "message": "Only the host can activate events"
+    },
+    "capture": null
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/games/${gameCode}/active-event",
+    "body": {
+      "eventId": "unknown"
+    },
+    "actor": "host",
+    "status": 404,
+    "response": {
+      "message": "Event 'unknown' not found"
+    },
+    "capture": null
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/games/${gameCode}/active-event",
+    "body": {
+      "eventId": "photo-op"
+    },
+    "actor": "host",
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -1,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 2,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": {
+        "id": "photo-op",
+        "title": "Photo Op!",
+        "description": "Everyone must take a group photo at the current venue",
+        "activatedAt": "${timestamp}"
+      },
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/games/${gameCode}/active-event",
+    "body": {
+      "eventId": "speed-round"
+    },
+    "actor": "host",
+    "status": 409,
+    "response": {
+      "message": "An event is already active. End the current event before activating a new one."
+    },
+    "capture": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/games/${gameCode}/active-event",
+    "body": null,
+    "actor": "host",
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -1,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 2,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/games/${gameCode}/active-event/custom",
+    "body": {
+      "title": "  Custom  ",
+      "description": "  hello  "
+    },
+    "actor": "host",
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -1,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 2,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": {
+        "id": "custom",
+        "title": "Custom",
+        "description": "hello",
+        "activatedAt": "${timestamp}"
+      },
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/games/${gameCode}/active-event",
+    "body": null,
+    "actor": "host",
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -1,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 2,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 1,
+          "drinks": {
+            "Route A": "Tequila",
+            "Route B": "Sambuca"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 3,
+          "drinks": {
+            "Route A": "Beer",
+            "Route B": "Double Vodka & Single Vodka w/ Mixer"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route A": "Wine",
+            "Route B": "Double Gin w/ Mixer"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cider",
+            "Route B": "Double Rum w/ Mixer"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route A": "Cocktail",
+            "Route B": "Cocktail"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route A": "Spirit w/ Mixer",
+            "Route B": "Spirit w/ Mixer"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 4,
+          "drinks": {
+            "Route A": "Guinness",
+            "Route B": "2 x Double Whiskey w/ Mixer"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 1,
+          "drinks": {
+            "Route A": "J\u00e4gerbomb",
+            "Route B": "J\u00e4gerbomb"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 1,
+          "drinks": {
+            "Route A": "VK",
+            "Route B": "Smirnoff Ice"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/${gameCode}/route",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "pubs": [],
+      "route": null
+    },
+    "capture": null
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/games/${gameCode}/holes",
+    "body": {
+      "holes": [
+        {
+          "hole": 1,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        }
+      ]
+    },
+    "actor": "host",
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -2,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 3,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/${gameCode}",
+    "body": null,
+    "actor": null,
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "ACTIVE",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -2,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 3,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/games/${gameCode}",
+    "body": {
+      "status": "ACTIVE"
+    },
+    "actor": "host",
+    "status": 400,
+    "response": {
+      "message": "Only a transition to COMPLETED is supported"
+    },
+    "capture": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/games/${gameCode}",
+    "body": {
+      "status": "COMPLETED"
+    },
+    "actor": "bob",
+    "status": 403,
+    "response": {
+      "message": "Only the host can complete this game"
+    },
+    "capture": null
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/games/${gameCode}",
+    "body": {
+      "status": "COMPLETED"
+    },
+    "actor": "host",
+    "status": 200,
+    "response": {
+      "gameId": "${gameId}",
+      "gameCode": "${gameCode}",
+      "status": "COMPLETED",
+      "hostPlayerId": "${host}",
+      "players": [
+        {
+          "id": "${host}",
+          "name": "Alice",
+          "scores": [
+            0,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 0,
+          "parRelative": -2,
+          "randomise": null,
+          "penalties": []
+        },
+        {
+          "id": "${bob}",
+          "name": "Bob",
+          "scores": [
+            null,
+            5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "totalScore": 5,
+          "parRelative": 3,
+          "randomise": null,
+          "penalties": [
+            {
+              "hole": 2,
+              "type": "SKIP",
+              "points": 5
+            }
+          ]
+        }
+      ],
+      "activeEvent": null,
+      "holes": [
+        {
+          "hole": 1,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 2,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 3,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 4,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 5,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 6,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 7,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 8,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        },
+        {
+          "hole": 9,
+          "par": 2,
+          "drinks": {
+            "Route Z": "Beer",
+            "Route A": "Wine"
+          }
+        }
+      ]
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/scores",
+    "body": {
+      "hole": 1,
+      "score": 1
+    },
+    "actor": "host",
+    "status": 409,
+    "response": {
+      "message": "Cannot submit score to completed game"
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games/${gameCode}/players",
+    "body": {
+      "name": "Carl"
+    },
+    "actor": null,
+    "status": 409,
+    "response": {
+      "message": "This game has ended"
+    },
+    "capture": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/games/MISSING",
+    "body": null,
+    "actor": null,
+    "status": 404,
+    "response": {
+      "message": "Game `MISSING` not found."
+    },
+    "capture": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/games",
+    "body": {
+      "host": ""
+    },
+    "actor": null,
+    "status": 400,
+    "response": {
+      "message": "Validation failed: host: Host name must not be blank"
+    },
+    "capture": null
+  }
+]
