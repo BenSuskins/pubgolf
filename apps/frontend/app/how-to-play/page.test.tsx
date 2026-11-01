@@ -1,6 +1,6 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test';
 import { render, screen, waitFor } from '@testing-library/react';
-import HowToPlayPage from './page';
+import { RulesContent } from '@/components/RulesContent';
 
 // Mock APIs with controlled promises
 const mockGetPenaltyOptions = mock(() => Promise.resolve({
@@ -78,7 +78,7 @@ describe('HowToPlayPage', () => {
       mockGetPenaltyOptions.mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       expect(screen.getByLabelText(/loading penalties/i)).toBeInTheDocument();
     });
@@ -87,13 +87,13 @@ describe('HowToPlayPage', () => {
       mockGetRoutes.mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       expect(screen.getByLabelText(/loading course/i)).toBeInTheDocument();
     });
 
     test('should hide penalties skeleton after data loads', async () => {
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       // Wait for penalty content to appear
       await waitFor(() => {
@@ -105,7 +105,7 @@ describe('HowToPlayPage', () => {
     });
 
     test('should hide routes skeleton after data loads', async () => {
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       // Wait for route content to appear
       await waitFor(() => {
@@ -119,7 +119,7 @@ describe('HowToPlayPage', () => {
 
   describe('data display', () => {
     test('should render penalties after loading', async () => {
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(screen.getByText('Skip')).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('HowToPlayPage', () => {
     });
 
     test('should render routes table after loading', async () => {
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(screen.getByText('Route A')).toBeInTheDocument();
@@ -136,7 +136,7 @@ describe('HowToPlayPage', () => {
     });
 
     test('should render static rules immediately', () => {
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       expect(screen.getByText(/finish your drink in as few sips/i)).toBeInTheDocument();
     });
@@ -145,7 +145,7 @@ describe('HowToPlayPage', () => {
   describe('route rule', () => {
     test('should use generic wording before the course loads', () => {
       mockGetRoutes.mockImplementation(() => new Promise(() => {}));
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       expect(
         screen.getByText('Pick your route at the start. No switching mid-game.')
@@ -167,7 +167,7 @@ describe('HowToPlayPage', () => {
           },
         ],
       }));
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(
@@ -181,7 +181,7 @@ describe('HowToPlayPage', () => {
     test('should drop the choice when the course has one route', async () => {
       visit('?from=game');
       mockGetGameCode.mockImplementation(() => 'ACE007');
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(
@@ -192,7 +192,7 @@ describe('HowToPlayPage', () => {
 
     test('should keep generic wording when the course fails to load', async () => {
       mockGetRoutes.mockImplementation(() => Promise.reject(new Error('Network error')));
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(screen.getByText('Skip')).toBeInTheDocument();
@@ -207,7 +207,7 @@ describe('HowToPlayPage', () => {
     test("should render the game's own course when opened from the game", async () => {
       visit('?from=game');
       mockGetGameCode.mockImplementation(() => 'ACE007');
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(screen.getByText('Guinness')).toBeInTheDocument();
@@ -218,7 +218,7 @@ describe('HowToPlayPage', () => {
 
     test('should fall back to the default course when not in a game', async () => {
       visit('?from=game');
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(screen.getByText('Route A')).toBeInTheDocument();
@@ -228,7 +228,7 @@ describe('HowToPlayPage', () => {
 
     test('should show the default course when opened outside a game', async () => {
       mockGetGameCode.mockImplementation(() => 'ACE007');
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
         expect(screen.getByText('Route A')).toBeInTheDocument();
@@ -241,7 +241,7 @@ describe('HowToPlayPage', () => {
   describe('back link', () => {
     test('should go home when opened outside a game', () => {
       mockGetGameCode.mockImplementation(() => 'ACE007');
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       const back = screen.getByRole('link', { name: /back to home/i });
       expect(back).toHaveAttribute('href', '/');
@@ -251,10 +251,10 @@ describe('HowToPlayPage', () => {
     test('should go back to the scoreboard when opened from the game', async () => {
       visit('?from=game');
       mockGetGameCode.mockImplementation(() => 'ACE007');
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /back to scoreboard/i })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /back to scoreboard/i })).toBeInTheDocument();
       });
       expect(screen.queryByText(/back to home/i)).not.toBeInTheDocument();
     });
@@ -263,7 +263,7 @@ describe('HowToPlayPage', () => {
   describe('error handling', () => {
     test('should handle penalty API failure gracefully', async () => {
       mockGetPenaltyOptions.mockImplementation(() => Promise.reject(new Error('Network error')));
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       // Routes still load independently - wait for them
       await waitFor(() => {
@@ -276,7 +276,7 @@ describe('HowToPlayPage', () => {
 
     test('should handle routes API failure gracefully', async () => {
       mockGetRoutes.mockImplementation(() => Promise.reject(new Error('Network error')));
-      render(<HowToPlayPage />);
+      render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       // Penalties still load independently - wait for them
       await waitFor(() => {

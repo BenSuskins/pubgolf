@@ -17,6 +17,9 @@ export default function MiniMapPreview({ pubs }: MiniMapPreviewProps) {
     if (!mapContainer.current || pubs.length === 0) return;
 
     if (!map.current) {
+      maplibregl.setWorkerUrl(
+        new URL('maplibre-gl/dist/maplibre-gl-worker.mjs', import.meta.url).toString()
+      );
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: {
@@ -86,7 +89,7 @@ export default function MiniMapPreview({ pubs }: MiniMapPreviewProps) {
   }
 
   return (
-    <div className="relative w-full h-64 rounded-2xl overflow-hidden border border-[var(--color-border)]">
+    <div className="relative w-full h-64 lg:h-[32rem] rounded-2xl overflow-hidden border border-[var(--color-border)]">
       <div ref={mapContainer} className="w-full h-full" />
       <div className="absolute bottom-3 left-3 right-3 z-10 flex justify-between items-center bg-[rgba(13,20,16,0.85)] backdrop-blur border border-[var(--color-border)] rounded-xl px-3 py-2.5 pointer-events-none">
         <span className="text-xs text-[var(--color-text)]">

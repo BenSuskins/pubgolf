@@ -4,7 +4,7 @@ test.describe('Join Game', () => {
   test('joins an existing game successfully', async ({ page, createGameViaApi }) => {
     const hostSession = await createGameViaApi('GameHost');
 
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Join a Round' }).click();
     await page.locator('#join-name').fill('NewPlayer');
@@ -17,7 +17,7 @@ test.describe('Join Game', () => {
   });
 
   test('shows error for non-existent game code', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Join a Round' }).click();
     await page.locator('#join-name').fill('LostPlayer');
@@ -25,13 +25,13 @@ test.describe('Join Game', () => {
     await page.getByRole('button', { name: 'Join the Round' }).click();
 
     await expect(page.getByText(/not found/i)).toBeVisible();
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/play');
   });
 
   test('shows error for duplicate player name', async ({ page, createGameViaApi }) => {
     const hostSession = await createGameViaApi('DuplicateName');
 
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Join a Round' }).click();
     await page.locator('#join-name').fill('DuplicateName');

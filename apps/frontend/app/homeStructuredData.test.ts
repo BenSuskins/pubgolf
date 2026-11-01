@@ -17,15 +17,15 @@ describe('homeStructuredData', () => {
   test('keeps the WebApplication node describing the app itself', () => {
     expect(nodeOfType('WebApplication')).toMatchObject({
       name: 'Pub Golf',
-      url: 'https://pubgolf.me',
+      url: 'https://pubgolf.me/play',
       applicationCategory: 'GameApplication',
     });
   });
 
-  test('uses the same url as the sitemap and canonical link', () => {
+  test('keeps the website at root and points the application to play', () => {
     const urls = homeStructuredData['@graph'].map((node) => node.url);
 
-    expect(urls).toEqual(['https://pubgolf.me', 'https://pubgolf.me']);
+    expect(urls).toEqual(['https://pubgolf.me', 'https://pubgolf.me/play']);
   });
 
   test('serialises to valid JSON-LD', () => {

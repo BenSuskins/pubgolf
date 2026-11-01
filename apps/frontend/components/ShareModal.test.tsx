@@ -139,7 +139,7 @@ describe('ShareModal', () => {
       render(<ShareModal gameCode="WXYZ" onClose={mockOnClose} />);
 
       const qrCode = screen.getByTestId('qr-code');
-      expect(qrCode.getAttribute('data-value')).toContain('gameCode=WXYZ');
+      expect(qrCode.getAttribute('data-value')).toBe(`${window.location.origin}/play?gameCode=WXYZ`);
     });
   });
 });

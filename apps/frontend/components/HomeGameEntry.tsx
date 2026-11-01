@@ -60,8 +60,14 @@ function ResumeBanner() {
 
 export function HomeGameEntry() {
   const searchParams = useSearchParams();
-  const hasGameCode = searchParams.get('gameCode');
-  const [mode, setMode] = useState<Mode>(hasGameCode ? 'join' : 'host');
+  const requestedMode =
+    searchParams.get('gameCode') || searchParams.get('mode') === 'join' ? 'join' : 'host';
+  const [selection, setSelection] = useState<{ requestedMode: Mode; mode: Mode }>({
+    requestedMode,
+    mode: requestedMode,
+  });
+  const mode = selection.requestedMode === requestedMode ? selection.mode : requestedMode;
+  const setMode = (mode: Mode) => setSelection({ requestedMode, mode });
 
   return (
     <div className="space-y-5">

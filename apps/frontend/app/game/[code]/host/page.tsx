@@ -4,7 +4,16 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { AnimatePresence } from 'motion/react';
-import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute, setHoles } from '@/lib/api';
+import {
+  getGameState,
+  getAvailableEvents,
+  activateEvent,
+  activateCustomEvent,
+  endEvent,
+  completeGame,
+  getRoute,
+  setHoles,
+} from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useGameStream } from '@/hooks/useGameStream';
 import { HostEventsTab } from '@/components/HostEventsTab';
@@ -57,7 +66,7 @@ export default function HostPanelPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!gameCode) {
-        router.push('/');
+        router.push('/play');
         return;
       }
 
@@ -192,7 +201,7 @@ export default function HostPanelPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-md flex-col gap-3.5 p-5">
+    <main className="page-container flex min-h-full flex-col gap-5 py-6">
       <div>
         <Link
           href="/game"
@@ -226,16 +235,18 @@ export default function HostPanelPage() {
         </button>
       </header>
 
-      <SegmentedControl<HostTab>
-        size="sm"
-        ariaLabel="Host panel section"
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'events', label: 'Events', badge: '1', controls: TAB_PANEL_ID },
-          { value: 'course', label: 'Course', badge: '2', controls: TAB_PANEL_ID },
-        ]}
-      />
+      <div className="w-full md:max-w-md">
+        <SegmentedControl<HostTab>
+          size="sm"
+          ariaLabel="Host panel section"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'events', label: 'Events', badge: '1', controls: TAB_PANEL_ID },
+            { value: 'course', label: 'Course', badge: '2', controls: TAB_PANEL_ID },
+          ]}
+        />
+      </div>
 
       {/* The active event is game-wide state, so it renders the same on both tabs. */}
       {activeEvent && (
@@ -312,6 +323,6 @@ export default function HostPanelPage() {
           loading={completing}
         />
       )}
-    </div>
+    </main>
   );
 }

@@ -1,105 +1,115 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import Link from 'next/link';
-import { GolfBallLogo } from '@/components/GolfBallLogo';
-import { HomeGameEntry } from '@/components/HomeGameEntry';
+import { MarketingHeader } from '@/components/MarketingHeader';
 import { homeStructuredDataJson } from './homeStructuredData';
-import { RULES_HREF } from '@/lib/constants';
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: '/',
-  },
-};
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
-function GameEntryFallback() {
-  return (
-    <div className="space-y-5" role="status" aria-label="Loading game options">
-      <div className="h-11 rounded-[14px] bg-[var(--color-border)] animate-pulse" />
-      <div className="h-64 rounded-2xl bg-[var(--color-border)] animate-pulse" />
-    </div>
-  );
-}
+const benefits = [
+  ['Make it your round', 'Choose your drinks, set the pars, and build a pub route for your group.'],
+  [
+    'Keep everyone in the game',
+    'Share a code or invite link. Everyone joins and records their scores from their own phone.',
+  ],
+  [
+    'Follow every score',
+    'See the live leaderboard, add penalties, and keep the round moving without a paper scorecard.',
+  ],
+];
 
 export default function HomePage() {
   return (
-    <section className="min-h-full flex flex-col items-center justify-start bg-ambient p-6 pb-12">
+    <div className="bg-ambient min-h-full">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: homeStructuredDataJson }}
       />
-      <div className="w-full max-w-md space-y-5">
-        <div className="text-center pt-6">
-          <GolfBallLogo size={72} className="mx-auto mb-4" />
-          <h1 className="font-display text-[52px] leading-[0.95] text-[var(--color-text)]">
-            PUB
-            <br />
-            GOLF
-          </h1>
-          <div className="flex items-center justify-center gap-2.5 mt-3.5">
-            <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
-            <p className="eyebrow text-[var(--color-text-secondary)]">
-              9 Holes · 9 Drinks · 1 Champion
+      <MarketingHeader />
+      <main className="page-container pb-12 md:pb-20">
+        <section className="grid items-center gap-10 py-10 md:py-16 lg:grid-cols-2 lg:gap-16">
+          <div className="space-y-6">
+            <p className="eyebrow text-[var(--color-accent)]">9 Holes · 9 Drinks · 1 Champion</p>
+            <h1 className="font-display text-6xl leading-[1.02] md:text-7xl lg:text-8xl">
+              YOUR ROUND.
+              <br />
+              <span className="text-[var(--color-accent)]">EVERY SIP.</span>
+            </h1>
+            <p className="max-w-lg text-base leading-relaxed text-[var(--color-text-secondary)] md:text-lg">
+              The free pub golf score tracker for your next pub crawl. Set up a round, invite your
+              friends, and keep score together.
             </p>
-            <span className="h-px w-7 bg-[var(--color-border-subtle)]" aria-hidden="true" />
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/play?mode=host"
+                className="btn-gradient inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3"
+              >
+                Host a round →
+              </Link>
+              <Link
+                href="/play?mode=join"
+                className="glass inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 font-bold"
+              >
+                Join a round
+              </Link>
+            </div>
+            <p className="text-sm text-[var(--color-text-secondary)]">
+              No sign-up. Nothing to download.
+            </p>
           </div>
-        </div>
-
-        <Suspense fallback={<GameEntryFallback />}>
-          <HomeGameEntry />
-        </Suspense>
-
-        <div className="text-center">
-          <Link
-            href={RULES_HREF}
-            className="text-[13px] text-[var(--color-text-muted)] border-b border-dashed border-[var(--color-border-subtle)] pb-0.5 hover:text-[var(--color-text-secondary)] transition-colors"
+          <figure
+            className="glass min-w-0 rounded-3xl p-5 md:p-8"
+            aria-label="Example pub golf leaderboard"
           >
-            First time? Learn the rules
+            <figcaption className="mb-6 flex flex-wrap items-center justify-between gap-2 text-sm text-[var(--color-text-secondary)]">
+              <span>Example round · Hole 3 of 9</span>
+              <span className="eyebrow text-[var(--color-accent)]">Preview</span>
+            </figcaption>
+            <h2 className="mb-5 font-display text-3xl">THE LEADERBOARD</h2>
+            <ol className="space-y-3">
+              {[
+                ['Alex', '−2'],
+                ['Sam', 'E'],
+                ['Charlie', '+1'],
+              ].map(([name, score], index) => (
+                <li key={name} className="surface-inset flex items-center gap-4 rounded-xl p-4">
+                  <span className="font-display text-xl text-[var(--color-accent)]">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 break-words font-bold">{name}</span>
+                  <span className="font-display text-2xl">{score}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-5 text-sm text-[var(--color-text-secondary)]">
+              Scores relative to par. Lowest score wins.
+            </p>
+          </figure>
+        </section>
+        <section
+          aria-label="Why play with Pub Golf"
+          className="grid gap-6 border-t border-[var(--color-border)] py-8 md:grid-cols-3 md:py-12"
+        >
+          {benefits.map(([title, description]) => (
+            <div key={title} className="space-y-3">
+              <h2 className="font-display text-2xl">{title}</h2>
+              <p className="text-base leading-relaxed text-[var(--color-text-secondary)]">
+                {description}
+              </p>
+            </div>
+          ))}
+        </section>
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--color-border)] p-6">
+          <p className="text-[var(--color-text-secondary)]">
+            First round? Get the basics before you tee off.
+          </p>
+          <Link
+            href="/how-to-play"
+            className="inline-flex min-h-11 items-center font-bold text-[var(--color-accent)] underline underline-offset-4"
+          >
+            Learn the rules →
           </Link>
         </div>
-
-        <section className="pt-8 space-y-6 text-center">
-          <div>
-            <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-2">
-              What is Pub Golf?
-            </h2>
-            <p className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
-              Pub golf is a drinking game played like a round of golf across your favourite
-              pubs. Each pub is a hole with a set drink and a par — finish your drink in
-              fewer sips than par to go under. Lowest score at the end of the crawl wins.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-2">
-              A free pub golf score tracker
-            </h2>
-            <p className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
-              Host a round, share the game code, and everyone submits their sips from their
-              own phone. The live leaderboard keeps score across all nine holes — no paper
-              scorecard, no sign-up, and nothing to download.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-2">
-              Built for your pub crawl
-            </h2>
-            <p className="text-[13.5px] leading-relaxed text-[var(--color-text-secondary)]">
-              Customise the course and drinks for your route, add penalties for
-              rule-breakers, and spin the randomiser when someone needs a surprise. Perfect
-              for birthdays, stag and hen dos, or any night out.{' '}
-              <Link
-                href={RULES_HREF}
-                className="text-[var(--color-text-muted)] underline decoration-dashed underline-offset-4 hover:text-[var(--color-text-secondary)] transition-colors"
-              >
-                Read the full pub golf rules
-              </Link>
-              .
-            </p>
-          </div>
-        </section>
-      </div>
-    </section>
+      </main>
+    </div>
   );
 }

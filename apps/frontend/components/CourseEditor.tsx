@@ -245,7 +245,7 @@ export function CourseEditor({ holes, onSave, disabled = false }: CourseEditorPr
 
   return (
     <>
-      <div className="glass flex min-h-0 flex-1 flex-col rounded-2xl p-3.5">
+      <div className="glass flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl p-3.5">
         <div className="flex items-center justify-between gap-2">
           <h2 className="eyebrow text-[var(--color-text-muted)]">Drinks &amp; Pars</h2>
           <span className="text-[10.5px] text-[var(--color-text-muted)]">

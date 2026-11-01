@@ -43,7 +43,7 @@ test.describe('Submit Score', () => {
   test('redirects to home if no session', async ({ page }) => {
     await page.goto('/submit-score');
 
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/play');
   });
 
   test('back button returns to game page', async ({ authenticatedPage }) => {

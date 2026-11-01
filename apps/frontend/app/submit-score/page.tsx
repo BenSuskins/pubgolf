@@ -30,7 +30,7 @@ export default function SubmitScorePage() {
     const code = getGameCode();
     const playerId = getPlayerId();
     if (!code || !playerId) {
-      router.push('/');
+      router.push('/play');
     }
   }, [getGameCode, getPlayerId, router]);
 
@@ -86,7 +86,7 @@ export default function SubmitScorePage() {
     const gameCode = getGameCode();
     const playerId = getPlayerId();
     if (!gameCode || !playerId) {
-      router.push('/');
+      router.push('/play');
       return;
     }
 
@@ -131,7 +131,7 @@ export default function SubmitScorePage() {
   };
 
   return (
-    <main className="min-h-full flex flex-col p-5 max-w-md mx-auto w-full">
+    <main className="min-h-full flex flex-col p-5 md:p-8 max-w-lg mx-auto w-full">
       <div className="space-y-5 flex-1 flex flex-col">
         <div>
           <Link

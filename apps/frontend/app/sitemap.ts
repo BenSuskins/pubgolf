@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 // Bump when page content meaningfully changes; a request-time date would make
 // every crawl look like fresh content and erode trust in the sitemap.
-const lastContentChange = new Date("2026-07-26");
+const lastContentChange = new Date("2026-11-01");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
