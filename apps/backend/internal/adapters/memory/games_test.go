@@ -1,10 +1,11 @@
 package memory_test
 
 import (
+	"testing"
+
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/memory"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 	"github.com/BenSuskins/pubgolf/backend/internal/contract"
-	"testing"
 )
 
 func TestGamesContract(t *testing.T) {

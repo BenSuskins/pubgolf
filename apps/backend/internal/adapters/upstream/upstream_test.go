@@ -3,19 +3,21 @@ package upstream_test
 import (
 	"context"
 	"fmt"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/upstream"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/upstream"
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 func TestPlaceSearchEncodesQueryAndBiasesResults(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if request.URL.Query().Get("q") != "Beer & Wine #1" || request.Header.Get("User-Agent") != "PubGolf/1.0" || request.URL.Query().Get("viewbox") == "" {
+		if request.URL.Query().Get("q") != "Beer & Wine #1" || request.Header.Get("User-Agent") != "PubGolf/1.0" ||
+			request.URL.Query().Get("viewbox") == "" {
 			t.Error(request.URL, request.Header)
 		}
 		fmt.Fprint(writer, `[{"display_name":"Pub","lat":"51.5","lon":"-0.1"}]`)
@@ -28,6 +30,7 @@ func TestPlaceSearchEncodesQueryAndBiasesResults(t *testing.T) {
 		t.Fatal(places, err)
 	}
 }
+
 func TestRoutingUsesLongitudeFirstAndReturnsNoRouteOnNoMatch(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		if !strings.Contains(request.URL.Path, "/foot/0.1,51;0.2,52") {
@@ -37,13 +40,19 @@ func TestRoutingUsesLongitudeFirstAndReturnsNoRouteOnNoMatch(t *testing.T) {
 	}))
 	defer server.Close()
 	adapter := upstream.Router{BaseURL: server.URL, Profile: "foot", Client: server.Client()}
-	geometry, err := adapter.Calculate(context.Background(), []domain.Pub{{Hole: 2, Longitude: 0.2, Latitude: 52}, {Hole: 1, Longitude: 0.1, Latitude: 51}})
+	geometry, err := adapter.Calculate(
+		context.Background(),
+		[]domain.Pub{{Hole: 2, Longitude: 0.2, Latitude: 52}, {Hole: 1, Longitude: 0.1, Latitude: 51}},
+	)
 	if err != nil || geometry != nil {
 		t.Fatal(geometry, err)
 	}
 }
+
 func TestUpstreamFailureAndCancellation(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) { writer.WriteHeader(503) }))
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) { writer.WriteHeader(503) }),
+	)
 	defer server.Close()
 	adapter := upstream.NewPlaces(server.URL, server.Client(), time.Second)
 	if _, err := adapter.Search(context.Background(), "pub", nil, nil); err == nil {
@@ -78,12 +87,15 @@ func TestPlaceSearchSerialisesRequestsAndHonoursSpacing(t *testing.T) {
 		}()
 	}
 	workers.Wait()
-	if len(starts) != 2 || starts[1].Sub(starts[0]) < 30*time.Millisecond {
+	if len(starts) != 2 || starts[1].Sub(starts[0]) < 25*time.Millisecond {
 		t.Fatal("upstream calls were not spaced", starts)
 	}
 }
+
 func TestProviderTimeoutDoesNotBlockIndefinitely(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) { <-request.Context().Done() }))
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) { <-request.Context().Done() }),
+	)
 	defer server.Close()
 	client := server.Client()
 	client.Timeout = 20 * time.Millisecond

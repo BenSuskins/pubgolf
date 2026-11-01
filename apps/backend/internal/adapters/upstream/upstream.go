@@ -4,14 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"io"
 	"net/http"
 	"net/url"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/sync/semaphore"
+	"golang.org/x/time/rate"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 func fetch(ctx context.Context, client *http.Client, address string, destination any) error {
@@ -46,7 +49,15 @@ func (adapter Router) Calculate(ctx context.Context, pubs []domain.Pub) (*domain
 	for _, pub := range pubs {
 		coordinates = append(coordinates, fmt.Sprintf("%g,%g", pub.Longitude, pub.Latitude))
 	}
-	address := strings.TrimRight(adapter.BaseURL, "/") + "/route/v1/" + url.PathEscape(adapter.Profile) + "/" + strings.Join(coordinates, ";") + "?overview=full&geometries=geojson"
+	address := strings.TrimRight(
+		adapter.BaseURL,
+		"/",
+	) + "/route/v1/" + url.PathEscape(
+		adapter.Profile,
+	) + "/" + strings.Join(
+		coordinates,
+		";",
+	) + "?overview=full&geometries=geojson"
 	var response struct {
 		Code   string `json:"code"`
 		Routes []struct {
@@ -69,60 +80,66 @@ func (adapter Router) Calculate(ctx context.Context, pubs []domain.Pub) (*domain
 type Places struct {
 	baseURL  string
 	client   *http.Client
-	interval time.Duration
-	slot     chan struct{}
-	next     time.Time
+	requests *semaphore.Weighted
+	limiter  *rate.Limiter
 }
 
 func NewPlaces(baseURL string, client *http.Client, interval time.Duration) *Places {
-	return &Places{baseURL: baseURL, client: client, interval: interval, slot: make(chan struct{}, 1)}
+	return &Places{
+		baseURL:  baseURL,
+		client:   client,
+		requests: semaphore.NewWeighted(1),
+		limiter:  rate.NewLimiter(rate.Every(interval), 1),
+	}
 }
+
 func (adapter *Places) Search(ctx context.Context, query string, latitude, longitude *float64) ([]domain.Place, error) {
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	select {
-	case adapter.slot <- struct{}{}:
-	case <-wait.Done():
-		return nil, domain.Fail(domain.Unavailable, "Place search is busy — please try again in a moment")
+	if err := adapter.requests.Acquire(wait, 1); err != nil {
+		return nil, searchBusy()
 	}
-	defer func() { adapter.next = time.Now().Add(adapter.interval); <-adapter.slot }()
-	if delay := time.Until(adapter.next); delay > 0 {
-		timer := time.NewTimer(delay)
-		defer timer.Stop()
-		select {
-		case <-timer.C:
-		case <-wait.Done():
-			return nil, domain.Fail(domain.Unavailable, "Place search is busy — please try again in a moment")
-		}
+	defer adapter.requests.Release(1)
+	if err := adapter.limiter.Wait(wait); err != nil {
+		return nil, searchBusy()
 	}
-	address, err := url.Parse(strings.TrimRight(adapter.baseURL, "/") + "/search")
+	address, err := adapter.searchURL(query, latitude, longitude)
 	if err != nil {
 		return nil, err
 	}
-	parameters := url.Values{"q": {query}, "format": {"json"}, "limit": {"5"}}
-	if latitude != nil && longitude != nil {
-		parameters.Set("viewbox", fmt.Sprintf("%g,%g,%g,%g", *longitude-0.045, *latitude-0.045, *longitude+0.045, *latitude+0.045))
-	}
-	address.RawQuery = parameters.Encode()
-	var response []struct {
-		Name      string `json:"display_name"`
-		Latitude  string `json:"lat"`
-		Longitude string `json:"lon"`
-	}
-	if err = fetch(ctx, adapter.client, address.String(), &response); err != nil {
+	var response []placeResult
+	if err = fetch(ctx, adapter.client, address, &response); err != nil {
 		return nil, domain.Fail(domain.Unavailable, "Failed to search places")
 	}
 	results := make([]domain.Place, 0, min(5, len(response)))
 	for _, place := range response[:min(5, len(response))] {
-		latitude, err := strconv.ParseFloat(place.Latitude, 64)
-		if err != nil {
-			return nil, domain.Fail(domain.Unavailable, "Failed to search places")
-		}
-		longitude, err := strconv.ParseFloat(place.Longitude, 64)
-		if err != nil {
-			return nil, domain.Fail(domain.Unavailable, "Failed to search places")
-		}
-		results = append(results, domain.Place{Name: place.Name, Latitude: latitude, Longitude: longitude})
+		results = append(results, domain.Place{Name: place.Name, Latitude: place.Latitude, Longitude: place.Longitude})
 	}
 	return results, nil
+}
+
+type placeResult struct {
+	Name      string  `json:"display_name"`
+	Latitude  float64 `json:"lat,string"`
+	Longitude float64 `json:"lon,string"`
+}
+
+func (adapter *Places) searchURL(query string, latitude, longitude *float64) (string, error) {
+	address, err := url.Parse(strings.TrimRight(adapter.baseURL, "/") + "/search")
+	if err != nil {
+		return "", err
+	}
+	parameters := url.Values{"q": {query}, "format": {"json"}, "limit": {"5"}}
+	if latitude != nil && longitude != nil {
+		parameters.Set(
+			"viewbox",
+			fmt.Sprintf("%g,%g,%g,%g", *longitude-0.045, *latitude-0.045, *longitude+0.045, *latitude+0.045),
+		)
+	}
+	address.RawQuery = parameters.Encode()
+	return address.String(), nil
+}
+
+func searchBusy() error {
+	return domain.Fail(domain.Unavailable, "Place search is busy — please try again in a moment")
 }

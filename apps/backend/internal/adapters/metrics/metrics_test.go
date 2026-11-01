@@ -2,16 +2,27 @@ package metrics_test
 
 import (
 	"context"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/metrics"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/metrics"
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 func TestScrapePreservesCommittedGameMetricNamesAndHoleLabels(t *testing.T) {
 	adapter := metrics.New()
-	adapter.Committed(context.Background(), domain.Game{}, []domain.Event{{Kind: domain.GameCreated}, {Kind: domain.PlayerJoined}, {Kind: domain.ScoreSubmitted, Hole: 2}, {Kind: domain.RandomiseUsed}, {Kind: domain.GameCompleted}})
+	adapter.Committed(
+		context.Background(),
+		domain.Game{},
+		[]domain.Event{
+			{Kind: domain.GameCreated},
+			{Kind: domain.PlayerJoined},
+			{Kind: domain.ScoreSubmitted, Hole: 2},
+			{Kind: domain.RandomiseUsed},
+			{Kind: domain.GameCompleted},
+		},
+	)
 	response := httptest.NewRecorder()
 	adapter.Handler().ServeHTTP(response, httptest.NewRequest("GET", "/actuator/prometheus", nil))
 	text := response.Body.String()

@@ -3,11 +3,12 @@ package application
 import (
 	"context"
 	"errors"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"log/slog"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 type Games interface {
@@ -27,17 +28,20 @@ type Subscription struct {
 	Updates <-chan domain.Game
 	Cancel  func()
 }
-type Streams interface{ Subscribe(string) Subscription }
-type Dependencies struct {
-	Identifier func() string
-	Code       func() string
-	Outcome    func() string
-	Now        func() time.Time
-	Effects    Effects
-	Router     Router
-	Places     Places
-	Streams    Streams
-}
+type (
+	Streams      interface{ Subscribe(string) Subscription }
+	Dependencies struct {
+		Identifier func() string
+		Code       func() string
+		Outcome    func() string
+		Now        func() time.Time
+		Effects    Effects
+		Router     Router
+		Places     Places
+		Streams    Streams
+	}
+)
+
 type Service struct {
 	games        Games
 	dependencies Dependencies
@@ -47,9 +51,11 @@ type Service struct {
 func New(games Games, dependencies Dependencies) *Service {
 	return &Service{games: games, dependencies: dependencies}
 }
+
 func (service *Service) Get(ctx context.Context, code string) (domain.Game, error) {
 	return service.games.Get(ctx, code)
 }
+
 func (service *Service) notify(ctx context.Context, game domain.Game, events []domain.Event) {
 	if service.dependencies.Effects != nil {
 		if err := service.dependencies.Effects.Committed(ctx, game, events); err != nil {
@@ -57,10 +63,12 @@ func (service *Service) notify(ctx context.Context, game domain.Game, events []d
 		}
 	}
 }
+
 func hasKind(err error, kind domain.FailureKind) bool {
 	var failure *domain.Failure
 	return errors.As(err, &failure) && failure.Kind == kind
 }
+
 func (service *Service) Create(ctx context.Context, name string) (domain.Game, error) {
 	if err := domain.ValidateName(name, "host"); err != nil {
 		return domain.Game{}, err
@@ -113,47 +121,78 @@ func (service *Service) update(ctx context.Context, code string, change change) 
 	}
 	return domain.Game{}, domain.Fail(domain.Conflict, "Game was modified concurrently.")
 }
+
 func (service *Service) Join(ctx context.Context, code, name string, rejoin bool) (domain.Game, error) {
 	identifier := service.dependencies.Identifier()
 	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) {
 		return domain.Join(game, name, identifier, rejoin)
 	})
 }
-func (service *Service) SubmitScore(ctx context.Context, code, actor string, hole, score int, penalty string) (domain.Game, error) {
+
+func (service *Service) SubmitScore(
+	ctx context.Context,
+	code, actor string,
+	hole, score int,
+	penalty string,
+) (domain.Game, error) {
 	at := service.dependencies.Now()
 	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) {
 		return domain.SubmitScore(game, actor, hole, score, penalty, at)
 	})
 }
+
 func (service *Service) Complete(ctx context.Context, code, actor string) (domain.Game, error) {
-	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) { return domain.Complete(game, actor) })
+	return service.update(
+		ctx,
+		code,
+		func(game domain.Game) (domain.Game, []domain.Event, error) { return domain.Complete(game, actor) },
+	)
 }
+
 func (service *Service) Randomise(ctx context.Context, code, actor string) (domain.Game, error) {
 	outcome := service.dependencies.Outcome()
 	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) {
 		return domain.RandomisePlayer(game, actor, outcome)
 	})
 }
+
 func (service *Service) ActivateEvent(ctx context.Context, code, actor, identifier string) (domain.Game, error) {
 	event := domain.ActiveEvent{ID: identifier, ActivatedAt: service.dependencies.Now()}
 	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) {
 		return domain.ActivateEvent(game, actor, event)
 	})
 }
+
 func (service *Service) CustomEvent(ctx context.Context, code, actor, title, description string) (domain.Game, error) {
-	event := domain.ActiveEvent{ID: "custom", Title: title, Description: description, ActivatedAt: service.dependencies.Now()}
+	event := domain.ActiveEvent{
+		ID:          "custom",
+		Title:       title,
+		Description: description,
+		ActivatedAt: service.dependencies.Now(),
+	}
 	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) {
 		return domain.ActivateEvent(game, actor, event)
 	})
 }
+
 func (service *Service) EndEvent(ctx context.Context, code, actor string) (domain.Game, error) {
-	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) { return domain.EndEvent(game, actor) })
+	return service.update(
+		ctx,
+		code,
+		func(game domain.Game) (domain.Game, []domain.Event, error) { return domain.EndEvent(game, actor) },
+	)
 }
-func (service *Service) SetCourse(ctx context.Context, code, actor string, course []domain.CourseHole) (domain.Game, error) {
+
+func (service *Service) SetCourse(
+	ctx context.Context,
+	code, actor string,
+	course []domain.CourseHole,
+) (domain.Game, error) {
 	return service.update(ctx, code, func(game domain.Game) (domain.Game, []domain.Event, error) {
 		return domain.SetCourse(game, actor, course)
 	})
 }
+
 func (service *Service) SetPubs(ctx context.Context, code, actor string, pubs []domain.Pub) (domain.Game, error) {
 	original, err := service.Get(ctx, code)
 	if err != nil {
@@ -177,7 +216,12 @@ func (service *Service) SetPubs(ctx context.Context, code, actor string, pubs []
 		return domain.SetPubs(game, actor, validated.Pubs, route)
 	})
 }
-func (service *Service) Search(ctx context.Context, query string, latitude, longitude *float64) ([]domain.Place, error) {
+
+func (service *Service) Search(
+	ctx context.Context,
+	query string,
+	latitude, longitude *float64,
+) ([]domain.Place, error) {
 	if len([]rune(query)) < 1 || len([]rune(query)) > 200 {
 		return nil, domain.Fail(domain.Invalid, "Validation failed: Query must be between 1 and 200 characters")
 	}

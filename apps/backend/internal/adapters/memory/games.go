@@ -3,9 +3,10 @@ package memory
 import (
 	"context"
 	"fmt"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"strings"
 	"sync"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 type Games struct {
@@ -20,6 +21,7 @@ func (repository *Games) FailNext(err error) {
 	defer repository.mutex.Unlock()
 	repository.failures = append(repository.failures, err)
 }
+
 func (repository *Games) Get(ctx context.Context, code string) (domain.Game, error) {
 	if err := ctx.Err(); err != nil {
 		return domain.Game{}, err
@@ -32,6 +34,7 @@ func (repository *Games) Get(ctx context.Context, code string) (domain.Game, err
 	}
 	return domain.Clone(game), nil
 }
+
 func (repository *Games) Save(ctx context.Context, game domain.Game, expected int64) (domain.Game, error) {
 	if err := ctx.Err(); err != nil {
 		return domain.Game{}, err

@@ -1,0 +1,31 @@
+# Copied from BenSuskins/repo-templates for use by this public repository.
+name: Verify OpenAPI spec (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      spec-path:
+        description: Path to the OpenAPI spec to lint.
+        required: true
+        type: string
+      redocly-image:
+        description: Container image to run.
+        required: false
+        type: string
+        default: 'redocly/cli:latest'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint OpenAPI spec
+        env:
+          REDOCLY_IMAGE: ${{ inputs.redocly-image }}
+          SPEC_PATH: ${{ inputs.spec-path }}
+        run: |
+          docker run --rm -v "${GITHUB_WORKSPACE}:/spec" \
+            "$REDOCLY_IMAGE" \
+            lint "/spec/${SPEC_PATH}"

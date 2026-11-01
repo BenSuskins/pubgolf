@@ -59,12 +59,15 @@ type CourseHole struct {
 	Hole, Par int
 	Drinks    []Drink
 }
-type Drink struct{ Route, Name string }
-type Pub struct {
-	Hole                int
-	Name                string
-	Latitude, Longitude float64
-}
+type (
+	Drink struct{ Route, Name string }
+	Pub   struct {
+		Hole                int
+		Name                string
+		Latitude, Longitude float64
+	}
+)
+
 type Geometry struct {
 	Type        string
 	Coordinates [][]float64
@@ -90,11 +93,19 @@ type Event struct {
 }
 
 func NewGame(identifier, code, playerID, name string) Game {
-	return Game{ID: identifier, Code: code, Status: "ACTIVE", HostPlayerID: playerID, Players: []Player{NewPlayer(playerID, name)}}
+	return Game{
+		ID:           identifier,
+		Code:         code,
+		Status:       "ACTIVE",
+		HostPlayerID: playerID,
+		Players:      []Player{NewPlayer(playerID, name)},
+	}
 }
+
 func NewPlayer(identifier, name string) Player {
 	return Player{ID: identifier, Name: name, Scores: map[int]Score{}, Penalties: map[int]string{}}
 }
+
 func Clone(game Game) Game {
 	game.Players = slices.Clone(game.Players)
 	for index, player := range game.Players {
@@ -125,12 +136,14 @@ func Clone(game Game) Game {
 	}
 	return game
 }
+
 func RequirePlayer(game Game, actor string) error {
 	if slices.ContainsFunc(game.Players, func(player Player) bool { return player.ID == actor }) {
 		return nil
 	}
 	return Fail(Forbidden, fmt.Sprintf("Player `%s` does not belong to game `%s`.", actor, game.Code))
 }
+
 func RequireHost(game Game, actor, action string) error {
 	if err := RequirePlayer(game, actor); err != nil {
 		return err
@@ -140,18 +153,17 @@ func RequireHost(game Game, actor, action string) error {
 	}
 	return nil
 }
+
 func requireActive(game Game, message string) error {
 	if game.Status == "COMPLETED" {
 		return Fail(Conflict, message)
 	}
 	return nil
 }
+
 func SubmitScore(game Game, actor string, hole, score int, penalty string, at time.Time) (Game, []Event, error) {
-	if hole < 1 || hole > 9 || score < -10 || score > 10 {
-		return game, nil, Fail(Invalid, "Invalid hole or score")
-	}
-	if penalty != "" && penalty != "SKIP" && penalty != "CHUNDER" {
-		return game, nil, Fail(Invalid, "Malformed request body")
+	if err := validateScore(hole, score, penalty); err != nil {
+		return game, nil, err
 	}
 	if err := RequirePlayer(game, actor); err != nil {
 		return game, nil, err
@@ -161,30 +173,45 @@ func SubmitScore(game Game, actor string, hole, score int, penalty string, at ti
 	}
 	game = Clone(game)
 	for index := range game.Players {
-		player := &game.Players[index]
-		if player.ID != actor {
-			continue
-		}
-		if penalty == "SKIP" {
-			score = 5
-		}
-		if penalty == "CHUNDER" {
-			score = 10
-		}
-		player.Scores[hole] = Score{score, at}
-		delete(player.Penalties, hole)
-		if penalty != "" {
-			player.Penalties[hole] = penalty
+		if game.Players[index].ID == actor {
+			game.Players[index] = scoredPlayer(game.Players[index], hole, score, penalty, at)
 		}
 	}
 	return game, []Event{{Kind: ScoreSubmitted, Hole: hole}}, nil
 }
+
+func validateScore(hole, score int, penalty string) error {
+	if hole < 1 || hole > 9 || score < -10 || score > 10 {
+		return Fail(Invalid, "Invalid hole or score")
+	}
+	if penalty != "" && penalty != "SKIP" && penalty != "CHUNDER" {
+		return Fail(Invalid, "Malformed request body")
+	}
+	return nil
+}
+
+func scoredPlayer(player Player, hole, score int, penalty string, at time.Time) Player {
+	switch penalty {
+	case "SKIP":
+		score = 5
+	case "CHUNDER":
+		score = 10
+	}
+	player.Scores[hole] = Score{score, at}
+	delete(player.Penalties, hole)
+	if penalty != "" {
+		player.Penalties[hole] = penalty
+	}
+	return player
+}
+
 func Course(game Game) []CourseHole {
 	if len(game.Holes) == 0 {
 		return DefaultCourse()
 	}
 	return game.Holes
 }
+
 func ValidateName(name, field string) error {
 	if strings.TrimSpace(name) == "" {
 		label := "Name"
@@ -215,6 +242,7 @@ func Join(game Game, name, identifier string, rejoin bool) (Game, []Event, error
 	game.Players = append(game.Players, NewPlayer(identifier, name))
 	return game, []Event{{Kind: PlayerJoined}}, nil
 }
+
 func Complete(game Game, actor string) (Game, []Event, error) {
 	if err := RequireHost(game, actor, "complete this game"); err != nil {
 		return game, nil, err
@@ -253,6 +281,7 @@ func RandomisePlayer(game Game, actor, outcome string) (Game, []Event, error) {
 	}
 	return game, nil, Fail(Conflict, "No more holes left")
 }
+
 func ActivateEvent(game Game, actor string, event ActiveEvent) (Game, []Event, error) {
 	if err := RequireHost(game, actor, "activate events"); err != nil {
 		return game, nil, err
@@ -261,32 +290,21 @@ func ActivateEvent(game Game, actor string, event ActiveEvent) (Game, []Event, e
 		return game, nil, err
 	}
 	if game.ActiveEvent != nil {
-		return game, nil, Fail(Conflict, "An event is already active. End the current event before activating a new one.")
+		return game, nil, Fail(
+			Conflict,
+			"An event is already active. End the current event before activating a new one.",
+		)
 	}
-	if event.ID == "custom" {
-		event.Title = strings.TrimSpace(event.Title)
-		event.Description = strings.TrimSpace(event.Description)
-		if event.Title == "" || len([]rune(event.Title)) > 255 || len([]rune(event.Description)) > 500 {
-			return game, nil, Fail(Invalid, "Invalid custom event")
-		}
-	} else {
-		found := false
-		for _, option := range AvailableEvents() {
-			if option.ID == event.ID {
-				event.Title = option.Title
-				event.Description = option.Description
-				found = true
-				break
-			}
-		}
-		if !found {
-			return game, nil, Fail(NotFound, fmt.Sprintf("Event '%s' not found", event.ID))
-		}
+	var err error
+	event, err = normaliseEvent(event)
+	if err != nil {
+		return game, nil, err
 	}
 	game = Clone(game)
 	game.ActiveEvent = &event
 	return game, []Event{{Kind: GameChanged}}, nil
 }
+
 func EndEvent(game Game, actor string) (Game, []Event, error) {
 	if err := RequireHost(game, actor, "end events"); err != nil {
 		return game, nil, err
@@ -298,65 +316,23 @@ func EndEvent(game Game, actor string) (Game, []Event, error) {
 	game.ActiveEvent = nil
 	return game, []Event{{Kind: GameChanged}}, nil
 }
+
 func SetCourse(game Game, actor string, course []CourseHole) (Game, []Event, error) {
-	if len(course) != 9 {
-		return game, nil, Fail(Invalid, "Each hole from 1 to 9 must be set exactly once")
-	}
-	course = slices.Clone(course)
-	slices.SortFunc(course, func(left, right CourseHole) int { return left.Hole - right.Hole })
-	routes := map[string]bool{}
-	for _, drink := range course[0].Drinks {
-		name := strings.TrimSpace(drink.Route)
-		key := strings.ToLower(name)
-		if name == "" || len([]rune(name)) > 40 || routes[key] {
-			return game, nil, Fail(Invalid, "Route names must be nonblank and unique, and at most 40 characters")
-		}
-		routes[key] = true
-	}
-	if len(routes) < 1 || len(routes) > 4 {
-		return game, nil, Fail(Invalid, "A course needs between 1 and 4 routes")
-	}
-	for index, hole := range course {
-		if hole.Hole != index+1 || hole.Par < 1 || hole.Par > 10 {
-			return game, nil, Fail(Invalid, "Invalid hole or par")
-		}
-		if len(hole.Drinks) != len(routes) {
-			return game, nil, Fail(Invalid, fmt.Sprintf("Hole %d must have a drink for every route", hole.Hole))
-		}
-		drinks := map[string]string{}
-		for _, drink := range hole.Drinks {
-			route := strings.TrimSpace(drink.Route)
-			name := strings.TrimSpace(drink.Name)
-			key := strings.ToLower(route)
-			if !routes[key] || name == "" || len([]rune(name)) > 100 {
-				return game, nil, Fail(Invalid, "Invalid drink or route")
-			}
-			if _, exists := drinks[route]; exists {
-				return game, nil, Fail(Invalid, "Duplicate route")
-			}
-			drinks[route] = name
-		}
-		ordered := make([]Drink, 0, len(routes))
-		for _, drink := range course[0].Drinks {
-			route := strings.TrimSpace(drink.Route)
-			name, exists := drinks[route]
-			if !exists {
-				return game, nil, Fail(Invalid, "Every hole must have the same routes")
-			}
-			ordered = append(ordered, Drink{route, name})
-		}
-		course[index].Drinks = ordered
-	}
-	if err := RequireHost(game, actor, "change drinks and pars"); err != nil {
+	normalised, err := normaliseCourse(course)
+	if err != nil {
 		return game, nil, err
 	}
-	if err := requireActive(game, "Cannot change the course of a completed game"); err != nil {
+	if err = RequireHost(game, actor, "change drinks and pars"); err != nil {
+		return game, nil, err
+	}
+	if err = requireActive(game, "Cannot change the course of a completed game"); err != nil {
 		return game, nil, err
 	}
 	game = Clone(game)
-	game.Holes = course
+	game.Holes = normalised
 	return game, []Event{{Kind: GameChanged}}, nil
 }
+
 func SetPubs(game Game, actor string, pubs []Pub, route *Geometry) (Game, []Event, error) {
 	if len(pubs) != 9 {
 		return game, nil, Fail(Invalid, fmt.Sprintf("Exactly 9 pubs are required, but %d were provided", len(pubs)))
@@ -365,8 +341,8 @@ func SetPubs(game Game, actor string, pubs []Pub, route *Geometry) (Game, []Even
 		return game, nil, err
 	}
 	for _, pub := range pubs {
-		if strings.TrimSpace(pub.Name) == "" || pub.Latitude < -90 || pub.Latitude > 90 || pub.Longitude < -180 || pub.Longitude > 180 {
-			return game, nil, Fail(Invalid, "Invalid pub name or coordinates")
+		if err := validatePub(pub); err != nil {
+			return game, nil, err
 		}
 	}
 	game = Clone(game)
@@ -376,4 +352,31 @@ func SetPubs(game Game, actor string, pubs []Pub, route *Geometry) (Game, []Even
 	}
 	game.Route = route
 	return Clone(game), []Event{{Kind: GameChanged}}, nil
+}
+
+func validatePub(pub Pub) error {
+	if strings.TrimSpace(pub.Name) == "" || pub.Latitude < -90 || pub.Latitude > 90 || pub.Longitude < -180 ||
+		pub.Longitude > 180 {
+		return Fail(Invalid, "Invalid pub name or coordinates")
+	}
+	return nil
+}
+
+func normaliseEvent(event ActiveEvent) (ActiveEvent, error) {
+	if event.ID == "custom" {
+		event.Title = strings.TrimSpace(event.Title)
+		event.Description = strings.TrimSpace(event.Description)
+		if event.Title == "" || len([]rune(event.Title)) > 255 || len([]rune(event.Description)) > 500 {
+			return event, Fail(Invalid, "Invalid custom event")
+		}
+		return event, nil
+	}
+	for _, option := range AvailableEvents() {
+		if option.ID == event.ID {
+			event.Title = option.Title
+			event.Description = option.Description
+			return event, nil
+		}
+	}
+	return event, Fail(NotFound, fmt.Sprintf("Event '%s' not found", event.ID))
 }

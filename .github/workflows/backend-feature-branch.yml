@@ -10,21 +10,23 @@ permissions:
   contents: read
 jobs:
   verify:
-    uses: bensuskins/repo-templates/.github/workflows/verify-go.yml@main
+    uses: ./.github/workflows/verify-go.yml
     with:
-      go-version: '1.25'
+      go-version: '1.27.3'
       working-directory: apps/backend
       test-command: go test -race ./...
-      pre-test-commands: test -z "$(gofmt -l cmd internal)"
+      pre-test-commands: |
+        test -z "$(gofmt -l cmd internal)"
+        go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run
   openapi:
-    uses: bensuskins/repo-templates/.github/workflows/verify-openapi.yml@main
+    uses: ./.github/workflows/verify-openapi.yml
     with:
       spec-path: apps/backend/internal/adapters/httpapi/openapi.json
   container:
     permissions:
       contents: read
       packages: write
-    uses: bensuskins/repo-templates/.github/workflows/publish-container.yml@main
+    uses: ./.github/workflows/publish-container.yml
     with:
       image: ghcr.io/bensuskins/pubgolf-backend
       context: ./apps/backend

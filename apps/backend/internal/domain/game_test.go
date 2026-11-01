@@ -1,9 +1,10 @@
 package domain_test
 
 import (
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"testing"
 	"time"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 func TestScoreReplacesPenaltyWithoutChangingOriginalGame(t *testing.T) {
@@ -66,6 +67,7 @@ func TestRandomiseUsesFirstUnplayedHoleAndOnlyOnce(t *testing.T) {
 		t.Fatal("used randomise twice")
 	}
 }
+
 func TestCourseAndEventRules(t *testing.T) {
 	game := domain.NewGame("game", "PAR001", "host", "Alice")
 	course := domain.DefaultCourse()

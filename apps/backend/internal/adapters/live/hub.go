@@ -2,10 +2,11 @@ package live
 
 import (
 	"context"
-	"github.com/BenSuskins/pubgolf/backend/internal/application"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"strings"
 	"sync"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/application"
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 type Hub struct {
@@ -18,6 +19,7 @@ type Hub struct {
 func New(capacity int) *Hub {
 	return &Hub{capacity: capacity, subscribers: map[string]map[chan domain.Game]struct{}{}}
 }
+
 func (hub *Hub) Subscribe(code string) application.Subscription {
 	hub.mutex.Lock()
 	defer hub.mutex.Unlock()
@@ -31,8 +33,12 @@ func (hub *Hub) Subscribe(code string) application.Subscription {
 		hub.subscribers[code] = map[chan domain.Game]struct{}{}
 	}
 	hub.subscribers[code][updates] = struct{}{}
-	return application.Subscription{Updates: updates, Cancel: func() { hub.mutex.Lock(); defer hub.mutex.Unlock(); hub.remove(code, updates) }}
+	return application.Subscription{
+		Updates: updates,
+		Cancel:  func() { hub.mutex.Lock(); defer hub.mutex.Unlock(); hub.remove(code, updates) },
+	}
 }
+
 func (hub *Hub) remove(code string, updates chan domain.Game) {
 	if _, exists := hub.subscribers[code][updates]; exists {
 		delete(hub.subscribers[code], updates)
@@ -42,6 +48,7 @@ func (hub *Hub) remove(code string, updates chan domain.Game) {
 		}
 	}
 }
+
 func (hub *Hub) Committed(_ context.Context, game domain.Game, _ []domain.Event) error {
 	hub.mutex.Lock()
 	defer hub.mutex.Unlock()
@@ -55,6 +62,7 @@ func (hub *Hub) Committed(_ context.Context, game domain.Game, _ []domain.Event)
 	}
 	return nil
 }
+
 func (hub *Hub) Close() {
 	hub.mutex.Lock()
 	defer hub.mutex.Unlock()

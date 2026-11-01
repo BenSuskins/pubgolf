@@ -2,9 +2,10 @@ package live_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/live"
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
-	"testing"
 )
 
 func TestHubIsolatesGamesAndDisconnectsSlowConsumers(t *testing.T) {

@@ -26,10 +26,10 @@ scores come in.
 
 ## Tech Stack
 
-- Go 1.25 / net/http (backend)
+- Go 1.27.3 / net/http (backend)
 - Next.js (App Router) / React / TypeScript / Tailwind CSS (frontend)
 - Bun (frontend/e2e package manager + test runner)
-- SQLite with embedded SQL migrations (storage)
+- SQLite with sqlx and Goose migrations (storage)
 - Browser EventSource for real-time updates
 - Playwright (e2e), Go tests (backend), Bun Test + Happy DOM (frontend)
 - Podman / Docker (local infra)
@@ -49,7 +49,7 @@ pubgolf/
 
 ### Prerequisites
 
-- [Go 1.25+](https://go.dev/)
+- [Go 1.27.3+](https://go.dev/)
 - [Node.js](https://nodejs.org/) compatible with the pinned Next.js release
 - [Bun](https://bun.sh/)
 - [Make](https://www.gnu.org/software/make/)
@@ -78,8 +78,8 @@ Verify: visit `http://localhost:3000` — you should see the Pub Golf home page 
 | `make frontend-test` | Run frontend unit tests (Bun + Happy DOM) |
 | `make e2e` | Run Playwright e2e tests |
 | `make e2e-ui` | Run e2e tests with Playwright UI |
-| `make lint` | Run gofmt checks, go vet, and ESLint |
-| `make backend-lint` | Check Go formatting and run go vet |
+| `make lint` | Run gofmt checks, golangci-lint, and ESLint |
+| `make backend-lint` | Check Go formatting and run golangci-lint |
 | `make frontend-lint` | Run ESLint only |
 
 ## Environment Variables
@@ -95,6 +95,9 @@ Verify: visit `http://localhost:3000` — you should see the Pub Golf home page 
 | `NEXT_PUBLIC_API_URL` | no | `https://api.pubgolf.me` | Browser API URL; `make frontend` sets localhost |
 
 ## Testing
+
+`make backend-lint` runs pinned golangci-lint v2.15.0. Cyclomatic complexity must be at most 10.
+Functions must have at most 60 lines and 40 statements. The same limits apply to tests.
 
 - **Backend:** Pure domain rules, fake-based application tests, shared fake/SQLite contracts,
   real HTTP/SQLite contract checks, external adapter tests, and SSE tests. Run one package with

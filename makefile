@@ -16,7 +16,7 @@ backend-test:
 
 backend-lint:
 	cd apps/backend && test -z "$$(gofmt -l cmd internal)"
-	cd apps/backend && go vet ./...
+	cd apps/backend && go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run
 
 frontend:
 	cd apps/frontend && NEXT_PUBLIC_API_URL=http://localhost:8080 bun run dev

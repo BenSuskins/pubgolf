@@ -30,7 +30,8 @@ flowchart TD
 | Domain | Pure transitions, validation, permissions, typed failures | `apps/backend/internal/domain` |
 | Application | Use cases, retry policy, ports, commit and subscription ordering | `apps/backend/internal/application` |
 | Adapters | HTTP/SSE, SQLite, upstream calls, metrics, fake storage | `apps/backend/internal/adapters` |
-| Executable | Configuration, dependency wiring, graceful shutdown | `apps/backend/cmd/pubgolf` |
+| Bootstrap | Configuration, adapter wiring, server lifecycle | `apps/backend/internal/bootstrap` |
+| Executable | Signals and exit status | `apps/backend/cmd/pubgolf` |
 | Frontend | Screens, REST client, EventSource hook | `apps/frontend` |
 | Browser tests | Full game flows on desktop and mobile Chromium | `e2e` |
 
@@ -64,6 +65,12 @@ revalidates permission, and saves with a version check. A routing failure saves 
 
 - **Ports belong to their consumer.** Application packages define storage, routing, search,
   effect, and subscription interfaces. Adapters implement them. The executable wires them.
+- **Library reuse.** `go-sse` handles event framing and flushing; the live adapter keeps bounded
+  per-browser queues. `sqlx` maps SQL rows, Goose runs migrations, `google/uuid` handles UUIDs,
+  and `errgroup` coordinates server goroutines. Go rate and semaphore packages schedule place searches.
+  These libraries stay in adapters or bootstrap.
+- **Complexity limits.** Pinned golangci-lint v2.15.0 runs locally and in CI. Functions have
+  cyclomatic complexity at most 10, at most 60 lines, and at most 40 statements, including tests.
 - **Pure rules.** Domain functions receive time and outcomes and return state plus events.
   They do not read clocks, generate random values, encode JSON, or access the database.
 - **Game consistency.** SQLite saves all game-owned rows in one transaction. Expected versions
@@ -79,6 +86,9 @@ revalidates permission, and saves with a version check. A routing failure saves 
 - **REST compatibility.** The HTTP tests replay 32 exchanges captured from Kotlin at commit
   `5533f17`. The OpenAPI contract corrects the old generated spec's nullable fields and scalar
   score representation. It uses OpenAPI 3.0.3 for validator compatibility.
+- **Workflow reuse.** Pub Golf is public and `repo-templates` is private. GitHub does not allow
+  this caller to use those private reusable workflows. Local copies of the canonical Go,
+  OpenAPI, security, and container workflows keep CI runnable without changing repository access.
 - **Identity compatibility.** Game reads and streams remain public. Player IDs identify mutation
   actors. Rejoin remains claim-by-name. This rewrite does not introduce account authentication.
 
@@ -96,7 +106,7 @@ The game row holds status, host identity, version, active event, and route geome
 Player rows preserve join order and randomise state. Score rows hold timestamps and penalties.
 Course rows preserve drink route order. SQL and JSON representations belong to the SQLite adapter.
 
-Migrations are embedded and recorded in `schema_migrations`. The Go service uses a fresh database;
+Goose runs embedded migrations and records versions in `goose_db_version`. The Go service uses a fresh database;
 it does not migrate or open the previous Kotlin database.
 
 ## External Dependencies

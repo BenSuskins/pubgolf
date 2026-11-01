@@ -1,0 +1,120 @@
+# Copied from BenSuskins/repo-templates for use by this public repository.
+name: Verify Go project (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        description: Go toolchain version (passed to `actions/setup-go`).
+        required: false
+        type: string
+        default: '1.27.3'
+      working-directory:
+        description: Working directory for go commands.
+        required: false
+        type: string
+        default: '.'
+      cache-dependency-path:
+        description: Path to `go.sum` for cache keying. Defaults to `<working-directory>/go.sum`.
+        required: false
+        type: string
+        default: ''
+      pre-test-commands:
+        description: |
+          Newline-separated shell commands run after `go mod download` and before tests.
+          Use for code generation (e.g. `templ generate`) or asset builds.
+        required: false
+        type: string
+        default: ''
+      test-command:
+        description: Command used to run tests.
+        required: false
+        type: string
+        default: 'go test ./...'
+      vet:
+        description: Whether to run `go vet ./...` after tests.
+        required: false
+        type: boolean
+        default: true
+      postgres:
+        description: Spin up a Postgres 16 service and expose `TEST_DATABASE_URL`.
+        required: false
+        type: boolean
+        default: false
+      postgres-db:
+        description: Postgres database name when `postgres` is true.
+        required: false
+        type: string
+        default: 'test'
+      postgres-user:
+        description: Postgres user when `postgres` is true.
+        required: false
+        type: string
+        default: 'test'
+      postgres-password:
+        description: Postgres password when `postgres` is true.
+        required: false
+        type: string
+        default: 'test'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: ${{ inputs.postgres && 'postgres:16' || '' }}
+        env:
+          POSTGRES_DB: ${{ inputs.postgres-db }}
+          POSTGRES_USER: ${{ inputs.postgres-user }}
+          POSTGRES_PASSWORD: ${{ inputs.postgres-password }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go-version }}
+          cache-dependency-path: ${{ inputs.cache-dependency-path != '' && inputs.cache-dependency-path || format('{0}/go.sum', inputs.working-directory) }}
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Pre-test commands
+        if: inputs.pre-test-commands != ''
+        env:
+          COMMANDS: ${{ inputs.pre-test-commands }}
+        run: |
+          GOPATH_BIN="$(go env GOPATH)/bin"
+          export PATH="$PATH:$GOPATH_BIN"
+          while IFS= read -r cmd; do
+            [ -z "$cmd" ] && continue
+            echo "::group::$cmd"
+            # shellcheck disable=SC2086
+            eval "$cmd"
+            echo "::endgroup::"
+          done <<< "$COMMANDS"
+
+      - name: Test
+        env:
+          TEST_DATABASE_URL: ${{ inputs.postgres && format('postgres://{0}:{1}@localhost:5432/{2}', inputs.postgres-user, inputs.postgres-password, inputs.postgres-db) || '' }}
+          TEST_COMMAND: ${{ inputs.test-command }}
+        run: |
+          # shellcheck disable=SC2086
+          eval "$TEST_COMMAND"
+
+      - name: Vet
+        if: inputs.vet
+        run: go vet ./...

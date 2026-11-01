@@ -35,6 +35,7 @@ func AvailableEvents() []GameEvent {
 		{"stranger-danger", "Stranger Danger", "Convince a stranger to buy you a drink, -2 points"},
 	}
 }
+
 func DefaultCourse() []CourseHole {
 	return []CourseHole{
 		{1, 1, []Drink{{"Route A", "Tequila"}, {"Route B", "Sambuca"}}},

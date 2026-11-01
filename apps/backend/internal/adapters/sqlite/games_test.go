@@ -2,12 +2,13 @@ package sqlite_test
 
 import (
 	"context"
+	"path/filepath"
+	"testing"
+
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 	"github.com/BenSuskins/pubgolf/backend/internal/contract"
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
-	"path/filepath"
-	"testing"
 )
 
 func TestGamesContract(t *testing.T) {
@@ -20,6 +21,7 @@ func TestGamesContract(t *testing.T) {
 		return repository
 	})
 }
+
 func TestPersistenceSurvivesRestart(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "games.db")
 	repository, err := sqlite.Open(path)

@@ -11,12 +11,12 @@ Run `make backend-build` for the backend executable and `cd apps/frontend && bun
 
 ## Backend design
 
-The Go module lives in `apps/backend`. Use Go 1.25 and Bun for frontend tools.
+The Go module lives in `apps/backend`. Use Go 1.27.3 and Bun for frontend tools.
 
 - `internal/domain` owns pure game rules, values, and typed failures.
 - `internal/application` owns use cases and the ports they consume.
 - `internal/adapters` owns HTTP/SSE, SQLite, upstream HTTP, metrics, and fakes.
-- `cmd/pubgolf` wires adapters and starts the process.
+- `cmd/pubgolf` handles process signals. `internal/bootstrap` wires adapters and owns the server lifecycle.
 
 Dependencies point inward. Keep HTTP, SQL, JSON encoding, and vendor clients in adapters.
 Pass time, identifiers, and random outcomes into the core.
@@ -28,6 +28,10 @@ Test pure rules and application use cases through their interfaces.
 Run shared repository contracts against the fake and SQLite adapters.
 The HTTP suite replays captured Kotlin responses and validates OpenAPI against real SQLite.
 Keep real integration and browser tests alongside fake-based tests.
+
+Prefer maintained libraries over custom infrastructure. Keep vendor types in adapters.
+`make backend-lint` enforces cyclomatic complexity at most 10 and functions at most 60 lines or 40 statements.
+Apply these limits to tests too. Refactor instead of adding exclusions.
 
 ## Public contracts
 

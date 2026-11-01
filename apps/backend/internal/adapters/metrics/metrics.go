@@ -2,12 +2,14 @@ package metrics
 
 import (
 	"context"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/BenSuskins/pubgolf/backend/internal/domain"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Metrics struct {
@@ -24,17 +26,37 @@ func New() *Metrics {
 		registry.MustRegister(value)
 		return value
 	}
-	metrics := &Metrics{registry: registry, created: counter("pubgolf_game_started_total"), joined: counter("pubgolf_player_joined_total"), randomised: counter("pubgolf_game_randomise_total"), completed: counter("pubgolf_game_completed_total")}
-	metrics.scores = prometheus.NewCounterVec(prometheus.CounterOpts{Name: "pubgolf_score_submitted_total", Help: "Committed scores by hole."}, []string{"hole"})
+	metrics := &Metrics{
+		registry:   registry,
+		created:    counter("pubgolf_game_started_total"),
+		joined:     counter("pubgolf_player_joined_total"),
+		randomised: counter("pubgolf_game_randomise_total"),
+		completed:  counter("pubgolf_game_completed_total"),
+	}
+	metrics.scores = prometheus.NewCounterVec(
+		prometheus.CounterOpts{Name: "pubgolf_score_submitted_total", Help: "Committed scores by hole."},
+		[]string{"hole"},
+	)
 	registry.MustRegister(metrics.scores)
 	for hole := 1; hole <= 9; hole++ {
 		metrics.scores.WithLabelValues(strconv.Itoa(hole))
 	}
-	metrics.requests = prometheus.NewHistogramVec(prometheus.HistogramOpts{Name: "http_server_requests_seconds", Help: "HTTP request duration.", Buckets: prometheus.DefBuckets}, []string{"method", "uri", "status"})
+	metrics.requests = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_server_requests_seconds",
+			Help:    "HTTP request duration.",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "uri", "status"},
+	)
 	registry.MustRegister(metrics.requests)
-	registry.MustRegister(prometheus.NewGoCollector(), prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
+	registry.MustRegister(
+		collectors.NewGoCollector(),
+		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+	)
 	return metrics
 }
+
 func (metrics *Metrics) Committed(_ context.Context, _ domain.Game, events []domain.Event) error {
 	for _, event := range events {
 		switch event.Kind {
@@ -52,6 +74,7 @@ func (metrics *Metrics) Committed(_ context.Context, _ domain.Game, events []dom
 	}
 	return nil
 }
+
 func (metrics *Metrics) Handler() http.Handler {
 	return promhttp.HandlerFor(metrics.registry, promhttp.HandlerOpts{})
 }
@@ -67,6 +90,7 @@ func (writer *responseWriter) WriteHeader(status int) {
 		writer.ResponseWriter.WriteHeader(status)
 	}
 }
+
 func (writer *responseWriter) Write(data []byte) (int, error) {
 	if writer.status == 0 {
 		writer.WriteHeader(200)
@@ -87,6 +111,7 @@ func (metrics *Metrics) Middleware(next http.Handler) http.Handler {
 		if pattern == "" {
 			pattern = "unmatched"
 		}
-		metrics.requests.WithLabelValues(request.Method, pattern, strconv.Itoa(status)).Observe(time.Since(start).Seconds())
+		metrics.requests.WithLabelValues(request.Method, pattern, strconv.Itoa(status)).
+			Observe(time.Since(start).Seconds())
 	})
 }
