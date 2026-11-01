@@ -31,7 +31,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: 'cd ../apps/backend && ../../gradlew bootRun --args="--spring.profiles.active=e2e"',
+      command: 'cd ../apps/backend && DATABASE_PATH=build/e2e.db go run ./cmd/pubgolf',
       url: `${BACKEND_URL}/actuator/health`,
       timeout: 120000,
       reuseExistingServer: !process.env.CI,

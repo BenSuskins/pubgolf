@@ -1,0 +1,30 @@
+version: "2"
+run:
+  timeout: 5m
+linters:
+  default: none
+  enable:
+    - cyclop
+    - funlen
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+  settings:
+    cyclop:
+      max-complexity: 10
+    funlen:
+      lines: 60
+      statements: 40
+      ignore-comments: true
+  exclusions:
+    presets: []
+    rules: []
+formatters:
+  enable:
+    - goimports
+    - gofumpt
+    - golines
+  settings:
+    golines:
+      max-len: 120

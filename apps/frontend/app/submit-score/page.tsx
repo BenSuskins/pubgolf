@@ -94,7 +94,7 @@ export default function SubmitScorePage() {
     try {
       await submitScore(gameCode, playerId, hole, scoreNum, penaltyType);
 
-      // Redirect immediately - WebSocket will update the scoreboard
+      // Redirect immediately - SSE will update the scoreboard
       router.push('/game');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit score');

@@ -67,8 +67,8 @@ mock.module('@/hooks/useLocalStorage', () => ({
   }),
 }));
 
-mock.module('@/hooks/useGameWebSocket', () => ({
-  useGameWebSocket: () => ({ isConnected: true, connectionError: null }),
+mock.module('@/hooks/useGameStream', () => ({
+  useGameStream: () => ({ isConnected: true, connectionError: null }),
 }));
 
 mock.module('next/navigation', () => ({

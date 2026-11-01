@@ -8,7 +8,7 @@ import { AnimatePresence } from 'motion/react';
 import { getGameState, getRoute } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
-import { useGameWebSocket } from '@/hooks/useGameWebSocket';
+import { useGameStream } from '@/hooks/useGameStream';
 import { Leaderboard } from '@/components/Leaderboard';
 import { ScoreboardSkeleton } from '@/components/ScoreboardSkeleton';
 import { ShareModal } from '@/components/ShareModal';
@@ -31,6 +31,7 @@ export default function GamePage() {
   const [hasPubRoute, setHasPubRoute] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const previousEventIdRef = useRef<string | null>(null);
+  const gameStateRevisionRef = useRef(0);
   const router = useRouter();
   const { getGameCode, getPlayerId } = useLocalStorage();
   const { getLastSeenEventId, setLastSeenEventId, getQueuedEventId, setQueuedEventId } = useSessionStorage();
@@ -44,6 +45,7 @@ export default function GamePage() {
   const pars = (committedGameState?.holes ?? []).map((hole) => hole.par);
 
   const handleGameStateUpdate = useCallback((state: GameState) => {
+    gameStateRevisionRef.current += 1;
     setCommittedGameState(state);
 
     const newEventId = state.activeEvent?.id ?? null;
@@ -81,11 +83,15 @@ export default function GamePage() {
       return;
     }
 
+    const revision = gameStateRevisionRef.current;
     try {
       const state = await getGameState(code);
-      handleGameStateUpdate(state);
+      // A stream snapshot can overtake this request while it is in flight.
+      if (gameStateRevisionRef.current === revision) handleGameStateUpdate(state);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load game');
+      if (gameStateRevisionRef.current === revision) {
+        setError(err instanceof Error ? err.message : 'Failed to load game');
+      }
     } finally {
       setGameCode(code);
       setPlayerId(getPlayerId());
@@ -93,9 +99,8 @@ export default function GamePage() {
     }
   }, [getGameCode, getPlayerId, router, handleGameStateUpdate]);
 
-  const { connectionError } = useGameWebSocket({
+  const { connectionError } = useGameStream({
     gameCode,
-    playerId,
     onGameStateUpdate: handleGameStateUpdate,
     onReconnect: fetchGame,
     enabled: !loading && status !== 'COMPLETED',
@@ -107,7 +112,7 @@ export default function GamePage() {
     fetchGame();
   }, [fetchGame]);
 
-  // Mobile browsers drop the socket while the phone is locked or backgrounded;
+  // Mobile browsers drop the connection while the phone is locked or backgrounded;
   // refetch when the page becomes visible again so the board is never stale.
   useEffect(() => {
     const refreshIfVisible = () => {

@@ -1,0 +1,118 @@
+# Copied from BenSuskins/repo-templates for use by this public repository.
+name: Publish container image (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: Fully qualified image name without tag (e.g. `ghcr.io/bensuskins/foo`).
+        required: true
+        type: string
+      context:
+        description: Build context. Local path (`./apps/backend`) or remote git URL.
+        required: false
+        type: string
+        default: '.'
+      dockerfile:
+        description: Path to Dockerfile, relative to context. Defaults to `Dockerfile` in context.
+        required: false
+        type: string
+        default: ''
+      tags:
+        description: |
+          Newline-separated list of tag suffixes to apply. Tag suffixes omit
+          the image name. Callers typically pass `latest` plus a SHA or
+          ref-derived tag (the SHA is available in the caller as
+          github.sha).
+        required: true
+        type: string
+      platforms:
+        description: Comma-separated platforms (e.g. `linux/amd64,linux/arm64`).
+        required: false
+        type: string
+        default: 'linux/amd64'
+      build-args:
+        description: Newline-separated `KEY=VALUE` build args.
+        required: false
+        type: string
+        default: ''
+      cache-scope:
+        description: GitHub Actions cache scope. Defaults to the image's basename.
+        required: false
+        type: string
+        default: ''
+      push:
+        description: Whether to push the image. Set to false for PR-only builds.
+        required: false
+        type: boolean
+        default: true
+      registry:
+        description: Container registry to log in to.
+        required: false
+        type: string
+        default: 'ghcr.io'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        if: ${{ !startsWith(inputs.context, 'http') && !startsWith(inputs.context, 'git@') }}
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ${{ inputs.registry }}
+        if: ${{ inputs.push }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute tags
+        id: tags
+        env:
+          IMAGE: ${{ inputs.image }}
+          TAG_SUFFIXES: ${{ inputs.tags }}
+        run: |
+          {
+            echo 'tags<<EOF'
+            while IFS= read -r suffix; do
+              [ -z "$suffix" ] && continue
+              echo "${IMAGE}:${suffix}"
+            done <<< "$TAG_SUFFIXES"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Compute cache scope
+        id: scope
+        env:
+          IMAGE: ${{ inputs.image }}
+          CACHE_SCOPE: ${{ inputs.cache-scope }}
+        run: |
+          if [ -n "$CACHE_SCOPE" ]; then
+            echo "scope=$CACHE_SCOPE" >> "$GITHUB_OUTPUT"
+          else
+            echo "scope=${IMAGE##*/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          push: ${{ inputs.push }}
+          platforms: ${{ inputs.platforms }}
+          build-args: ${{ inputs.build-args }}
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha,scope=${{ steps.scope.outputs.scope }}
+          cache-to: type=gha,mode=max,scope=${{ steps.scope.outputs.scope }}

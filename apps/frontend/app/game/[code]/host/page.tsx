@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { AnimatePresence } from 'motion/react';
 import { getGameState, getAvailableEvents, activateEvent, activateCustomEvent, endEvent, completeGame, getRoute, setHoles } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useGameWebSocket } from '@/hooks/useGameWebSocket';
+import { useGameStream } from '@/hooks/useGameStream';
 import { HostEventsTab } from '@/components/HostEventsTab';
 import { HostCourseTab } from '@/components/HostCourseTab';
 import { CustomEventSheet } from '@/components/CustomEventSheet';
@@ -48,9 +48,8 @@ export default function HostPanelPage() {
     setCourse(state.holes);
   }, []);
 
-  useGameWebSocket({
+  useGameStream({
     gameCode,
-    playerId: getPlayerId(),
     onGameStateUpdate: handleGameStateUpdate,
     enabled: !loading && gameStatus !== 'COMPLETED',
   });

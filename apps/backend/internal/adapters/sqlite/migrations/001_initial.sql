@@ -1,0 +1,40 @@
+-- +goose Up
+CREATE TABLE games (
+ id TEXT PRIMARY KEY,
+ code TEXT NOT NULL COLLATE NOCASE UNIQUE,
+ status TEXT NOT NULL,
+ host_player_id TEXT NOT NULL,
+ version INTEGER NOT NULL,
+ active_event TEXT,
+ route TEXT
+);
+CREATE TABLE players (
+ id TEXT PRIMARY KEY,
+ game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+ position INTEGER NOT NULL,
+ name TEXT NOT NULL,
+ randomise TEXT
+);
+CREATE TABLE scores (
+ player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+ hole INTEGER NOT NULL CHECK(hole BETWEEN 1 AND 9),
+ score INTEGER NOT NULL CHECK(score BETWEEN -10 AND 10),
+ modified TEXT NOT NULL,
+ penalty TEXT NOT NULL,
+ PRIMARY KEY(player_id,hole)
+);
+CREATE TABLE holes (
+ game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+ hole INTEGER NOT NULL,
+ par INTEGER NOT NULL,
+ drinks TEXT NOT NULL,
+ PRIMARY KEY(game_id,hole)
+);
+CREATE TABLE pubs (
+ game_id TEXT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+ hole INTEGER NOT NULL,
+ name TEXT NOT NULL,
+ latitude REAL NOT NULL,
+ longitude REAL NOT NULL,
+ PRIMARY KEY(game_id,hole)
+);
