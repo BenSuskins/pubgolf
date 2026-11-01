@@ -7,9 +7,7 @@ import (
 )
 
 func (server *server) course(writer http.ResponseWriter, request *http.Request) {
-	var input struct {
-		Holes []holeResponse `json:"holes"`
-	}
+	var input setCourseRequest
 	if !body(writer, request, &input) {
 		return
 	}
@@ -25,17 +23,8 @@ func (server *server) course(writer http.ResponseWriter, request *http.Request) 
 	respondGame(writer, game, err)
 }
 
-type pubResponse struct {
-	Hole      int     `json:"hole"`
-	Name      string  `json:"name"`
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-}
-
 func (server *server) pubs(writer http.ResponseWriter, request *http.Request) {
-	var input struct {
-		Pubs []pubResponse `json:"pubs"`
-	}
+	var input setPubsRequest
 	if !body(writer, request, &input) {
 		return
 	}
@@ -65,9 +54,9 @@ func (server *server) route(writer http.ResponseWriter, request *http.Request) {
 	for _, pub := range game.Pubs {
 		pubs = append(pubs, pubResponse{pub.Hole, pub.Name, pub.Latitude, pub.Longitude})
 	}
-	var route any
+	var route *geometryResponse
 	if game.Route != nil {
-		route = map[string]any{"type": game.Route.Type, "coordinates": game.Route.Coordinates}
+		route = &geometryResponse{Type: game.Route.Type, Coordinates: game.Route.Coordinates}
 	}
-	write(writer, 200, map[string]any{"pubs": pubs, "route": route})
+	write(writer, 200, routeResponse{Pubs: pubs, Route: route})
 }

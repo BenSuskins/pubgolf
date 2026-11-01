@@ -8,14 +8,12 @@ import (
 )
 
 func (server *server) create(writer http.ResponseWriter, request *http.Request) {
-	var input struct {
-		Host *string `json:"host"`
-	}
+	var input createGameRequest
 	if !body(writer, request, &input) {
 		return
 	}
 	if input.Host == nil {
-		write(writer, 400, map[string]string{"message": "Malformed request body"})
+		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
 	game, err := server.service.Create(request.Context(), *input.Host)
@@ -27,15 +25,12 @@ func (server *server) create(writer http.ResponseWriter, request *http.Request) 
 }
 
 func (server *server) join(writer http.ResponseWriter, request *http.Request) {
-	var input struct {
-		Name   *string `json:"name"`
-		Rejoin bool    `json:"rejoin"`
-	}
+	var input joinGameRequest
 	if !body(writer, request, &input) {
 		return
 	}
 	if input.Name == nil {
-		write(writer, 400, map[string]string{"message": "Malformed request body"})
+		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
 	game, err := server.service.Join(request.Context(), request.PathValue("code"), *input.Name, input.Rejoin)
@@ -61,16 +56,12 @@ func (server *server) state(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (server *server) score(writer http.ResponseWriter, request *http.Request) {
-	var input struct {
-		Hole    *int   `json:"hole"`
-		Score   *int   `json:"score"`
-		Penalty string `json:"penaltyType"`
-	}
+	var input submitScoreRequest
 	if !body(writer, request, &input) {
 		return
 	}
 	if input.Hole == nil || input.Score == nil {
-		write(writer, 400, map[string]string{"message": "Malformed request body"})
+		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
 	identifier, ok := actor(writer, request)
@@ -111,9 +102,7 @@ func (server *server) randomise(writer http.ResponseWriter, request *http.Reques
 }
 
 func (server *server) complete(writer http.ResponseWriter, request *http.Request) {
-	var input struct {
-		Status string `json:"status"`
-	}
+	var input updateGameStatusRequest
 	if !body(writer, request, &input) {
 		return
 	}

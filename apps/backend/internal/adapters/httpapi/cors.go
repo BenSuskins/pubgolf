@@ -17,7 +17,7 @@ func (server *server) cors(next http.Handler) http.Handler {
 				}
 			}
 			if !allowed {
-				write(writer, 403, map[string]string{"message": "Origin is not allowed"})
+				write(writer, 403, errorResponse{Message: "Origin is not allowed"})
 				return
 			}
 			writer.Header().Set("Access-Control-Allow-Origin", origin)

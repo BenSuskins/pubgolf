@@ -51,37 +51,31 @@ func New(service *application.Service, options Options) http.Handler {
 
 func (server *server) registerConfiguration(router *http.ServeMux) {
 	router.HandleFunc("GET /api/v1/config/routes", func(writer http.ResponseWriter, request *http.Request) {
-		write(writer, 200, map[string]any{"holes": holesResponse(domain.DefaultCourse())})
+		write(writer, 200, routesResponse{Holes: holesResponse(domain.DefaultCourse())})
 	})
 	router.HandleFunc("GET /api/v1/config/randomise-options", func(writer http.ResponseWriter, request *http.Request) {
-		options := []any{}
+		options := make([]randomiseOptionResponse, 0, len(domain.Outcomes()))
 		for _, outcome := range domain.Outcomes() {
-			options = append(options, map[string]any{"option": outcome.Label, "optionSize": outcome.Weight})
+			options = append(options, randomiseOptionResponse{Option: outcome.Label, OptionSize: outcome.Weight})
 		}
-		write(writer, 200, map[string]any{"options": options})
+		write(writer, 200, randomiseOptionsResponse{Options: options})
 	})
 	router.HandleFunc("GET /api/v1/config/penalty-options", func(writer http.ResponseWriter, request *http.Request) {
-		write(
-			writer,
-			200,
-			map[string]any{
-				"penalties": []any{
-					map[string]any{"type": "SKIP", "name": "Skip a drink", "points": 5},
-					map[string]any{"type": "CHUNDER", "name": "Tactical chunder", "points": 10},
-				},
-			},
-		)
+		write(writer, 200, penaltyOptionsResponse{Penalties: []penaltyOptionResponse{
+			{Type: "SKIP", Name: "Skip a drink", Points: 5},
+			{Type: "CHUNDER", Name: "Tactical chunder", Points: 10},
+		}})
 	})
 }
 
 func (server *server) registerOperations(router *http.ServeMux) {
 	router.HandleFunc("GET /api/v1/places/search", server.search)
 	router.HandleFunc("GET /actuator/health", func(writer http.ResponseWriter, request *http.Request) {
-		write(writer, 200, map[string]string{"status": "UP"})
+		write(writer, 200, healthResponse{Status: "UP"})
 	})
 	router.HandleFunc(
 		"GET /actuator/info",
-		func(writer http.ResponseWriter, request *http.Request) { write(writer, 200, map[string]string{}) },
+		func(writer http.ResponseWriter, request *http.Request) { write(writer, 200, infoResponse{}) },
 	)
 	if server.options.Metrics != nil {
 		router.Handle("GET /actuator/prometheus", server.options.Metrics)

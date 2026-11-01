@@ -2,23 +2,12 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"time"
 
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 	"github.com/jmoiron/sqlx"
 )
-
-type gameRecord struct {
-	ID           string         `db:"id"`
-	Code         string         `db:"code"`
-	Status       string         `db:"status"`
-	HostPlayerID string         `db:"host_player_id"`
-	Version      int64          `db:"version"`
-	ActiveEvent  sql.NullString `db:"active_event"`
-	Route        sql.NullString `db:"route"`
-}
 
 func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Game, error) {
 	var record gameRecord
@@ -54,12 +43,6 @@ func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Ga
 	}
 	game.Pubs, err = loadPubs(ctx, transaction, game.ID)
 	return game, err
-}
-
-type playerRecord struct {
-	ID        string         `db:"id"`
-	Name      string         `db:"name"`
-	Randomise sql.NullString `db:"randomise"`
 }
 
 func loadPlayers(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.Player, error) {
@@ -110,19 +93,6 @@ func loadPlayer(ctx context.Context, transaction *sqlx.Tx, record playerRecord) 
 	return player, nil
 }
 
-type scoreRecord struct {
-	Hole     int    `db:"hole"`
-	Value    int    `db:"score"`
-	Modified string `db:"modified"`
-	Penalty  string `db:"penalty"`
-}
-
-type holeRecord struct {
-	Hole   int    `db:"hole"`
-	Par    int    `db:"par"`
-	Drinks string `db:"drinks"`
-}
-
 func loadHoles(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.CourseHole, error) {
 	var records []holeRecord
 	if err := transaction.SelectContext(
@@ -142,13 +112,6 @@ func loadHoles(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]doma
 		holes = append(holes, hole)
 	}
 	return holes, nil
-}
-
-type pubRecord struct {
-	Hole      int     `db:"hole"`
-	Name      string  `db:"name"`
-	Latitude  float64 `db:"latitude"`
-	Longitude float64 `db:"longitude"`
 }
 
 func loadPubs(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.Pub, error) {

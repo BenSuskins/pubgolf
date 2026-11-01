@@ -58,15 +58,7 @@ func (adapter Router) Calculate(ctx context.Context, pubs []domain.Pub) (*domain
 		coordinates,
 		";",
 	) + "?overview=full&geometries=geojson"
-	var response struct {
-		Code   string `json:"code"`
-		Routes []struct {
-			Geometry struct {
-				Type        string      `json:"type"`
-				Coordinates [][]float64 `json:"coordinates"`
-			} `json:"geometry"`
-		} `json:"routes"`
-	}
+	var response osrmResponse
 	if err := fetch(ctx, adapter.Client, address, &response); err != nil {
 		return nil, err
 	}
@@ -107,7 +99,7 @@ func (adapter *Places) Search(ctx context.Context, query string, latitude, longi
 	if err != nil {
 		return nil, err
 	}
-	var response []placeResult
+	var response []nominatimPlace
 	if err = fetch(ctx, adapter.client, address, &response); err != nil {
 		return nil, domain.Fail(domain.Unavailable, "Failed to search places")
 	}
@@ -116,12 +108,6 @@ func (adapter *Places) Search(ctx context.Context, query string, latitude, longi
 		results = append(results, domain.Place{Name: place.Name, Latitude: place.Latitude, Longitude: place.Longitude})
 	}
 	return results, nil
-}
-
-type placeResult struct {
-	Name      string  `json:"display_name"`
-	Latitude  float64 `json:"lat,string"`
-	Longitude float64 `json:"lon,string"`
 }
 
 func (adapter *Places) searchURL(query string, latitude, longitude *float64) (string, error) {

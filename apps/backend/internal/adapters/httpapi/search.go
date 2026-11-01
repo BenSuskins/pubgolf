@@ -38,11 +38,11 @@ func (server *server) search(writer http.ResponseWriter, request *http.Request) 
 		failure(writer, err)
 		return
 	}
-	result := []any{}
+	result := make([]placeResponse, 0, len(places))
 	for _, place := range places {
 		result = append(
 			result,
-			map[string]any{"name": place.Name, "latitude": place.Latitude, "longitude": place.Longitude},
+			placeResponse{Name: place.Name, Latitude: place.Latitude, Longitude: place.Longitude},
 		)
 	}
 	write(writer, 200, result)

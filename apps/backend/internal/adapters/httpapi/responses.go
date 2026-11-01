@@ -46,18 +46,18 @@ func failure(writer http.ResponseWriter, err error) {
 	if status == 500 {
 		slog.Error("Request failed", "error", err)
 	}
-	write(writer, status, map[string]string{"message": message})
+	write(writer, status, errorResponse{Message: message})
 }
 
 func body(writer http.ResponseWriter, request *http.Request, value any) bool {
 	decoder := json.NewDecoder(http.MaxBytesReader(writer, request.Body, 1<<20))
 	if err := decoder.Decode(value); err != nil {
-		write(writer, 400, map[string]string{"message": "Malformed request body"})
+		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return false
 	}
 	var extra any
 	if err := decoder.Decode(&extra); err != io.EOF {
-		write(writer, 400, map[string]string{"message": "Malformed request body"})
+		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return false
 	}
 	return true
@@ -66,11 +66,11 @@ func body(writer http.ResponseWriter, request *http.Request, value any) bool {
 func actor(writer http.ResponseWriter, request *http.Request) (string, bool) {
 	identifier := request.Header.Get("PubGolf-Player-Id")
 	if identifier == "" {
-		write(writer, 401, map[string]string{"message": "Missing required header: PubGolf-Player-Id"})
+		write(writer, 401, errorResponse{Message: "Missing required header: PubGolf-Player-Id"})
 		return "", false
 	}
 	if !validUUID(identifier) {
-		write(writer, 401, map[string]string{"message": "Invalid player ID format in header: " + identifier})
+		write(writer, 401, errorResponse{Message: "Invalid player ID format in header: " + identifier})
 		return "", false
 	}
 	return strings.ToLower(identifier), true
