@@ -10,7 +10,7 @@ test.describe('Leaderboard', () => {
     await submitScoreViaApi(hostSession.gameCode, player2.playerId, 1, 3);
     await submitScoreViaApi(hostSession.gameCode, player3.playerId, 1, 5);
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);
@@ -38,7 +38,7 @@ test.describe('Leaderboard', () => {
 test('a score from a second browser updates the leaderboard without a reload', async ({ browser, page, createGameViaApi, joinGameViaApi }) => {
   const host = await createGameViaApi('WatchingHost');
   const player = await joinGameViaApi(host.gameCode, 'LivePlayer');
-  await page.goto('/');
+  await page.goto('/play');
   await page.evaluate(session => {
     localStorage.setItem('gameCode', session.gameCode);
     localStorage.setItem('playerId', session.playerId);
@@ -53,7 +53,7 @@ test('a score from a second browser updates the leaderboard without a reload', a
   const context = await browser.newContext();
   try {
     const second = await context.newPage();
-    await second.goto('/');
+    await second.goto('/play');
     await second.evaluate(async ({ session, apiUrl }) => {
       const response = await fetch(`${apiUrl}/api/v1/games/${session.gameCode}/scores`, {
         method: 'POST',
@@ -71,7 +71,7 @@ test('a score from a second browser updates the leaderboard without a reload', a
 
 test('a delayed REST refresh does not replace a newer live score', async ({ page, createGameViaApi, submitScoreViaApi }) => {
   const host = await createGameViaApi('RefreshHost');
-  await page.goto('/');
+  await page.goto('/play');
   await page.evaluate(session => {
     localStorage.setItem('gameCode', session.gameCode);
     localStorage.setItem('playerId', session.playerId);

@@ -68,12 +68,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: "#0d1410",
-  // iOS Safari zooms the page in whenever a focused field's text is under 16px, which
-  // this app's compact inputs (the inline course editor especially) are by design.
-  // Capping the scale stops that lurch on focus; pinch-to-zoom is still a user gesture
-  // iOS honours, and user-scalable stays on for assistive zoom settings.
-  maximumScale: 1,
-  userScalable: true,
 };
 
 export default function RootLayout({
@@ -86,7 +80,7 @@ export default function RootLayout({
       <body
         className={`${anton.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col`}
       >
-        <main className="flex-1">{children}</main>
+        <div className="flex-1">{children}</div>
         <footer className="text-center space-y-1 py-4">
           <p className="text-[11px] text-[var(--color-text-faint)] space-x-1">
             <a

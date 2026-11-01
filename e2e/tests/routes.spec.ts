@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Routes on How To Play', () => {
   test('displays routes table from backend', async ({ page }) => {
@@ -45,9 +45,9 @@ test.describe('Routes on How To Play', () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test('back link returns to the scoreboard when opened from a game', async ({ page }) => {
+  test('back link returns to the scoreboard when opened from a game', async ({ authenticatedPage: page }) => {
     await page.goto('/how-to-play?from=game');
 
-    await expect(page.getByRole('button', { name: /back to scoreboard/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /back to scoreboard/i })).toBeVisible();
   });
 });

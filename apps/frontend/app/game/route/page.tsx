@@ -27,7 +27,7 @@ export default function RouteBuilderPage() {
     const gameCode = getGameCode();
     const playerId = getPlayerId();
     if (!gameCode || !playerId) {
-      router.push('/');
+      router.push('/play');
       return;
     }
 
@@ -44,7 +44,9 @@ export default function RouteBuilderPage() {
         try {
           const routeData = await getRoute(gameCode);
           if (!cancelled && routeData.pubs.length > 0) {
-            setSelectedPubs(routeData.pubs.map(({ name, latitude, longitude }) => ({ name, latitude, longitude })));
+            setSelectedPubs(
+              routeData.pubs.map(({ name, latitude, longitude }) => ({ name, latitude, longitude }))
+            );
             setEditingExisting(true);
           }
         } catch {
@@ -80,7 +82,7 @@ export default function RouteBuilderPage() {
     const gameCode = getGameCode();
     const playerId = getPlayerId();
     if (!gameCode || !playerId) {
-      router.push('/');
+      router.push('/play');
       return;
     }
 
@@ -98,7 +100,11 @@ export default function RouteBuilderPage() {
   if (checkingAccess) {
     return (
       <main className="min-h-full flex items-center justify-center">
-        <p className="text-[var(--color-text-secondary)] animate-pulse" role="status" aria-live="polite">
+        <p
+          className="text-[var(--color-text-secondary)] animate-pulse"
+          role="status"
+          aria-live="polite"
+        >
           Loading route builder...
         </p>
       </main>
@@ -106,7 +112,7 @@ export default function RouteBuilderPage() {
   }
 
   return (
-    <main className="min-h-full flex flex-col p-5 max-w-md mx-auto w-full">
+    <main className="page-container min-h-full flex flex-col py-6">
       <div className="space-y-4 flex-1 flex flex-col">
         <div>
           <Link
@@ -123,37 +129,47 @@ export default function RouteBuilderPage() {
           </p>
         </div>
 
-        <PubSearchAutocomplete
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onSelect={handlePubSelect}
-          biasLatitude={selectedPubs[0]?.latitude}
-          biasLongitude={selectedPubs[0]?.longitude}
-        />
+        <div className="grid items-start gap-6 lg:grid-cols-2">
+          <div className="min-w-0 space-y-4">
+            <PubSearchAutocomplete
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSelect={handlePubSelect}
+              biasLatitude={selectedPubs[0]?.latitude}
+              biasLongitude={selectedPubs[0]?.longitude}
+            />
 
-        {selectedPubs.length > 0 && (
-          <>
-            <PubSlotList pubs={selectedPubs} onRemove={handlePubRemove} />
-            <MiniMapPreview pubs={selectedPubs} />
-          </>
-        )}
+            {selectedPubs.length > 0 && (
+              <PubSlotList pubs={selectedPubs} onRemove={handlePubRemove} />
+            )}
 
-        {error && <ErrorMessage message={error} variant="inline" />}
+            {error && <ErrorMessage message={error} variant="inline" />}
 
-        <div className="flex-1" />
+            <div className="flex-1" />
 
-        <button
-          type="button"
-          onClick={handleSaveRoute}
-          disabled={saving || selectedPubs.length !== REQUIRED_PUB_COUNT}
-          className="w-full py-[18px] px-4 btn-gradient rounded-2xl text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-        >
-          {saving
-            ? 'SAVING...'
-            : selectedPubs.length === REQUIRED_PUB_COUNT
-              ? 'SAVE ROUTE'
-              : `SAVE ROUTE (${selectedPubs.length}/${REQUIRED_PUB_COUNT})`}
-        </button>
+            <button
+              type="button"
+              onClick={handleSaveRoute}
+              disabled={saving || selectedPubs.length !== REQUIRED_PUB_COUNT}
+              className="w-full py-[18px] px-4 btn-gradient rounded-2xl text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            >
+              {saving
+                ? 'SAVING...'
+                : selectedPubs.length === REQUIRED_PUB_COUNT
+                  ? 'SAVE ROUTE'
+                  : `SAVE ROUTE (${selectedPubs.length}/${REQUIRED_PUB_COUNT})`}
+            </button>
+          </div>
+          <div className="min-w-0 lg:sticky lg:top-6">
+            {selectedPubs.length > 0 ? (
+              <MiniMapPreview pubs={selectedPubs} />
+            ) : (
+              <div className="hidden lg:flex glass min-h-80 items-center justify-center rounded-2xl p-8 text-center text-[var(--color-text-secondary)]">
+                Add your first pub to preview the route.
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

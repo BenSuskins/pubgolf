@@ -11,7 +11,7 @@ export default function NotFound() {
         That page doesn&apos;t exist. Head back to the clubhouse to host or join a round.
       </p>
       <Link
-        href="/"
+        href="/play"
         className="text-[13px] text-[var(--color-text-muted)] border-b border-dashed border-[var(--color-border-subtle)] pb-0.5 hover:text-[var(--color-text-secondary)] transition-colors"
       >
         Back to Pub Golf

@@ -5,7 +5,7 @@ test.describe('Complete Game', () => {
     test('host sees End Game button', async ({ page, createGameViaApi }) => {
       const hostSession = await createGameViaApi('HostPlayer');
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -21,7 +21,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('HostPlayer');
       const playerSession = await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -36,7 +36,7 @@ test.describe('Complete Game', () => {
     test('host can complete game with confirmation modal', async ({ page, createGameViaApi }) => {
       const hostSession = await createGameViaApi('HostPlayer');
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -59,7 +59,7 @@ test.describe('Complete Game', () => {
     test('host can cancel completion in modal', async ({ page, createGameViaApi }) => {
       const hostSession = await createGameViaApi('HostPlayer');
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -88,7 +88,7 @@ test.describe('Complete Game', () => {
 
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -110,7 +110,7 @@ test.describe('Complete Game', () => {
 
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -127,7 +127,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('SoloPlayer');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -151,7 +151,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -172,7 +172,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -193,7 +193,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -214,7 +214,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);
@@ -237,7 +237,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.getByRole('button', { name: 'Join a Round' }).click();
       await page.locator('#join-name').fill('LateJoiner');
       await page.locator('#game-code').fill(hostSession.gameCode);
@@ -252,7 +252,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('HostPlayer');
       await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
-      await page.goto('/');
+      await page.goto('/play');
       await page.evaluate((session) => {
         localStorage.setItem('gameCode', session.gameCode);
         localStorage.setItem('playerId', session.playerId);

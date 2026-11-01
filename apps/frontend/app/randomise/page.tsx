@@ -27,7 +27,7 @@ export default function RandomisePage() {
     const playerId = getPlayerId();
 
     if (!gameCode || !playerId) {
-      router.push('/');
+      router.push('/play');
       return;
     }
 
@@ -108,7 +108,7 @@ export default function RandomisePage() {
   }
 
   return (
-    <main className="min-h-full flex flex-col p-5 max-w-md mx-auto w-full">
+    <main className="min-h-full flex flex-col p-5 md:p-8 max-w-lg mx-auto w-full">
       <div className="w-full space-y-6 flex-1 flex flex-col">
         <div>
           <Link
@@ -120,7 +120,7 @@ export default function RandomisePage() {
         </div>
 
         <div className="text-center">
-          <Typography variant="title" className="text-3xl">
+          <Typography as="h1" variant="title" className="text-3xl">
             Wildcard
           </Typography>
           <Typography as="p" color="secondary" className="mt-2 text-[13.5px]">

@@ -39,7 +39,7 @@ export function BottomSheet({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-end bg-[rgba(0,0,0,0.55)]"
+      className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center md:p-6 bg-[rgba(0,0,0,0.55)]"
       onClick={onBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -58,7 +58,7 @@ export function BottomSheet({
         initial="initial"
         animate="animate"
         exit="exit"
-        className="w-full max-h-[88dvh] overflow-y-auto glass rounded-t-[20px] px-5 pt-5 pb-[calc(26px+env(safe-area-inset-bottom))]"
+        className="w-full md:max-w-2xl md:rounded-[20px] max-h-[88dvh] overflow-y-auto glass rounded-t-[20px] px-5 pt-5 pb-[calc(26px+env(safe-area-inset-bottom))]"
       >
         <div
           className="mx-auto mb-4 h-1 w-9 rounded-full bg-[var(--color-border-outline)]"

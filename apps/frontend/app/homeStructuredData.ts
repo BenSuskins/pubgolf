@@ -25,7 +25,7 @@ export const homeStructuredData = {
       name: 'Pub Golf',
       description:
         'Free pub golf score tracker. Host a round, share the game code, and track every sip on a live leaderboard across nine holes.',
-      url: SITE_URL,
+      url: `${SITE_URL}/play`,
       isPartOf: { '@id': `${SITE_URL}/#website` },
       applicationCategory: 'GameApplication',
       operatingSystem: 'Any',

@@ -19,7 +19,7 @@ export default function MapPage() {
   const fetchRouteData = useCallback(async () => {
     const gameCode = getGameCode();
     if (!gameCode) {
-      router.push('/');
+      router.push('/play');
       return;
     }
 
@@ -99,7 +99,7 @@ export default function MapPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[var(--color-bg)]">
+    <div className="h-[calc(100dvh-5rem)] min-h-[28rem] flex flex-col bg-[var(--color-bg)]">
       <header className="flex items-center justify-between p-4 border-b border-[var(--color-border)] bg-[var(--color-bg)]">
         <Link
           href="/game"
@@ -111,7 +111,7 @@ export default function MapPage() {
         <div className="w-20" />
       </header>
 
-      <div className="flex-1">
+      <div className="min-h-0 flex-1">
         <GameMap routeData={routeData} userLocation={userLocation} />
       </div>
     </div>

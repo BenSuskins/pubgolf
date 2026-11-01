@@ -18,6 +18,9 @@ export default function GameMap({ routeData, userLocation }: GameMapProps) {
     if (!mapContainer.current || routeData.pubs.length === 0) return;
 
     if (!map.current) {
+      maplibregl.setWorkerUrl(
+        new URL('maplibre-gl/dist/maplibre-gl-worker.mjs', import.meta.url).toString()
+      );
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         maxZoom: 18,

@@ -36,7 +36,7 @@ export function HostEventsTab({
         {events.length === 0 ? (
           <EmptyState icon="📝" description="No events configured for this game yet" />
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (
               <EventCard
                 key={event.id}
@@ -56,7 +56,7 @@ export function HostEventsTab({
         onClick={onOpenCustomEvent}
         disabled={eventLive}
         title={eventLive ? 'End the current event first' : undefined}
-        className="flex w-full items-center justify-center gap-2 rounded-[14px] border border-dashed border-[var(--color-border-gold)] py-3.5 text-[13px] font-bold text-[var(--color-accent)] hover:bg-[var(--color-surface-inset)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+        className="flex w-full md:max-w-sm items-center justify-center gap-2 rounded-[14px] border border-dashed border-[var(--color-border-gold)] py-3.5 text-[13px] font-bold text-[var(--color-accent)] hover:bg-[var(--color-surface-inset)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path

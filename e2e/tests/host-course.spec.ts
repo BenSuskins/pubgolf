@@ -21,7 +21,7 @@ test.describe('Host Course Editing', () => {
   }) => {
     const hostSession = await createGameViaApi('CourseHost');
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);
@@ -53,7 +53,7 @@ test.describe('Host Course Editing', () => {
 
     // Opened from the home page it is the generic rules, so the default course
     // shows even though this browser is still in a game.
-    await page.goto('/');
+    await page.goto('/play');
     await page.getByRole('link', { name: /learn the rules/i }).click();
     await expect(page.getByRole('heading', { name: /The Course/i })).toBeVisible();
     await expect(page.getByText('Tequila')).toBeVisible();
@@ -70,7 +70,7 @@ test.describe('Host Course Editing', () => {
   }) => {
     const hostSession = await createGameViaApi('ChipHost');
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);
@@ -97,7 +97,7 @@ test.describe('Host Course Editing', () => {
   }) => {
     const hostSession = await createGameViaApi('RenameHost');
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);
@@ -124,7 +124,7 @@ test.describe('Host Course Editing', () => {
   }) => {
     const hostSession = await createGameViaApi('AddRouteHost');
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);
@@ -155,7 +155,7 @@ test.describe('Host Course Editing', () => {
   test('blank drink is rejected before saving', async ({ page, createGameViaApi }) => {
     const hostSession = await createGameViaApi('ValidationHost');
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);
@@ -179,7 +179,7 @@ test.describe('Host Course Editing', () => {
     const hostSession = await createGameViaApi('CourseHost');
     const playerSession = await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
-    await page.goto('/');
+    await page.goto('/play');
     await page.evaluate((session) => {
       localStorage.setItem('gameCode', session.gameCode);
       localStorage.setItem('playerId', session.playerId);

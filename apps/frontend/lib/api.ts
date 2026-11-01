@@ -50,7 +50,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
       toast.error('Session expired', { description: 'Please rejoin the game.' });
       localStorage.removeItem(STORAGE_KEYS.PLAYER_ID);
       localStorage.removeItem(STORAGE_KEYS.GAME_CODE);
-      setTimeout(() => { window.location.href = '/'; }, 1500);
+      setTimeout(() => { window.location.href = '/play'; }, 1500);
     }
 
     throw new ApiError(response.status, message);

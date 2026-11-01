@@ -24,7 +24,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
 
   const getShareLink = () => {
     if (typeof window !== 'undefined') {
-      return `${window.location.origin}?gameCode=${gameCode.toUpperCase()}`;
+      return `${window.location.origin}/play?gameCode=${gameCode.toUpperCase()}`;
     }
     return '';
   };
@@ -51,7 +51,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 bg-[rgba(13,20,16,0.85)] backdrop-blur-sm flex items-center justify-center z-50"
+      className="fixed inset-0 overflow-y-auto py-6 bg-[rgba(13,20,16,0.85)] backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -66,7 +66,7 @@ export function ShareModal({ gameCode, onClose }: ShareModalProps) {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="w-full max-w-sm mx-4"
+        className="w-full max-w-lg max-h-[90dvh] overflow-y-auto mx-4"
       >
         <Card
           ref={containerRef}

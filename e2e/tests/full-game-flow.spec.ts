@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Full Game Flow', () => {
   test('complete game from creation to leaderboard', async ({ page, browser }) => {
-    await page.goto('/');
+    await page.goto('/play');
     await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('GameHost');
     await page.getByRole('button', { name: 'Tee Off' }).click();
@@ -16,7 +16,7 @@ test.describe('Full Game Flow', () => {
     const player2Context = await browser.newContext();
     const player2Page = await player2Context.newPage();
 
-    await player2Page.goto('/');
+    await player2Page.goto('/play');
     await player2Page.getByRole('button', { name: 'Join a Round' }).click();
     await player2Page.locator('#join-name').fill('Player2');
     await player2Page.locator('#game-code').fill(gameCode!);

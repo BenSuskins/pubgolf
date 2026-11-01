@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Create Game', () => {
   test('creates a new game successfully', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('Alice');
@@ -15,18 +15,18 @@ test.describe('Create Game', () => {
   });
 
   test('shows validation error for short name', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('A');
     await page.getByRole('button', { name: 'Tee Off' }).click();
 
     await expect(page.getByText('Name must be at least 2 characters')).toBeVisible();
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/play');
   });
 
   test('route map is set up from the host panel', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('RouteHost');
@@ -48,7 +48,7 @@ test.describe('Create Game', () => {
   });
 
   test('stores session in localStorage after creation', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/play');
 
     await page.getByRole('button', { name: 'Host a Round' }).click();
     await page.locator('#create-name').fill('StorageTest');

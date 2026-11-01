@@ -17,13 +17,15 @@ interface HostCourseTabProps {
  */
 export function HostCourseTab({ pubs, course, onSaveCourse }: HostCourseTabProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="grid min-h-0 min-w-0 flex-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <RouteMapCard pubs={pubs} />
 
       {course.length === 0 ? (
         <EmptyState icon="🍺" description="Course unavailable — reload to try again" />
       ) : (
-        <CourseEditor holes={course} onSave={onSaveCourse} />
+        <div className="min-w-0 space-y-4">
+          <CourseEditor holes={course} onSave={onSaveCourse} />
+        </div>
       )}
     </div>
   );

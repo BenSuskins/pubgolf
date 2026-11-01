@@ -34,7 +34,7 @@ export function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+      className="fixed inset-0 overflow-y-auto py-6 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -44,7 +44,7 @@ export function ConfirmModal({
         ref={containerRef}
         rounded="lg"
         padding="lg"
-        className="max-w-sm w-full mx-4 space-y-5 animate-fade-in"
+        className="max-w-lg max-h-[90dvh] overflow-y-auto w-full mx-4 space-y-5 animate-fade-in"
       >
         <Typography variant="heading" as="h2" id="confirm-modal-title" className="text-center">
           {title}
