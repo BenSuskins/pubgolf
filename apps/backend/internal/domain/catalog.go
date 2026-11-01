@@ -1,12 +1,12 @@
 package domain
 
-type Outcome struct {
+type RandomiseOption struct {
 	Label  string
 	Weight int
 }
 
-func Outcomes() []Outcome {
-	return []Outcome{
+func RandomiseOptions() []RandomiseOption {
+	return []RandomiseOption{
 		{"Double Drink", 4},
 		{"Half Score", 2},
 		{"Double Score", 3},
@@ -23,10 +23,10 @@ func Outcomes() []Outcome {
 	}
 }
 
-type GameEvent struct{ ID, Title, Description string }
+type GameplayEventDefinition struct{ ID, Title, Description string }
 
-func AvailableEvents() []GameEvent {
-	return []GameEvent{
+func AvailableGameplayEvents() []GameplayEventDefinition {
+	return []GameplayEventDefinition{
 		{"photo-op", "Photo Op!", "Everyone must take a group photo at the current venue"},
 		{"speed-round", "Speed Round", "Finish your current drink within 2 minutes"},
 		{"halftime", "Halftime", "Take a 5-minute break"},
@@ -36,16 +36,16 @@ func AvailableEvents() []GameEvent {
 	}
 }
 
-func DefaultCourse() []CourseHole {
-	return []CourseHole{
-		{1, 1, []Drink{{"Route A", "Tequila"}, {"Route B", "Sambuca"}}},
-		{2, 3, []Drink{{"Route A", "Beer"}, {"Route B", "Double Vodka & Single Vodka w/ Mixer"}}},
-		{3, 2, []Drink{{"Route A", "Wine"}, {"Route B", "Double Gin w/ Mixer"}}},
-		{4, 2, []Drink{{"Route A", "Cider"}, {"Route B", "Double Rum w/ Mixer"}}},
-		{5, 2, []Drink{{"Route A", "Cocktail"}, {"Route B", "Cocktail"}}},
-		{6, 2, []Drink{{"Route A", "Spirit w/ Mixer"}, {"Route B", "Spirit w/ Mixer"}}},
-		{7, 4, []Drink{{"Route A", "Guinness"}, {"Route B", "2 x Double Whiskey w/ Mixer"}}},
-		{8, 1, []Drink{{"Route A", "Jägerbomb"}, {"Route B", "Jägerbomb"}}},
-		{9, 1, []Drink{{"Route A", "VK"}, {"Route B", "Smirnoff Ice"}}},
-	}
+func DefaultCourse() Course {
+	return Course{holes: []CourseHoleSnapshot{
+		{1, 1, []DrinkChoiceSnapshot{{"Route A", "Tequila"}, {"Route B", "Sambuca"}}},
+		{2, 3, []DrinkChoiceSnapshot{{"Route A", "Beer"}, {"Route B", "Double Vodka & Single Vodka w/ Mixer"}}},
+		{3, 2, []DrinkChoiceSnapshot{{"Route A", "Wine"}, {"Route B", "Double Gin w/ Mixer"}}},
+		{4, 2, []DrinkChoiceSnapshot{{"Route A", "Cider"}, {"Route B", "Double Rum w/ Mixer"}}},
+		{5, 2, []DrinkChoiceSnapshot{{"Route A", "Cocktail"}, {"Route B", "Cocktail"}}},
+		{6, 2, []DrinkChoiceSnapshot{{"Route A", "Spirit w/ Mixer"}, {"Route B", "Spirit w/ Mixer"}}},
+		{7, 4, []DrinkChoiceSnapshot{{"Route A", "Guinness"}, {"Route B", "2 x Double Whiskey w/ Mixer"}}},
+		{8, 1, []DrinkChoiceSnapshot{{"Route A", "Jägerbomb"}, {"Route B", "Jägerbomb"}}},
+		{9, 1, []DrinkChoiceSnapshot{{"Route A", "VK"}, {"Route B", "Smirnoff Ice"}}},
+	}}
 }

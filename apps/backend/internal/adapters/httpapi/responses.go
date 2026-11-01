@@ -85,5 +85,5 @@ func respondGame(writer http.ResponseWriter, game domain.Game, err error) {
 		failure(writer, err)
 		return
 	}
-	write(writer, 200, stateResponse(game))
+	write(writer, 200, stateResponse(game.Snapshot()))
 }

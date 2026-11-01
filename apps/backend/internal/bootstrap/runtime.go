@@ -8,12 +8,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/httpapi"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/live"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/metrics"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/nominatim"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/osrm"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/random"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/upstream"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 )
 
@@ -26,10 +27,10 @@ func Run(ctx context.Context, configuration Configuration) error {
 		return err
 	}
 	defer repository.Close()
-	hub := live.New(16)
-	defer hub.Close()
+	broadcaster := gameupdates.New(16)
+	defer broadcaster.Close()
 	measurements := metrics.New()
-	handler := buildHandler(configuration, repository, hub, measurements)
+	handler := buildHandler(configuration, repository, broadcaster, measurements)
 	server := &http.Server{
 		Addr:              ":" + configuration.Port,
 		Handler:           measurements.Middleware(handler),
@@ -42,31 +43,36 @@ func Run(ctx context.Context, configuration Configuration) error {
 
 func buildHandler(
 	configuration Configuration,
-	repository application.Games,
-	hub *live.Hub,
+	repository application.GameRepository,
+	broadcaster *gameupdates.Broadcaster,
 	measurements *metrics.Metrics,
 ) http.Handler {
-	client := upstreamClient()
-	router := upstream.Router{
+	client := providerHTTPClient()
+	pubRouteCalculator := osrm.PubRouteCalculator{
 		BaseURL: configuration.RoutingBaseURL,
 		Profile: configuration.RoutingProfile,
 		Client:  client,
 	}
-	places := upstream.NewPlaces(configuration.SearchBaseURL, client, time.Second)
-	service := application.New(repository, application.Dependencies{
-		Identifier: random.Identifier,
-		Code:       random.GameCode,
-		Now:        func() time.Time { return time.Now().UTC() },
-		Outcome:    random.Outcome,
-		Effects:    committedEffects{hub, measurements},
-		Streams:    hub,
-		Router:     router,
-		Places:     places,
+	placeSearcher := nominatim.NewPlaceSearcher(configuration.SearchBaseURL, client, time.Second)
+	games := application.NewGameApplication(repository, application.GameDependencies{
+		NewGameID:              random.NewGameID,
+		NewPlayerID:            random.NewPlayerID,
+		NewGameCode:            random.NewGameCode,
+		Now:                    func() time.Time { return time.Now().UTC() },
+		ChooseRandomiseOutcome: random.ChooseRandomiseOutcome,
+		DomainEvents:           domainEventPublishers{measurements},
+		GameStates:             broadcaster,
+		Subscriptions:          broadcaster,
+		PubRoutes:              pubRouteCalculator,
 	})
-	return httpapi.New(service, httpapi.Options{Origins: configuration.Origins, Metrics: measurements.Handler()})
+	return httpapi.New(
+		games,
+		application.NewPlaceSearch(placeSearcher),
+		httpapi.Options{Origins: configuration.Origins, Metrics: measurements.Handler()},
+	)
 }
 
-func upstreamClient() *http.Client {
+func providerHTTPClient() *http.Client {
 	return &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{

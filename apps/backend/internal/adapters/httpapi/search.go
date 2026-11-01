@@ -33,7 +33,7 @@ func (server *server) search(writer http.ResponseWriter, request *http.Request) 
 		failure(writer, err)
 		return
 	}
-	places, err := server.service.Search(request.Context(), parameters.Get("q"), latitude, longitude)
+	places, err := server.places.SearchPlaces(request.Context(), parameters.Get("q"), latitude, longitude)
 	if err != nil {
 		failure(writer, err)
 		return

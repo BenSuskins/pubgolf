@@ -15,11 +15,18 @@ func (server *server) course(writer http.ResponseWriter, request *http.Request) 
 	if !ok {
 		return
 	}
-	course := make([]domain.CourseHole, 0, len(input.Holes))
+	course := make([]domain.CourseHoleSnapshot, 0, len(input.Holes))
 	for _, hole := range input.Holes {
-		course = append(course, domain.CourseHole{Hole: hole.Hole, Par: hole.Par, Drinks: []domain.Drink(hole.Drinks)})
+		course = append(
+			course,
+			domain.CourseHoleSnapshot{
+				Hole:   hole.Hole,
+				Par:    hole.Par,
+				Drinks: []domain.DrinkChoiceSnapshot(hole.Drinks),
+			},
+		)
 	}
-	game, err := server.service.SetCourse(request.Context(), request.PathValue("code"), identifier, course)
+	game, err := server.commands.SetCourse(request.Context(), request.PathValue("code"), identifier, course)
 	respondGame(writer, game, err)
 }
 
@@ -32,11 +39,11 @@ func (server *server) pubs(writer http.ResponseWriter, request *http.Request) {
 	if !ok {
 		return
 	}
-	pubs := make([]domain.Pub, 0, len(input.Pubs))
+	pubs := make([]domain.PubSnapshot, 0, len(input.Pubs))
 	for _, pub := range input.Pubs {
-		pubs = append(pubs, domain.Pub{Name: pub.Name, Latitude: pub.Latitude, Longitude: pub.Longitude})
+		pubs = append(pubs, domain.PubSnapshot{Name: pub.Name, Latitude: pub.Latitude, Longitude: pub.Longitude})
 	}
-	_, err := server.service.SetPubs(request.Context(), request.PathValue("code"), identifier, pubs)
+	_, err := server.commands.SetPubRoute(request.Context(), request.PathValue("code"), identifier, pubs)
 	if err != nil {
 		failure(writer, err)
 		return
@@ -45,18 +52,18 @@ func (server *server) pubs(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (server *server) route(writer http.ResponseWriter, request *http.Request) {
-	game, err := server.service.Get(request.Context(), request.PathValue("code"))
+	game, err := server.queries.GetGame(request.Context(), request.PathValue("code"))
 	if err != nil {
 		failure(writer, err)
 		return
 	}
-	pubs := make([]pubResponse, 0, len(game.Pubs))
-	for _, pub := range game.Pubs {
+	pubs := make([]pubResponse, 0, len(game.PubRoute.Pubs))
+	for _, pub := range game.PubRoute.Pubs {
 		pubs = append(pubs, pubResponse{pub.Hole, pub.Name, pub.Latitude, pub.Longitude})
 	}
 	var route *geometryResponse
-	if game.Route != nil {
-		route = &geometryResponse{Type: game.Route.Type, Coordinates: game.Route.Coordinates}
+	if game.PubRoute.Geometry != nil {
+		route = &geometryResponse{Type: game.PubRoute.Geometry.Type, Coordinates: game.PubRoute.Geometry.Coordinates}
 	}
 	write(writer, 200, routeResponse{Pubs: pubs, Route: route})
 }

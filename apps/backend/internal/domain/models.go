@@ -2,66 +2,60 @@ package domain
 
 import "time"
 
-type Game struct {
-	ID, Code, Status, HostPlayerID string
-	Version                        int64
-	Players                        []Player
-	ActiveEvent                    *ActiveEvent
-	Holes                          []CourseHole
-	Pubs                           []Pub
-	Route                          *Geometry
+type Game struct{ state GameSnapshot }
+
+type GameSnapshot struct {
+	ID                  string
+	Code                string
+	Status              string
+	HostPlayerID        string
+	Version             int64
+	Players             []PlayerSnapshot
+	ActiveGameplayEvent *ActiveGameplayEvent
+	Holes               []CourseHoleSnapshot
+	PubRoute            PubRouteSnapshot
 }
-type Player struct {
-	ID, Name  string
-	Scores    map[int]Score
+type PlayerSnapshot struct {
+	ID        string
+	Name      string
+	Scores    map[int]RecordedScore
 	Penalties map[int]string
-	Randomise *Randomise
+	Randomise *RandomiseResult
 }
-type Score struct {
+type RecordedScore struct {
 	Value int
 	At    time.Time
 }
-type Randomise struct {
+type RandomiseResult struct {
 	Hole   int
 	Result string
 }
-type ActiveEvent struct {
+type ActiveGameplayEvent struct {
 	ID, Title, Description string
 	ActivatedAt            time.Time
 }
-type CourseHole struct {
+type CourseHoleSnapshot struct {
 	Hole, Par int
-	Drinks    []Drink
+	Drinks    []DrinkChoiceSnapshot
 }
 type (
-	Drink struct{ Route, Name string }
-	Pub   struct {
+	DrinkChoiceSnapshot struct{ TrackName, Name string }
+	PubSnapshot         struct {
 		Hole                int
 		Name                string
 		Latitude, Longitude float64
 	}
 )
 
-type Geometry struct {
+type PubRouteGeometry struct {
 	Type        string
 	Coordinates [][]float64
+}
+type PubRouteSnapshot struct {
+	Pubs     []PubSnapshot
+	Geometry *PubRouteGeometry
 }
 type Place struct {
 	Name                string
 	Latitude, Longitude float64
-}
-type EventKind string
-
-const (
-	GameCreated    EventKind = "game-created"
-	PlayerJoined   EventKind = "player-joined"
-	ScoreSubmitted EventKind = "score-submitted"
-	RandomiseUsed  EventKind = "randomise-used"
-	GameCompleted  EventKind = "game-completed"
-	GameChanged    EventKind = "game-changed"
-)
-
-type Event struct {
-	Kind EventKind
-	Hole int
 }

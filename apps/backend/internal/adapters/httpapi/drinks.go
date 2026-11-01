@@ -8,7 +8,7 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-type drinks []domain.Drink
+type drinks []domain.DrinkChoiceSnapshot
 
 func (values drinks) MarshalJSON() ([]byte, error) {
 	var buffer bytes.Buffer
@@ -17,7 +17,7 @@ func (values drinks) MarshalJSON() ([]byte, error) {
 		if index > 0 {
 			buffer.WriteByte(',')
 		}
-		key, _ := json.Marshal(value.Route)
+		key, _ := json.Marshal(value.TrackName)
 		name, _ := json.Marshal(value.Name)
 		buffer.Write(key)
 		buffer.WriteByte(':')
@@ -42,7 +42,7 @@ func (values *drinks) UnmarshalJSON(data []byte) error {
 		if err = decoder.Decode(&name); err != nil {
 			return err
 		}
-		*values = append(*values, domain.Drink{Route: key.(string), Name: name})
+		*values = append(*values, domain.DrinkChoiceSnapshot{TrackName: key.(string), Name: name})
 	}
 	_, err = decoder.Token()
 	return err

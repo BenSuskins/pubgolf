@@ -14,9 +14,9 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-type Games struct{ database *sqlx.DB }
+type GameRepository struct{ database *sqlx.DB }
 
-func Open(path string) (*Games, error) {
+func Open(path string) (*GameRepository, error) {
 	address := "file:" + (&url.URL{Path: path}).EscapedPath()
 	database, err := sqlx.Open(
 		"sqlite",
@@ -26,7 +26,7 @@ func Open(path string) (*Games, error) {
 		return nil, err
 	}
 	database.SetMaxOpenConns(1)
-	repository := &Games{database: database}
+	repository := &GameRepository{database: database}
 	if err = repository.migrate(); err != nil {
 		database.Close()
 		return nil, err
@@ -34,9 +34,9 @@ func Open(path string) (*Games, error) {
 	return repository, nil
 }
 
-func (repository *Games) Close() error { return repository.database.Close() }
+func (repository *GameRepository) Close() error { return repository.database.Close() }
 
-func (repository *Games) Get(ctx context.Context, code string) (domain.Game, error) {
+func (repository *GameRepository) FindByCode(ctx context.Context, code string) (domain.Game, error) {
 	transaction, err := repository.database.BeginTxx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return domain.Game{}, err
@@ -52,24 +52,22 @@ func (repository *Games) Get(ctx context.Context, code string) (domain.Game, err
 	return game, nil
 }
 
-func (repository *Games) Save(ctx context.Context, game domain.Game, expected int64) (domain.Game, error) {
+func (repository *GameRepository) Save(ctx context.Context, game domain.Game, expected int64) (domain.Game, error) {
 	transaction, err := repository.database.BeginTxx(ctx, nil)
 	if err != nil {
 		return domain.Game{}, err
 	}
 	defer transaction.Rollback()
-	if err = saveGame(ctx, transaction, game, expected); err != nil {
+	if err = saveGame(ctx, transaction, game.Snapshot(), expected); err != nil {
 		return domain.Game{}, err
 	}
-	if err = replaceChildren(ctx, transaction, game); err != nil {
+	if err = replaceChildren(ctx, transaction, game.Snapshot()); err != nil {
 		return domain.Game{}, err
 	}
 	if err = transaction.Commit(); err != nil {
 		return domain.Game{}, err
 	}
-	game = domain.Clone(game)
-	game.Version = expected + 1
-	return game, nil
+	return game.WithVersion(expected + 1)
 }
 
 func encode(value any) (sql.NullString, error) {

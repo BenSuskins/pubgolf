@@ -16,35 +16,36 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/httpapi"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/live"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/nominatim"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/upstream"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 )
 
 func server(t *testing.T) *httptest.Server {
 	t.Helper()
 	counter := 0
-	hub := live.New(8)
-	t.Cleanup(hub.Close)
+	broadcaster := gameupdates.New(8)
+	t.Cleanup(broadcaster.Close)
 	repository, err := sqlite.Open(filepath.Join(t.TempDir(), "games.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { repository.Close() })
-	service := application.New(
-		repository,
-		application.Dependencies{
-			Identifier: func() string { counter++; return fmt.Sprintf("00000000-0000-4000-8000-%012d", counter) },
-			Code:       func() string { return "PAR001" },
-			Now:        func() time.Time { return time.Unix(42, 0).UTC() },
-			Outcome:    func() string { return "Tequila" },
-			Effects:    hub,
-			Streams:    hub,
-		},
+	newIdentifier := func() string { counter++; return fmt.Sprintf("00000000-0000-4000-8000-%012d", counter) }
+	games := application.NewGameApplication(repository, application.GameDependencies{
+		NewGameID:              newIdentifier,
+		NewPlayerID:            newIdentifier,
+		NewGameCode:            func() string { return "PAR001" },
+		Now:                    func() time.Time { return time.Unix(42, 0).UTC() },
+		ChooseRandomiseOutcome: func() string { return "Tequila" },
+		GameStates:             broadcaster,
+		Subscriptions:          broadcaster,
+	})
+	server := httptest.NewServer(
+		httpapi.New(games, application.NewPlaceSearch(nil), httpapi.Options{Heartbeat: 20 * time.Millisecond}),
 	)
-	server := httptest.NewServer(httpapi.New(service, httpapi.Options{Heartbeat: 20 * time.Millisecond}))
 	t.Cleanup(server.Close)
 	return server
 }
@@ -184,11 +185,9 @@ func TestPlaceSearchHTTPWithRealProviderAdapter(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer repository.Close()
-	service := application.New(
-		repository,
-		application.Dependencies{Places: upstream.NewPlaces(provider.URL, provider.Client(), time.Millisecond)},
-	)
-	api := httptest.NewServer(httpapi.New(service, httpapi.Options{}))
+	games := application.NewGameApplication(repository, application.GameDependencies{})
+	places := application.NewPlaceSearch(nominatim.NewPlaceSearcher(provider.URL, provider.Client(), time.Millisecond))
+	api := httptest.NewServer(httpapi.New(games, places, httpapi.Options{}))
 	defer api.Close()
 	request, _ := http.NewRequest("GET", api.URL+"/api/v1/places/search?q=Pub%20%26%20Wine", nil)
 	response, err := api.Client().Do(request)

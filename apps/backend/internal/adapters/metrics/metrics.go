@@ -57,15 +57,15 @@ func New() *Metrics {
 	return metrics
 }
 
-func (metrics *Metrics) Committed(_ context.Context, _ domain.Game, events []domain.Event) error {
+func (metrics *Metrics) PublishDomainEvents(_ context.Context, events []domain.DomainEvent) error {
 	for _, event := range events {
-		switch event.Kind {
+		switch event := event.(type) {
 		case domain.GameCreated:
 			metrics.created.Inc()
 		case domain.PlayerJoined:
 			metrics.joined.Inc()
 		case domain.ScoreSubmitted:
-			metrics.scores.WithLabelValues(strconv.Itoa(event.Hole)).Inc()
+			metrics.scores.WithLabelValues(strconv.Itoa(event.Hole.Value())).Inc()
 		case domain.RandomiseUsed:
 			metrics.randomised.Inc()
 		case domain.GameCompleted:

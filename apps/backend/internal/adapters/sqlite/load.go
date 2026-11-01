@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
@@ -20,32 +20,39 @@ func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Ga
 	if err != nil {
 		return domain.Game{}, gameNotFound(code, err)
 	}
-	game := domain.Game{
+	game := domain.GameSnapshot{
 		ID:           record.ID,
 		Code:         record.Code,
 		Status:       record.Status,
 		HostPlayerID: record.HostPlayerID,
 		Version:      record.Version,
 	}
-	if err = decode(record.ActiveEvent, &game.ActiveEvent); err != nil {
-		return game, err
+	if err = loadStoredEvent(record.ActiveEvent, &game.ActiveGameplayEvent); err != nil {
+		return domain.Game{}, err
 	}
-	if err = decode(record.Route, &game.Route); err != nil {
-		return game, err
+	if err = loadStoredGeometry(record.Route, &game.PubRoute.Geometry); err != nil {
+		return domain.Game{}, err
 	}
 	game.Players, err = loadPlayers(ctx, transaction, game.ID)
 	if err != nil {
-		return game, err
+		return domain.Game{}, err
 	}
 	game.Holes, err = loadHoles(ctx, transaction, game.ID)
 	if err != nil {
-		return game, err
+		return domain.Game{}, err
 	}
-	game.Pubs, err = loadPubs(ctx, transaction, game.ID)
-	return game, err
+	game.PubRoute.Pubs, err = loadPubs(ctx, transaction, game.ID)
+	if err != nil {
+		return domain.Game{}, err
+	}
+	restored, err := domain.RestoreGame(game)
+	if err != nil {
+		return domain.Game{}, fmt.Errorf("restore persisted game %q: %v", record.Code, err)
+	}
+	return restored, nil
 }
 
-func loadPlayers(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.Player, error) {
+func loadPlayers(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.PlayerSnapshot, error) {
 	var records []playerRecord
 	if err := transaction.SelectContext(
 		ctx,
@@ -55,7 +62,7 @@ func loadPlayers(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]do
 	); err != nil {
 		return nil, err
 	}
-	var players []domain.Player
+	var players []domain.PlayerSnapshot
 	for _, record := range records {
 		player, err := loadPlayer(ctx, transaction, record)
 		if err != nil {
@@ -66,9 +73,14 @@ func loadPlayers(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]do
 	return players, nil
 }
 
-func loadPlayer(ctx context.Context, transaction *sqlx.Tx, record playerRecord) (domain.Player, error) {
-	player := domain.NewPlayer(record.ID, record.Name)
-	if err := decode(record.Randomise, &player.Randomise); err != nil {
+func loadPlayer(ctx context.Context, transaction *sqlx.Tx, record playerRecord) (domain.PlayerSnapshot, error) {
+	player := domain.PlayerSnapshot{
+		ID:        record.ID,
+		Name:      record.Name,
+		Scores:    map[int]domain.RecordedScore{},
+		Penalties: map[int]string{},
+	}
+	if err := loadStoredRandomise(record.Randomise, &player.Randomise); err != nil {
 		return player, err
 	}
 	var records []scoreRecord
@@ -85,7 +97,7 @@ func loadPlayer(ctx context.Context, transaction *sqlx.Tx, record playerRecord) 
 		if err != nil {
 			return player, err
 		}
-		player.Scores[score.Hole] = domain.Score{Value: score.Value, At: at}
+		player.Scores[score.Hole] = domain.RecordedScore{Value: score.Value, At: at}
 		if score.Penalty != "" {
 			player.Penalties[score.Hole] = score.Penalty
 		}
@@ -93,7 +105,7 @@ func loadPlayer(ctx context.Context, transaction *sqlx.Tx, record playerRecord) 
 	return player, nil
 }
 
-func loadHoles(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.CourseHole, error) {
+func loadHoles(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.CourseHoleSnapshot, error) {
 	var records []holeRecord
 	if err := transaction.SelectContext(
 		ctx,
@@ -103,10 +115,10 @@ func loadHoles(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]doma
 	); err != nil {
 		return nil, err
 	}
-	var holes []domain.CourseHole
+	var holes []domain.CourseHoleSnapshot
 	for _, record := range records {
-		hole := domain.CourseHole{Hole: record.Hole, Par: record.Par}
-		if err := json.Unmarshal([]byte(record.Drinks), &hole.Drinks); err != nil {
+		hole := domain.CourseHoleSnapshot{Hole: record.Hole, Par: record.Par}
+		if err := loadStoredDrinks(record.Drinks, &hole.Drinks); err != nil {
 			return nil, err
 		}
 		holes = append(holes, hole)
@@ -114,7 +126,7 @@ func loadHoles(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]doma
 	return holes, nil
 }
 
-func loadPubs(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.Pub, error) {
+func loadPubs(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domain.PubSnapshot, error) {
 	var records []pubRecord
 	if err := transaction.SelectContext(
 		ctx,
@@ -124,11 +136,16 @@ func loadPubs(ctx context.Context, transaction *sqlx.Tx, gameID string) ([]domai
 	); err != nil {
 		return nil, err
 	}
-	var pubs []domain.Pub
+	var pubs []domain.PubSnapshot
 	for _, record := range records {
 		pubs = append(
 			pubs,
-			domain.Pub{Hole: record.Hole, Name: record.Name, Latitude: record.Latitude, Longitude: record.Longitude},
+			domain.PubSnapshot{
+				Hole:      record.Hole,
+				Name:      record.Name,
+				Latitude:  record.Latitude,
+				Longitude: record.Longitude,
+			},
 		)
 	}
 	return pubs, nil

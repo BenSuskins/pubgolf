@@ -13,15 +13,19 @@ Run `make backend-build` for the backend executable and `cd apps/frontend && bun
 
 The Go module lives in `apps/backend`. Use Go 1.27.3 and Bun for frontend tools.
 
-- `internal/domain` owns pure game rules, values, and typed failures.
-- `internal/application` owns use cases and the ports they consume.
+- `internal/domain` owns the protected Game aggregate, validated values, typed facts, and failures.
+- `internal/application` owns GameCommands, GameQueries, GameSubscriptions, PlaceSearch, and their ports.
 - `internal/adapters` owns HTTP/SSE, SQLite, upstream HTTP, metrics, and fakes.
 - `cmd/pubgolf` handles process signals. `internal/bootstrap` wires adapters and owns the server lifecycle.
 
 Dependencies point inward. Keep HTTP, SQL, JSON encoding, and vendor clients in adapters.
 Pass time, identifiers, and random outcomes into the core.
-Keep permission checks inside use cases and save a whole game atomically.
-Publish snapshots and record success metrics after commit.
+Apply rules through immutable Game methods. Keep aggregate state private.
+Use validated reconstruction and defensive snapshots. Treat zero as a played score.
+Keep permission checks inside use cases against the loaded game. Save a whole game atomically.
+Share one private commit coordinator between commands and subscriptions.
+Generate command timestamps, identifiers, and random outcomes once before retries.
+Publish domain facts and browser snapshots independently after commit. Record success metrics from committed facts.
 Keep external routing calls outside database transactions.
 
 Test pure rules and application use cases through their interfaces.
@@ -44,5 +48,6 @@ Swagger UI runs at `/swagger-ui/index.html`.
 ## References
 
 Read `docs/ARCHITECTURE.md` for interfaces and data flow.
+Use `docs/GLOSSARY.md` for domain names. Keep existing wire and stored JSON fields in adapters.
 Read `docs/BACKEND-CUTOVER.md` before deploying or rolling back this rewrite.
 Follow the local `repo-templates` checkout when changing documentation.

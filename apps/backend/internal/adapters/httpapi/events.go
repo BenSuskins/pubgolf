@@ -8,20 +8,20 @@ import (
 )
 
 func (server *server) events(writer http.ResponseWriter, request *http.Request) {
-	events := make([]eventOptionResponse, 0, len(domain.AvailableEvents()))
-	for _, event := range domain.AvailableEvents() {
+	events := make([]eventOptionResponse, 0, len(domain.AvailableGameplayEvents()))
+	for _, event := range domain.AvailableGameplayEvents() {
 		events = append(events, eventOptionResponse{ID: event.ID, Title: event.Title, Description: event.Description})
 	}
 	write(writer, 200, eventsResponse{Events: events})
 }
 
 func (server *server) activeEvent(writer http.ResponseWriter, request *http.Request) {
-	game, err := server.service.Get(request.Context(), request.PathValue("code"))
+	game, err := server.queries.GetGame(request.Context(), request.PathValue("code"))
 	if err != nil {
 		failure(writer, err)
 		return
 	}
-	write(writer, 200, activeEventStateResponse{ActiveEvent: eventResponse(game.ActiveEvent)})
+	write(writer, 200, activeEventStateResponse{ActiveEvent: eventResponse(game.ActiveGameplayEvent)})
 }
 
 func (server *server) activateEvent(writer http.ResponseWriter, request *http.Request) {
@@ -37,7 +37,12 @@ func (server *server) activateEvent(writer http.ResponseWriter, request *http.Re
 	if !ok {
 		return
 	}
-	game, err := server.service.ActivateEvent(request.Context(), request.PathValue("code"), identifier, input.EventID)
+	game, err := server.commands.ActivateGameplayEvent(
+		request.Context(),
+		request.PathValue("code"),
+		identifier,
+		input.EventID,
+	)
 	respondGame(writer, game, err)
 }
 
@@ -50,7 +55,7 @@ func (server *server) customEvent(writer http.ResponseWriter, request *http.Requ
 	if !ok {
 		return
 	}
-	game, err := server.service.CustomEvent(
+	game, err := server.commands.ActivateCustomGameplayEvent(
 		request.Context(),
 		request.PathValue("code"),
 		identifier,
@@ -65,6 +70,6 @@ func (server *server) endEvent(writer http.ResponseWriter, request *http.Request
 	if !ok {
 		return
 	}
-	game, err := server.service.EndEvent(request.Context(), request.PathValue("code"), identifier)
+	game, err := server.commands.EndGameplayEvent(request.Context(), request.PathValue("code"), identifier)
 	respondGame(writer, game, err)
 }

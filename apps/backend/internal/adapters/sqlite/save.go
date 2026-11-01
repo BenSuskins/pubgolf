@@ -9,12 +9,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func saveGame(ctx context.Context, transaction *sqlx.Tx, game domain.Game, expected int64) error {
-	active, err := encode(game.ActiveEvent)
+func saveGame(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot, expected int64) error {
+	active, err := encode(storedEvent(game.ActiveGameplayEvent))
 	if err != nil {
 		return err
 	}
-	route, err := encode(game.Route)
+	route, err := encode(storedGeometry(game.PubRoute.Geometry))
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func classifyInsertError(err error) error {
 	return err
 }
 
-func replaceChildren(ctx context.Context, transaction *sqlx.Tx, game domain.Game) error {
+func replaceChildren(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot) error {
 	for _, table := range []string{"players", "holes", "pubs"} {
 		if _, err := transaction.ExecContext(ctx, "DELETE FROM "+table+" WHERE game_id=?", game.ID); err != nil {
 			return err
@@ -79,8 +79,14 @@ func replaceChildren(ctx context.Context, transaction *sqlx.Tx, game domain.Game
 	return savePubs(ctx, transaction, game)
 }
 
-func savePlayer(ctx context.Context, transaction *sqlx.Tx, gameID string, position int, player domain.Player) error {
-	randomise, err := encode(player.Randomise)
+func savePlayer(
+	ctx context.Context,
+	transaction *sqlx.Tx,
+	gameID string,
+	position int,
+	player domain.PlayerSnapshot,
+) error {
+	randomise, err := encode(storedRandomise(player.Randomise))
 	if err != nil {
 		return err
 	}
@@ -112,9 +118,9 @@ func savePlayer(ctx context.Context, transaction *sqlx.Tx, gameID string, positi
 	return nil
 }
 
-func saveHoles(ctx context.Context, transaction *sqlx.Tx, game domain.Game) error {
+func saveHoles(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot) error {
 	for _, hole := range game.Holes {
-		drinks, err := encode(hole.Drinks)
+		drinks, err := encode(storedDrinks(hole.Drinks))
 		if err != nil {
 			return err
 		}
@@ -132,8 +138,8 @@ func saveHoles(ctx context.Context, transaction *sqlx.Tx, game domain.Game) erro
 	return nil
 }
 
-func savePubs(ctx context.Context, transaction *sqlx.Tx, game domain.Game) error {
-	for _, pub := range game.Pubs {
+func savePubs(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot) error {
+	for _, pub := range game.PubRoute.Pubs {
 		if _, err := transaction.ExecContext(
 			ctx,
 			"INSERT INTO pubs(game_id,hole,name,latitude,longitude) VALUES(?,?,?,?,?)",

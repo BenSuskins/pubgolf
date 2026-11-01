@@ -11,7 +11,7 @@ import (
 //go:embed migrations/*.sql
 var migrations embed.FS
 
-func (repository *Games) migrate() error {
+func (repository *GameRepository) migrate() error {
 	files, err := fs.Sub(migrations, "migrations")
 	if err != nil {
 		return err

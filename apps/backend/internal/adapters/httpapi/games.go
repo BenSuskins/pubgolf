@@ -16,12 +16,12 @@ func (server *server) create(writer http.ResponseWriter, request *http.Request) 
 		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
-	game, err := server.service.Create(request.Context(), *input.Host)
+	game, err := server.commands.CreateGame(request.Context(), *input.Host)
 	if err != nil {
 		failure(writer, err)
 		return
 	}
-	write(writer, 201, identityResponse(game, game.Players[0]))
+	write(writer, 201, identityResponse(game, game.Snapshot().Players[0]))
 }
 
 func (server *server) join(writer http.ResponseWriter, request *http.Request) {
@@ -33,12 +33,12 @@ func (server *server) join(writer http.ResponseWriter, request *http.Request) {
 		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
-	game, err := server.service.Join(request.Context(), request.PathValue("code"), *input.Name, input.Rejoin)
+	game, err := server.commands.JoinGame(request.Context(), request.PathValue("code"), *input.Name, input.Rejoin)
 	if err != nil {
 		failure(writer, err)
 		return
 	}
-	for _, player := range game.Players {
+	for _, player := range game.Snapshot().Players {
 		if strings.EqualFold(player.Name, *input.Name) {
 			write(writer, 200, identityResponse(game, player))
 			return
@@ -47,7 +47,7 @@ func (server *server) join(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (server *server) state(writer http.ResponseWriter, request *http.Request) {
-	game, err := server.service.Get(request.Context(), request.PathValue("code"))
+	game, err := server.queries.GetGame(request.Context(), request.PathValue("code"))
 	if err != nil {
 		failure(writer, err)
 		return
@@ -68,7 +68,7 @@ func (server *server) score(writer http.ResponseWriter, request *http.Request) {
 	if !ok {
 		return
 	}
-	_, err := server.service.SubmitScore(
+	_, err := server.commands.SubmitScore(
 		request.Context(),
 		request.PathValue("code"),
 		identifier,
@@ -88,12 +88,12 @@ func (server *server) randomise(writer http.ResponseWriter, request *http.Reques
 	if !ok {
 		return
 	}
-	game, err := server.service.Randomise(request.Context(), request.PathValue("code"), identifier)
+	game, err := server.commands.RandomisePlayer(request.Context(), request.PathValue("code"), identifier)
 	if err != nil {
 		failure(writer, err)
 		return
 	}
-	for _, player := range game.Players {
+	for _, player := range game.Snapshot().Players {
 		if player.ID == identifier {
 			write(writer, 200, randomiseResponse{player.Randomise.Hole, player.Randomise.Result})
 			return
@@ -114,6 +114,6 @@ func (server *server) complete(writer http.ResponseWriter, request *http.Request
 	if !ok {
 		return
 	}
-	game, err := server.service.Complete(request.Context(), request.PathValue("code"), identifier)
+	game, err := server.commands.CompleteGame(request.Context(), request.PathValue("code"), identifier)
 	respondGame(writer, game, err)
 }

@@ -19,15 +19,24 @@ type Options struct {
 	Heartbeat time.Duration
 }
 type server struct {
-	service *application.Service
-	options Options
+	commands      *application.GameCommands
+	queries       *application.GameQueries
+	subscriptions *application.GameSubscriptions
+	places        *application.PlaceSearch
+	options       Options
 }
 
-func New(service *application.Service, options Options) http.Handler {
+func New(games application.GameApplication, places *application.PlaceSearch, options Options) http.Handler {
 	if options.Heartbeat == 0 {
 		options.Heartbeat = 15 * time.Second
 	}
-	server := &server{service, options}
+	server := &server{
+		commands:      games.Commands,
+		queries:       games.Queries,
+		subscriptions: games.Subscriptions,
+		places:        places,
+		options:       options,
+	}
 	router := http.NewServeMux()
 	router.HandleFunc("POST /api/v1/games", server.create)
 	router.HandleFunc("POST /api/v1/games/{code}/players", server.join)
@@ -51,11 +60,11 @@ func New(service *application.Service, options Options) http.Handler {
 
 func (server *server) registerConfiguration(router *http.ServeMux) {
 	router.HandleFunc("GET /api/v1/config/routes", func(writer http.ResponseWriter, request *http.Request) {
-		write(writer, 200, routesResponse{Holes: holesResponse(domain.DefaultCourse())})
+		write(writer, 200, routesResponse{Holes: holesResponse(domain.DefaultCourse().Holes())})
 	})
 	router.HandleFunc("GET /api/v1/config/randomise-options", func(writer http.ResponseWriter, request *http.Request) {
-		options := make([]randomiseOptionResponse, 0, len(domain.Outcomes()))
-		for _, outcome := range domain.Outcomes() {
+		options := make([]randomiseOptionResponse, 0, len(domain.RandomiseOptions()))
+		for _, outcome := range domain.RandomiseOptions() {
 			options = append(options, randomiseOptionResponse{Option: outcome.Label, OptionSize: outcome.Weight})
 		}
 		write(writer, 200, randomiseOptionsResponse{Options: options})

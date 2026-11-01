@@ -14,7 +14,7 @@ import (
 )
 
 func (server *server) stream(writer http.ResponseWriter, request *http.Request) {
-	game, subscription, err := server.service.Subscribe(request.Context(), request.PathValue("code"))
+	game, subscription, err := server.subscriptions.SubscribeGame(request.Context(), request.PathValue("code"))
 	if err != nil {
 		failure(writer, err)
 		return
@@ -41,7 +41,11 @@ type snapshotStream struct {
 	heartbeat  time.Duration
 }
 
-func (stream snapshotStream) run(ctx context.Context, subscription application.Subscription, game domain.Game) {
+func (stream snapshotStream) run(
+	ctx context.Context,
+	subscription application.GameStateSubscription,
+	game domain.GameSnapshot,
+) {
 	if err := stream.sendSnapshot(game); err != nil {
 		return
 	}
@@ -70,7 +74,7 @@ func (stream snapshotStream) run(ctx context.Context, subscription application.S
 	}
 }
 
-func (stream snapshotStream) sendSnapshot(game domain.Game) error {
+func (stream snapshotStream) sendSnapshot(game domain.GameSnapshot) error {
 	payload, err := json.Marshal(stateResponse(game))
 	if err != nil {
 		return err

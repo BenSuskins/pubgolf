@@ -19,7 +19,7 @@ flowchart TD
     SQLite[SQLite adapter] -. implements .-> Ports
     OSRM[OSRM routing adapter] -. implements .-> Ports
     Nominatim[Nominatim search adapter] -. implements .-> Ports
-    Hub[Live snapshot hub] -. implements .-> Ports
+    Updates[Game updates broadcaster] -. implements .-> Ports
     Metrics[Prometheus adapter] -. implements .-> Ports
 ```
 
@@ -27,13 +27,18 @@ flowchart TD
 
 | Module | Responsibility | Location |
 |--------|----------------|----------|
-| Domain | Pure transitions, validation, permissions, typed failures | `apps/backend/internal/domain` |
-| Application | Use cases, retry policy, ports, commit and subscription ordering | `apps/backend/internal/application` |
+| Domain | Protected Game aggregate, validated values, typed domain facts and failures | `apps/backend/internal/domain` |
+| Application | GameCommands, GameQueries, GameSubscriptions, PlaceSearch, consumer-owned ports | `apps/backend/internal/application` |
 | Adapters | HTTP/SSE, SQLite, upstream calls, metrics, fake storage | `apps/backend/internal/adapters` |
 | Bootstrap | Configuration, adapter wiring, server lifecycle | `apps/backend/internal/bootstrap` |
 | Executable | Signals and exit status | `apps/backend/cmd/pubgolf` |
 | Frontend | Screens, REST client, EventSource hook | `apps/frontend` |
 | Browser tests | Full game flows on desktop and mobile Chromium | `e2e` |
+
+Concrete adapters are `sqlite.GameRepository`, `gameupdates.Broadcaster`,
+`osrm.PubRouteCalculator`, and `nominatim.PlaceSearcher`. Tests use `fakes.GameRepository`
+and separate fake domain-event and snapshot publishers. `bootstrap` constructs one private
+commit coordinator shared by commands and subscriptions through `NewGameApplication`.
 
 ## Request Flow
 
@@ -44,7 +49,7 @@ sequenceDiagram
     participant A as Application
     participant D as Domain
     participant S as SQLite adapter
-    participant L as Live hub
+    participant L as Game updates broadcaster
     B->>H: Submit score and player identity
     H->>A: SubmitScore
     A->>S: Load game
@@ -52,6 +57,7 @@ sequenceDiagram
     D-->>A: Updated game and events
     A->>S: Save aggregate with expected version
     S-->>A: Committed game
+    A->>A: Publish typed domain facts (logging and metrics)
     A->>L: Publish committed snapshot
     L-->>B: SSE game-state event
     A-->>H: Success
@@ -64,22 +70,34 @@ revalidates permission, and saves with a version check. A routing failure saves 
 ## Key Decisions
 
 - **Ports belong to their consumer.** Application packages define storage, routing, search,
-  effect, and subscription interfaces. Adapters implement them. The executable wires them.
-- **Library reuse.** `go-sse` handles event framing and flushing; the live adapter keeps bounded
+  publication, and subscription interfaces. Adapters implement them. Bootstrap wires them.
+  `GameRepository`, `PubRouteCalculator`, and `PlaceSearcher` describe concrete capabilities.
+  `DomainEventPublisher` carries facts; `GameStatePublisher` and `GameStateSubscriber` carry browser snapshots.
+- **Library reuse.** `go-sse` handles event framing and flushing; the gameupdates adapter keeps bounded
   per-browser queues. `sqlx` maps SQL rows, Goose runs migrations, `google/uuid` handles UUIDs,
   and `errgroup` coordinates server goroutines. Go rate and semaphore packages schedule place searches.
   These libraries stay in adapters or bootstrap.
 - **Complexity limits.** Pinned golangci-lint v2.15.0 runs locally and in CI. Functions have
   cyclomatic complexity at most 10, at most 60 lines, and at most 40 statements, including tests.
-- **Pure rules.** Domain functions receive time and outcomes and return state plus events.
-  They do not read clocks, generate random values, encode JSON, or access the database.
+- **Protected aggregate.** `Game` keeps state private. Its immutable methods validate rules and
+  return a new game, distinct domain facts, and a typed failure. Validated values cover hole numbers,
+  scores, pars, names, and pub locations. Zero remains a valid played score. Readers receive defensive
+  snapshots; persistence reconstructs games through `RestoreGame`.
+- **Pure rules.** Aggregate methods receive time and outcomes. They do not read clocks, generate
+  random values, encode JSON, or access the database. Commands generate identifiers, timestamps,
+  and random outcomes before retries and reuse them when rules run again.
+- **Domain language.** One Game bounded context owns players, scores, the course, gameplay events,
+  and the pub route. A DrinkTrack groups drink choices across holes. A PubRoute contains ordered pubs
+  and optional walking geometry. GameplayEvent definitions and active state describe game modifiers;
+  DomainEvent facts such as `ScoreSubmitted` describe completed changes. See [GLOSSARY.md](GLOSSARY.md).
 - **Game consistency.** SQLite saves all game-owned rows in one transaction. Expected versions
   reject stale writes. The application retries conflicts three times. Game-code creation tries five times.
 - **Commit ordering.** One process-wide application mutex orders local mutations, committed
-  notifications, and initial stream snapshots. External HTTP calls run outside this mutex.
+  notifications, and subscription registration with its initial snapshot. External HTTP calls run outside this mutex.
   This suits one small process. Multiple backend processes require a different notification design.
-- **Ephemeral notifications.** Events are dispatched in process after commit. Delivery errors
-  are logged and do not undo committed actions. There is no outbox or replay store.
+- **Independent publication.** Domain facts and browser snapshots use separate ports after commit.
+  The coordinator attempts both even if one fails. Delivery errors are logged and do not undo
+  committed actions. There is no outbox or replay store.
 - **Full-state SSE.** Each connection receives a current snapshot before queued updates.
   Snapshots include the existing REST representation. Slow subscribers disconnect when their
   queue fills. Reconnection sends a new snapshot. Heartbeats run every 15 seconds.
@@ -104,10 +122,12 @@ erDiagram
 
 The game row holds status, host identity, version, active event, and route geometry.
 Player rows preserve join order and randomise state. Score rows hold timestamps and penalties.
-Course rows preserve drink route order. SQL and JSON representations belong to the SQLite adapter.
+Course rows preserve drink track order. SQL and JSON representations belong to the SQLite adapter.
 
 Goose runs embedded migrations and records versions in `goose_db_version`. The Go service uses a fresh database;
-it does not migrate or open the previous Kotlin database.
+it does not migrate or open the previous Kotlin database. The protected-domain refactor preserves
+this Go schema and its stored JSON keys, including legacy `Route` drink keys. A frozen pre-refactor
+SQL fixture verifies read and update compatibility. It requires no additional migration or deployment.
 
 ## External Dependencies
 
