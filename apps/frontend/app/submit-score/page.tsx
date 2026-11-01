@@ -131,8 +131,8 @@ export default function SubmitScorePage() {
   };
 
   return (
-    <main className="min-h-full flex flex-col p-5 md:p-8 max-w-lg mx-auto w-full">
-      <div className="space-y-5 flex-1 flex flex-col">
+    <main className="min-h-full flex flex-col p-5 md:p-8 max-w-5xl mx-auto w-full">
+      <div className="space-y-5 flex-1">
         <div>
           <Link
             href="/game"
@@ -157,7 +157,7 @@ export default function SubmitScorePage() {
           disabled={submitting}
         />
 
-        <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col">
+        <form onSubmit={handleSubmit} className="grid items-start gap-5 md:grid-cols-2">
           <Card padding="lg" className="flex flex-col items-center">
             <Counter
               label="Sips Taken"
@@ -174,7 +174,7 @@ export default function SubmitScorePage() {
             </div>
           </Card>
 
-          <fieldset>
+          <fieldset className="min-w-0">
             <legend className="eyebrow block mb-2.5 text-[var(--color-text-muted)]">
               Quick Actions
             </legend>
@@ -183,7 +183,7 @@ export default function SubmitScorePage() {
                 <EmptyState icon="✅" description="No quick actions available" />
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-2.5">
                 {currentPar !== undefined && (
                   <button
                     type="button"
@@ -227,14 +227,16 @@ export default function SubmitScorePage() {
             )}
           </fieldset>
 
-          {error && <ErrorMessage message={error} variant="inline" />}
-
-          <div className="flex-1" />
+          {error && (
+            <div className="md:col-span-2">
+              <ErrorMessage message={error} variant="inline" />
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-[19px] px-4 btn-gradient rounded-2xl text-[19px] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            className="w-full md:col-span-2 md:max-w-md md:justify-self-end py-[19px] px-4 btn-gradient rounded-2xl text-[19px] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
           >
             {submitting ? 'LOGGING...' : 'LOG IT'}
           </button>

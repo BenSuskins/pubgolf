@@ -90,7 +90,7 @@ export function Counter({
         </div>
       )}
       <div className={centerControls ? 'flex justify-center' : ''}>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           <button
             type="button"
             onClick={handleDecrement}
@@ -104,7 +104,7 @@ export function Counter({
           </button>
 
           <div
-            className={`min-w-[5rem] text-center text-6xl font-display ${
+            className={`min-w-[4rem] sm:min-w-[5rem] text-center text-6xl font-display ${
               error ? 'text-[var(--color-error)]' : 'text-[var(--color-accent)]'
             }`}
             aria-live="polite"

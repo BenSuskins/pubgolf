@@ -17,6 +17,29 @@ const benefits = [
   ],
 ];
 
+const questions = [
+  [
+    'What is pub golf?',
+    'Pub golf is a pub crawl scored like golf. Each hole has a drink and a par. Count the sips it takes to finish your drink; the lowest total score wins.',
+  ],
+  [
+    'How do you score in pub golf?',
+    'Record your sips for each hole and compare them with its par. Penalties can add strokes. The player with the lowest total wins.',
+  ],
+  [
+    'How many pubs do you need for pub golf?',
+    'A round has nine holes. You can plan a route with nine pubs, or choose how your group plays the nine holes.',
+  ],
+  [
+    'Do I need to download an app to play?',
+    'No. Pub Golf is free to use in your browser. There is no sign-up or download.',
+  ],
+  [
+    'How do friends join a round?',
+    'The host shares a game code or invite link. Players join on their own phones and record their scores together.',
+  ],
+];
+
 export default function HomePage() {
   return (
     <div className="bg-ambient min-h-full">
@@ -98,17 +121,58 @@ export default function HomePage() {
             </div>
           ))}
         </section>
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--color-border)] p-6">
-          <p className="text-[var(--color-text-secondary)]">
-            First round? Get the basics before you tee off.
-          </p>
-          <Link
-            href="/how-to-play"
-            className="inline-flex min-h-11 items-center font-bold text-[var(--color-accent)] underline underline-offset-4"
-          >
-            Learn the rules →
-          </Link>
-        </div>
+        <section
+          className="border-t border-[var(--color-border)] py-10 md:py-14"
+          aria-labelledby="how-to-play"
+        >
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16">
+            <div>
+              <h2 id="how-to-play" className="font-display text-4xl">How to play</h2>
+              <p className="mt-3 max-w-sm leading-relaxed text-[var(--color-text-secondary)]">
+                Turn your pub crawl into a shared scorecard.
+              </p>
+              <Link
+                href="/how-to-play"
+                className="mt-4 inline-flex min-h-11 items-center font-bold text-[var(--color-accent)] underline underline-offset-4"
+              >
+                Read the full rules →
+              </Link>
+            </div>
+            <ol className="grid gap-6 sm:grid-cols-3">
+              {[
+                ['Set up', 'Host a round, choose your course, and invite your group.'],
+                ['Play each hole', 'Count your sips and record your score against par.'],
+                ['Find your champion', 'Follow the live leaderboard. The lowest total wins.'],
+              ].map(([title, description], index) => (
+                <li key={title} className="border-t border-[var(--color-border-gold)] pt-4">
+                  <span className="font-display text-2xl text-[var(--color-accent)]">
+                    {index + 1}
+                  </span>
+                  <h3 className="mt-2 font-bold">{title}</h3>
+                  <p className="mt-2 leading-relaxed text-[var(--color-text-secondary)]">
+                    {description}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+        <section
+          className="border-t border-[var(--color-border)] py-10 md:py-14"
+          aria-labelledby="faq"
+        >
+          <h2 id="faq" className="font-display text-4xl">Frequently asked questions</h2>
+          <div className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">
+            {questions.map(([question, answer]) => (
+              <div key={question}>
+                <h3 className="font-bold text-[var(--color-text)]">{question}</h3>
+                <p className="mt-2 max-w-xl leading-relaxed text-[var(--color-text-secondary)]">
+                  {answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
