@@ -264,7 +264,7 @@ export default function GamePage() {
 
         {activeEvent && !isCompleted && <EventBanner event={activeEvent} />}
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)]">
           <section className="min-w-0">
             {loading ? (
               <ScoreboardSkeleton />
@@ -280,22 +280,22 @@ export default function GamePage() {
 
           <nav
             aria-label="Round actions"
-            className="space-y-3 lg:sticky lg:top-6 lg:glass lg:rounded-2xl lg:p-5"
+            className="space-y-3 lg:sticky lg:top-6 lg:glass lg:rounded-2xl lg:p-4"
           >
             {playerId && !isCompleted && (
               <>
                 <Link
                   href="/submit-score"
-                  className="block w-full py-[19px] px-4 btn-gradient text-center text-[19px] rounded-2xl"
+                  className="block w-full py-4 px-4 btn-gradient text-center text-[17px] rounded-2xl"
                 >
                   LOG YOUR SIPS
                 </Link>
-                <div className="flex gap-2.5">
+                <div className={`grid gap-2.5 ${isHost ? 'grid-cols-2' : 'grid-cols-1'}`}>
                   {hasUsedWildcard ? (
                     <div
                       role="status"
                       aria-label="Wildcard already used for this game"
-                      className="flex-1 py-3.5 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] text-[var(--color-text-faint)] cursor-not-allowed opacity-60"
+                      className="min-w-0 py-3 px-2 glass text-center font-semibold text-[13.5px] rounded-[14px] text-[var(--color-text-faint)] cursor-not-allowed opacity-60"
                     >
                       Wildcard Used
                     </div>
@@ -303,7 +303,7 @@ export default function GamePage() {
                     <Link
                       href="/randomise"
                       aria-label="Go to wildcard page"
-                      className="flex-1 py-3.5 px-4 glass text-center font-semibold text-[13.5px] rounded-[14px] hover:bg-[var(--color-surface-hover)] transition-colors flex items-center justify-center gap-1.5"
+                      className="min-w-0 py-3 px-2 glass text-center font-semibold text-[13.5px] rounded-[14px] hover:bg-[var(--color-surface-hover)] transition-colors flex items-center justify-center gap-1.5"
                     >
                       <svg
                         width="15"
@@ -331,7 +331,7 @@ export default function GamePage() {
                   {isHost && (
                     <Link
                       href={`/game/${gameCode.toLowerCase()}/host`}
-                      className="flex-1 py-3.5 px-4 text-center font-bold text-[13.5px] rounded-[14px] bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                      className="min-w-0 py-3 px-2 text-center font-bold text-[13.5px] rounded-[14px] bg-[var(--color-surface-inset)] border border-[var(--color-border-gold)] text-[var(--color-accent)] hover:bg-[var(--color-surface-hover)] transition-colors"
                     >
                       Host Panel
                     </Link>

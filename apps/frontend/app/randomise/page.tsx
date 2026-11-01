@@ -108,8 +108,8 @@ export default function RandomisePage() {
   }
 
   return (
-    <main className="min-h-full flex flex-col p-5 md:p-8 max-w-lg mx-auto w-full">
-      <div className="w-full space-y-6 flex-1 flex flex-col">
+    <main className="min-h-full flex flex-col p-5 md:p-8 max-w-5xl mx-auto w-full">
+      <div className="w-full space-y-6 flex-1">
         <div>
           <Link
             href="/game"
@@ -128,45 +128,49 @@ export default function RandomisePage() {
           </Typography>
         </div>
 
-        <Card padding="md" className="space-y-4">
-          <SpinWheel
-            options={options}
-            winningOption={winningOption}
-            spinning={spinning}
-            onSpinEnd={handleSpinEnd}
-            spinDuration={3}
-          />
-
-          {error && (
-            <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-xl text-center text-sm">
-              {error}
+        <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:gap-10">
+          <Card padding="md" className="space-y-4 min-w-0">
+            <div className="mx-auto w-full max-w-md">
+              <SpinWheel
+                options={options}
+                winningOption={winningOption}
+                spinning={spinning}
+                onSpinEnd={handleSpinEnd}
+                spinDuration={3}
+              />
             </div>
-          )}
-        </Card>
 
-        {hasSpun && result && !spinning && (
-          <div className="text-center animate-fade-in">
-            <p className="text-sm text-[var(--color-text-faint)]">
-              Landed on:{' '}
-              <span className="text-[var(--color-accent)] font-bold">{result}</span>
-              <span className="text-[var(--color-text-secondary)]"> — Hole {hole}</span>
-            </p>
+            {error && (
+              <div className="p-3 bg-[var(--color-error-bg)] text-[var(--color-error)] rounded-xl text-center text-sm">
+                {error}
+              </div>
+            )}
+          </Card>
+
+          <div className="space-y-5 md:sticky md:top-8">
+            {hasSpun && result && !spinning && (
+              <div className="text-center animate-fade-in">
+                <p className="text-sm text-[var(--color-text-faint)]">
+                  Landed on:{' '}
+                  <span className="text-[var(--color-accent)] font-bold">{result}</span>
+                  <span className="text-[var(--color-text-secondary)]"> — Hole {hole}</span>
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={handleSpin}
+              disabled={spinning || hasSpun}
+              className={`w-full py-[19px] px-4 rounded-2xl text-lg transition-all ${
+                spinning || hasSpun
+                  ? 'font-display bg-[var(--color-border)] text-[var(--color-text-secondary)] cursor-not-allowed opacity-50'
+                  : 'btn-gradient'
+              }`}
+            >
+              {spinning ? 'SPINNING...' : hasSpun ? 'WILDCARD USED' : 'SPIN THE WHEEL'}
+            </button>
           </div>
-        )}
-
-        <div className="flex-1" />
-
-        <button
-          onClick={handleSpin}
-          disabled={spinning || hasSpun}
-          className={`w-full py-[19px] px-4 rounded-2xl text-lg transition-all ${
-            spinning || hasSpun
-              ? 'font-display bg-[var(--color-border)] text-[var(--color-text-secondary)] cursor-not-allowed opacity-50'
-              : 'btn-gradient'
-          }`}
-        >
-          {spinning ? 'SPINNING...' : hasSpun ? 'WILDCARD USED' : 'SPIN THE WHEEL'}
-        </button>
+        </div>
       </div>
     </main>
   );
