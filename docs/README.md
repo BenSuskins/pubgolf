@@ -106,6 +106,9 @@ Functions must have at most 60 lines and 40 statements. The same limits apply to
   cover snapshots, reconnects, cleanup, and switching games.
 - **E2E:** Playwright starts the Go backend and Next.js. It runs desktop and mobile Chromium.
   Install Chromium with `cd e2e && bunx playwright install chromium` before the first run.
+- **OpenAPI:** Run `make backend-openapi` after changing HTTP models or endpoint definitions.
+  The generated document stays checked in. Run `make backend-openapi-check` to check for drift.
+  CI checks generation and validates real HTTP responses against the document.
 - **Contract explorer:** Visit `http://localhost:8080/swagger-ui/index.html`.
 
 ## Deployment

@@ -34,3 +34,10 @@ e2e:
 
 e2e-ui:
 	cd e2e && bun run test:ui
+
+.PHONY: backend-openapi backend-openapi-check
+backend-openapi:
+	cd apps/backend && go generate ./internal/adapters/httpapi
+
+backend-openapi-check:
+	cd apps/backend && go run ./cmd/openapi -check
