@@ -19,7 +19,7 @@ flowchart TD
     SQLite[SQLite adapter] -. implements .-> Ports
     OSRM[OSRM routing adapter] -. implements .-> Ports
     Nominatim[Nominatim search adapter] -. implements .-> Ports
-    Updates[Game updates broadcaster] -. implements .-> Ports
+    Updates[Round updates broadcaster] -. implements .-> Ports
     Metrics[Prometheus adapter] -. implements .-> Ports
 ```
 
@@ -35,7 +35,7 @@ flowchart TD
 | Frontend | Screens, REST client, EventSource hook | `apps/frontend` |
 | Browser tests | Full game flows on desktop and mobile Chromium | `e2e` |
 
-Concrete adapters are `sqlite.RoundRepository`, `gameupdates.Broadcaster`,
+Concrete adapters are `sqlite.RoundRepository`, `roundupdates.Broadcaster`,
 `osrm.PubRouteCalculator`, and `nominatim.PlaceSearcher`. Tests use `fakes.RoundRepository`
 and separate fake domain-event and snapshot publishers. `bootstrap` constructs one private
 commit coordinator shared by commands and subscriptions through `NewRoundApplication`.
@@ -49,7 +49,7 @@ sequenceDiagram
     participant A as Application
     participant D as Domain
     participant S as SQLite adapter
-    participant L as Game updates broadcaster
+    participant L as Round updates broadcaster
     B->>H: Submit score and player identity
     H->>A: SubmitScore
     A->>S: Load round
@@ -73,7 +73,7 @@ revalidates permission, and saves with a version check. A routing failure saves 
   publication, and subscription interfaces. Adapters implement them. Bootstrap wires them.
   `RoundRepository`, `PubRouteCalculator`, and `PlaceSearcher` describe concrete capabilities.
   `DomainEventPublisher` carries facts; `RoundStatePublisher` and `RoundStateSubscriber` carry browser snapshots.
-- **Library reuse.** `go-sse` handles event framing and flushing; the gameupdates adapter keeps bounded
+- **Library reuse.** `go-sse` handles event framing and flushing; the roundupdates adapter keeps bounded
   per-browser queues. `sqlx` maps SQL rows, Goose runs migrations, `google/uuid` handles UUIDs,
   and `errgroup` coordinates server goroutines. Go rate and semaphore packages schedule place searches.
   These libraries stay in adapters or bootstrap.

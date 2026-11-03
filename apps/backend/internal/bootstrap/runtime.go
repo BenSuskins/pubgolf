@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/httpapi"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/metrics"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/nominatim"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/osrm"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/random"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 )
@@ -27,7 +27,7 @@ func Run(ctx context.Context, configuration Configuration) error {
 		return err
 	}
 	defer repository.Close()
-	broadcaster := gameupdates.New(16)
+	broadcaster := roundupdates.New(16)
 	defer broadcaster.Close()
 	measurements := metrics.New()
 	handler := buildHandler(configuration, repository, broadcaster, measurements)
@@ -44,7 +44,7 @@ func Run(ctx context.Context, configuration Configuration) error {
 func buildHandler(
 	configuration Configuration,
 	repository application.RoundRepository,
-	broadcaster *gameupdates.Broadcaster,
+	broadcaster *roundupdates.Broadcaster,
 	measurements *metrics.Metrics,
 ) http.Handler {
 	client := providerHTTPClient()

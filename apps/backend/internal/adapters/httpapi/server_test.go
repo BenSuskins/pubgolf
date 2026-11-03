@@ -16,9 +16,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/httpapi"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/nominatim"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 )
@@ -26,7 +26,7 @@ import (
 func server(t *testing.T) *httptest.Server {
 	t.Helper()
 	counter := 0
-	broadcaster := gameupdates.New(8)
+	broadcaster := roundupdates.New(8)
 	t.Cleanup(broadcaster.Close)
 	repository, err := sqlite.Open(filepath.Join(t.TempDir(), "games.db"))
 	if err != nil {

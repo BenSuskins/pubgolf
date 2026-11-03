@@ -1,15 +1,15 @@
-package gameupdates_test
+package roundupdates_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 func TestBroadcasterIsolatesGamesAndDisconnectsSlowConsumers(t *testing.T) {
-	broadcaster := gameupdates.New(1)
+	broadcaster := roundupdates.New(1)
 	defer broadcaster.Close()
 	first := broadcaster.SubscribeRoundState("PAR001")
 	defer first.Cancel()

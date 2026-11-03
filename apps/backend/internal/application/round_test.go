@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/fakes"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
@@ -159,7 +159,7 @@ func TestNoOpCommandsDoNotSaveOrPublish(t *testing.T) {
 
 func TestConcurrentSubscriptionsSeeEveryLaterCommittedVersion(t *testing.T) {
 	fixture := fixture()
-	broadcaster := gameupdates.New(32)
+	broadcaster := roundupdates.New(32)
 	defer broadcaster.Close()
 	dependencies := fixture.dependencies()
 	dependencies.Now = func() time.Time { return time.Unix(42, 0).UTC() }

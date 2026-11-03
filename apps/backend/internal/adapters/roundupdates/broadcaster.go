@@ -1,4 +1,4 @@
-package gameupdates
+package roundupdates
 
 import (
 	"context"
