@@ -101,6 +101,12 @@ revalidates permission, and saves with a version check. A routing failure saves 
 - **Full-state SSE.** Each connection receives a current snapshot before queued updates.
   Snapshots include the existing REST representation. Slow subscribers disconnect when their
   queue fills. Reconnection sends a new snapshot. Heartbeats run every 15 seconds.
+- **Code-first OpenAPI.** The HTTP adapter shares endpoint definitions between route registration
+  and OpenAPI generation. `kin-openapi/openapi3gen` reflects the adapter request and response
+  types. Required-field tags and the custom drinks codec schema describe the wire format.
+  `make backend-openapi` regenerates the embedded document; CI rejects stale output.
+  REST and SSE URLs remain unchanged. Operation identifiers and schema names now use Go names
+  instead of the old Kotlin-generated names. Swagger UI still reads `/v3/api-docs`.
 - **REST compatibility.** The HTTP tests replay 32 exchanges captured from Kotlin at commit
   `5533f17`. The OpenAPI contract corrects the old generated spec's nullable fields and scalar
   score representation. It uses OpenAPI 3.0.3 for validator compatibility.

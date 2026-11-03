@@ -16,6 +16,7 @@ jobs:
       working-directory: apps/backend
       test-command: go test -race ./...
       pre-test-commands: |
+        go run ./cmd/openapi -check
         test -z "$(gofmt -l cmd internal)"
         go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0 run
   openapi:

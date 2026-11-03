@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 //go:embed openapi.json
@@ -38,47 +37,14 @@ func New(games application.GameApplication, places *application.PlaceSearch, opt
 		options:       options,
 	}
 	router := http.NewServeMux()
-	router.HandleFunc("POST /api/v1/games", server.create)
-	router.HandleFunc("POST /api/v1/games/{code}/players", server.join)
-	router.HandleFunc("GET /api/v1/games/{code}", server.state)
-	router.HandleFunc("POST /api/v1/games/{code}/scores", server.score)
-	router.HandleFunc("POST /api/v1/games/{code}/randomise", server.randomise)
-	router.HandleFunc("PATCH /api/v1/games/{code}", server.complete)
-	router.HandleFunc("GET /api/v1/games/{code}/events", server.events)
-	router.HandleFunc("GET /api/v1/games/{code}/events/active", server.activeEvent)
-	router.HandleFunc("PUT /api/v1/games/{code}/active-event", server.activateEvent)
-	router.HandleFunc("PUT /api/v1/games/{code}/active-event/custom", server.customEvent)
-	router.HandleFunc("DELETE /api/v1/games/{code}/active-event", server.endEvent)
-	router.HandleFunc("PUT /api/v1/games/{code}/holes", server.course)
-	router.HandleFunc("PUT /api/v1/games/{code}/pubs", server.pubs)
-	router.HandleFunc("GET /api/v1/games/{code}/route", server.route)
-	router.HandleFunc("GET /api/v1/games/{code}/stream", server.stream)
-	server.registerConfiguration(router)
+	for _, endpoint := range server.endpoints() {
+		router.HandleFunc(endpoint.pattern, endpoint.handler)
+	}
 	server.registerOperations(router)
 	return server.cors(router)
 }
 
-func (server *server) registerConfiguration(router *http.ServeMux) {
-	router.HandleFunc("GET /api/v1/config/routes", func(writer http.ResponseWriter, request *http.Request) {
-		write(writer, 200, routesResponse{Holes: holesResponse(domain.DefaultCourse().Holes())})
-	})
-	router.HandleFunc("GET /api/v1/config/randomise-options", func(writer http.ResponseWriter, request *http.Request) {
-		options := make([]randomiseOptionResponse, 0, len(domain.RandomiseOptions()))
-		for _, outcome := range domain.RandomiseOptions() {
-			options = append(options, randomiseOptionResponse{Option: outcome.Label, OptionSize: outcome.Weight})
-		}
-		write(writer, 200, randomiseOptionsResponse{Options: options})
-	})
-	router.HandleFunc("GET /api/v1/config/penalty-options", func(writer http.ResponseWriter, request *http.Request) {
-		write(writer, 200, penaltyOptionsResponse{Penalties: []penaltyOptionResponse{
-			{Type: "SKIP", Name: "Skip a drink", Points: 5},
-			{Type: "CHUNDER", Name: "Tactical chunder", Points: 10},
-		}})
-	})
-}
-
 func (server *server) registerOperations(router *http.ServeMux) {
-	router.HandleFunc("GET /api/v1/places/search", server.search)
 	router.HandleFunc("GET /actuator/health", func(writer http.ResponseWriter, request *http.Request) {
 		write(writer, 200, healthResponse{Status: "UP"})
 	})
