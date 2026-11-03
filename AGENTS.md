@@ -2,6 +2,10 @@
 
 Pub Golf has a Go backend, a Next.js frontend, and Playwright browser tests.
 
+## Frontend rendering
+
+Prefer server rendering where feasible. When data is unavailable, provide useful basic content as the fallback without an error message.
+
 ## Commands
 
 Use Make as the entry point. Run `make setup` to install dependencies.
