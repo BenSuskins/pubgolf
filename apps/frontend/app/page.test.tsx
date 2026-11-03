@@ -15,3 +15,8 @@ describe('marketing homepage', () => {
     expect(screen.getByRole('link', { name: /read the full rules/i })).toHaveAttribute('href', '/how-to-play');
   });
 });
+
+test('names the scorecard in the main heading', () => {
+  render(<HomePage />);
+  expect(screen.getByRole('heading', { level: 1, name: /pub golf scorecard/i })).toBeInTheDocument();
+});
