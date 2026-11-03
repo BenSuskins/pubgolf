@@ -4,20 +4,31 @@ import { RoutesTable } from '@/components/RoutesTable';
 import { Card } from '@/components/ui/Card';
 import { BackButton } from './BackButton';
 import type { RouteHole } from '@/lib/types';
+import type { PenaltyOption } from '@/lib/api';
 
-const exampleCourse: RouteHole[] = [
-  { hole: 1, par: 1, drinks: { 'Route A': 'Tequila', 'Route B': 'Sambuca' } },
-  { hole: 2, par: 3, drinks: { 'Route A': 'Beer', 'Route B': 'Double Vodka & Single Vodka w/ Mixer' } },
-  { hole: 3, par: 2, drinks: { 'Route A': 'Wine', 'Route B': 'Double Gin w/ Mixer' } },
-  { hole: 4, par: 2, drinks: { 'Route A': 'Cider', 'Route B': 'Double Rum w/ Mixer' } },
-  { hole: 5, par: 2, drinks: { 'Route A': 'Cocktail', 'Route B': 'Cocktail' } },
-  { hole: 6, par: 2, drinks: { 'Route A': 'Spirit w/ Mixer', 'Route B': 'Spirit w/ Mixer' } },
-  { hole: 7, par: 4, drinks: { 'Route A': 'Guinness', 'Route B': '2 x Double Whiskey w/ Mixer' } },
-  { hole: 8, par: 1, drinks: { 'Route A': 'Jägerbomb', 'Route B': 'Jägerbomb' } },
-  { hole: 9, par: 1, drinks: { 'Route A': 'VK', 'Route B': 'Smirnoff Ice' } },
-];
+const apiUrl = process.env.API_SERVER_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://api.pubgolf.me'
+    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
-export default function HowToPlayPage() {
+async function loadGuideData<T>(path: string): Promise<T | null> {
+  try {
+    const response = await fetch(`${apiUrl}${path}`, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!response.ok) return null;
+    return await response.json() as T;
+  } catch {
+    return null;
+  }
+}
+
+export default async function HowToPlayPage() {
+  const [course, penalties] = await Promise.all([
+    loadGuideData<{ holes: RouteHole[] }>('/api/v1/config/routes'),
+    loadGuideData<{ penalties: PenaltyOption[] }>('/api/v1/config/penalty-options'),
+  ]);
   return (
     <>
       <MarketingHeader />
@@ -47,18 +58,24 @@ export default function HowToPlayPage() {
             </p>
             <h3 className="font-bold text-[var(--color-error)]">Penalties</h3>
             <p className="text-[var(--color-text-secondary)]">
-              In Pub Golf, choosing <strong>Skip a drink</strong> records 5 strokes for that hole.
-              Choosing <strong>Tactical chunder</strong> records 10. These replace the sip score for
-              the hole; they are not added on top.
+              A penalty records a score for the hole in place of your sip count.
+              {penalties?.penalties?.length ? ' The available penalties are:' : ''}
             </p>
+            {penalties?.penalties?.length ? (
+              <ul className="space-y-2 text-[var(--color-text-secondary)]">
+                {penalties.penalties.map((penalty) => (
+                  <li key={penalty.type}><strong>{penalty.name}</strong>: {penalty.points} strokes</li>
+                ))}
+              </ul>
+            ) : null}
           </Card>
           <Card as="section" padding="lg" rounded="lg" className="min-w-0">
             <h2 className="mb-3 font-bold text-[var(--color-text)]">The Course</h2>
             <p className="mb-4 text-[var(--color-text-secondary)]">
-              This example course has nine holes and two drink routes. The host can change the
-              drinks and pars. Groups can choose their own venues and non-alcoholic drinks.
+              A course has nine holes, with drinks and pars set by the host. Groups can choose
+              their own venues and non-alcoholic drinks.
             </p>
-            <RoutesTable holes={exampleCourse} />
+            {course?.holes?.length ? <RoutesTable holes={course.holes} /> : null}
           </Card>
           <section className="lg:col-span-2 glass rounded-2xl p-6">
             <h2 className="font-display text-2xl">How many pubs do you need?</h2>

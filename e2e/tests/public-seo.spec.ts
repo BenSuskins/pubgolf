@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures/test-fixtures';
 
-test('the public guide is readable without the API or JavaScript', async ({ browser, request }) => {
+test('the server-rendered guide is readable without client JavaScript or API requests', async ({ browser, request }) => {
   const response = await request.get('/how-to-play');
   expect(response.ok()).toBeTruthy();
   const html = await response.text();
