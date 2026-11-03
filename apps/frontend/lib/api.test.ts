@@ -266,7 +266,7 @@ describe('API functions', () => {
     test('explains a network failure without exposing browser error text', async () => {
       mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'));
       await expect(createGame('Ben')).rejects.toThrow(
-        'Could not connect. Check your connection and try again.'
+        'Could not connect. Check your connection and the round before trying again.'
       );
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
@@ -374,6 +374,17 @@ describe('API functions', () => {
         new Response(JSON.stringify({ message: 'This game has ended' }), { status: 409 })
       );
       await expect(joinGame('ABCD', 'Ben')).rejects.toThrow('This round has ended.');
+    });
+
+    test('explains who can change the pub route', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Only the host can set pubs for this game' }), {
+          status: 403,
+        })
+      );
+      await expect(setPubs('ABCD', 'player-1', [])).rejects.toThrow(
+        'Only the host can change the pub route.'
+      );
     });
 
     test('passes through unrecognised backend messages', async () => {

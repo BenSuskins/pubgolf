@@ -21,7 +21,7 @@ function timedFetch(url: string, options: RequestInit = {}, timeoutMs = FETCH_TI
         throw new Error('Request timed out. Check the round before trying again.');
       }
       if (error instanceof TypeError) {
-        throw new Error('Could not connect. Check your connection and try again.');
+        throw new Error('Could not connect. Check your connection and the round before trying again.');
       }
       throw error;
     })
@@ -39,6 +39,18 @@ function friendlyMessage(status: number, backendMessage: string): string {
   if (backendMessage === 'Only the host can activate events') {
     return 'Only the host can start an event.';
   }
+  if (backendMessage === 'Only the host can end events') {
+    return 'Only the host can end an event.';
+  }
+  if (backendMessage === 'Only the host can set pubs for this game') {
+    return 'Only the host can change the pub route.';
+  }
+  if (backendMessage === 'Only the host can change drinks and pars') {
+    return 'Only the host can change the course.';
+  }
+  if (backendMessage === 'Only the host can complete this game') {
+    return 'Only the host can end the round.';
+  }
   if (backendMessage === 'Invalid custom event') {
     return 'Check the event name and description, then try again.';
   }
@@ -50,6 +62,9 @@ function friendlyMessage(status: number, backendMessage: string): string {
   }
   if (backendMessage === 'Cannot activate event on completed game') {
     return 'This round has ended, so events can no longer be started.';
+  }
+  if (backendMessage === 'Cannot change the course of a completed game') {
+    return 'This round has ended, so the course can no longer be changed.';
   }
   if (backendMessage.includes('already exists for game')) {
     return "That name's already taken in this round — try another.";
