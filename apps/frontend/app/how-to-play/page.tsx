@@ -3,31 +3,17 @@ import { MarketingHeader } from '@/components/MarketingHeader';
 import { RoutesTable } from '@/components/RoutesTable';
 import { Card } from '@/components/ui/Card';
 import { BackButton } from './BackButton';
-import type { RouteHole } from '@/lib/types';
-import type { PenaltyOption } from '@/lib/api';
+import { getPenaltyOptions, getRoutes } from '@/lib/api';
 
 const apiUrl = process.env.API_SERVER_URL ||
   (process.env.NODE_ENV === 'production'
     ? 'https://api.pubgolf.me'
     : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
-async function loadGuideData<T>(path: string): Promise<T | null> {
-  try {
-    const response = await fetch(`${apiUrl}${path}`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(2000),
-    });
-    if (!response.ok) return null;
-    return await response.json() as T;
-  } catch {
-    return null;
-  }
-}
-
 export default async function HowToPlayPage() {
   const [course, penalties] = await Promise.all([
-    loadGuideData<{ holes: RouteHole[] }>('/api/v1/config/routes'),
-    loadGuideData<{ penalties: PenaltyOption[] }>('/api/v1/config/penalty-options'),
+    getRoutes({ baseUrl: apiUrl, timeoutMs: 2000, retries: 1, cache: 'no-store' }).catch(() => null),
+    getPenaltyOptions({ baseUrl: apiUrl, timeoutMs: 2000, retries: 1, cache: 'no-store' }).catch(() => null),
   ]);
   return (
     <>

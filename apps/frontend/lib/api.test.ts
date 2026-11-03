@@ -6,6 +6,7 @@ import {
   submitScore,
   setPubs,
   getRandomiseOptions,
+  getRoutes,
   spinWheel,
   ApiError,
 } from './api';
@@ -21,6 +22,20 @@ describe('API functions', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
+  });
+
+  test('loads public configuration with a server origin and no retries', async () => {
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ holes: [] }), { status: 200 }));
+    await getRoutes({ baseUrl: 'http://backend:8080', timeoutMs: 2000, retries: 1, cache: 'no-store' });
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('http://backend:8080/api/v1/config/routes');
+    expect(options.cache).toBe('no-store');
+    expect(options.signal).toBeInstanceOf(AbortSignal);
+
+    mockFetch.mockClear();
+    mockFetch.mockRejectedValueOnce(new TypeError('offline'));
+    await expect(getRoutes({ baseUrl: 'http://backend:8080', timeoutMs: 2000, retries: 1 })).rejects.toThrow();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
   describe('createGame', () => {
