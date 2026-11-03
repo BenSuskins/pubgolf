@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-func NewGame(identifier, code, playerID string, name PlayerName) (Game, []DomainEvent, error) {
+func NewRound(identifier, code, playerID string, name PlayerName) (Round, []DomainEvent, error) {
 	if _, err := NewPlayerName(name.Value()); err != nil {
-		return Game{}, nil, err
+		return Round{}, nil, err
 	}
-	game := Game{
-		state: GameSnapshot{
+	game := Round{
+		state: RoundSnapshot{
 			ID:           identifier,
 			Code:         code,
 			Status:       "ACTIVE",
@@ -19,7 +19,7 @@ func NewGame(identifier, code, playerID string, name PlayerName) (Game, []Domain
 			Players:      []PlayerSnapshot{newPlayer(playerID, name)},
 		},
 	}
-	return game, []DomainEvent{GameCreated{game.metadata()}}, nil
+	return game, []DomainEvent{RoundCreated{game.metadata()}}, nil
 }
 
 func newPlayer(identifier string, name PlayerName) PlayerSnapshot {
@@ -31,62 +31,62 @@ func newPlayer(identifier string, name PlayerName) PlayerSnapshot {
 	}
 }
 
-func (game Game) RequirePlayer(actor string) error {
-	if slices.ContainsFunc(game.state.Players, func(player PlayerSnapshot) bool { return player.ID == actor }) {
+func (round Round) RequirePlayer(actor string) error {
+	if slices.ContainsFunc(round.state.Players, func(player PlayerSnapshot) bool { return player.ID == actor }) {
 		return nil
 	}
-	return Fail(Forbidden, fmt.Sprintf("Player `%s` does not belong to game `%s`.", actor, game.state.Code))
+	return Fail(Forbidden, fmt.Sprintf("Player `%s` does not belong to game `%s`.", actor, round.state.Code))
 }
 
-func (game Game) requireHost(actor, action string) error {
-	if err := game.RequirePlayer(actor); err != nil {
+func (round Round) requireHost(actor, action string) error {
+	if err := round.RequirePlayer(actor); err != nil {
 		return err
 	}
-	if game.state.HostPlayerID != actor {
+	if round.state.HostPlayerID != actor {
 		return Fail(Forbidden, "Only the host can "+action)
 	}
 	return nil
 }
 
-func (game Game) requireActive(message string) error {
-	if game.state.Status == "COMPLETED" {
+func (round Round) requireActive(message string) error {
+	if round.state.Status == "COMPLETED" {
 		return Fail(Conflict, message)
 	}
 	return nil
 }
 
-func (game Game) Join(name PlayerName, identifier string, rejoin bool) (Game, []DomainEvent, error) {
+func (round Round) Join(name PlayerName, identifier string, rejoin bool) (Round, []DomainEvent, error) {
 	if _, err := NewPlayerName(name.Value()); err != nil {
-		return game, nil, err
+		return round, nil, err
 	}
-	if err := game.requireActive("This game has ended"); err != nil {
-		return game, nil, err
+	if err := round.requireActive("This game has ended"); err != nil {
+		return round, nil, err
 	}
-	for _, player := range game.state.Players {
+	for _, player := range round.state.Players {
 		if strings.EqualFold(player.Name, name.Value()) {
 			if rejoin {
-				return game, nil, nil
+				return round, nil, nil
 			}
-			return game, nil, Fail(
+			return round, nil, Fail(
 				Invalid,
-				fmt.Sprintf("Player `%s` already exists for game `%s`.", name.Value(), game.state.Code),
+				fmt.Sprintf("Player `%s` already exists for game `%s`.", name.Value(), round.state.Code),
 			)
 		}
 	}
-	game = game.copy()
-	game.state.Players = append(game.state.Players, newPlayer(identifier, name))
-	return game, []DomainEvent{PlayerJoined{game.metadata(), identifier}}, nil
+	round = round.copy()
+	round.state.Players = append(round.state.Players, newPlayer(identifier, name))
+	return round, []DomainEvent{PlayerJoined{round.metadata(), identifier}}, nil
 }
 
-func (game Game) Complete(actor string) (Game, []DomainEvent, error) {
-	if err := game.requireHost(actor, "complete this game"); err != nil {
-		return game, nil, err
+func (round Round) Complete(actor string) (Round, []DomainEvent, error) {
+	if err := round.requireHost(actor, "complete this game"); err != nil {
+		return round, nil, err
 	}
-	if err := game.requireActive("Game is already completed"); err != nil {
-		return game, nil, err
+	if err := round.requireActive("Game is already completed"); err != nil {
+		return round, nil, err
 	}
-	game = game.copy()
-	game.state.Status = "COMPLETED"
-	game.state.ActiveGameplayEvent = nil
-	return game, []DomainEvent{GameCompleted{game.metadata()}}, nil
+	round = round.copy()
+	round.state.Status = "COMPLETED"
+	round.state.ActiveGameplayEvent = nil
+	return round, []DomainEvent{RoundCompleted{round.metadata()}}, nil
 }

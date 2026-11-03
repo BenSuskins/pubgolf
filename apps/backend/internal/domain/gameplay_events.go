@@ -6,52 +6,52 @@ import (
 	"time"
 )
 
-func (game Game) ActivateGameplayEvent(actor, identifier string, at time.Time) (Game, []DomainEvent, error) {
-	return game.activateGameplayEvent(actor, ActiveGameplayEvent{ID: identifier, ActivatedAt: at})
+func (round Round) ActivateGameplayEvent(actor, identifier string, at time.Time) (Round, []DomainEvent, error) {
+	return round.activateGameplayEvent(actor, ActiveGameplayEvent{ID: identifier, ActivatedAt: at})
 }
 
-func (game Game) ActivateCustomGameplayEvent(
+func (round Round) ActivateCustomGameplayEvent(
 	actor, title, description string,
 	at time.Time,
-) (Game, []DomainEvent, error) {
-	return game.activateGameplayEvent(
+) (Round, []DomainEvent, error) {
+	return round.activateGameplayEvent(
 		actor,
 		ActiveGameplayEvent{ID: "custom", Title: title, Description: description, ActivatedAt: at},
 	)
 }
 
-func (game Game) activateGameplayEvent(actor string, event ActiveGameplayEvent) (Game, []DomainEvent, error) {
-	if err := game.requireHost(actor, "activate events"); err != nil {
-		return game, nil, err
+func (round Round) activateGameplayEvent(actor string, event ActiveGameplayEvent) (Round, []DomainEvent, error) {
+	if err := round.requireHost(actor, "activate events"); err != nil {
+		return round, nil, err
 	}
-	if err := game.requireActive("Cannot activate event on completed game"); err != nil {
-		return game, nil, err
+	if err := round.requireActive("Cannot activate event on completed game"); err != nil {
+		return round, nil, err
 	}
-	if game.state.ActiveGameplayEvent != nil {
-		return game, nil, Fail(
+	if round.state.ActiveGameplayEvent != nil {
+		return round, nil, Fail(
 			Conflict,
 			"An event is already active. End the current event before activating a new one.",
 		)
 	}
 	event, err := normaliseGameplayEvent(event)
 	if err != nil {
-		return game, nil, err
+		return round, nil, err
 	}
-	game = game.copy()
-	game.state.ActiveGameplayEvent = &event
-	return game, []DomainEvent{GameplayEventActivated{game.metadata(), event.ID}}, nil
+	round = round.copy()
+	round.state.ActiveGameplayEvent = &event
+	return round, []DomainEvent{GameplayEventActivated{round.metadata(), event.ID}}, nil
 }
 
-func (game Game) EndGameplayEvent(actor string) (Game, []DomainEvent, error) {
-	if err := game.requireHost(actor, "end events"); err != nil {
-		return game, nil, err
+func (round Round) EndGameplayEvent(actor string) (Round, []DomainEvent, error) {
+	if err := round.requireHost(actor, "end events"); err != nil {
+		return round, nil, err
 	}
-	if game.state.ActiveGameplayEvent == nil {
-		return game, nil, nil
+	if round.state.ActiveGameplayEvent == nil {
+		return round, nil, nil
 	}
-	game = game.copy()
-	game.state.ActiveGameplayEvent = nil
-	return game, []DomainEvent{GameplayEventEnded{game.metadata()}}, nil
+	round = round.copy()
+	round.state.ActiveGameplayEvent = nil
+	return round, []DomainEvent{GameplayEventEnded{round.metadata()}}, nil
 }
 
 func normaliseGameplayEvent(event ActiveGameplayEvent) (ActiveGameplayEvent, error) {

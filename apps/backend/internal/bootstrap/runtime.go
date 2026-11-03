@@ -43,7 +43,7 @@ func Run(ctx context.Context, configuration Configuration) error {
 
 func buildHandler(
 	configuration Configuration,
-	repository application.GameRepository,
+	repository application.RoundRepository,
 	broadcaster *gameupdates.Broadcaster,
 	measurements *metrics.Metrics,
 ) http.Handler {
@@ -54,16 +54,16 @@ func buildHandler(
 		Client:  client,
 	}
 	placeSearcher := nominatim.NewPlaceSearcher(configuration.SearchBaseURL, client, time.Second)
-	games := application.NewGameApplication(repository, application.GameDependencies{
-		NewGameID:              random.NewGameID,
-		NewPlayerID:            random.NewPlayerID,
-		NewGameCode:            random.NewGameCode,
-		Now:                    func() time.Time { return time.Now().UTC() },
-		ChooseRandomiseOutcome: random.ChooseRandomiseOutcome,
-		DomainEvents:           domainEventPublishers{measurements},
-		GameStates:             broadcaster,
-		Subscriptions:          broadcaster,
-		PubRoutes:              pubRouteCalculator,
+	games := application.NewRoundApplication(repository, application.RoundDependencies{
+		NewRoundID:            random.NewRoundID,
+		NewPlayerID:           random.NewPlayerID,
+		NewRoundCode:          random.NewRoundCode,
+		Now:                   func() time.Time { return time.Now().UTC() },
+		ChooseWildcardOutcome: random.ChooseWildcardOutcome,
+		DomainEvents:          domainEventPublishers{measurements},
+		RoundStates:           broadcaster,
+		Subscriptions:         broadcaster,
+		PubRoutes:             pubRouteCalculator,
 	})
 	return httpapi.New(
 		games,

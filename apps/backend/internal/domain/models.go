@@ -2,9 +2,9 @@ package domain
 
 import "time"
 
-type Game struct{ state GameSnapshot }
+type Round struct{ state RoundSnapshot }
 
-type GameSnapshot struct {
+type RoundSnapshot struct {
 	ID                  string
 	Code                string
 	Status              string
@@ -20,13 +20,13 @@ type PlayerSnapshot struct {
 	Name      string
 	Scores    map[int]RecordedScore
 	Penalties map[int]string
-	Randomise *RandomiseResult
+	Wildcard  *WildcardResult
 }
 type RecordedScore struct {
 	Value int
 	At    time.Time
 }
-type RandomiseResult struct {
+type WildcardResult struct {
 	Hole   int
 	Result string
 }

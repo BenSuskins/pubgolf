@@ -21,7 +21,7 @@ func holesResponse(course []domain.CourseHoleSnapshot) []courseHole {
 	return result
 }
 
-func stateResponse(game domain.GameSnapshot) gameResponse {
+func stateResponse(game domain.RoundSnapshot) gameResponse {
 	response := gameResponse{
 		GameID:       game.ID,
 		GameCode:     game.Code,
@@ -55,8 +55,8 @@ func playerStateResponse(player domain.PlayerSnapshot, pars map[int]int) playerR
 			result.Penalties = append(result.Penalties, penaltyStateResponse(hole, penalty))
 		}
 	}
-	if player.Randomise != nil {
-		result.Randomise = &randomiseResponse{player.Randomise.Hole, player.Randomise.Result}
+	if player.Wildcard != nil {
+		result.Randomise = &randomiseResponse{player.Wildcard.Hole, player.Wildcard.Result}
 	}
 	return result
 }
@@ -86,11 +86,11 @@ func playedHoles(player playerResponse) int {
 	return count
 }
 
-func identityResponse(game domain.Game, player domain.PlayerSnapshot) gameIdentityResponse {
+func identityResponse(game domain.Round, player domain.PlayerSnapshot) gameIdentityResponse {
 	return gameIdentityResponse{GameID: game.ID(), GameCode: game.Code(), PlayerID: player.ID, PlayerName: player.Name}
 }
 
-func snapshotCourse(game domain.GameSnapshot) []domain.CourseHoleSnapshot {
+func snapshotCourse(game domain.RoundSnapshot) []domain.CourseHoleSnapshot {
 	if len(game.Holes) == 0 {
 		return domain.DefaultCourse().Holes()
 	}

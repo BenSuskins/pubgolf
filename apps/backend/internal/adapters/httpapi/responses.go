@@ -80,7 +80,7 @@ func validUUID(value string) bool {
 	return len(value) == 36 && uuid.Validate(value) == nil
 }
 
-func respondGame(writer http.ResponseWriter, game domain.Game, err error) {
+func respondGame(writer http.ResponseWriter, game domain.Round, err error) {
 	if err != nil {
 		failure(writer, err)
 		return

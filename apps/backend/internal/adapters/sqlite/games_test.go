@@ -14,7 +14,7 @@ import (
 )
 
 func TestGameRepositoryContract(t *testing.T) {
-	contract.GameRepository(t, func(t *testing.T) application.GameRepository {
+	contract.RoundRepository(t, func(t *testing.T) application.RoundRepository {
 		repository, err := sqlite.Open(filepath.Join(t.TempDir(), "games.db"))
 		if err != nil {
 			t.Fatal(err)
@@ -71,7 +71,7 @@ func TestFailedChildWriteRollsBackTheWholeGame(t *testing.T) {
 	}
 	state := original.Snapshot()
 	state.Players[0].Name = "Must roll back"
-	updated, err := domain.RestoreGame(state)
+	updated, err := domain.RestoreRound(state)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,12 +123,12 @@ func TestPreRefactorDatabaseCanBeReadAndUpdated(t *testing.T) {
 	assertLegacyState(t, restored.Snapshot())
 }
 
-func assertLegacyState(t *testing.T, state domain.GameSnapshot) {
+func assertLegacyState(t *testing.T, state domain.RoundSnapshot) {
 	t.Helper()
 	if state.Players[0].Name != "Alice" || state.Players[0].Scores[1].Value != 0 {
 		t.Fatal("player or score changed")
 	}
-	if state.Players[1].Penalties[2] != "SKIP" || state.Players[1].Randomise.Result != "Tequila" {
+	if state.Players[1].Penalties[2] != "SKIP" || state.Players[1].Wildcard.Result != "Tequila" {
 		t.Fatal("penalty or randomise changed")
 	}
 	if state.ActiveGameplayEvent.Title != "Custom" || len(state.Holes) != 9 ||

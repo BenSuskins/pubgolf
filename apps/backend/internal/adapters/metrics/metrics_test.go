@@ -14,11 +14,11 @@ func TestScrapePreservesCommittedGameMetricNamesAndHoleLabels(t *testing.T) {
 	adapter := metrics.New()
 	hole, _ := domain.NewHoleNumber(2)
 	adapter.PublishDomainEvents(context.Background(), []domain.DomainEvent{
-		domain.GameCreated{},
+		domain.RoundCreated{},
 		domain.PlayerJoined{},
 		domain.ScoreSubmitted{Hole: hole},
-		domain.RandomiseUsed{},
-		domain.GameCompleted{},
+		domain.WildcardUsed{},
+		domain.RoundCompleted{},
 	})
 	response := httptest.NewRecorder()
 	adapter.Handler().ServeHTTP(response, httptest.NewRequest("GET", "/actuator/prometheus", nil))

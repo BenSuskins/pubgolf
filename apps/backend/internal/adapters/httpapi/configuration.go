@@ -11,8 +11,8 @@ func (server *server) configuredCourse(writer http.ResponseWriter, request *http
 }
 
 func (server *server) randomiseOptions(writer http.ResponseWriter, request *http.Request) {
-	options := make([]randomiseOptionResponse, 0, len(domain.RandomiseOptions()))
-	for _, outcome := range domain.RandomiseOptions() {
+	options := make([]randomiseOptionResponse, 0, len(domain.WildcardOptions()))
+	for _, outcome := range domain.WildcardOptions() {
 		options = append(options, randomiseOptionResponse{Option: outcome.Label, OptionSize: outcome.Weight})
 	}
 	write(writer, 200, randomiseOptionsResponse{Options: options})

@@ -16,15 +16,15 @@ func random(limit int) int {
 	}
 	return int(value.Int64())
 }
-func NewGameID() string { return uuid.NewString() }
+func NewRoundID() string { return uuid.NewString() }
 
-func NewGameCode() string {
+func NewRoundCode() string {
 	terms := []string{"PAR", "BIRDIE", "BOGEY", "EAGLE", "ALBATROSS", "ACE", "FORE", "HOOK", "SLICE"}
 	return fmt.Sprintf("%s%03d", terms[random(len(terms))], random(1000))
 }
 
-func ChooseRandomiseOutcome() string {
-	options := domain.RandomiseOptions()
+func ChooseWildcardOutcome() string {
+	options := domain.WildcardOptions()
 	total := 0
 	for _, option := range options {
 		total += option.Weight

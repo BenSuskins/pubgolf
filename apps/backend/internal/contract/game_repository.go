@@ -12,9 +12,9 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-func GameRepository(t *testing.T, newRepository func(*testing.T) application.GameRepository) {
+func RoundRepository(t *testing.T, newRepository func(*testing.T) application.RoundRepository) {
 	t.Helper()
-	cases := map[string]func(*testing.T, application.GameRepository){
+	cases := map[string]func(*testing.T, application.RoundRepository){
 		"aggregate round trip":                aggregateRoundTrip,
 		"reject stale writes":                 rejectStaleWrites,
 		"duplicate codes and missing games":   duplicateAndMissingGames,
@@ -26,10 +26,10 @@ func GameRepository(t *testing.T, newRepository func(*testing.T) application.Gam
 	}
 }
 
-func Aggregate(t *testing.T) domain.Game {
+func Aggregate(t *testing.T) domain.Round {
 	t.Helper()
 	name, _ := domain.NewPlayerName("Alice")
-	game, _, err := domain.NewGame("game", "PAR001", "host", name)
+	game, _, err := domain.NewRound("game", "PAR001", "host", name)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,26 +49,26 @@ func Aggregate(t *testing.T) domain.Game {
 		Title:       "Hello",
 		ActivatedAt: time.Unix(43, 0).UTC(),
 	}
-	state.Players[0].Randomise = &domain.RandomiseResult{Hole: 2, Result: "Tequila"}
-	restored, err := domain.RestoreGame(state)
+	state.Players[0].Wildcard = &domain.WildcardResult{Hole: 2, Result: "Tequila"}
+	restored, err := domain.RestoreRound(state)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return restored
 }
 
-func aggregateRoundTrip(t *testing.T, repository application.GameRepository) {
+func aggregateRoundTrip(t *testing.T, repository application.RoundRepository) {
 	assertStored(t, repository, save(t, repository, Aggregate(t), 0))
 }
 
-func rejectStaleWrites(t *testing.T, repository application.GameRepository) {
+func rejectStaleWrites(t *testing.T, repository application.RoundRepository) {
 	original := save(t, repository, Aggregate(t), 0)
 	state := original.Snapshot()
 	state.Players[0].Name = "Updated"
 	state.PubRoute = domain.PubRouteSnapshot{}
 	state.Holes = nil
 	state.ActiveGameplayEvent = nil
-	updated, err := domain.RestoreGame(state)
+	updated, err := domain.RestoreRound(state)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func rejectStaleWrites(t *testing.T, repository application.GameRepository) {
 	assertStored(t, repository, updated)
 }
 
-func duplicateAndMissingGames(t *testing.T, repository application.GameRepository) {
+func duplicateAndMissingGames(t *testing.T, repository application.RoundRepository) {
 	original := save(t, repository, Aggregate(t), 0)
 	_, err := repository.Save(context.Background(), original, 0)
 	kind(t, err, domain.DuplicateCode)
@@ -86,7 +86,7 @@ func duplicateAndMissingGames(t *testing.T, repository application.GameRepositor
 	kind(t, err, domain.NotFound)
 }
 
-func cancelledSaves(t *testing.T, repository application.GameRepository) {
+func cancelledSaves(t *testing.T, repository application.RoundRepository) {
 	original := save(t, repository, Aggregate(t), 0)
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -96,7 +96,7 @@ func cancelledSaves(t *testing.T, repository application.GameRepository) {
 	assertStored(t, repository, original)
 }
 
-func concurrentWriters(t *testing.T, repository application.GameRepository) {
+func concurrentWriters(t *testing.T, repository application.RoundRepository) {
 	game := save(t, repository, Aggregate(t), 0)
 	results := make([]error, 2)
 	var workers sync.WaitGroup
@@ -117,7 +117,7 @@ func concurrentWriters(t *testing.T, repository application.GameRepository) {
 	}
 }
 
-func save(t *testing.T, repository application.GameRepository, game domain.Game, version int64) domain.Game {
+func save(t *testing.T, repository application.RoundRepository, game domain.Round, version int64) domain.Round {
 	t.Helper()
 	saved, err := repository.Save(context.Background(), game, version)
 	if err != nil {
@@ -126,7 +126,7 @@ func save(t *testing.T, repository application.GameRepository, game domain.Game,
 	return saved
 }
 
-func assertStored(t *testing.T, repository application.GameRepository, expected domain.Game) {
+func assertStored(t *testing.T, repository application.RoundRepository, expected domain.Round) {
 	t.Helper()
 	actual, err := repository.FindByCode(context.Background(), "par001")
 	if err != nil || !reflect.DeepEqual(actual.Snapshot(), expected.Snapshot()) {

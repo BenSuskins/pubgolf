@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func saveGame(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot, expected int64) error {
+func saveGame(ctx context.Context, transaction *sqlx.Tx, game domain.RoundSnapshot, expected int64) error {
 	active, err := encode(storedEvent(game.ActiveGameplayEvent))
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func classifyInsertError(err error) error {
 	return err
 }
 
-func replaceChildren(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot) error {
+func replaceChildren(ctx context.Context, transaction *sqlx.Tx, game domain.RoundSnapshot) error {
 	for _, table := range []string{"players", "holes", "pubs"} {
 		if _, err := transaction.ExecContext(ctx, "DELETE FROM "+table+" WHERE game_id=?", game.ID); err != nil {
 			return err
@@ -86,7 +86,7 @@ func savePlayer(
 	position int,
 	player domain.PlayerSnapshot,
 ) error {
-	randomise, err := encode(storedRandomise(player.Randomise))
+	randomise, err := encode(storedRandomise(player.Wildcard))
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func savePlayer(
 	return nil
 }
 
-func saveHoles(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot) error {
+func saveHoles(ctx context.Context, transaction *sqlx.Tx, game domain.RoundSnapshot) error {
 	for _, hole := range game.Holes {
 		drinks, err := encode(storedDrinks(hole.Drinks))
 		if err != nil {
@@ -138,7 +138,7 @@ func saveHoles(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapsh
 	return nil
 }
 
-func savePubs(ctx context.Context, transaction *sqlx.Tx, game domain.GameSnapshot) error {
+func savePubs(ctx context.Context, transaction *sqlx.Tx, game domain.RoundSnapshot) error {
 	for _, pub := range game.PubRoute.Pubs {
 		if _, err := transaction.ExecContext(
 			ctx,

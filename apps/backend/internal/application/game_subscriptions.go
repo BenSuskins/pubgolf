@@ -7,27 +7,27 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-type GameSubscriptions struct {
-	coordinator *gameCommitCoordinator
-	subscriber  GameStateSubscriber
+type RoundSubscriptions struct {
+	coordinator *roundCommitCoordinator
+	subscriber  RoundStateSubscriber
 }
 
-func (subscriptions *GameSubscriptions) SubscribeGame(
+func (subscriptions *RoundSubscriptions) SubscribeRound(
 	ctx context.Context,
 	code string,
-) (domain.GameSnapshot, GameStateSubscription, error) {
+) (domain.RoundSnapshot, RoundStateSubscription, error) {
 	coordinator := subscriptions.coordinator
 	coordinator.mutex.Lock()
 	defer coordinator.mutex.Unlock()
 	game, err := coordinator.repository.FindByCode(ctx, code)
 	if err != nil {
-		return domain.GameSnapshot{}, GameStateSubscription{}, err
+		return domain.RoundSnapshot{}, RoundStateSubscription{}, err
 	}
 	if subscriptions.subscriber == nil {
-		return domain.GameSnapshot{}, GameStateSubscription{}, domain.Fail(
+		return domain.RoundSnapshot{}, RoundStateSubscription{}, domain.Fail(
 			domain.Unavailable,
 			"Live updates unavailable",
 		)
 	}
-	return game.Snapshot(), subscriptions.subscriber.SubscribeGameState(strings.ToLower(game.Code())), nil
+	return game.Snapshot(), subscriptions.subscriber.SubscribeRoundState(strings.ToLower(game.Code())), nil
 }

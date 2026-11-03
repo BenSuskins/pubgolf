@@ -24,15 +24,15 @@ func NewPubRoute(pubs []PubSnapshot, geometry *PubRouteGeometry) (PubRoute, erro
 	return PubRoute{state}, nil
 }
 func (route PubRoute) Snapshot() PubRouteSnapshot { return clonePubRoute(route.state) }
-func (game Game) SetPubRoute(actor string, route PubRoute) (Game, []DomainEvent, error) {
-	if err := game.requireHost(actor, "set pubs for this game"); err != nil {
-		return game, nil, err
+func (round Round) SetPubRoute(actor string, route PubRoute) (Round, []DomainEvent, error) {
+	if err := round.requireHost(actor, "set pubs for this game"); err != nil {
+		return round, nil, err
 	}
 	validated, err := NewPubRoute(route.state.Pubs, route.state.Geometry)
 	if err != nil {
-		return game, nil, err
+		return round, nil, err
 	}
-	game = game.copy()
-	game.state.PubRoute = validated.Snapshot()
-	return game, []DomainEvent{PubRouteChanged{game.metadata()}}, nil
+	round = round.copy()
+	round.state.PubRoute = validated.Snapshot()
+	return round, []DomainEvent{PubRouteChanged{round.metadata()}}, nil
 }

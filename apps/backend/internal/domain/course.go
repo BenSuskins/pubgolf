@@ -103,25 +103,25 @@ func NewCourse(holes []CourseHoleSnapshot) (Course, error) {
 	return Course{normalised}, err
 }
 func (course Course) Holes() []CourseHoleSnapshot { return cloneHoles(course.holes) }
-func (game Game) Course() Course {
-	if len(game.state.Holes) == 0 {
+func (round Round) Course() Course {
+	if len(round.state.Holes) == 0 {
 		return DefaultCourse()
 	}
-	return Course{cloneHoles(game.state.Holes)}
+	return Course{cloneHoles(round.state.Holes)}
 }
 
-func (game Game) SetCourse(actor string, course Course) (Game, []DomainEvent, error) {
+func (round Round) SetCourse(actor string, course Course) (Round, []DomainEvent, error) {
 	course, err := NewCourse(course.holes)
 	if err != nil {
-		return game, nil, err
+		return round, nil, err
 	}
-	if err = game.requireHost(actor, "change drinks and pars"); err != nil {
-		return game, nil, err
+	if err = round.requireHost(actor, "change drinks and pars"); err != nil {
+		return round, nil, err
 	}
-	if err = game.requireActive("Cannot change the course of a completed game"); err != nil {
-		return game, nil, err
+	if err = round.requireActive("Cannot change the course of a completed game"); err != nil {
+		return round, nil, err
 	}
-	game = game.copy()
-	game.state.Holes = course.Holes()
-	return game, []DomainEvent{CourseChanged{game.metadata()}}, nil
+	round = round.copy()
+	round.state.Holes = course.Holes()
+	return round, []DomainEvent{CourseChanged{round.metadata()}}, nil
 }

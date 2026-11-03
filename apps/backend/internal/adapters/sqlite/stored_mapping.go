@@ -21,7 +21,7 @@ func storedGeometry(geometry *domain.PubRouteGeometry) *storedPubRouteGeometry {
 	return &storedPubRouteGeometry{geometry.Type, geometry.Coordinates}
 }
 
-func storedRandomise(result *domain.RandomiseResult) *storedRandomiseResult {
+func storedRandomise(result *domain.WildcardResult) *storedRandomiseResult {
 	if result == nil {
 		return nil
 	}
@@ -66,13 +66,13 @@ func loadStoredGeometry(value sql.NullString, geometry **domain.PubRouteGeometry
 	return nil
 }
 
-func loadStoredRandomise(value sql.NullString, result **domain.RandomiseResult) error {
+func loadStoredRandomise(value sql.NullString, result **domain.WildcardResult) error {
 	var record *storedRandomiseResult
 	if err := decode(value, &record); err != nil {
 		return err
 	}
 	if record != nil {
-		*result = &domain.RandomiseResult{Hole: record.Hole, Result: record.Result}
+		*result = &domain.WildcardResult{Hole: record.Hole, Result: record.Result}
 	}
 	return nil
 }

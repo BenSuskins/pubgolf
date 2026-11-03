@@ -9,5 +9,5 @@ import (
 )
 
 func TestGameRepositoryContract(t *testing.T) {
-	contract.GameRepository(t, func(*testing.T) application.GameRepository { return fakes.NewGameRepository() })
+	contract.RoundRepository(t, func(*testing.T) application.RoundRepository { return fakes.NewRoundRepository() })
 }

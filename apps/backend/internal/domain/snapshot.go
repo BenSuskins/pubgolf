@@ -5,19 +5,19 @@ import (
 	"slices"
 )
 
-func (game Game) Snapshot() GameSnapshot { return game.state.Clone() }
-func (game Game) ID() string             { return game.state.ID }
-func (game Game) Code() string           { return game.state.Code }
-func (game Game) Version() int64         { return game.state.Version }
-func (game Game) WithVersion(version int64) (Game, error) {
+func (round Round) Snapshot() RoundSnapshot { return round.state.Clone() }
+func (round Round) ID() string              { return round.state.ID }
+func (round Round) Code() string            { return round.state.Code }
+func (round Round) Version() int64          { return round.state.Version }
+func (round Round) WithVersion(version int64) (Round, error) {
 	if version < 1 {
-		return Game{}, Fail(Invalid, "Invalid game version")
+		return Round{}, Fail(Invalid, "Invalid game version")
 	}
-	game.state.Version = version
-	return game, nil
+	round.state.Version = version
+	return round, nil
 }
-func (game Game) copy() Game { return Game{state: game.state.Clone()} }
-func (state GameSnapshot) Clone() GameSnapshot {
+func (round Round) copy() Round { return Round{state: round.state.Clone()} }
+func (state RoundSnapshot) Clone() RoundSnapshot {
 	state.Players = slices.Clone(state.Players)
 	for index, player := range state.Players {
 		state.Players[index] = clonePlayer(player)
@@ -34,9 +34,9 @@ func (state GameSnapshot) Clone() GameSnapshot {
 func clonePlayer(player PlayerSnapshot) PlayerSnapshot {
 	player.Scores = maps.Clone(player.Scores)
 	player.Penalties = maps.Clone(player.Penalties)
-	if player.Randomise != nil {
-		result := *player.Randomise
-		player.Randomise = &result
+	if player.Wildcard != nil {
+		result := *player.Wildcard
+		player.Wildcard = &result
 	}
 	return player
 }

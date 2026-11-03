@@ -16,7 +16,7 @@ func (server *server) create(writer http.ResponseWriter, request *http.Request) 
 		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
-	game, err := server.commands.CreateGame(request.Context(), *input.Host)
+	game, err := server.commands.CreateRound(request.Context(), *input.Host)
 	if err != nil {
 		failure(writer, err)
 		return
@@ -33,7 +33,7 @@ func (server *server) join(writer http.ResponseWriter, request *http.Request) {
 		write(writer, 400, errorResponse{Message: "Malformed request body"})
 		return
 	}
-	game, err := server.commands.JoinGame(request.Context(), request.PathValue("code"), *input.Name, input.Rejoin)
+	game, err := server.commands.JoinRound(request.Context(), request.PathValue("code"), *input.Name, input.Rejoin)
 	if err != nil {
 		failure(writer, err)
 		return
@@ -47,7 +47,7 @@ func (server *server) join(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (server *server) state(writer http.ResponseWriter, request *http.Request) {
-	game, err := server.queries.GetGame(request.Context(), request.PathValue("code"))
+	game, err := server.queries.GetRound(request.Context(), request.PathValue("code"))
 	if err != nil {
 		failure(writer, err)
 		return
@@ -88,14 +88,14 @@ func (server *server) randomise(writer http.ResponseWriter, request *http.Reques
 	if !ok {
 		return
 	}
-	game, err := server.commands.RandomisePlayer(request.Context(), request.PathValue("code"), identifier)
+	game, err := server.commands.UseWildcard(request.Context(), request.PathValue("code"), identifier)
 	if err != nil {
 		failure(writer, err)
 		return
 	}
 	for _, player := range game.Snapshot().Players {
 		if player.ID == identifier {
-			write(writer, 200, randomiseResponse{player.Randomise.Hole, player.Randomise.Result})
+			write(writer, 200, randomiseResponse{player.Wildcard.Hole, player.Wildcard.Result})
 			return
 		}
 	}
@@ -114,6 +114,6 @@ func (server *server) complete(writer http.ResponseWriter, request *http.Request
 	if !ok {
 		return
 	}
-	game, err := server.commands.CompleteGame(request.Context(), request.PathValue("code"), identifier)
+	game, err := server.commands.CompleteRound(request.Context(), request.PathValue("code"), identifier)
 	respondGame(writer, game, err)
 }

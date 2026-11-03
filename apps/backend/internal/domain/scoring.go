@@ -2,33 +2,33 @@ package domain
 
 import "time"
 
-func (game Game) SubmitScore(
+func (round Round) SubmitScore(
 	actor string,
 	hole HoleNumber,
 	score Score,
 	penalty string,
 	at time.Time,
-) (Game, []DomainEvent, error) {
+) (Round, []DomainEvent, error) {
 	if _, err := NewHoleNumber(hole.Value()); err != nil {
-		return game, nil, err
+		return round, nil, err
 	}
 	if penalty != "" && penalty != "SKIP" && penalty != "CHUNDER" {
-		return game, nil, Fail(Invalid, "Malformed request body")
+		return round, nil, Fail(Invalid, "Malformed request body")
 	}
-	if err := game.RequirePlayer(actor); err != nil {
-		return game, nil, err
+	if err := round.RequirePlayer(actor); err != nil {
+		return round, nil, err
 	}
-	if err := game.requireActive("Cannot submit score to completed game"); err != nil {
-		return game, nil, err
+	if err := round.requireActive("Cannot submit score to completed game"); err != nil {
+		return round, nil, err
 	}
 	score = penaltyScore(score, penalty)
-	game = game.copy()
-	for index := range game.state.Players {
-		if game.state.Players[index].ID == actor {
-			game.state.Players[index] = scoredPlayer(game.state.Players[index], hole, score, penalty, at)
+	round = round.copy()
+	for index := range round.state.Players {
+		if round.state.Players[index].ID == actor {
+			round.state.Players[index] = scoredPlayer(round.state.Players[index], hole, score, penalty, at)
 		}
 	}
-	return game, []DomainEvent{ScoreSubmitted{game.metadata(), actor, hole, score, penalty}}, nil
+	return round, []DomainEvent{ScoreSubmitted{round.metadata(), actor, hole, score, penalty}}, nil
 }
 
 func penaltyScore(score Score, penalty string) Score {
@@ -51,30 +51,30 @@ func scoredPlayer(player PlayerSnapshot, hole HoleNumber, score Score, penalty s
 	return player
 }
 
-func (game Game) Randomise(actor, outcome string) (Game, []DomainEvent, error) {
-	if err := game.RequirePlayer(actor); err != nil {
-		return game, nil, err
+func (round Round) UseWildcard(actor, outcome string) (Round, []DomainEvent, error) {
+	if err := round.RequirePlayer(actor); err != nil {
+		return round, nil, err
 	}
-	if err := game.requireActive("Cannot randomise on completed game"); err != nil {
-		return game, nil, err
+	if err := round.requireActive("Cannot randomise on completed game"); err != nil {
+		return round, nil, err
 	}
-	game = game.copy()
-	for index, player := range game.state.Players {
+	round = round.copy()
+	for index, player := range round.state.Players {
 		if player.ID != actor {
 			continue
 		}
 		hole, err := firstUnplayedHole(player)
 		if err != nil {
-			return game, nil, err
+			return round, nil, err
 		}
-		game.state.Players[index].Randomise = &RandomiseResult{hole.Value(), outcome}
-		return game, []DomainEvent{RandomiseUsed{game.metadata(), actor, hole, outcome}}, nil
+		round.state.Players[index].Wildcard = &WildcardResult{hole.Value(), outcome}
+		return round, []DomainEvent{WildcardUsed{round.metadata(), actor, hole, outcome}}, nil
 	}
-	return game, nil, Fail(Conflict, "No more holes left")
+	return round, nil, Fail(Conflict, "No more holes left")
 }
 
 func firstUnplayedHole(player PlayerSnapshot) (HoleNumber, error) {
-	if player.Randomise != nil {
+	if player.Wildcard != nil {
 		return HoleNumber{}, Fail(Conflict, "Randomise already used")
 	}
 	for hole := 1; hole <= 9; hole++ {
