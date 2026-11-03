@@ -369,6 +369,13 @@ describe('API functions', () => {
       );
     });
 
+    test('explains when a round has ended', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'This game has ended' }), { status: 409 })
+      );
+      await expect(joinGame('ABCD', 'Ben')).rejects.toThrow('This round has ended.');
+    });
+
     test('passes through unrecognised backend messages', async () => {
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({ message: 'Randomise already used' }), {

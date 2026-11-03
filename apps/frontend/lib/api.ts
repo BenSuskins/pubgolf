@@ -42,6 +42,15 @@ function friendlyMessage(status: number, backendMessage: string): string {
   if (backendMessage === 'Invalid custom event') {
     return 'Check the event name and description, then try again.';
   }
+  if (backendMessage === 'This game has ended' || backendMessage === 'Game is already completed') {
+    return 'This round has ended.';
+  }
+  if (backendMessage === 'Cannot submit score to completed game') {
+    return 'This round has ended, so scores can no longer be changed.';
+  }
+  if (backendMessage === 'Cannot activate event on completed game') {
+    return 'This round has ended, so events can no longer be started.';
+  }
   if (backendMessage.includes('already exists for game')) {
     return "That name's already taken in this round — try another.";
   }
