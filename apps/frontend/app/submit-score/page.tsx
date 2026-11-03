@@ -97,7 +97,7 @@ export default function SubmitScorePage() {
       // Redirect immediately - SSE will update the scoreboard
       router.push('/game');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit score');
+      setError(err instanceof Error ? err.message : "Couldn't log your score. Try again.");
       setSubmitting(false);
     }
   };
@@ -138,7 +138,7 @@ export default function SubmitScorePage() {
             href="/game"
             className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
           >
-            ← Back to Scoreboard
+            ← Back to Leaderboard
           </Link>
           <h1 className="font-display text-2xl text-[var(--color-text)] mt-3">
             HOLE {hole}
@@ -188,7 +188,7 @@ export default function SubmitScorePage() {
                   <button
                     type="button"
                     onClick={() => setScore(currentPar)}
-                    aria-label={`Set score to par (${currentPar} sips)`}
+                    aria-label={`Set score to par (${currentPar} ${currentPar === 1 ? 'stroke' : 'strokes'})`}
                     disabled={submitting || !!penaltyType}
                     className={`rounded-[14px] py-3.5 px-2 text-center transition-all ${
                       score === currentPar && !penaltyType

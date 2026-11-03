@@ -15,22 +15,44 @@ class ApiError extends Error {
 function timedFetch(url: string, options: RequestInit = {}, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
-  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+  return fetch(url, { ...options, signal: controller.signal })
+    .catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new Error('Request timed out. Check the round before trying again.');
+      }
+      if (error instanceof TypeError) {
+        throw new Error('Could not connect. Check your connection and try again.');
+      }
+      throw error;
+    })
+    .finally(() => clearTimeout(id));
 }
 
 // Rewrites known backend messages into copy a player can act on.
 function friendlyMessage(status: number, backendMessage: string): string {
+  if (
+    backendMessage === 'Validation failed: name: Name must not be blank' ||
+    backendMessage === 'Validation failed: host: Host name must not be blank'
+  ) {
+    return 'Enter your name to continue.';
+  }
+  if (backendMessage === 'Only the host can activate events') {
+    return 'Only the host can start an event.';
+  }
+  if (backendMessage === 'Invalid custom event') {
+    return 'Check the event name and description, then try again.';
+  }
   if (backendMessage.includes('already exists for game')) {
-    return "That name's already taken in this game — try another.";
+    return "That name's already taken in this round — try another.";
   }
   if (backendMessage.includes('does not belong to game')) {
-    return "You're not part of this game — rejoin from the home screen.";
+    return "You're not part of this round. Rejoin to continue.";
   }
   if (status === 404 && /^Game `.*` not found/.test(backendMessage)) {
-    return 'Game not found — double-check the code.';
+    return 'Round not found — check the game code.';
   }
   if (backendMessage.includes('modified concurrently')) {
-    return 'Someone else updated the game at the same moment — please try again.';
+    return 'Someone else updated the round at the same time. Try again.';
   }
   return backendMessage;
 }
@@ -44,6 +66,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
       message = json.message ? friendlyMessage(response.status, json.message) : message;
     } catch {
       if (text) message = text;
+    }
+    if (response.status >= 500) {
+      message = 'The service is unavailable. Check your round before trying again.';
     }
 
     if (response.status === 401 && typeof window !== 'undefined') {
@@ -88,9 +113,7 @@ async function fetchWithRetry<T>(
       return await fetchFunction();
     } catch (error) {
       if (error instanceof ApiError) throw error;
-      lastError = error instanceof DOMException && error.name === 'AbortError'
-        ? new Error('Request timed out — check your connection and try again')
-        : error instanceof Error ? error : new Error(String(error));
+      lastError = error instanceof Error ? error : new Error(String(error));
       if (attempt < maxRetries - 1) {
         await new Promise(resolve => setTimeout(resolve, delayMs * (attempt + 1)));
       }

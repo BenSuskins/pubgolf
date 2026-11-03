@@ -50,7 +50,7 @@ test.describe('Submit Score', () => {
     const page = authenticatedPage;
 
     await page.goto('/submit-score');
-    await page.getByRole('link', { name: 'Back to Scoreboard' }).click();
+    await page.getByRole('link', { name: 'Back to Leaderboard' }).click();
 
     await expect(page).toHaveURL('/game');
   });

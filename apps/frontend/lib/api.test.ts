@@ -8,6 +8,7 @@ import {
   getRandomiseOptions,
   getServerRoutes,
   getServerPenaltyOptions,
+  activateCustomEvent,
   spinWheel,
   ApiError,
 } from './api';
@@ -262,10 +263,20 @@ describe('API functions', () => {
       expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
-    test('does not retry POSTs — a timed-out mutation may have succeeded server-side', async () => {
-      mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+    test('explains a network failure without exposing browser error text', async () => {
+      mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+      await expect(createGame('Ben')).rejects.toThrow(
+        'Could not connect. Check your connection and try again.'
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
 
-      await expect(createGame('Ben')).rejects.toThrow();
+    test('does not retry POSTs — a timed-out mutation may have succeeded server-side', async () => {
+      mockFetch.mockRejectedValueOnce(new DOMException('Aborted', 'AbortError'));
+
+      await expect(createGame('Ben')).rejects.toThrow(
+        'Request timed out. Check the round before trying again.'
+      );
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
@@ -317,7 +328,7 @@ describe('API functions', () => {
       );
 
       await expect(joinGame('ABCD', 'Ben')).rejects.toThrow(
-        "That name's already taken in this game — try another."
+        "That name's already taken in this round — try another."
       );
     });
 
@@ -328,7 +339,34 @@ describe('API functions', () => {
         })
       );
 
-      await expect(getGameState('NOPE123')).rejects.toThrow('Game not found — double-check the code.');
+      await expect(getGameState('NOPE123')).rejects.toThrow('Round not found — check the game code.');
+    });
+
+    test('explains a server-side name validation error in player-friendly language', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Validation failed: name: Name must not be blank' }), {
+          status: 400,
+        })
+      );
+      await expect(createGame('')).rejects.toThrow('Enter your name to continue.');
+    });
+
+    test('explains an unavailable service without showing server details', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'database unavailable' }), { status: 503 })
+      );
+      await expect(createGame('Ben')).rejects.toThrow(
+        'The service is unavailable. Check your round before trying again.'
+      );
+    });
+
+    test('explains a rejected custom event', async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Invalid custom event' }), { status: 400 })
+      );
+      await expect(activateCustomEvent('ABCD', '', '', 'player-1')).rejects.toThrow(
+        'Check the event name and description, then try again.'
+      );
     });
 
     test('passes through unrecognised backend messages', async () => {

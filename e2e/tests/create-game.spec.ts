@@ -21,7 +21,7 @@ test.describe('Create Game', () => {
     await page.locator('#create-name').fill('A');
     await page.getByRole('button', { name: 'Tee Off' }).click();
 
-    await expect(page.getByText('Name must be at least 2 characters')).toBeVisible();
+    await expect(page.getByText('Enter a name with at least 2 characters.')).toBeVisible();
     await expect(page).toHaveURL('/play');
   });
 

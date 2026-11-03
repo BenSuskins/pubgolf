@@ -37,7 +37,7 @@ test('game rules provide a direct return and exclude public guide content', asyn
   await expect(page.getByRole('heading', { name: 'The Course' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Pub Golf FAQ' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
-  await page.getByRole('link', { name: 'Back to Scoreboard' }).click();
+  await page.getByRole('link', { name: 'Back to Leaderboard' }).click();
   await expect(page).toHaveURL('/game');
 });
 

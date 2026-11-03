@@ -48,6 +48,6 @@ test.describe('Routes on How To Play', () => {
   test('back link returns to the scoreboard when opened from a game', async ({ authenticatedPage: page }) => {
     await page.goto('/how-to-play?from=game');
 
-    await expect(page.getByRole('link', { name: /back to scoreboard/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /back to leaderboard/i })).toBeVisible();
   });
 });

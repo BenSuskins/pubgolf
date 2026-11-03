@@ -50,7 +50,7 @@ export function HoleChips({
               onClick={() => onSelect(hole)}
               disabled={disabled}
               aria-pressed={isSelected}
-              aria-label={`Hole ${hole}${hasPlayedHole(score) ? `, ${score} sips logged` : ', not played'}`}
+              aria-label={`Hole ${hole}${hasPlayedHole(score) ? `, score ${score}` : ', not played'}`}
               className={`font-display text-center rounded-[9px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${chipClasses(
                 isSelected,
                 score,

@@ -249,7 +249,7 @@ describe('HowToPlayPage', () => {
 
       const back = screen.getByRole('link', { name: /back to home/i });
       expect(back).toHaveAttribute('href', '/');
-      expect(screen.queryByText(/back to scoreboard/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/back to leaderboard/i)).not.toBeInTheDocument();
     });
 
     test('should go back to the scoreboard when opened from the game', async () => {
@@ -258,7 +258,7 @@ describe('HowToPlayPage', () => {
       render(<RulesContent fromGame={window.location.search === '?from=game'} />);
 
       await waitFor(() => {
-        expect(screen.getByRole('link', { name: /back to scoreboard/i })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /back to leaderboard/i })).toBeInTheDocument();
       });
       expect(screen.queryByText(/back to home/i)).not.toBeInTheDocument();
     });

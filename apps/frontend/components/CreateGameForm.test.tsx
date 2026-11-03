@@ -81,13 +81,13 @@ describe('CreateGameForm', () => {
       await user.type(screen.getByLabelText(/your name/i), 'A');
       await user.click(screen.getByRole('button', { name: /tee off/i }));
 
-      expect(screen.getByText(/must be at least 2 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/enter a name with at least 2 characters/i)).toBeInTheDocument();
     });
 
     test('should not show error initially', () => {
       render(<CreateGameForm />);
 
-      expect(screen.queryByText(/must be at least 2 characters/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/enter a name with at least 2 characters/i)).not.toBeInTheDocument();
     });
 
     test('should show error for empty name after whitespace trim', async () => {
@@ -97,7 +97,7 @@ describe('CreateGameForm', () => {
       await user.type(screen.getByLabelText(/your name/i), '   ');
       await user.click(screen.getByRole('button', { name: /tee off/i }));
 
-      expect(screen.getByText(/must be at least 2 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/enter a name with at least 2 characters/i)).toBeInTheDocument();
     });
   });
 
@@ -208,7 +208,7 @@ describe('CreateGameForm', () => {
       await user.click(screen.getByRole('button', { name: /tee off/i }));
 
       await waitFor(() => {
-        expect(screen.getByText(/failed to create game/i)).toBeInTheDocument();
+        expect(screen.getByText(/couldn't start the round/i)).toBeInTheDocument();
       });
     });
 

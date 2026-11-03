@@ -33,7 +33,7 @@ describe('CelebrationScreen', () => {
 
     render(<CelebrationScreen winners={winners} onDismiss={onDismiss} />);
 
-    expect(screen.getByText('15 sips')).toBeInTheDocument();
+    expect(screen.getByText('15 strokes')).toBeInTheDocument();
   });
 
   test('should display multiple winners for tie', () => {

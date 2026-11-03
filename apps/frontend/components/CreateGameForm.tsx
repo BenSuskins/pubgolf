@@ -20,7 +20,7 @@ export function CreateGameForm() {
     setError('');
 
     if (name.trim().length < 2) {
-      setError('Name must be at least 2 characters');
+      setError('Enter a name with at least 2 characters.');
       return;
     }
 
@@ -30,7 +30,7 @@ export function CreateGameForm() {
       setGameSession(response.gameCode, response.playerId);
       router.push('/game');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create game');
+      setError(err instanceof Error ? err.message : "Couldn't start the round. Try again.");
     } finally {
       setLoading(false);
     }

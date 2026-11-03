@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Complete Game', () => {
   test.describe('Host Controls', () => {
-    test('host sees End Game button', async ({ page, createGameViaApi }) => {
+    test('host sees End Round button', async ({ page, createGameViaApi }) => {
       const hostSession = await createGameViaApi('HostPlayer');
 
       await page.goto('/play');
@@ -14,10 +14,10 @@ test.describe('Complete Game', () => {
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
-      await expect(page.getByRole('button', { name: 'End Game' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'End Round' })).toBeVisible();
     });
 
-    test('non-host does not see End Game button', async ({ page, createGameViaApi, joinGameViaApi }) => {
+    test('non-host does not see End Round button', async ({ page, createGameViaApi, joinGameViaApi }) => {
       const hostSession = await createGameViaApi('HostPlayer');
       const playerSession = await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
@@ -30,7 +30,7 @@ test.describe('Complete Game', () => {
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
-      await expect(page.getByRole('button', { name: 'End Game' })).not.toBeVisible();
+      await expect(page.getByRole('button', { name: 'End Round' })).not.toBeVisible();
     });
 
     test('host can complete game with confirmation modal', async ({ page, createGameViaApi }) => {
@@ -45,15 +45,15 @@ test.describe('Complete Game', () => {
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
-      await page.getByRole('button', { name: 'End Game' }).click();
+      await page.getByRole('button', { name: 'End Round' }).click();
 
       await expect(page.getByRole('dialog')).toBeVisible();
-      await expect(page.getByText('End Game?')).toBeVisible();
-      await expect(page.getByText(/permanently end the game/i)).toBeVisible();
+      await expect(page.getByText('End Round?')).toBeVisible();
+      await expect(page.getByText(/permanently end the round/i)).toBeVisible();
 
-      await page.getByRole('dialog').getByRole('button', { name: 'End Game' }).click();
+      await page.getByRole('dialog').getByRole('button', { name: 'End Round' }).click();
 
-      await expect(page.getByText('Game Complete')).toBeVisible();
+      await expect(page.getByText('Round Complete')).toBeVisible();
     });
 
     test('host can cancel completion in modal', async ({ page, createGameViaApi }) => {
@@ -68,13 +68,13 @@ test.describe('Complete Game', () => {
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
-      await page.getByRole('button', { name: 'End Game' }).click();
+      await page.getByRole('button', { name: 'End Round' }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
 
       await page.getByRole('button', { name: 'Cancel' }).click();
 
       await expect(page.getByRole('dialog')).not.toBeVisible();
-      await expect(page.getByRole('button', { name: 'End Game' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'End Round' })).toBeVisible();
     });
   });
 
@@ -98,7 +98,7 @@ test.describe('Complete Game', () => {
       await page.goto('/game');
 
       await expect(page.getByRole('heading', { name: 'Winner' })).toBeVisible();
-      await expect(page.getByText('1 sips')).toBeVisible();
+      await expect(page.getByText('1 stroke')).toBeVisible();
     });
 
     test('shows celebration with tied winners', async ({ page, createGameViaApi, joinGameViaApi, submitScoreViaApi, completeGameViaApi }) => {
@@ -142,12 +142,12 @@ test.describe('Complete Game', () => {
       await celebration.click();
 
       await expect(celebration).not.toBeVisible();
-      await expect(page.getByText('Game Complete')).toBeVisible();
+      await expect(page.getByText('Round Complete')).toBeVisible();
     });
   });
 
   test.describe('Completed Game UI', () => {
-    test('shows Game Complete banner', async ({ page, createGameViaApi, completeGameViaApi }) => {
+    test('shows Round Complete banner', async ({ page, createGameViaApi, completeGameViaApi }) => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
@@ -165,10 +165,10 @@ test.describe('Complete Game', () => {
         await celebration.click();
       }
 
-      await expect(page.getByText('Game Complete')).toBeVisible();
+      await expect(page.getByText('Round Complete')).toBeVisible();
     });
 
-    test('hides End Game button after completion', async ({ page, createGameViaApi, completeGameViaApi }) => {
+    test('hides End Round button after completion', async ({ page, createGameViaApi, completeGameViaApi }) => {
       const hostSession = await createGameViaApi('TestHost');
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
@@ -186,7 +186,7 @@ test.describe('Complete Game', () => {
         await celebration.click();
       }
 
-      await expect(page.getByRole('button', { name: 'End Game' })).not.toBeVisible();
+      await expect(page.getByRole('button', { name: 'End Round' })).not.toBeVisible();
     });
 
     test('hides Invite button after completion', async ({ page, createGameViaApi, completeGameViaApi }) => {

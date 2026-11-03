@@ -27,12 +27,12 @@ export default function MapPage() {
       const data = await getRoute(gameCode);
       setError('');
       if (data.pubs.length === 0) {
-        setError('No pub route configured for this game');
+        setError('The host has not added a pub route yet.');
         return;
       }
       setRouteData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load route');
+      setError(err instanceof Error ? err.message : "Couldn't load the pub route. Try again.");
     } finally {
       setLoading(false);
     }
@@ -67,13 +67,13 @@ export default function MapPage() {
   }
 
   if (error || !routeData) {
-    const isTransient = error !== 'No pub route configured for this game';
+    const isTransient = error !== 'The host has not added a pub route yet.';
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] p-4">
         <div className="max-w-md w-full text-center space-y-4">
           <div className="text-4xl">🗺️</div>
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Map Not Available</h1>
-          <p className="text-[var(--color-text-secondary)]">{error || 'Failed to load map'}</p>
+          <p className="text-[var(--color-text-secondary)]">{error || "Couldn't load the map. Try again."}</p>
           <div className="flex flex-col gap-3">
             {isTransient && (
               <button
@@ -90,7 +90,7 @@ export default function MapPage() {
               href="/game"
               className="inline-block px-6 py-3 glass rounded-lg border border-[var(--color-border)]"
             >
-              Back to Game
+              Back to Leaderboard
             </Link>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function MapPage() {
           href="/game"
           className="px-4 py-2 text-sm bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
         >
-          ← Back to Game
+          ← Back to Leaderboard
         </Link>
         <h1 className="text-xl font-bold text-[var(--color-text-primary)]">Route</h1>
         <div className="w-20" />

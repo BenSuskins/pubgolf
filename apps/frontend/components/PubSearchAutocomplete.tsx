@@ -27,7 +27,7 @@ export default function PubSearchAutocomplete({
 
   const handleSearch = async () => {
     if (!value || value.length < 2) {
-      setError('Please enter at least 2 characters');
+      setError('Enter at least 2 characters to search.');
       return;
     }
 
@@ -37,11 +37,11 @@ export default function PubSearchAutocomplete({
       const places = await searchPlaces(value, biasLatitude, biasLongitude);
       setResults(places);
       if (places.length === 0) {
-        setError('No results found');
+        setError('No pubs found. Try a different search.');
       }
     } catch (err) {
       console.error('Failed to search places:', err);
-      setError('Search failed. Please try again.');
+      setError("Couldn't search for pubs. Try again.");
       setResults([]);
     } finally {
       setIsLoading(false);

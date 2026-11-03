@@ -237,7 +237,7 @@ export function CourseEditor({ holes, onSave, disabled = false }: CourseEditorPr
       await onSave(toRouteHoles(draft));
       setSaved(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save drinks and pars');
+      setError(err instanceof Error ? err.message : "Couldn't save the course. Try again.");
     } finally {
       setSaving(false);
     }

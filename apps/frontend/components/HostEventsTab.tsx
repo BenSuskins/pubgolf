@@ -34,7 +34,7 @@ export function HostEventsTab({
           Trigger an Event
         </h2>
         {events.length === 0 ? (
-          <EmptyState icon="📝" description="No events configured for this game yet" />
+          <EmptyState icon="📝" description="No events are available for this round yet" />
         ) : (
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (

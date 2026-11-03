@@ -71,6 +71,6 @@ describe('HostEventsTab', () => {
   test('should explain when a game has no events', () => {
     renderTab({ events: [] });
 
-    expect(screen.getByText('No events configured for this game yet')).toBeInTheDocument();
+    expect(screen.getByText('No events are available for this round yet')).toBeInTheDocument();
   });
 });

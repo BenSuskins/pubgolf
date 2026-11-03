@@ -94,7 +94,7 @@ export default function GamePage() {
       if (gameStateRevisionRef.current === revision) handleGameStateUpdate(state);
     } catch (err) {
       if (gameStateRevisionRef.current === revision) {
-        setError(err instanceof Error ? err.message : 'Failed to load game');
+        setError(err instanceof Error ? err.message : "Couldn't load the round. Try again.");
       }
     } finally {
       setGameCode(code);
@@ -257,7 +257,7 @@ export default function GamePage() {
         {isCompleted && (
           <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 rounded-lg px-4 py-3 text-center">
             <p className="font-semibold text-[var(--color-accent)]">
-              <span aria-hidden="true">🏆</span> Game Complete
+              <span aria-hidden="true">🏆</span> Round Complete
             </p>
           </div>
         )}
@@ -294,7 +294,7 @@ export default function GamePage() {
                   {hasUsedWildcard ? (
                     <div
                       role="status"
-                      aria-label="Wildcard already used for this game"
+                      aria-label="Wildcard already used this round"
                       className="min-w-0 py-3 px-2 glass text-center font-semibold text-[13.5px] rounded-[14px] text-[var(--color-text-faint)] cursor-not-allowed opacity-60"
                     >
                       Wildcard Used

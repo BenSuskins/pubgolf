@@ -100,7 +100,7 @@ describe('JoinGameForm', () => {
       await user.type(screen.getByLabelText(/game code/i), 'ABCD');
       await user.click(screen.getByRole('button', { name: /join the round/i }));
 
-      expect(screen.getByText(/must be at least 2 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/enter a name with at least 2 characters/i)).toBeInTheDocument();
     });
 
     test('should show error when game code is empty', async () => {
@@ -110,14 +110,14 @@ describe('JoinGameForm', () => {
       await user.type(screen.getByLabelText(/your name/i), 'Test User');
       await user.click(screen.getByRole('button', { name: /join the round/i }));
 
-      expect(screen.getByText(/game code is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/enter the game code to join the round/i)).toBeInTheDocument();
     });
 
     test('should not show errors initially', () => {
       render(<JoinGameForm />);
 
-      expect(screen.queryByText(/must be at least 2 characters/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(/game code is required/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/enter a name with at least 2 characters/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/enter the game code to join the round/i)).not.toBeInTheDocument();
     });
   });
 
@@ -222,7 +222,7 @@ describe('JoinGameForm', () => {
       await user.click(screen.getByRole('button', { name: /join the round/i }));
 
       await waitFor(() => {
-        expect(screen.getByText(/failed to join game/i)).toBeInTheDocument();
+        expect(screen.getByText(/couldn't join the round/i)).toBeInTheDocument();
       });
     });
   });
