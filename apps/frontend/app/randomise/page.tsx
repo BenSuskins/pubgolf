@@ -36,7 +36,7 @@ export default function RandomisePage() {
         const data = await getRandomiseOptions();
         setOptions(data.options);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load randomise options');
+        setError(err instanceof Error ? err.message : "Couldn't load the Wildcard wheel. Try again.");
       } finally {
         setLoading(false);
       }
@@ -67,14 +67,17 @@ export default function RandomisePage() {
       setHole(data.hole);
       setSpinning(true);
     } catch (err) {
-      if (err instanceof ApiError && err.status === 409 && err.message.includes('No more holes left')) {
+      if (err instanceof ApiError && err.status === 409 && err.message.includes('completed game')) {
+        setError('This round has ended, so Wildcard is no longer available.');
+        setHasSpun(true);
+      } else if (err instanceof ApiError && err.status === 409 && err.message.includes('No more holes left')) {
         setError("No holes left to spin for — you've played them all!");
         setHasSpun(true);
       } else if (err instanceof ApiError && err.status === 409) {
-        setError('You have already used your spin for this game!');
+        setError('You have already used your Wildcard this round.');
         setHasSpun(true);
       } else {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
+        setError(err instanceof Error ? err.message : "Couldn't use Wildcard. Try again.");
       }
     }
   };
@@ -98,10 +101,10 @@ export default function RandomisePage() {
     return (
       <main className="min-h-full flex flex-col items-center justify-center p-4 gap-4">
         <p className="text-[var(--color-error)] bg-[var(--color-error-bg)] px-4 py-2 rounded-lg">
-          {error || 'No wheel options available'}
+          {error || 'The Wildcard wheel has no options right now.'}
         </p>
         <Link href="/game" className="text-[var(--color-primary)] hover:underline">
-          Back to Game
+          Back to Leaderboard
         </Link>
       </main>
     );
@@ -115,7 +118,7 @@ export default function RandomisePage() {
             href="/game"
             className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
           >
-            ← Back to Scoreboard
+            ← Back to Leaderboard
           </Link>
         </div>
 
@@ -124,7 +127,7 @@ export default function RandomisePage() {
             Wildcard
           </Typography>
           <Typography as="p" color="secondary" className="mt-2 text-[13.5px]">
-            One spin per game. Feeling lucky?
+            One spin per round. Feeling lucky?
           </Typography>
         </div>
 

@@ -27,8 +27,8 @@ export function buildRules(routeNames: string[] = []): string[] {
   return [
     'Finish your drink in as few sips as possible. Your score = your sips.',
     routeRule(routeNames),
-    'Use Randomise once per game to swap a drink for something random.',
-    'Lowest total score wins. May the best drinker take home the glory.',
+    'Use Wildcard once per round for a surprise on your next unplayed hole.',
+    'The lowest total score wins the round.',
   ];
 }
 

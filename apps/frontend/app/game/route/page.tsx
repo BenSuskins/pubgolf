@@ -92,7 +92,7 @@ export default function RouteBuilderPage() {
       await setPubs(gameCode, playerId, selectedPubs);
       router.push('/game');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save route');
+      setError(err instanceof Error ? err.message : "Couldn't save the pub route. Try again.");
       setSaving(false);
     }
   };

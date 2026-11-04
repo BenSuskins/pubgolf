@@ -38,12 +38,12 @@ export function JoinGameForm() {
     setOfferRejoin(false);
 
     if (name.trim().length < 2) {
-      setError('Name must be at least 2 characters');
+      setError('Enter a name with at least 2 characters.');
       return;
     }
 
     if (!gameCode.trim()) {
-      setError('Game code is required');
+      setError('Enter the game code to join the round.');
       return;
     }
 
@@ -53,7 +53,7 @@ export function JoinGameForm() {
       setGameSession(response.gameCode, response.playerId);
       router.push('/game');
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to join game';
+      const message = err instanceof Error ? err.message : "Couldn't join the round. Try again.";
       setError(message);
       // A duplicate name usually means the same person on a new device or after
       // cleared storage; offer to reclaim the player instead of dead-ending.

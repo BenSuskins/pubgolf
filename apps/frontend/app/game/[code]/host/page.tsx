@@ -104,7 +104,7 @@ export default function HostPanelPage() {
           setPubs([]);
         }
       } catch (err) {
-        setLoadError(err instanceof Error ? err.message : 'Failed to load host panel');
+        setLoadError(err instanceof Error ? err.message : "Couldn't load the host panel. Try again.");
       } finally {
         setLoading(false);
       }
@@ -124,7 +124,7 @@ export default function HostPanelPage() {
       const state = await activateEvent(gameCode, event.id, playerId);
       setActiveEvent(state.activeEvent);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to activate event');
+      setError(err instanceof Error ? err.message : "Couldn't start the event. Try again.");
     } finally {
       setActivatingEventId(null);
     }
@@ -149,7 +149,7 @@ export default function HostPanelPage() {
       const state = await endEvent(gameCode, playerId);
       setActiveEvent(state.activeEvent);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to end event');
+      setError(err instanceof Error ? err.message : "Couldn't end the event. Try again.");
     } finally {
       setEndingEvent(false);
     }
@@ -174,7 +174,7 @@ export default function HostPanelPage() {
       setShowEndGameModal(false);
       router.push('/game');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to end game');
+      setError(err instanceof Error ? err.message : "Couldn't end the round. Try again.");
     } finally {
       setCompleting(false);
     }
@@ -194,7 +194,7 @@ export default function HostPanelPage() {
         <ErrorMessage
           message={loadError}
           variant="card"
-          action={{ label: 'Back to Game', onClick: () => router.push('/game') }}
+          action={{ label: 'Back to Leaderboard', onClick: () => router.push('/game') }}
         />
       </div>
     );
@@ -207,7 +207,7 @@ export default function HostPanelPage() {
           href="/game"
           className="text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
         >
-          ← Back to Scoreboard
+          ← Back to Leaderboard
         </Link>
       </div>
 
@@ -231,7 +231,7 @@ export default function HostPanelPage() {
           onClick={() => setShowEndGameModal(true)}
           className="px-3.5 py-2.5 surface-danger rounded-[10px] text-[var(--color-error)] font-bold text-[12.5px] shrink-0 hover:bg-[var(--color-danger-border)]/40 transition-colors"
         >
-          End Game
+          End Round
         </button>
       </header>
 
@@ -314,9 +314,9 @@ export default function HostPanelPage() {
 
       {showEndGameModal && (
         <ConfirmModal
-          title="End Game?"
-          message="This will permanently end the game. No more scores can be submitted and no one else can join."
-          confirmText="End Game"
+          title="End Round?"
+          message="This will permanently end the round. No more scores can be submitted and no one else can join."
+          confirmText="End Round"
           cancelText="Cancel"
           onConfirm={handleCompleteGame}
           onCancel={() => setShowEndGameModal(false)}

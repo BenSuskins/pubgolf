@@ -19,7 +19,7 @@ export function BackButton({ fromGame }: { fromGame: boolean }) {
 
   return (
     <Link href="/game" className={LINK_CLASSES}>
-      ← Back to Scoreboard
+      ← Back to Leaderboard
     </Link>
   );
 }

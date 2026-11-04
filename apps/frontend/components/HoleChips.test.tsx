@@ -34,11 +34,11 @@ describe('HoleChips', () => {
     );
   });
 
-  test('should announce logged sips for played holes and not played for the rest', () => {
+  test('should announce scores for played holes and not played for the rest', () => {
     render(
       <HoleChips selectedHole={4} scores={scores} pars={pars} onSelect={() => {}} />
     );
-    expect(screen.getByRole('button', { name: 'Hole 2, 4 sips logged' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Hole 2, score 4' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Hole 9, not played' })).toBeInTheDocument();
   });
 

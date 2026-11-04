@@ -62,7 +62,7 @@ export function CelebrationScreen({ winners, onDismiss }: CelebrationScreenProps
           </Typography>
           {winners.length > 0 && (
             <Typography variant="title" className="text-2xl">
-              {winners[0].totalScore} sips
+              {winners[0].totalScore} {winners[0].totalScore === 1 ? 'stroke' : 'strokes'}
             </Typography>
           )}
         </motion.div>

@@ -123,6 +123,7 @@ fresh database and a coordinated frontend/backend cutover. It does not migrate o
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for system design, components, and request flow.
 See [GLOSSARY.md](GLOSSARY.md) for the agreed Game domain terms.
+See [BRAND-VOICE.md](BRAND-VOICE.md) for player-facing copy and tone.
 
 ## Security
 

@@ -38,7 +38,7 @@ export function CustomEventSheet({ onTrigger, onClose }: CustomEventSheetProps) 
       await onTrigger(trimmed, description.trim());
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to trigger the event');
+      setError(err instanceof Error ? err.message : "Couldn't start the event. Try again.");
     } finally {
       setTriggering(false);
     }
