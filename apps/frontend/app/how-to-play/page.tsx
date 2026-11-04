@@ -3,17 +3,12 @@ import { MarketingHeader } from '@/components/MarketingHeader';
 import { RoutesTable } from '@/components/RoutesTable';
 import { Card } from '@/components/ui/Card';
 import { BackButton } from './BackButton';
-import { getPenaltyOptions, getRoutes } from '@/lib/api';
-
-const apiUrl = process.env.API_SERVER_URL ||
-  (process.env.NODE_ENV === 'production'
-    ? 'https://api.pubgolf.me'
-    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
+import { getServerPenaltyOptions, getServerRoutes } from '@/lib/api';
 
 export default async function HowToPlayPage() {
   const [course, penalties] = await Promise.all([
-    getRoutes({ baseUrl: apiUrl, timeoutMs: 2000, retries: 1, cache: 'no-store' }).catch(() => null),
-    getPenaltyOptions({ baseUrl: apiUrl, timeoutMs: 2000, retries: 1, cache: 'no-store' }).catch(() => null),
+    getServerRoutes().catch(() => null),
+    getServerPenaltyOptions().catch(() => null),
   ]);
   return (
     <>

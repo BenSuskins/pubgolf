@@ -6,7 +6,8 @@ import {
   submitScore,
   setPubs,
   getRandomiseOptions,
-  getRoutes,
+  getServerRoutes,
+  getServerPenaltyOptions,
   spinWheel,
   ApiError,
 } from './api';
@@ -24,18 +25,25 @@ describe('API functions', () => {
     global.fetch = originalFetch;
   });
 
-  test('loads public configuration with a server origin and no retries', async () => {
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ holes: [] }), { status: 200 }));
-    await getRoutes({ baseUrl: 'http://backend:8080', timeoutMs: 2000, retries: 1, cache: 'no-store' });
-    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe('http://backend:8080/api/v1/config/routes');
-    expect(options.cache).toBe('no-store');
-    expect(options.signal).toBeInstanceOf(AbortSignal);
+  test('loads server configuration using the server address without retries', async () => {
+    const previousServerUrl = process.env.API_SERVER_URL;
+    process.env.API_SERVER_URL = 'http://backend:8080';
+    try {
+      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ holes: [] }), { status: 200 }));
+      await getServerRoutes();
+      const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('http://backend:8080/api/v1/config/routes');
+      expect(options.cache).toBe('no-store');
+      expect(options.signal).toBeInstanceOf(AbortSignal);
 
-    mockFetch.mockClear();
-    mockFetch.mockRejectedValueOnce(new TypeError('offline'));
-    await expect(getRoutes({ baseUrl: 'http://backend:8080', timeoutMs: 2000, retries: 1 })).rejects.toThrow();
-    expect(mockFetch).toHaveBeenCalledTimes(1);
+      mockFetch.mockClear();
+      mockFetch.mockRejectedValueOnce(new TypeError('offline'));
+      await expect(getServerPenaltyOptions()).rejects.toThrow();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    } finally {
+      if (previousServerUrl === undefined) delete process.env.API_SERVER_URL;
+      else process.env.API_SERVER_URL = previousServerUrl;
+    }
   });
 
   describe('createGame', () => {

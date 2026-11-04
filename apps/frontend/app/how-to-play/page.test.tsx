@@ -26,7 +26,9 @@ const mockGetGameState = mock(() => Promise.resolve({
 
 mock.module('@/lib/api', () => ({
   getPenaltyOptions: mockGetPenaltyOptions,
+  getServerPenaltyOptions: mockGetPenaltyOptions,
   getRoutes: mockGetRoutes,
+  getServerRoutes: mockGetRoutes,
   getGameState: mockGetGameState,
 }));
 

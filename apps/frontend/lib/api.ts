@@ -112,6 +112,16 @@ interface ApiRequestOptions {
 
 type PublicConfigOptions = Pick<ApiRequestOptions, 'baseUrl' | 'timeoutMs' | 'retries' | 'cache'>;
 
+function serverConfigOptions(): PublicConfigOptions {
+  return {
+    baseUrl: process.env.API_SERVER_URL ||
+      (process.env.NODE_ENV === 'production' ? 'https://api.pubgolf.me' : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
+    timeoutMs: 2000,
+    retries: 1,
+    cache: 'no-store',
+  };
+}
+
 async function request<T>(path: string, { method = 'GET', body, playerId, baseUrl = API_BASE_URL, timeoutMs, retries, cache }: ApiRequestOptions = {}): Promise<T> {
   const doFetch = async () => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -139,6 +149,10 @@ function gamePath(gameCode: string, suffix: string = ''): string {
 
 export async function getRoutes(options: PublicConfigOptions = {}): Promise<RoutesResponse> {
   return request('/api/v1/config/routes', options);
+}
+
+export async function getServerRoutes(): Promise<RoutesResponse> {
+  return getRoutes(serverConfigOptions());
 }
 
 export async function createGame(host: string): Promise<CreateGameResponse> {
@@ -197,6 +211,10 @@ export interface PenaltyOptionsResponse {
 
 export async function getPenaltyOptions(options: PublicConfigOptions = {}): Promise<PenaltyOptionsResponse> {
   return request('/api/v1/config/penalty-options', options);
+}
+
+export async function getServerPenaltyOptions(): Promise<PenaltyOptionsResponse> {
+  return getPenaltyOptions(serverConfigOptions());
 }
 
 export async function spinWheel(
