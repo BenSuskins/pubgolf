@@ -24,7 +24,7 @@ const questions = [
   ],
   [
     'How do you score in pub golf?',
-    'Record your sips for each hole and compare them with its par. Penalties can add strokes. The player with the lowest total wins.',
+    'Record your sips for each hole and compare them with its par. Penalties can replace the score for a hole. The player with the lowest total wins.',
   ],
   [
     'How many pubs do you need for pub golf?',
@@ -53,9 +53,10 @@ export default function HomePage() {
           <div className="space-y-6">
             <p className="eyebrow text-[var(--color-accent)]">9 Holes · 9 Drinks · 1 Champion</p>
             <h1 className="font-display text-6xl leading-[1.02] md:text-7xl lg:text-8xl">
-              YOUR ROUND.
+              FREE PUB GOLF
               <br />
-              <span className="text-[var(--color-accent)]">EVERY SIP.</span>
+              <span className="text-[var(--color-accent)]">SCORECARD.</span>
+              <span className="mt-3 block text-3xl md:text-4xl">&amp; LIVE LEADERBOARD</span>
             </h1>
             <p className="max-w-lg text-base leading-relaxed text-[var(--color-text-secondary)] md:text-lg">
               The free pub golf score tracker for your next pub crawl. Set up a round, invite your

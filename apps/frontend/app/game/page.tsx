@@ -197,7 +197,7 @@ export default function GamePage() {
   return (
     <main className="page-container py-5 md:py-8">
       <div className="space-y-5">
-        <header className="flex items-start justify-between gap-4">
+        <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="eyebrow text-[var(--color-text-muted)]">
               {gameCode.toUpperCase()} · Hole {currentHole} of {holeCount}

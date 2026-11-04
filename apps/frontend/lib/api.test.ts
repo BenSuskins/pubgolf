@@ -6,6 +6,8 @@ import {
   submitScore,
   setPubs,
   getRandomiseOptions,
+  getServerRoutes,
+  getServerPenaltyOptions,
   spinWheel,
   ApiError,
 } from './api';
@@ -21,6 +23,27 @@ describe('API functions', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
+  });
+
+  test('loads server configuration using the server address without retries', async () => {
+    const previousServerUrl = process.env.API_SERVER_URL;
+    process.env.API_SERVER_URL = 'http://backend:8080';
+    try {
+      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ holes: [] }), { status: 200 }));
+      await getServerRoutes();
+      const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('http://backend:8080/api/v1/config/routes');
+      expect(options.cache).toBe('no-store');
+      expect(options.signal).toBeInstanceOf(AbortSignal);
+
+      mockFetch.mockClear();
+      mockFetch.mockRejectedValueOnce(new TypeError('offline'));
+      await expect(getServerPenaltyOptions()).rejects.toThrow();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    } finally {
+      if (previousServerUrl === undefined) delete process.env.API_SERVER_URL;
+      else process.env.API_SERVER_URL = previousServerUrl;
+    }
   });
 
   describe('createGame', () => {

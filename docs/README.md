@@ -93,6 +93,7 @@ Verify: visit `http://localhost:3000` — you should see the Pub Golf home page 
 | `OSRM_PROFILE` | no | `foot` | Routing profile |
 | `NOMINATIM_BASE_URL` | no | `https://nominatim.openstreetmap.org` | Place search provider |
 | `NEXT_PUBLIC_API_URL` | no | `https://api.pubgolf.me` | Browser API URL; `make frontend` sets localhost |
+| `API_SERVER_URL` | no | Production API origin | Server-side API URL; Compose uses the backend service address |
 
 ## Testing
 

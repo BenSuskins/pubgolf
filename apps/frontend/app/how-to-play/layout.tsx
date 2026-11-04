@@ -9,6 +9,23 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/how-to-play",
   },
+  openGraph: {
+    title: "How to Play Pub Golf — Rules, Scoring & Penalties",
+    description:
+      "Learn pub golf rules, scoring, penalties, and how to plan a nine-hole course.",
+    url: "https://pubgolf.me/how-to-play",
+    siteName: "Pub Golf",
+    type: "website",
+    locale: "en_GB",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "How to Play Pub Golf — Rules, Scoring & Penalties",
+    description:
+      "Learn pub golf rules, scoring, penalties, and how to plan a nine-hole course.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function HowToPlayLayout({ children }: { children: React.ReactNode }) {

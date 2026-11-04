@@ -1,7 +1,7 @@
 import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Routes on How To Play', () => {
-  test('displays routes table from backend', async ({ page }) => {
+  test('displays the default course', async ({ page }) => {
     await page.goto('/how-to-play');
 
     await expect(page.getByRole('heading', { name: /The Course/i })).toBeVisible();

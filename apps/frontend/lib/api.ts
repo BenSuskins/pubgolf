@@ -12,9 +12,9 @@ class ApiError extends Error {
   }
 }
 
-function timedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+function timedFetch(url: string, options: RequestInit = {}, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const id = setTimeout(() => controller.abort(), timeoutMs);
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
 }
 
@@ -104,34 +104,55 @@ interface ApiRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   playerId?: string | null;
+  baseUrl?: string;
+  timeoutMs?: number;
+  retries?: number;
+  cache?: RequestCache;
 }
 
-async function request<T>(path: string, { method = 'GET', body, playerId }: ApiRequestOptions = {}): Promise<T> {
+type PublicConfigOptions = Pick<ApiRequestOptions, 'baseUrl' | 'timeoutMs' | 'retries' | 'cache'>;
+
+function serverConfigOptions(): PublicConfigOptions {
+  return {
+    baseUrl: process.env.API_SERVER_URL ||
+      (process.env.NODE_ENV === 'production' ? 'https://api.pubgolf.me' : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
+    timeoutMs: 2000,
+    retries: 1,
+    cache: 'no-store',
+  };
+}
+
+async function request<T>(path: string, { method = 'GET', body, playerId, baseUrl = API_BASE_URL, timeoutMs, retries, cache }: ApiRequestOptions = {}): Promise<T> {
   const doFetch = async () => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (playerId) {
       headers['PubGolf-Player-Id'] = playerId;
     }
-    const response = await timedFetch(`${API_BASE_URL}${path}`, {
+    const response = await timedFetch(`${baseUrl}${path}`, {
       method,
       headers,
+      ...(cache ? { cache } : {}),
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-    });
+    }, timeoutMs);
     return handleResponse<T>(response);
   };
 
   // Only GETs are retried: a timed-out mutation may still have succeeded
   // server-side, and repeating it can create duplicate games or consume
   // one-shot actions like the wildcard.
-  return method === 'GET' ? fetchWithRetry(doFetch) : doFetch();
+  return method === 'GET' ? fetchWithRetry(doFetch, retries) : doFetch();
 }
 
 function gamePath(gameCode: string, suffix: string = ''): string {
   return `/api/v1/games/${encodeURIComponent(gameCode)}${suffix}`;
 }
 
-export async function getRoutes(): Promise<RoutesResponse> {
-  return request('/api/v1/config/routes');
+export async function getRoutes(options: PublicConfigOptions = {}): Promise<RoutesResponse> {
+  return request('/api/v1/config/routes', options);
+}
+
+export async function getServerRoutes(): Promise<RoutesResponse> {
+  return getRoutes(serverConfigOptions());
 }
 
 export async function createGame(host: string): Promise<CreateGameResponse> {
@@ -188,8 +209,12 @@ export interface PenaltyOptionsResponse {
   penalties: PenaltyOption[];
 }
 
-export async function getPenaltyOptions(): Promise<PenaltyOptionsResponse> {
-  return request('/api/v1/config/penalty-options');
+export async function getPenaltyOptions(options: PublicConfigOptions = {}): Promise<PenaltyOptionsResponse> {
+  return request('/api/v1/config/penalty-options', options);
+}
+
+export async function getServerPenaltyOptions(): Promise<PenaltyOptionsResponse> {
+  return getPenaltyOptions(serverConfigOptions());
 }
 
 export async function spinWheel(
