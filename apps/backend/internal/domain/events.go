@@ -2,13 +2,13 @@ package domain
 
 type (
 	DomainEvent   interface{ isDomainEvent() }
-	eventMetadata struct{ GameID, GameCode string }
+	eventMetadata struct{ RoundID, RoundCode string }
 )
 
 func (eventMetadata) isDomainEvent() {}
 
 type (
-	GameCreated  struct{ eventMetadata }
+	RoundCreated struct{ eventMetadata }
 	PlayerJoined struct {
 		eventMetadata
 		PlayerID string
@@ -22,14 +22,14 @@ type ScoreSubmitted struct {
 	Score    Score
 	Penalty  string
 }
-type RandomiseUsed struct {
+type WildcardUsed struct {
 	eventMetadata
 	PlayerID string
 	Hole     HoleNumber
 	Outcome  string
 }
 type (
-	GameCompleted          struct{ eventMetadata }
+	RoundCompleted         struct{ eventMetadata }
 	CourseChanged          struct{ eventMetadata }
 	GameplayEventActivated struct {
 		eventMetadata
@@ -42,4 +42,4 @@ type (
 	PubRouteChanged    struct{ eventMetadata }
 )
 
-func (game Game) metadata() eventMetadata { return eventMetadata{game.state.ID, game.state.Code} }
+func (round Round) metadata() eventMetadata { return eventMetadata{round.state.ID, round.state.Code} }

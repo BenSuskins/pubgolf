@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Game, error) {
+func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Round, error) {
 	var record gameRecord
 	err := transaction.GetContext(
 		ctx,
@@ -18,9 +18,9 @@ func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Ga
 		code,
 	)
 	if err != nil {
-		return domain.Game{}, gameNotFound(code, err)
+		return domain.Round{}, gameNotFound(code, err)
 	}
-	game := domain.GameSnapshot{
+	game := domain.RoundSnapshot{
 		ID:           record.ID,
 		Code:         record.Code,
 		Status:       record.Status,
@@ -28,26 +28,26 @@ func loadGame(ctx context.Context, transaction *sqlx.Tx, code string) (domain.Ga
 		Version:      record.Version,
 	}
 	if err = loadStoredEvent(record.ActiveEvent, &game.ActiveGameplayEvent); err != nil {
-		return domain.Game{}, err
+		return domain.Round{}, err
 	}
 	if err = loadStoredGeometry(record.Route, &game.PubRoute.Geometry); err != nil {
-		return domain.Game{}, err
+		return domain.Round{}, err
 	}
 	game.Players, err = loadPlayers(ctx, transaction, game.ID)
 	if err != nil {
-		return domain.Game{}, err
+		return domain.Round{}, err
 	}
 	game.Holes, err = loadHoles(ctx, transaction, game.ID)
 	if err != nil {
-		return domain.Game{}, err
+		return domain.Round{}, err
 	}
 	game.PubRoute.Pubs, err = loadPubs(ctx, transaction, game.ID)
 	if err != nil {
-		return domain.Game{}, err
+		return domain.Round{}, err
 	}
-	restored, err := domain.RestoreGame(game)
+	restored, err := domain.RestoreRound(game)
 	if err != nil {
-		return domain.Game{}, fmt.Errorf("restore persisted game %q: %v", record.Code, err)
+		return domain.Round{}, fmt.Errorf("restore persisted game %q: %v", record.Code, err)
 	}
 	return restored, nil
 }
@@ -80,7 +80,7 @@ func loadPlayer(ctx context.Context, transaction *sqlx.Tx, record playerRecord) 
 		Scores:    map[int]domain.RecordedScore{},
 		Penalties: map[int]string{},
 	}
-	if err := loadStoredRandomise(record.Randomise, &player.Randomise); err != nil {
+	if err := loadStoredRandomise(record.Randomise, &player.Wildcard); err != nil {
 		return player, err
 	}
 	var records []scoreRecord

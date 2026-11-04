@@ -18,14 +18,14 @@ type Options struct {
 	Heartbeat time.Duration
 }
 type server struct {
-	commands      *application.GameCommands
-	queries       *application.GameQueries
-	subscriptions *application.GameSubscriptions
+	commands      *application.RoundCommands
+	queries       *application.RoundQueries
+	subscriptions *application.RoundSubscriptions
 	places        *application.PlaceSearch
 	options       Options
 }
 
-func New(games application.GameApplication, places *application.PlaceSearch, options Options) http.Handler {
+func New(games application.RoundApplication, places *application.PlaceSearch, options Options) http.Handler {
 	if options.Heartbeat == 0 {
 		options.Heartbeat = 15 * time.Second
 	}

@@ -1,4 +1,4 @@
-package gameupdates
+package roundupdates
 
 import (
 	"context"
@@ -13,33 +13,33 @@ type Broadcaster struct {
 	mutex       sync.Mutex
 	capacity    int
 	closed      bool
-	subscribers map[string]map[chan domain.GameSnapshot]struct{}
+	subscribers map[string]map[chan domain.RoundSnapshot]struct{}
 }
 
 func New(capacity int) *Broadcaster {
-	return &Broadcaster{capacity: capacity, subscribers: map[string]map[chan domain.GameSnapshot]struct{}{}}
+	return &Broadcaster{capacity: capacity, subscribers: map[string]map[chan domain.RoundSnapshot]struct{}{}}
 }
 
-func (broadcaster *Broadcaster) SubscribeGameState(code string) application.GameStateSubscription {
+func (broadcaster *Broadcaster) SubscribeRoundState(code string) application.RoundStateSubscription {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
 	code = strings.ToLower(code)
-	updates := make(chan domain.GameSnapshot, broadcaster.capacity)
+	updates := make(chan domain.RoundSnapshot, broadcaster.capacity)
 	if broadcaster.closed {
 		close(updates)
-		return application.GameStateSubscription{Updates: updates, Cancel: func() {}}
+		return application.RoundStateSubscription{Updates: updates, Cancel: func() {}}
 	}
 	if broadcaster.subscribers[code] == nil {
-		broadcaster.subscribers[code] = map[chan domain.GameSnapshot]struct{}{}
+		broadcaster.subscribers[code] = map[chan domain.RoundSnapshot]struct{}{}
 	}
 	broadcaster.subscribers[code][updates] = struct{}{}
-	return application.GameStateSubscription{
+	return application.RoundStateSubscription{
 		Updates: updates,
 		Cancel:  func() { broadcaster.mutex.Lock(); defer broadcaster.mutex.Unlock(); broadcaster.remove(code, updates) },
 	}
 }
 
-func (broadcaster *Broadcaster) remove(code string, updates chan domain.GameSnapshot) {
+func (broadcaster *Broadcaster) remove(code string, updates chan domain.RoundSnapshot) {
 	if _, exists := broadcaster.subscribers[code][updates]; exists {
 		delete(broadcaster.subscribers[code], updates)
 		close(updates)
@@ -49,7 +49,7 @@ func (broadcaster *Broadcaster) remove(code string, updates chan domain.GameSnap
 	}
 }
 
-func (broadcaster *Broadcaster) PublishGameState(_ context.Context, game domain.GameSnapshot) error {
+func (broadcaster *Broadcaster) PublishRoundState(_ context.Context, game domain.RoundSnapshot) error {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
 	code := strings.ToLower(game.Code)

@@ -8,16 +8,16 @@ import (
 	"time"
 
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/fakes"
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
 type gameFixture struct {
-	app             application.GameApplication
-	repository      *fakes.GameRepository
+	app             application.RoundApplication
+	repository      *fakes.RoundRepository
 	events          *fakes.DomainEventPublisher
-	states          *fakes.GameStatePublisher
+	states          *fakes.RoundStatePublisher
 	choices         int
 	clockReads      int
 	identifierReads int
@@ -25,23 +25,23 @@ type gameFixture struct {
 
 func fixture() *gameFixture {
 	result := &gameFixture{
-		repository: fakes.NewGameRepository(),
+		repository: fakes.NewRoundRepository(),
 		events:     &fakes.DomainEventPublisher{},
-		states:     &fakes.GameStatePublisher{},
+		states:     &fakes.RoundStatePublisher{},
 	}
-	result.app = application.NewGameApplication(result.repository, result.dependencies())
+	result.app = application.NewRoundApplication(result.repository, result.dependencies())
 	return result
 }
 
-func (fixture *gameFixture) dependencies() application.GameDependencies {
-	return application.GameDependencies{
-		NewGameID:              func() string { return "game" },
-		NewPlayerID:            fixture.newPlayerID,
-		NewGameCode:            func() string { return "PAR001" },
-		Now:                    func() time.Time { fixture.clockReads++; return time.Unix(42, 0).UTC() },
-		ChooseRandomiseOutcome: func() string { fixture.choices++; return "Tequila" },
-		DomainEvents:           fixture.events,
-		GameStates:             fixture.states,
+func (fixture *gameFixture) dependencies() application.RoundDependencies {
+	return application.RoundDependencies{
+		NewRoundID:            func() string { return "game" },
+		NewPlayerID:           fixture.newPlayerID,
+		NewRoundCode:          func() string { return "PAR001" },
+		Now:                   func() time.Time { fixture.clockReads++; return time.Unix(42, 0).UTC() },
+		ChooseWildcardOutcome: func() string { fixture.choices++; return "Tequila" },
+		DomainEvents:          fixture.events,
+		RoundStates:           fixture.states,
 	}
 }
 
@@ -53,9 +53,9 @@ func (fixture *gameFixture) newPlayerID() string {
 	return fmt.Sprintf("player%d", fixture.identifierReads)
 }
 
-func create(t *testing.T, fixture *gameFixture) domain.Game {
+func create(t *testing.T, fixture *gameFixture) domain.Round {
 	t.Helper()
-	game, err := fixture.app.Commands.CreateGame(context.Background(), "Alice")
+	game, err := fixture.app.Commands.CreateRound(context.Background(), "Alice")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,11 +69,11 @@ func TestCreatedGameCanBeReadAndPlayed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	loaded, err := fixture.app.Queries.GetGame(context.Background(), "par001")
+	loaded, err := fixture.app.Queries.GetRound(context.Background(), "par001")
 	if err != nil || loaded.Players[0].Scores[1].Value != 0 || len(loaded.Players[0].Scores) != 1 {
 		t.Fatal(loaded, err)
 	}
-	if _, ok := fixture.events.Events[0].(domain.GameCreated); !ok {
+	if _, ok := fixture.events.Events[0].(domain.RoundCreated); !ok {
 		t.Fatal("creation fact missing")
 	}
 	if _, ok := fixture.events.Events[1].(domain.ScoreSubmitted); !ok {
@@ -86,9 +86,9 @@ func TestFailedSaveDoesNotPublishAndConflictRetriesReuseRandomChoice(t *testing.
 	game := create(t, fixture)
 	before := len(fixture.states.Snapshots)
 	fixture.repository.FailNext(domain.Fail(domain.StaleVersion, "conflict"))
-	changed, err := fixture.app.Commands.RandomisePlayer(context.Background(), game.Code(), "host")
+	changed, err := fixture.app.Commands.UseWildcard(context.Background(), game.Code(), "host")
 	if err != nil || fixture.choices != 1 || len(fixture.states.Snapshots) != before+1 ||
-		changed.Snapshot().Players[0].Randomise.Result != "Tequila" {
+		changed.Snapshot().Players[0].Wildcard.Result != "Tequila" {
 		t.Fatal(changed, err)
 	}
 	fixture.repository.FailNext(domain.Fail(domain.Unavailable, "disk unavailable"))
@@ -111,7 +111,7 @@ func TestRetryExhaustionAndCommandTimeIsStable(t *testing.T) {
 	if _, err := fixture.app.Commands.SubmitScore(context.Background(), game.Code(), "host", 1, 1, ""); err == nil {
 		t.Fatal("retry limit ignored")
 	}
-	loaded, _ := fixture.app.Queries.GetGame(context.Background(), game.Code())
+	loaded, _ := fixture.app.Queries.GetRound(context.Background(), game.Code())
 	if len(loaded.Players[0].Scores) != 0 || len(fixture.events.Events) != 1 || len(fixture.states.Snapshots) != 1 {
 		t.Fatal("failed update produced effects")
 	}
@@ -134,7 +134,7 @@ func TestPublisherFailuresAreIndependentAndDoNotUndoCommit(t *testing.T) {
 	if _, err := fixture.app.Commands.SubmitScore(context.Background(), game.Code(), "host", 1, 3, ""); err != nil {
 		t.Fatal(err)
 	}
-	loaded, _ := fixture.app.Queries.GetGame(context.Background(), game.Code())
+	loaded, _ := fixture.app.Queries.GetRound(context.Background(), game.Code())
 	if loaded.Players[0].Scores[1].Value != 3 || len(fixture.events.Events) != 3 {
 		t.Fatal("committed state or facts lost")
 	}
@@ -143,7 +143,7 @@ func TestPublisherFailuresAreIndependentAndDoNotUndoCommit(t *testing.T) {
 func TestNoOpCommandsDoNotSaveOrPublish(t *testing.T) {
 	fixture := fixture()
 	game := create(t, fixture)
-	joined, err := fixture.app.Commands.JoinGame(context.Background(), game.Code(), "aLICE", true)
+	joined, err := fixture.app.Commands.JoinRound(context.Background(), game.Code(), "aLICE", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,13 +159,13 @@ func TestNoOpCommandsDoNotSaveOrPublish(t *testing.T) {
 
 func TestConcurrentSubscriptionsSeeEveryLaterCommittedVersion(t *testing.T) {
 	fixture := fixture()
-	broadcaster := gameupdates.New(32)
+	broadcaster := roundupdates.New(32)
 	defer broadcaster.Close()
 	dependencies := fixture.dependencies()
 	dependencies.Now = func() time.Time { return time.Unix(42, 0).UTC() }
-	dependencies.GameStates = broadcaster
+	dependencies.RoundStates = broadcaster
 	dependencies.Subscriptions = broadcaster
-	fixture.app = application.NewGameApplication(fixture.repository, dependencies)
+	fixture.app = application.NewRoundApplication(fixture.repository, dependencies)
 	game := create(t, fixture)
 	var workers sync.WaitGroup
 	for index := 0; index < 12; index++ {
@@ -174,11 +174,11 @@ func TestConcurrentSubscriptionsSeeEveryLaterCommittedVersion(t *testing.T) {
 	workers.Wait()
 }
 
-func verifySubscription(t *testing.T, app application.GameApplication, code string) {
+func verifySubscription(t *testing.T, app application.RoundApplication, code string) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	initial, subscription, err := app.Subscriptions.SubscribeGame(ctx, code)
+	initial, subscription, err := app.Subscriptions.SubscribeRound(ctx, code)
 	if err != nil {
 		t.Error(err)
 		return

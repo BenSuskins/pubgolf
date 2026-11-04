@@ -2,6 +2,10 @@
 
 Pub Golf has a Go backend, a Next.js frontend, and Playwright browser tests.
 
+## Frontend rendering
+
+Prefer server rendering where feasible. When data is unavailable, provide useful basic content as the fallback without an error message.
+
 ## Commands
 
 Use Make as the entry point. Run `make setup` to install dependencies.
@@ -13,16 +17,16 @@ Run `make backend-build` for the backend executable and `cd apps/frontend && bun
 
 The Go module lives in `apps/backend`. Use Go 1.27.3 and Bun for frontend tools.
 
-- `internal/domain` owns the protected Game aggregate, validated values, typed facts, and failures.
-- `internal/application` owns GameCommands, GameQueries, GameSubscriptions, PlaceSearch, and their ports.
+- `internal/domain` owns the protected Round aggregate, validated values, typed facts, and failures.
+- `internal/application` owns RoundCommands, RoundQueries, RoundSubscriptions, PlaceSearch, and their ports.
 - `internal/adapters` owns HTTP/SSE, SQLite, upstream HTTP, metrics, and fakes.
 - `cmd/pubgolf` handles process signals. `internal/bootstrap` wires adapters and owns the server lifecycle.
 
 Dependencies point inward. Keep HTTP, SQL, JSON encoding, and vendor clients in adapters.
 Pass time, identifiers, and random outcomes into the core.
-Apply rules through immutable Game methods. Keep aggregate state private.
+Apply rules through immutable Round methods. Keep aggregate state private.
 Use validated reconstruction and defensive snapshots. Treat zero as a played score.
-Keep permission checks inside use cases against the loaded game. Save a whole game atomically.
+Keep permission checks inside use cases against the loaded round. Save a whole round atomically.
 Share one private commit coordinator between commands and subscriptions.
 Generate command timestamps, identifiers, and random outcomes once before retries.
 Publish domain facts and browser snapshots independently after commit. Record success metrics from committed facts.

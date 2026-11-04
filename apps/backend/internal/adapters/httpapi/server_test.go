@@ -16,9 +16,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/httpapi"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/nominatim"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 )
@@ -26,7 +26,7 @@ import (
 func server(t *testing.T) *httptest.Server {
 	t.Helper()
 	counter := 0
-	broadcaster := gameupdates.New(8)
+	broadcaster := roundupdates.New(8)
 	t.Cleanup(broadcaster.Close)
 	repository, err := sqlite.Open(filepath.Join(t.TempDir(), "games.db"))
 	if err != nil {
@@ -34,14 +34,14 @@ func server(t *testing.T) *httptest.Server {
 	}
 	t.Cleanup(func() { repository.Close() })
 	newIdentifier := func() string { counter++; return fmt.Sprintf("00000000-0000-4000-8000-%012d", counter) }
-	games := application.NewGameApplication(repository, application.GameDependencies{
-		NewGameID:              newIdentifier,
-		NewPlayerID:            newIdentifier,
-		NewGameCode:            func() string { return "PAR001" },
-		Now:                    func() time.Time { return time.Unix(42, 0).UTC() },
-		ChooseRandomiseOutcome: func() string { return "Tequila" },
-		GameStates:             broadcaster,
-		Subscriptions:          broadcaster,
+	games := application.NewRoundApplication(repository, application.RoundDependencies{
+		NewRoundID:            newIdentifier,
+		NewPlayerID:           newIdentifier,
+		NewRoundCode:          func() string { return "PAR001" },
+		Now:                   func() time.Time { return time.Unix(42, 0).UTC() },
+		ChooseWildcardOutcome: func() string { return "Tequila" },
+		RoundStates:           broadcaster,
+		Subscriptions:         broadcaster,
 	})
 	server := httptest.NewServer(
 		httpapi.New(games, application.NewPlaceSearch(nil), httpapi.Options{Heartbeat: 20 * time.Millisecond}),
@@ -185,7 +185,7 @@ func TestPlaceSearchHTTPWithRealProviderAdapter(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer repository.Close()
-	games := application.NewGameApplication(repository, application.GameDependencies{})
+	games := application.NewRoundApplication(repository, application.RoundDependencies{})
 	places := application.NewPlaceSearch(nominatim.NewPlaceSearcher(provider.URL, provider.Client(), time.Millisecond))
 	api := httptest.NewServer(httpapi.New(games, places, httpapi.Options{}))
 	defer api.Close()

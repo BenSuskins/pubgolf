@@ -6,30 +6,32 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-func (commands *GameCommands) ActivateGameplayEvent(
+func (commands *RoundCommands) ActivateGameplayEvent(
 	ctx context.Context,
 	code, actor, identifier string,
-) (domain.Game, error) {
+) (domain.Round, error) {
 	at := commands.dependencies.Now()
-	return commands.coordinator.update(ctx, code, func(game domain.Game) (domain.Game, []domain.DomainEvent, error) {
+	return commands.coordinator.update(ctx, code, func(game domain.Round) (domain.Round, []domain.DomainEvent, error) {
 		return game.ActivateGameplayEvent(actor, identifier, at)
 	})
 }
 
-func (commands *GameCommands) ActivateCustomGameplayEvent(
+func (commands *RoundCommands) ActivateCustomGameplayEvent(
 	ctx context.Context,
 	code, actor, title, description string,
-) (domain.Game, error) {
+) (domain.Round, error) {
 	at := commands.dependencies.Now()
-	return commands.coordinator.update(ctx, code, func(game domain.Game) (domain.Game, []domain.DomainEvent, error) {
+	return commands.coordinator.update(ctx, code, func(game domain.Round) (domain.Round, []domain.DomainEvent, error) {
 		return game.ActivateCustomGameplayEvent(actor, title, description, at)
 	})
 }
 
-func (commands *GameCommands) EndGameplayEvent(ctx context.Context, code, actor string) (domain.Game, error) {
+func (commands *RoundCommands) EndGameplayEvent(ctx context.Context, code, actor string) (domain.Round, error) {
 	return commands.coordinator.update(
 		ctx,
 		code,
-		func(game domain.Game) (domain.Game, []domain.DomainEvent, error) { return game.EndGameplayEvent(actor) },
+		func(game domain.Round) (domain.Round, []domain.DomainEvent, error) {
+			return game.EndGameplayEvent(actor)
+		},
 	)
 }

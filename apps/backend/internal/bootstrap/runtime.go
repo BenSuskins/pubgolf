@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/BenSuskins/pubgolf/backend/internal/adapters/gameupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/httpapi"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/metrics"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/nominatim"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/osrm"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/random"
+	"github.com/BenSuskins/pubgolf/backend/internal/adapters/roundupdates"
 	"github.com/BenSuskins/pubgolf/backend/internal/adapters/sqlite"
 	"github.com/BenSuskins/pubgolf/backend/internal/application"
 )
@@ -27,7 +27,7 @@ func Run(ctx context.Context, configuration Configuration) error {
 		return err
 	}
 	defer repository.Close()
-	broadcaster := gameupdates.New(16)
+	broadcaster := roundupdates.New(16)
 	defer broadcaster.Close()
 	measurements := metrics.New()
 	handler := buildHandler(configuration, repository, broadcaster, measurements)
@@ -43,8 +43,8 @@ func Run(ctx context.Context, configuration Configuration) error {
 
 func buildHandler(
 	configuration Configuration,
-	repository application.GameRepository,
-	broadcaster *gameupdates.Broadcaster,
+	repository application.RoundRepository,
+	broadcaster *roundupdates.Broadcaster,
 	measurements *metrics.Metrics,
 ) http.Handler {
 	client := providerHTTPClient()
@@ -54,16 +54,16 @@ func buildHandler(
 		Client:  client,
 	}
 	placeSearcher := nominatim.NewPlaceSearcher(configuration.SearchBaseURL, client, time.Second)
-	games := application.NewGameApplication(repository, application.GameDependencies{
-		NewGameID:              random.NewGameID,
-		NewPlayerID:            random.NewPlayerID,
-		NewGameCode:            random.NewGameCode,
-		Now:                    func() time.Time { return time.Now().UTC() },
-		ChooseRandomiseOutcome: random.ChooseRandomiseOutcome,
-		DomainEvents:           domainEventPublishers{measurements},
-		GameStates:             broadcaster,
-		Subscriptions:          broadcaster,
-		PubRoutes:              pubRouteCalculator,
+	games := application.NewRoundApplication(repository, application.RoundDependencies{
+		NewRoundID:            random.NewRoundID,
+		NewPlayerID:           random.NewPlayerID,
+		NewRoundCode:          random.NewRoundCode,
+		Now:                   func() time.Time { return time.Now().UTC() },
+		ChooseWildcardOutcome: random.ChooseWildcardOutcome,
+		DomainEvents:          domainEventPublishers{measurements},
+		RoundStates:           broadcaster,
+		Subscriptions:         broadcaster,
+		PubRoutes:             pubRouteCalculator,
 	})
 	return httpapi.New(
 		games,

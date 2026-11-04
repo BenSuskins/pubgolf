@@ -7,22 +7,22 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-type GameRepository interface {
-	FindByCode(context.Context, string) (domain.Game, error)
-	Save(context.Context, domain.Game, int64) (domain.Game, error)
+type RoundRepository interface {
+	FindByCode(context.Context, string) (domain.Round, error)
+	Save(context.Context, domain.Round, int64) (domain.Round, error)
 }
 type (
 	DomainEventPublisher interface {
 		PublishDomainEvents(context.Context, []domain.DomainEvent) error
 	}
-	GameStatePublisher interface {
-		PublishGameState(context.Context, domain.GameSnapshot) error
+	RoundStatePublisher interface {
+		PublishRoundState(context.Context, domain.RoundSnapshot) error
 	}
-	GameStateSubscriber interface {
-		SubscribeGameState(string) GameStateSubscription
+	RoundStateSubscriber interface {
+		SubscribeRoundState(string) RoundStateSubscription
 	}
-	GameStateSubscription struct {
-		Updates <-chan domain.GameSnapshot
+	RoundStateSubscription struct {
+		Updates <-chan domain.RoundSnapshot
 		Cancel  func()
 	}
 	PubRouteCalculator interface {
@@ -31,34 +31,34 @@ type (
 	PlaceSearcher interface {
 		SearchPlaces(context.Context, string, *float64, *float64) ([]domain.Place, error)
 	}
-	GameDependencies struct {
-		NewGameID              func() string
-		NewPlayerID            func() string
-		NewGameCode            func() string
-		ChooseRandomiseOutcome func() string
-		Now                    func() time.Time
-		DomainEvents           DomainEventPublisher
-		GameStates             GameStatePublisher
-		Subscriptions          GameStateSubscriber
-		PubRoutes              PubRouteCalculator
+	RoundDependencies struct {
+		NewRoundID            func() string
+		NewPlayerID           func() string
+		NewRoundCode          func() string
+		ChooseWildcardOutcome func() string
+		Now                   func() time.Time
+		DomainEvents          DomainEventPublisher
+		RoundStates           RoundStatePublisher
+		Subscriptions         RoundStateSubscriber
+		PubRoutes             PubRouteCalculator
 	}
 )
 
-type GameApplication struct {
-	Commands      *GameCommands
-	Queries       *GameQueries
-	Subscriptions *GameSubscriptions
+type RoundApplication struct {
+	Commands      *RoundCommands
+	Queries       *RoundQueries
+	Subscriptions *RoundSubscriptions
 }
 
-func NewGameApplication(repository GameRepository, dependencies GameDependencies) GameApplication {
-	coordinator := &gameCommitCoordinator{
+func NewRoundApplication(repository RoundRepository, dependencies RoundDependencies) RoundApplication {
+	coordinator := &roundCommitCoordinator{
 		repository: repository,
 		events:     dependencies.DomainEvents,
-		states:     dependencies.GameStates,
+		states:     dependencies.RoundStates,
 	}
-	return GameApplication{
-		Commands:      &GameCommands{coordinator: coordinator, dependencies: dependencies},
-		Queries:       &GameQueries{repository: repository},
-		Subscriptions: &GameSubscriptions{coordinator: coordinator, subscriber: dependencies.Subscriptions},
+	return RoundApplication{
+		Commands:      &RoundCommands{coordinator: coordinator, dependencies: dependencies},
+		Queries:       &RoundQueries{repository: repository},
+		Subscriptions: &RoundSubscriptions{coordinator: coordinator, subscriber: dependencies.Subscriptions},
 	}
 }

@@ -7,20 +7,20 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-func newGame(t *testing.T) domain.Game {
+func newGame(t *testing.T) domain.Round {
 	t.Helper()
 	name, err := domain.NewPlayerName("Alice")
 	if err != nil {
 		t.Fatal(err)
 	}
-	game, events, err := domain.NewGame("game", "PAR001", "host", name)
+	game, events, err := domain.NewRound("game", "PAR001", "host", name)
 	if err != nil || len(events) != 1 {
 		t.Fatal(events, err)
 	}
 	return game
 }
 
-func submit(t *testing.T, game domain.Game, score int, penalty string) (domain.Game, []domain.DomainEvent) {
+func submit(t *testing.T, game domain.Round, score int, penalty string) (domain.Round, []domain.DomainEvent) {
 	t.Helper()
 	hole, _ := domain.NewHoleNumber(1)
 	value, _ := domain.NewScore(score)
@@ -89,14 +89,14 @@ func TestGameLifecycleAndHostRules(t *testing.T) {
 
 func TestRandomiseUsesFirstUnplayedHoleAndOnlyOnce(t *testing.T) {
 	game, _ := submit(t, newGame(t), 0, "")
-	changed, _, err := game.Randomise("host", "Tequila")
+	changed, _, err := game.UseWildcard("host", "Tequila")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if changed.Snapshot().Players[0].Randomise.Hole != 2 {
+	if changed.Snapshot().Players[0].Wildcard.Hole != 2 {
 		t.Fatal("zero must count as played")
 	}
-	if _, _, err = changed.Randomise("host", "Wine"); err == nil {
+	if _, _, err = changed.UseWildcard("host", "Wine"); err == nil {
 		t.Fatal("randomised twice")
 	}
 }
@@ -129,7 +129,7 @@ func TestCourseAndGameplayEventRules(t *testing.T) {
 func TestRestorationValidatesAndCopiesSnapshot(t *testing.T) {
 	original, _ := submit(t, newGame(t), 0, "")
 	snapshot := original.Snapshot()
-	restored, err := domain.RestoreGame(snapshot)
+	restored, err := domain.RestoreRound(snapshot)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,12 +139,12 @@ func TestRestorationValidatesAndCopiesSnapshot(t *testing.T) {
 	}
 	invalid := original.Snapshot()
 	invalid.Players[0].Scores[0] = domain.RecordedScore{Value: 2}
-	if _, err := domain.RestoreGame(invalid); err == nil {
+	if _, err := domain.RestoreRound(invalid); err == nil {
 		t.Fatal("restored invalid hole")
 	}
 	invalid = original.Snapshot()
 	invalid.Players[0].Name = " "
-	if _, err := domain.RestoreGame(invalid); err == nil {
+	if _, err := domain.RestoreRound(invalid); err == nil {
 		t.Fatal("restored blank player")
 	}
 }

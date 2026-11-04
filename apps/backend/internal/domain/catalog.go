@@ -1,12 +1,12 @@
 package domain
 
-type RandomiseOption struct {
+type WildcardOption struct {
 	Label  string
 	Weight int
 }
 
-func RandomiseOptions() []RandomiseOption {
-	return []RandomiseOption{
+func WildcardOptions() []WildcardOption {
+	return []WildcardOption{
 		{"Double Drink", 4},
 		{"Half Score", 2},
 		{"Double Score", 3},

@@ -16,7 +16,7 @@ func (server *server) events(writer http.ResponseWriter, request *http.Request) 
 }
 
 func (server *server) activeEvent(writer http.ResponseWriter, request *http.Request) {
-	game, err := server.queries.GetGame(request.Context(), request.PathValue("code"))
+	game, err := server.queries.GetRound(request.Context(), request.PathValue("code"))
 	if err != nil {
 		failure(writer, err)
 		return

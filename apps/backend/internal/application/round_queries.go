@@ -6,12 +6,12 @@ import (
 	"github.com/BenSuskins/pubgolf/backend/internal/domain"
 )
 
-type GameQueries struct{ repository GameRepository }
+type RoundQueries struct{ repository RoundRepository }
 
-func (queries *GameQueries) GetGame(ctx context.Context, code string) (domain.GameSnapshot, error) {
+func (queries *RoundQueries) GetRound(ctx context.Context, code string) (domain.RoundSnapshot, error) {
 	game, err := queries.repository.FindByCode(ctx, code)
 	if err != nil {
-		return domain.GameSnapshot{}, err
+		return domain.RoundSnapshot{}, err
 	}
 	return game.Snapshot(), nil
 }

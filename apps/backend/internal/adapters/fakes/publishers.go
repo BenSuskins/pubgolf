@@ -16,12 +16,12 @@ func (publisher *DomainEventPublisher) PublishDomainEvents(_ context.Context, ev
 	return publisher.Failure
 }
 
-type GameStatePublisher struct {
-	Snapshots []domain.GameSnapshot
+type RoundStatePublisher struct {
+	Snapshots []domain.RoundSnapshot
 	Failure   error
 }
 
-func (publisher *GameStatePublisher) PublishGameState(_ context.Context, snapshot domain.GameSnapshot) error {
+func (publisher *RoundStatePublisher) PublishRoundState(_ context.Context, snapshot domain.RoundSnapshot) error {
 	publisher.Snapshots = append(publisher.Snapshots, snapshot.Clone())
 	return publisher.Failure
 }
