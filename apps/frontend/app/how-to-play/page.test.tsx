@@ -1,6 +1,8 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test';
 import { render, screen, waitFor } from '@testing-library/react';
 import { RulesContent } from '@/components/RulesContent';
+import { renderToStaticMarkup } from 'react-dom/server';
+import HowToPlayPage from './page';
 
 // Mock APIs with controlled promises
 const mockGetPenaltyOptions = mock(() => Promise.resolve({
@@ -286,5 +288,29 @@ describe('HowToPlayPage', () => {
       // Verify routes skeleton is gone (error was handled)
       expect(screen.queryByLabelText(/loading course/i)).not.toBeInTheDocument();
     });
+  });
+});
+
+describe('public guide', () => {
+  test('renders the backend course and penalties in the initial HTML', async () => {
+    mockGetPenaltyOptions.mockImplementation(() => Promise.resolve({
+      penalties: [{ type: 'SKIP', name: 'Skip a drink', points: 5 }],
+    }));
+    mockGetRoutes.mockImplementation(() => Promise.resolve({
+      holes: [{ hole: 1, par: 3, drinks: { 'Route A': 'Example drink', 'Route B': 'Another drink' } }],
+    }));
+    const html = renderToStaticMarkup(await HowToPlayPage());
+    expect(html).toContain('Skip a drink');
+    expect(html).toContain('Example drink');
+    expect(html).toContain('Route A');
+  });
+
+  test('keeps the guide readable when the backend is unavailable', async () => {
+    mockGetPenaltyOptions.mockImplementation(() => Promise.reject(new Error('offline')));
+    mockGetRoutes.mockImplementation(() => Promise.reject(new Error('offline')));
+    const html = renderToStaticMarkup(await HowToPlayPage());
+    expect(html).toContain('Scoring example');
+    expect(html).not.toContain('unavailable');
+    expect(html).not.toContain('Example drink');
   });
 });
