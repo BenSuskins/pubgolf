@@ -1,6 +1,14 @@
 import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Submit Score', () => {
+  test('includes penalty options in the initial HTML', async ({ request }) => {
+    const response = await request.get('/submit-score');
+    const html = await response.text();
+
+    expect(html).toContain('>Skip a drink</span>');
+    expect(html).toContain('>Tactical chunder</span>');
+  });
+
   test('submits a score successfully', async ({ authenticatedPage }) => {
     const page = authenticatedPage;
 
