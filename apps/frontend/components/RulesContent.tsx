@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { buildRules } from '@/lib/constants';
 import { getPenaltyOptions, getRoutes, getGameState, PenaltyOption } from '@/lib/api';
-import { PENALTY_EMOJI_MAP, PenaltyType, RouteHole } from '@/lib/types';
+import { RouteHole } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { BackButton } from '@/app/how-to-play/BackButton';
 import { RoutesTable } from '@/components/RoutesTable';
 import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
+import { RulesList, PenaltiesList } from '@/components/RulesDetails';
 
 function PenaltiesSkeleton() {
   return (
@@ -73,10 +73,6 @@ export function RulesContent({ fromGame = false }: { fromGame?: boolean }) {
   const [routesError, setRoutesError] = useState(false);
   const { getGameCode } = useLocalStorage();
 
-  // Route names come from the course itself, so the rules name the host's
-  // routes. Before the course loads this falls back to generic wording.
-  const rules = buildRules(holes.length > 0 ? Object.keys(holes[0].drinks) : []);
-
   useEffect(() => {
     getPenaltyOptions()
       .then((response) => setPenalties(response.penalties))
@@ -115,19 +111,7 @@ export function RulesContent({ fromGame = false }: { fromGame?: boolean }) {
 
         <Card as="section" padding="lg" rounded="lg" className="min-w-0">
           <h2 className="text-[var(--color-text)] font-bold text-[15px] mb-3.5">How It Works</h2>
-          <ol className="space-y-3 mb-6">
-            {rules.map((rule, index) => (
-              <li
-                key={index}
-                className="flex gap-2.5 text-[13.5px] leading-normal text-[var(--color-text-secondary)]"
-              >
-                <span className="font-display text-sm text-[var(--color-primary)]">
-                  {index + 1}
-                </span>
-                <span>{rule}</span>
-              </li>
-            ))}
-          </ol>
+          <RulesList holes={holes} />
 
           <h3 className="text-[var(--color-error)] font-bold text-sm mb-2.5">Penalties</h3>
           {isPenaltiesLoading ? (
@@ -137,24 +121,7 @@ export function RulesContent({ fromGame = false }: { fromGame?: boolean }) {
               Penalty data unavailable — check your connection.
             </p>
           ) : (
-            <div className="flex flex-col gap-2">
-              {penalties.map((penalty) => (
-                <div
-                  key={penalty.type}
-                  className="flex items-center justify-between surface-danger rounded-xl px-3.5 py-3 text-sm"
-                >
-                  <span className="text-[var(--color-danger-text)] text-[13.5px]">
-                    <span className="mr-2" role="img" aria-hidden="true">
-                      {PENALTY_EMOJI_MAP[penalty.type as PenaltyType]}
-                    </span>
-                    {penalty.name}
-                  </span>
-                  <span className="font-display text-[15px] text-[var(--color-error)]">
-                    +{penalty.points}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <PenaltiesList penalties={penalties} />
           )}
         </Card>
 
