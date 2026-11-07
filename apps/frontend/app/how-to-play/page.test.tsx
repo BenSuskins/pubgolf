@@ -305,6 +305,9 @@ describe('public guide', () => {
     expect(html).toContain('Skip a drink');
     expect(html).toContain('Example drink');
     expect(html).toContain('Route A');
+    expect(html).toContain('Finish your drink in as few sips as possible. Your score = your sips.');
+    expect(html).toContain('Pick Route A or Route B at the start. No switching mid-game.');
+    expect(html).toContain('surface-danger');
   });
 
   test('keeps the guide readable when the backend is unavailable', async () => {
