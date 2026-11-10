@@ -19,8 +19,9 @@ func (server *server) randomiseOptions(writer http.ResponseWriter, request *http
 }
 
 func (server *server) penaltyOptions(writer http.ResponseWriter, request *http.Request) {
-	write(writer, 200, penaltyOptionsResponse{Penalties: []penaltyOptionResponse{
-		{Type: "SKIP", Name: "Skip a drink", Points: 5},
-		{Type: "CHUNDER", Name: "Tactical chunder", Points: 10},
-	}})
+	options := make([]penaltyOptionResponse, 0, len(domain.PenaltyOptions()))
+	for _, penalty := range domain.PenaltyOptions() {
+		options = append(options, penaltyOptionResponse{Type: penalty.Type, Name: penalty.Name, Points: penalty.Points})
+	}
+	write(writer, 200, penaltyOptionsResponse{Penalties: options})
 }

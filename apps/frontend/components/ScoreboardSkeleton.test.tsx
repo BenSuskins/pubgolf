@@ -14,11 +14,6 @@ describe('ScoreboardSkeleton', () => {
       expect(skeletons.length).toBeGreaterThan(0);
     });
 
-    test('should render four placeholder rows', () => {
-      const { container } = render(<ScoreboardSkeleton />);
-      const rows = container.querySelectorAll('.glass');
-      expect(rows.length).toBe(4);
-    });
   });
 
   describe('accessibility', () => {

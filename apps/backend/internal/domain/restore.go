@@ -67,7 +67,7 @@ func validateRecordedScores(player PlayerSnapshot) error {
 		if _, exists := player.Scores[hole]; !exists {
 			return Fail(Invalid, "Penalty requires a score")
 		}
-		if penalty != "SKIP" && penalty != "CHUNDER" {
+		if _, found := FindPenalty(penalty); !found {
 			return Fail(Invalid, "Invalid penalty")
 		}
 	}

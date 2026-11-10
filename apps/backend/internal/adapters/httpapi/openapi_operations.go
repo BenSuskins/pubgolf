@@ -16,13 +16,7 @@ func addOpenAPIParameters(operation *openapi3.Operation, endpoint endpoint) {
 			WithRequired(true).WithSchema(openapi3.NewUUIDSchema()).
 			WithDescription("Player identity returned by create or join. This is not account authentication."))
 	}
-	if endpoint.operationID == "search" {
-		operation.AddParameter(
-			openapi3.NewQueryParameter("q").WithRequired(true).WithSchema(openapi3.NewStringSchema()),
-		)
-		operation.AddParameter(openapi3.NewQueryParameter("lat").WithSchema(openapi3.NewFloat64Schema()))
-		operation.AddParameter(openapi3.NewQueryParameter("lng").WithSchema(openapi3.NewFloat64Schema()))
-	}
+	operation.Parameters = append(operation.Parameters, endpoint.documentation.parameters...)
 }
 
 func addOpenAPIResponses(operation *openapi3.Operation, endpoint endpoint, schemas openapi3.Schemas) error {
@@ -34,7 +28,7 @@ func addOpenAPIResponses(operation *openapi3.Operation, endpoint endpoint, schem
 		}
 		response.WithJSONSchemaRef(schema)
 	}
-	if endpoint.operationID == "streamGameState" {
+	if endpoint.documentation.stream {
 		response.WithContent(openapi3.Content{"text/event-stream": &openapi3.MediaType{
 			Schema: &openapi3.SchemaRef{Value: openapi3.NewStringSchema()},
 		}})
@@ -62,14 +56,17 @@ func addOpenAPIResponses(operation *openapi3.Operation, endpoint endpoint, schem
 }
 
 func (endpoint endpoint) failureStatuses() []int {
-	switch endpoint.operationID {
-	case "streamGameState":
-		return []int{404, 500}
-	case "search":
-		return []int{400, 503, 500}
-	case "getAvailableEvents", "routes", "randomiseOptions", "penaltyOptions":
-		return []int{400}
-	default:
-		return []int{400, 401, 403, 404, 409, 500}
+	if endpoint.documentation.failures != nil {
+		return endpoint.documentation.failures
+	}
+	return []int{400, 401, 403, 404, 409, 500}
+}
+
+func placeSearchParameters() openapi3.Parameters {
+	return openapi3.Parameters{
+		&openapi3.ParameterRef{Value: openapi3.NewQueryParameter("q").
+			WithRequired(true).WithSchema(openapi3.NewStringSchema())},
+		&openapi3.ParameterRef{Value: openapi3.NewQueryParameter("lat").WithSchema(openapi3.NewFloat64Schema())},
+		&openapi3.ParameterRef{Value: openapi3.NewQueryParameter("lng").WithSchema(openapi3.NewFloat64Schema())},
 	}
 }

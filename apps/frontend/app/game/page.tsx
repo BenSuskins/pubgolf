@@ -37,7 +37,6 @@ export default function GamePage() {
   const { getLastSeenEventId, setLastSeenEventId, getQueuedEventId, setQueuedEventId } =
     useSessionStorage();
 
-  // Derive values from game state
   const players = committedGameState?.players || [];
   const status = committedGameState?.status || 'ACTIVE';
   const hostPlayerId = committedGameState?.hostPlayerId || null;

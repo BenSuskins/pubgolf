@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect, storeSession } from '../fixtures/test-fixtures';
 
 test.describe('Complete Game', () => {
   test.describe('Host Controls', () => {
@@ -6,11 +6,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('HostPlayer');
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
@@ -22,11 +18,7 @@ test.describe('Complete Game', () => {
       const playerSession = await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, playerSession);
+      await storeSession(page, playerSession);
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
@@ -37,11 +29,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('HostPlayer');
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
@@ -60,11 +48,7 @@ test.describe('Complete Game', () => {
       const hostSession = await createGameViaApi('HostPlayer');
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto(`/game/${hostSession.gameCode}/host`);
 
@@ -89,11 +73,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -111,11 +91,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -128,11 +104,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -152,11 +124,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -173,11 +141,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -194,11 +158,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -215,11 +175,7 @@ test.describe('Complete Game', () => {
       await completeGameViaApi(hostSession.gameCode, hostSession.playerId);
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 
@@ -253,11 +209,7 @@ test.describe('Complete Game', () => {
       await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
       await page.goto('/play');
-      await page.evaluate((session) => {
-        localStorage.setItem('gameCode', session.gameCode);
-        localStorage.setItem('playerId', session.playerId);
-        localStorage.setItem('playerName', session.playerName);
-      }, hostSession);
+      await storeSession(page, hostSession);
 
       await page.goto('/game');
 

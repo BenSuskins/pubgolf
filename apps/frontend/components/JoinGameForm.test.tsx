@@ -2,6 +2,7 @@ import { describe, test, expect, mock, beforeEach } from 'bun:test';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { JoinGameForm } from './JoinGameForm';
+import { ApiError } from '@/lib/apiTransport';
 
 // Mock next/navigation
 const mockPush = mock(() => {});
@@ -196,6 +197,30 @@ describe('JoinGameForm', () => {
   });
 
   describe('error handling', () => {
+    test('offers to rejoin a duplicate name independent of the displayed message', async () => {
+      mockJoinGame.mockRejectedValueOnce(new ApiError(400, 'Please reclaim this player.', 'duplicate-name'));
+      const user = userEvent.setup();
+      render(<JoinGameForm />);
+      await user.type(screen.getByLabelText(/your name/i), 'Test Player');
+      await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
+
+      await user.click(await screen.findByRole('button', { name: /rejoin as test player/i }));
+      expect(mockJoinGame).toHaveBeenLastCalledWith('WXYZ', 'Test Player', true);
+    });
+
+    test('does not offer rejoin for an unrelated error with similar copy', async () => {
+      mockJoinGame.mockRejectedValueOnce(new ApiError(409, 'This action is already taken'));
+      const user = userEvent.setup();
+      render(<JoinGameForm />);
+      await user.type(screen.getByLabelText(/your name/i), 'Test Player');
+      await user.type(screen.getByLabelText(/game code/i), 'WXYZ');
+      await user.click(screen.getByRole('button', { name: /join the round/i }));
+
+      expect(await screen.findByText('This action is already taken')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /rejoin as/i })).not.toBeInTheDocument();
+    });
+
     test('should display error message when API fails', async () => {
       mockJoinGame.mockRejectedValue(new Error('Game not found'));
 

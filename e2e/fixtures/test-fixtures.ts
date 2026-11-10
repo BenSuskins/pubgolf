@@ -2,11 +2,18 @@ import { test as base, Page } from '@playwright/test';
 
 const API_URL = process.env.BACKEND_URL ?? 'http://localhost:8080';
 
-interface GameSession {
+export interface GameSession {
   gameCode: string;
   gameId: string;
   playerId: string;
   playerName: string;
+}
+
+export async function storeSession(page: Page, session: Pick<GameSession, 'gameCode' | 'playerId'>) {
+  await page.evaluate((stored) => {
+    localStorage.setItem('gameCode', stored.gameCode);
+    localStorage.setItem('playerId', stored.playerId);
+  }, session);
 }
 
 interface GameState {
@@ -131,11 +138,7 @@ export const test = base.extend<TestFixtures>({
     const session = await createGameViaApi('TestPlayer');
 
     await page.goto('/');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, session);
+    await storeSession(page, session);
 
     await use(page);
   },

@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { GameState } from '@/lib/types';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.pubgolf.me';
+import { API_BASE_URL, gamePath } from '@/lib/apiLocation';
 
 interface UseGameStreamOptions {
   gameCode: string | null;
@@ -34,7 +33,7 @@ export function useGameStream({
     let disposed = false;
     let hasConnected = false;
     const stream = new EventSource(
-      `${API_BASE_URL}/api/v1/games/${encodeURIComponent(gameCode.toLowerCase())}/stream`
+      `${API_BASE_URL}${gamePath(gameCode.toLowerCase(), '/stream')}`
     );
     stream.onopen = () => {
       if (disposed) return;

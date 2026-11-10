@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect, storeSession } from '../fixtures/test-fixtures';
 import type { Page } from '@playwright/test';
 
 /** The par stepper's current value, scoped inside the stepper's own group. */
@@ -22,11 +22,7 @@ test.describe('Host Course Editing', () => {
     const hostSession = await createGameViaApi('CourseHost');
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, hostSession);
+    await storeSession(page, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
     await openCourseTab(page);
@@ -71,11 +67,7 @@ test.describe('Host Course Editing', () => {
     const hostSession = await createGameViaApi('ChipHost');
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, hostSession);
+    await storeSession(page, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
     await openCourseTab(page);
@@ -98,11 +90,7 @@ test.describe('Host Course Editing', () => {
     const hostSession = await createGameViaApi('RenameHost');
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, hostSession);
+    await storeSession(page, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
     await openCourseTab(page);
@@ -125,11 +113,7 @@ test.describe('Host Course Editing', () => {
     const hostSession = await createGameViaApi('AddRouteHost');
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, hostSession);
+    await storeSession(page, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
     await openCourseTab(page);
@@ -156,11 +140,7 @@ test.describe('Host Course Editing', () => {
     const hostSession = await createGameViaApi('ValidationHost');
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, hostSession);
+    await storeSession(page, hostSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
     await openCourseTab(page);
@@ -180,11 +160,7 @@ test.describe('Host Course Editing', () => {
     const playerSession = await joinGameViaApi(hostSession.gameCode, 'RegularPlayer');
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, playerSession);
+    await storeSession(page, playerSession);
 
     await page.goto(`/game/${hostSession.gameCode}/host`);
 

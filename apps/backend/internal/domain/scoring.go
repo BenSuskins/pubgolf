@@ -12,7 +12,8 @@ func (round Round) SubmitScore(
 	if _, err := NewHoleNumber(hole.Value()); err != nil {
 		return round, nil, err
 	}
-	if penalty != "" && penalty != "SKIP" && penalty != "CHUNDER" {
+	definition, found := FindPenalty(penalty)
+	if penalty != "" && !found {
 		return round, nil, Fail(Invalid, "Malformed request body")
 	}
 	if err := round.RequirePlayer(actor); err != nil {
@@ -21,7 +22,9 @@ func (round Round) SubmitScore(
 	if err := round.requireActive("Cannot submit score to completed game"); err != nil {
 		return round, nil, err
 	}
-	score = penaltyScore(score, penalty)
+	if found {
+		score = Score{definition.Points}
+	}
 	round = round.copy()
 	for index := range round.state.Players {
 		if round.state.Players[index].ID == actor {
@@ -29,17 +32,6 @@ func (round Round) SubmitScore(
 		}
 	}
 	return round, []DomainEvent{ScoreSubmitted{round.metadata(), actor, hole, score, penalty}}, nil
-}
-
-func penaltyScore(score Score, penalty string) Score {
-	switch penalty {
-	case "SKIP":
-		return Score{5}
-	case "CHUNDER":
-		return Score{10}
-	default:
-		return score
-	}
 }
 
 func scoredPlayer(player PlayerSnapshot, hole HoleNumber, score Score, penalty string, at time.Time) PlayerSnapshot {

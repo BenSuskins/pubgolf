@@ -1,4 +1,5 @@
-import { describe, test, expect, mock, beforeEach, afterEach } from 'bun:test';
+import { describe, test, expect, mock, beforeEach, afterEach, spyOn } from 'bun:test';
+import { toast } from 'sonner';
 import {
   createGame,
   joinGame,
@@ -47,6 +48,27 @@ describe('API functions', () => {
     }
   });
 
+  test('expires the browser session after an unauthorized response', async () => {
+    localStorage.setItem('gameCode', 'PAR001');
+    localStorage.setItem('playerId', 'player-1');
+    const notification = spyOn(toast, 'error').mockImplementation(() => 'toast');
+    const timer = spyOn(globalThis, 'setTimeout');
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 }));
+
+    try {
+      await expect(submitScore('PAR001', 'player-1', 1, 2)).rejects.toThrow(ApiError);
+      expect(localStorage.getItem('gameCode')).toBeNull();
+      expect(localStorage.getItem('playerId')).toBeNull();
+      expect(notification).toHaveBeenCalledWith('Session expired', { description: 'Please rejoin the game.' });
+      expect(timer.mock.calls.some(([, delay]) => delay === 1500)).toBe(true);
+    } finally {
+      const redirectIndex = timer.mock.calls.findIndex(([, delay]) => delay === 1500);
+      if (redirectIndex >= 0) clearTimeout(timer.mock.results[redirectIndex].value);
+      timer.mockRestore();
+      notification.mockRestore();
+    }
+  });
+
   describe('createGame', () => {
     test('should POST to correct endpoint with host', async () => {
       mockFetch.mockResolvedValueOnce(
@@ -90,13 +112,9 @@ describe('API functions', () => {
         })
       );
 
-      try {
-        await createGame('A');
-      } catch (err) {
-        expect(err).toBeInstanceOf(ApiError);
-        expect((err as ApiError).message).toBe('Name too short');
-        expect((err as ApiError).status).toBe(400);
-      }
+      await expect(createGame('A')).rejects.toMatchObject({
+        name: 'ApiError', message: 'Name too short', status: 400,
+      });
     });
   });
 
@@ -327,9 +345,10 @@ describe('API functions', () => {
         })
       );
 
-      await expect(joinGame('ABCD', 'Ben')).rejects.toThrow(
-        "That name's already taken in this round — try another."
-      );
+      await expect(joinGame('ABCD', 'Ben')).rejects.toMatchObject({
+        message: "That name's already taken in this round — try another.",
+        reason: 'duplicate-name',
+      });
     });
 
     test('rewrites game-not-found errors', async () => {
@@ -398,21 +417,4 @@ describe('API functions', () => {
     });
   });
 
-  describe('ApiError', () => {
-    test('should have correct name property', () => {
-      const error = new ApiError(400, 'Bad request');
-      expect(error.name).toBe('ApiError');
-    });
-
-    test('should expose status code', () => {
-      const error = new ApiError(404, 'Not found');
-      expect(error.status).toBe(404);
-      expect(error.message).toBe('Not found');
-    });
-
-    test('should be instanceof Error', () => {
-      const error = new ApiError(500, 'Server error');
-      expect(error).toBeInstanceOf(Error);
-    });
-  });
 });

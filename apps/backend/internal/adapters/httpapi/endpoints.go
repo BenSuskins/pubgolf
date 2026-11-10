@@ -1,6 +1,10 @@
 package httpapi
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/getkin/kin-openapi/openapi3"
+)
 
 type endpoint struct {
 	pattern        string
@@ -11,6 +15,13 @@ type endpoint struct {
 	response       any
 	status         int
 	playerIdentity bool
+	documentation  endpointDocumentation
+}
+
+type endpointDocumentation struct {
+	parameters openapi3.Parameters
+	stream     bool
+	failures   []int
 }
 
 func (server *server) endpoints() []endpoint {
@@ -31,6 +42,7 @@ func (server *server) gameEndpoints() []endpoint {
 			gameIdentityResponse{},
 			201,
 			false,
+			endpointDocumentation{},
 		},
 		{
 			"POST /api/v1/games/{code}/players",
@@ -41,8 +53,19 @@ func (server *server) gameEndpoints() []endpoint {
 			gameIdentityResponse{},
 			200,
 			false,
+			endpointDocumentation{},
 		},
-		{"GET /api/v1/games/{code}", "gameState", "Read the game state", server.state, nil, gameResponse{}, 200, false},
+		{
+			"GET /api/v1/games/{code}",
+			"gameState",
+			"Read the game state",
+			server.state,
+			nil,
+			gameResponse{},
+			200,
+			false,
+			endpointDocumentation{},
+		},
 		{
 			"POST /api/v1/games/{code}/scores",
 			"submitScore",
@@ -52,6 +75,7 @@ func (server *server) gameEndpoints() []endpoint {
 			nil,
 			204,
 			true,
+			endpointDocumentation{},
 		},
 		{
 			"POST /api/v1/games/{code}/randomise",
@@ -62,6 +86,7 @@ func (server *server) gameEndpoints() []endpoint {
 			randomiseResponse{},
 			200,
 			true,
+			endpointDocumentation{},
 		},
 	}
 }
@@ -77,6 +102,7 @@ func (server *server) gameplayEndpoints() []endpoint {
 			gameResponse{},
 			200,
 			true,
+			endpointDocumentation{},
 		},
 		{
 			"GET /api/v1/games/{code}/events",
@@ -87,6 +113,7 @@ func (server *server) gameplayEndpoints() []endpoint {
 			eventsResponse{},
 			200,
 			false,
+			endpointDocumentation{failures: []int{400}},
 		},
 		{
 			"GET /api/v1/games/{code}/events/active",
@@ -97,6 +124,7 @@ func (server *server) gameplayEndpoints() []endpoint {
 			activeEventStateResponse{},
 			200,
 			false,
+			endpointDocumentation{},
 		},
 		{
 			"PUT /api/v1/games/{code}/active-event",
@@ -107,6 +135,7 @@ func (server *server) gameplayEndpoints() []endpoint {
 			gameResponse{},
 			200,
 			true,
+			endpointDocumentation{},
 		},
 		{
 			"PUT /api/v1/games/{code}/active-event/custom",
@@ -117,6 +146,7 @@ func (server *server) gameplayEndpoints() []endpoint {
 			gameResponse{},
 			200,
 			true,
+			endpointDocumentation{},
 		},
 	}
 }
@@ -132,6 +162,7 @@ func (server *server) courseEndpoints() []endpoint {
 			gameResponse{},
 			200,
 			true,
+			endpointDocumentation{},
 		},
 		{
 			"PUT /api/v1/games/{code}/holes",
@@ -142,6 +173,7 @@ func (server *server) courseEndpoints() []endpoint {
 			gameResponse{},
 			200,
 			true,
+			endpointDocumentation{},
 		},
 		{
 			"PUT /api/v1/games/{code}/pubs",
@@ -152,6 +184,7 @@ func (server *server) courseEndpoints() []endpoint {
 			nil,
 			201,
 			true,
+			endpointDocumentation{},
 		},
 		{
 			"GET /api/v1/games/{code}/route",
@@ -162,6 +195,7 @@ func (server *server) courseEndpoints() []endpoint {
 			routeResponse{},
 			200,
 			false,
+			endpointDocumentation{},
 		},
 		{
 			"GET /api/v1/games/{code}/stream",
@@ -172,6 +206,7 @@ func (server *server) courseEndpoints() []endpoint {
 			nil,
 			200,
 			false,
+			endpointDocumentation{stream: true, failures: []int{404, 500}},
 		},
 	}
 }
@@ -187,6 +222,7 @@ func (server *server) configurationEndpoints() []endpoint {
 			routesResponse{},
 			200,
 			false,
+			endpointDocumentation{failures: []int{400}},
 		},
 		{
 			"GET /api/v1/config/randomise-options",
@@ -197,6 +233,7 @@ func (server *server) configurationEndpoints() []endpoint {
 			randomiseOptionsResponse{},
 			200,
 			false,
+			endpointDocumentation{failures: []int{400}},
 		},
 		{
 			"GET /api/v1/config/penalty-options",
@@ -207,7 +244,18 @@ func (server *server) configurationEndpoints() []endpoint {
 			penaltyOptionsResponse{},
 			200,
 			false,
+			endpointDocumentation{failures: []int{400}},
 		},
-		{"GET /api/v1/places/search", "search", "Search for places", server.search, nil, []placeResponse{}, 200, false},
+		{
+			"GET /api/v1/places/search",
+			"search",
+			"Search for places",
+			server.search,
+			nil,
+			[]placeResponse{},
+			200,
+			false,
+			endpointDocumentation{parameters: placeSearchParameters(), failures: []int{400, 503, 500}},
+		},
 	}
 }

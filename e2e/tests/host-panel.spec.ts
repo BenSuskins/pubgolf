@@ -1,13 +1,9 @@
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect, storeSession } from '../fixtures/test-fixtures';
 import type { Page } from '@playwright/test';
 
 async function openHostPanel(page: Page, session: { gameCode: string; playerId: string; playerName: string }) {
   await page.goto('/play');
-  await page.evaluate((stored) => {
-    localStorage.setItem('gameCode', stored.gameCode);
-    localStorage.setItem('playerId', stored.playerId);
-    localStorage.setItem('playerName', stored.playerName);
-  }, session);
+  await storeSession(page, session);
   await page.goto(`/game/${session.gameCode}/host`);
   await expect(page.getByText('Host Mode')).toBeVisible();
 }
