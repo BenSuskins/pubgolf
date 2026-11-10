@@ -3,6 +3,11 @@ import { defineConfig, devices } from '@playwright/test';
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080';
 const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:3000';
 
+function portFor(address: string): string {
+  const url = new URL(address);
+  return url.port || (url.protocol === 'https:' ? '443' : '80');
+}
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
@@ -32,12 +37,18 @@ export default defineConfig({
   webServer: [
     {
       command: 'cd ../apps/backend && DATABASE_PATH=build/e2e.db go run ./cmd/pubgolf',
+      env: {
+        ...process.env,
+        PORT: portFor(BACKEND_URL),
+        ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? new URL(FRONTEND_URL).origin,
+      },
       url: `${BACKEND_URL}/actuator/health`,
       timeout: 120000,
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'cd ../apps/frontend && NEXT_PUBLIC_API_URL=http://localhost:8080 bun run dev',
+      command: 'cd ../apps/frontend && bun run dev',
+      env: { ...process.env, PORT: portFor(FRONTEND_URL), NEXT_PUBLIC_API_URL: BACKEND_URL },
       url: FRONTEND_URL,
       timeout: 60000,
       reuseExistingServer: !process.env.CI,

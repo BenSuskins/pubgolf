@@ -1,13 +1,10 @@
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect, storeSession } from '../fixtures/test-fixtures';
 
 test('entry, scoring, and wildcard controls remain usable at narrow and zoomed widths', async ({ page, createGameViaApi }) => {
   const session = await createGameViaApi('Long Player Name');
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto('/play');
-  await page.evaluate((currentSession) => {
-    localStorage.setItem('gameCode', currentSession.gameCode);
-    localStorage.setItem('playerId', currentSession.playerId);
-  }, session);
+  await storeSession(page, session);
 
   for (const path of ['/play', '/game', '/submit-score', '/randomise']) {
     await page.goto(path);

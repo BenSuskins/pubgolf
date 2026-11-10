@@ -1,27 +1,14 @@
 import { Variants, Transition } from 'motion/react';
 
-/**
- * Animation utilities for Framer Motion
- *
- * Provides reusable animation variants and transitions for consistent
- * animations throughout the app.
- */
 
-// Transitions
 export const transitions = {
-  /** Fast, snappy animations */
   fast: { duration: 0.2, ease: 'easeOut' } as Transition,
-  /** Standard animations */
   standard: { duration: 0.3, ease: 'easeInOut' } as Transition,
-  /** Smooth, slower animations */
   smooth: { duration: 0.4, ease: 'easeInOut' } as Transition,
-  /** Spring animations */
   spring: { type: 'spring', stiffness: 300, damping: 30 } as Transition,
-  /** Bouncy spring */
   springBouncy: { type: 'spring', stiffness: 400, damping: 20 } as Transition,
 };
 
-// Page transitions
 export const pageVariants: Variants = {
   initial: {
     opacity: 0,
@@ -39,7 +26,6 @@ export const pageVariants: Variants = {
   },
 };
 
-// Modal transitions
 export const modalVariants: Variants = {
   initial: {
     opacity: 0,
@@ -57,7 +43,6 @@ export const modalVariants: Variants = {
   },
 };
 
-// Overlay/backdrop transitions
 export const overlayVariants: Variants = {
   initial: {
     opacity: 0,
@@ -72,7 +57,6 @@ export const overlayVariants: Variants = {
   },
 };
 
-// Slide from top (for notifications)
 export const slideFromTopVariants: Variants = {
   initial: {
     y: -100,
@@ -90,7 +74,6 @@ export const slideFromTopVariants: Variants = {
   },
 };
 
-// Slide from bottom (for bottom sheets)
 export const slideFromBottomVariants: Variants = {
   initial: {
     y: '100%',
@@ -108,7 +91,6 @@ export const slideFromBottomVariants: Variants = {
   },
 };
 
-// Stagger children animation
 export const staggerContainerVariants: Variants = {
   initial: {},
   animate: {
@@ -130,7 +112,6 @@ export const staggerItemVariants: Variants = {
   },
 };
 
-// Scale in (for buttons, cards)
 export const scaleInVariants: Variants = {
   initial: {
     scale: 0.9,
@@ -148,7 +129,6 @@ export const scaleInVariants: Variants = {
   },
 };
 
-// Fade in (simple)
 export const fadeInVariants: Variants = {
   initial: {
     opacity: 0,
@@ -163,7 +143,6 @@ export const fadeInVariants: Variants = {
   },
 };
 
-// Celebration/success variants
 export const celebrationVariants: Variants = {
   initial: {
     scale: 0,
@@ -188,7 +167,6 @@ export const celebrationVariants: Variants = {
   },
 };
 
-// Shake animation (for errors)
 export const shakeVariants: Variants = {
   animate: {
     x: [0, -10, 10, -10, 10, 0],
@@ -198,7 +176,6 @@ export const shakeVariants: Variants = {
   },
 };
 
-// Pulse animation
 export const pulseVariants: Variants = {
   animate: {
     scale: [1, 1.05, 1],
@@ -210,20 +187,10 @@ export const pulseVariants: Variants = {
   },
 };
 
-/**
- * Helper to create a stagger delay for list items
- * @param index - Index of the item in the list
- * @param delay - Delay between each item (default: 0.05)
- */
 export const getStaggerDelay = (index: number, delay: number = 0.05): number => {
   return index * delay;
 };
 
-/**
- * Helper to create a custom spring transition
- * @param stiffness - Spring stiffness (default: 300)
- * @param damping - Spring damping (default: 30)
- */
 export const createSpring = (stiffness: number = 300, damping: number = 30): Transition => ({
   type: 'spring',
   stiffness,

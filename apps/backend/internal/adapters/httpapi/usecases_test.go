@@ -60,6 +60,52 @@ func TestMalformedScoreHTTP(t *testing.T) {
 	}
 }
 
+func TestPenaltyOptionsMatchRecordedRound(t *testing.T) {
+	server := server(t)
+	identity := createIdentity(t, server)
+	status, result := callAPI(t, server, "GET", "/api/v1/config/penalty-options", "", "")
+	if status != 200 {
+		t.Fatal(status, result)
+	}
+	options := result["penalties"].([]any)
+	if len(options) != 2 {
+		t.Fatal(options)
+	}
+	for index, expected := range []struct {
+		kind   string
+		name   string
+		points float64
+	}{{"SKIP", "Skip a drink", 5}, {"CHUNDER", "Tactical chunder", 10}} {
+		option := options[index].(map[string]any)
+		if option["type"] != expected.kind || option["name"] != expected.name || option["points"] != expected.points {
+			t.Fatal(option)
+		}
+		payload := fmt.Sprintf(`{"hole":%d,"score":1,"penaltyType":%q}`, index+1, expected.kind)
+		status, _ = callAPI(t, server, "POST", "/api/v1/games/PAR001/scores", payload, identity["playerId"])
+		if status != 204 {
+			t.Fatal(status)
+		}
+	}
+	status, result = callAPI(t, server, "GET", "/api/v1/games/PAR001", "", "")
+	if status != 200 {
+		t.Fatal(status, result)
+	}
+	player := result["players"].([]any)[0].(map[string]any)
+	verifyRecordedPenalties(t, player, options)
+}
+
+func verifyRecordedPenalties(t *testing.T, player map[string]any, options []any) {
+	t.Helper()
+	for index, option := range options {
+		penalty := player["penalties"].([]any)[index].(map[string]any)
+		definition := option.(map[string]any)
+		if penalty["type"] != definition["type"] || penalty["points"] != definition["points"] ||
+			player["scores"].([]any)[index] != definition["points"] {
+			t.Fatal(player, options)
+		}
+	}
+}
+
 func TestOutsiderAndUnavailableSearchHTTP(t *testing.T) {
 	server := server(t)
 	createIdentity(t, server)

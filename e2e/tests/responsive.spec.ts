@@ -1,5 +1,5 @@
 import { mkdir } from 'node:fs/promises';
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect, storeSession } from '../fixtures/test-fixtures';
 
 for (const width of [375, 768, 1024, 1440]) {
   test(`public and game layouts fit a ${width}px viewport`, async ({ page, createGameViaApi }) => {
@@ -7,10 +7,7 @@ for (const width of [375, 768, 1024, 1440]) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const session = await createGameViaApi('Responsive Host');
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-    }, session);
+    await storeSession(page, session);
     await mkdir('../plans/qa', { recursive: true });
 
     const pages = [

@@ -46,6 +46,27 @@ func TestServedOpenAPIDescribesScoreEndpoint(t *testing.T) {
 	}
 }
 
+func TestServedOpenAPIDescribesPlaceSearchAndStream(t *testing.T) {
+	document, _ := servedSpecification(t)
+	search := document.Paths.Find("/api/v1/places/search").Get
+	for _, name := range []string{"q", "lat", "lng"} {
+		if search.Parameters.GetByInAndName("query", name) == nil {
+			t.Errorf("search query parameter %q missing", name)
+		}
+	}
+	if search.Responses.Status(http.StatusServiceUnavailable) == nil {
+		t.Error("search must document upstream unavailability")
+	}
+	stream := document.Paths.Find("/api/v1/games/{code}/stream").Get
+	response := stream.Responses.Status(http.StatusOK)
+	if response == nil || response.Value.Content.Get("text/event-stream") == nil {
+		t.Error("stream must document its event stream response")
+	}
+	if stream.Responses.Status(http.StatusNotFound) == nil {
+		t.Error("stream must document a missing round")
+	}
+}
+
 func TestServedOpenAPIMatchesEndpointDefinitions(t *testing.T) {
 	_, contents := servedSpecification(t)
 	generated, err := httpapi.GenerateOpenAPI()

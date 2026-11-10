@@ -56,14 +56,9 @@ test.describe('Join Game', () => {
 
     await page.goto(`/?gameCode=${hostSession.gameCode}`);
 
-    // Wait for accordion animation to complete
-    await page.waitForTimeout(300);
-
-    // Name input should be focused
     const nameInput = page.locator('#join-name');
     await expect(nameInput).toBeFocused();
 
-    // Should be able to type immediately
     await page.keyboard.type('QuickJoiner');
     await expect(nameInput).toHaveValue('QuickJoiner');
   });

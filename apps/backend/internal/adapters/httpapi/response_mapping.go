@@ -62,11 +62,8 @@ func playerStateResponse(player domain.PlayerSnapshot, pars map[int]int) playerR
 }
 
 func penaltyStateResponse(hole int, penalty string) penaltyResponse {
-	points := 5
-	if penalty == "CHUNDER" {
-		points = 10
-	}
-	return penaltyResponse{hole, penalty, points}
+	definition, _ := domain.FindPenalty(penalty)
+	return penaltyResponse{hole, penalty, definition.Points}
 }
 
 func comparePlayers(left, right playerResponse) int {

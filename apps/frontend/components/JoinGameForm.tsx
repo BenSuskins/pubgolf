@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { joinGame } from '@/lib/api';
+import { ApiError } from '@/lib/apiTransport';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
@@ -57,7 +58,7 @@ export function JoinGameForm() {
       setError(message);
       // A duplicate name usually means the same person on a new device or after
       // cleared storage; offer to reclaim the player instead of dead-ending.
-      if (!rejoin && message.includes('already taken')) {
+      if (!rejoin && err instanceof ApiError && err.reason === 'duplicate-name') {
         setOfferRejoin(true);
       }
     } finally {

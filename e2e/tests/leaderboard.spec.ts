@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect, storeSession } from '../fixtures/test-fixtures';
 
 test.describe('Leaderboard', () => {
   test('displays all players sorted by score', async ({ page, createGameViaApi, joinGameViaApi, submitScoreViaApi }) => {
@@ -11,19 +11,16 @@ test.describe('Leaderboard', () => {
     await submitScoreViaApi(hostSession.gameCode, player3.playerId, 1, 5);
 
     await page.goto('/play');
-    await page.evaluate((session) => {
-      localStorage.setItem('gameCode', session.gameCode);
-      localStorage.setItem('playerId', session.playerId);
-      localStorage.setItem('playerName', session.playerName);
-    }, hostSession);
+    await storeSession(page, hostSession);
 
     await page.goto('/game');
 
     const playerRows = page.locator('ol[aria-label="Leaderboard"] > li');
     await expect(playerRows).toHaveCount(3);
 
-    const firstRowText = await playerRows.first().textContent();
-    expect(firstRowText).toContain('Leader');
+    await expect(playerRows.nth(0)).toContainText('Leader');
+    await expect(playerRows.nth(1)).toContainText('Middle');
+    await expect(playerRows.nth(2)).toContainText('Last');
   });
 
   test('shows invite button', async ({ authenticatedPage }) => {
@@ -39,11 +36,7 @@ test('a score from a second browser updates the leaderboard without a reload', a
   const host = await createGameViaApi('WatchingHost');
   const player = await joinGameViaApi(host.gameCode, 'LivePlayer');
   await page.goto('/play');
-  await page.evaluate(session => {
-    localStorage.setItem('gameCode', session.gameCode);
-    localStorage.setItem('playerId', session.playerId);
-    localStorage.setItem('playerName', session.playerName);
-  }, host);
+  await storeSession(page, host);
   await page.goto('/game');
   const row = page.locator('ol[aria-label="Leaderboard"] > li').filter({ hasText: 'LivePlayer' });
   await expect(row).toBeVisible();
@@ -72,11 +65,7 @@ test('a score from a second browser updates the leaderboard without a reload', a
 test('a delayed REST refresh does not replace a newer live score', async ({ page, createGameViaApi, submitScoreViaApi }) => {
   const host = await createGameViaApi('RefreshHost');
   await page.goto('/play');
-  await page.evaluate(session => {
-    localStorage.setItem('gameCode', session.gameCode);
-    localStorage.setItem('playerId', session.playerId);
-    localStorage.setItem('playerName', session.playerName);
-  }, host);
+  await storeSession(page, host);
   await page.goto('/game');
   const row = page.locator('ol[aria-label="Leaderboard"] > li').filter({ hasText: 'RefreshHost' });
   await expect(row).toBeVisible();

@@ -1,5 +1,27 @@
 package domain
 
+type PenaltyDefinition struct {
+	Type   string
+	Name   string
+	Points int
+}
+
+func PenaltyOptions() []PenaltyDefinition {
+	return []PenaltyDefinition{
+		{"SKIP", "Skip a drink", 5},
+		{"CHUNDER", "Tactical chunder", 10},
+	}
+}
+
+func FindPenalty(kind string) (PenaltyDefinition, bool) {
+	for _, penalty := range PenaltyOptions() {
+		if penalty.Type == kind {
+			return penalty, true
+		}
+	}
+	return PenaltyDefinition{}, false
+}
+
 type WildcardOption struct {
 	Label  string
 	Weight int
