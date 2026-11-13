@@ -47,7 +47,7 @@ test.describe('Create Game', () => {
     await expect(page).toHaveURL('/game');
   });
 
-  test('stores session in localStorage after creation', async ({ page }) => {
+  test('stores session in cookies after creation', async ({ page }) => {
     await page.goto('/play');
 
     await page.getByRole('button', { name: 'Host a Round' }).click();
@@ -56,8 +56,8 @@ test.describe('Create Game', () => {
 
     await expect(page).toHaveURL('/game');
 
-    const gameCode = await page.evaluate(() => localStorage.getItem('gameCode'));
-    const playerId = await page.evaluate(() => localStorage.getItem('playerId'));
+    const gameCode = await page.evaluate(() => document.cookie.split('; ').find((entry) => entry.startsWith('gameCode='))?.split('=')[1]);
+    const playerId = await page.evaluate(() => document.cookie.split('; ').find((entry) => entry.startsWith('playerId='))?.split('=')[1]);
 
     expect(gameCode).toMatch(/^[A-Z]+\d{3}$/);
     expect(playerId).toMatch(/^[a-f0-9-]{36}$/i);

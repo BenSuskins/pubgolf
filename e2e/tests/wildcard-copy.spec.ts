@@ -2,8 +2,8 @@ import { test, expect } from '../fixtures/test-fixtures';
 
 test('explains when the round ends before a player spins', async ({ authenticatedPage: page, completeGameViaApi }) => {
   const session = await page.evaluate(() => ({
-    code: localStorage.getItem('gameCode')!,
-    playerId: localStorage.getItem('playerId')!,
+    code: document.cookie.split('; ').find((entry) => entry.startsWith('gameCode='))?.split('=')[1]!,
+    playerId: document.cookie.split('; ').find((entry) => entry.startsWith('playerId='))?.split('=')[1]!,
   }));
   await page.goto('/randomise');
   await expect(page.getByRole('button', { name: 'Spin the wheel' })).toBeVisible();

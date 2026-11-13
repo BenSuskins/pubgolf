@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures/test-fixtures';
 
 test.describe('Submit Score', () => {
-  test('includes penalty options in the initial HTML', async ({ request }) => {
-    const response = await request.get('/submit-score');
+  test('includes penalty options in the initial HTML', async ({ authenticatedPage }) => {
+    const response = await authenticatedPage.request.get('/submit-score');
     const html = await response.text();
 
     expect(html).toContain('>Skip a drink</span>');
@@ -86,4 +86,20 @@ test.describe('Submit Score', () => {
     await expect(minusButton).toBeEnabled();
     await expect(plusButton).toBeEnabled();
   });
+});
+
+test('renders the first unplayed hole in the initial HTML', async ({ page, baseURL, createGameViaApi, submitScoreViaApi }) => {
+  const session = await createGameViaApi('Server rendering');
+  await submitScoreViaApi(session.gameCode, session.playerId, 1, 0);
+  await submitScoreViaApi(session.gameCode, session.playerId, 2, 3);
+  await page.context().addCookies([
+    { name: 'gameCode', value: session.gameCode, url: baseURL! },
+    { name: 'playerId', value: session.playerId, url: baseURL! },
+  ]);
+  const response = await page.request.get('/submit-score');
+  expect(response.ok()).toBeTruthy();
+  const html = await response.text();
+  expect(html).toContain('HOLE <!-- -->3');
+  await page.goto('/submit-score');
+  await expect(page.getByRole('heading', { name: /hole 3/i })).toBeVisible();
 });

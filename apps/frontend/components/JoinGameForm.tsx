@@ -53,6 +53,7 @@ export function JoinGameForm() {
       const response = await joinGame(gameCode.trim().toUpperCase(), name.trim(), rejoin);
       setGameSession(response.gameCode, response.playerId);
       router.push('/game');
+      router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Couldn't join the round. Try again.";
       setError(message);

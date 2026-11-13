@@ -11,8 +11,8 @@ export interface GameSession {
 
 export async function storeSession(page: Page, session: Pick<GameSession, 'gameCode' | 'playerId'>) {
   await page.evaluate((stored) => {
-    localStorage.setItem('gameCode', stored.gameCode);
-    localStorage.setItem('playerId', stored.playerId);
+    document.cookie = `gameCode=${encodeURIComponent(stored.gameCode)}; Path=/; SameSite=Lax`;
+    document.cookie = `playerId=${encodeURIComponent(stored.playerId)}; Path=/; SameSite=Lax`;
   }, session);
 }
 
