@@ -3,23 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { submitScore, getPenaltyOptions, PenaltyOption, getGameState, getRoute } from '@/lib/api';
+import { submitScore, getPenaltyOptions, getRoute, PenaltyOption } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { PenaltyType, PubLocation } from '@/lib/types';
-import { firstUnplayedHole } from '@/lib/scoring';
+import { GameState, Player, PenaltyType, PubLocation } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { Counter } from '@/components/ui/Counter';
 import { HoleChips } from '@/components/HoleChips';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
-export default function ScoreForm({ initialPenalties }: { initialPenalties: PenaltyOption[] | null }) {
-  const [hole, setHole] = useState(1);
-  const [score, setScore] = useState(0);
+export default function ScoreForm({ initialPenalties, initialGame, initialPlayer }: { initialPenalties: PenaltyOption[] | null; initialGame: GameState; initialPlayer: Player }) {
+  const [hole, setHole] = useState(() => initialPlayer.currentHole);
+  const [score, setScore] = useState(() => initialPlayer.scores[initialPlayer.currentHole - 1] ?? 0);
   const [penaltyType, setPenaltyType] = useState<PenaltyType | null>(null);
   const [penaltyOptions, setPenaltyOptions] = useState<PenaltyOption[]>(initialPenalties ?? []);
-  const [pars, setPars] = useState<number[]>([]);
-  const [playerScores, setPlayerScores] = useState<(number | null)[]>([]);
+  const [pars] = useState<number[]>(() => initialGame.holes.map((hole) => hole.par));
+  const [playerScores] = useState<(number | null)[]>(initialPlayer.scores);
   const [pubs, setPubs] = useState<PubLocation[]>([]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -35,40 +34,14 @@ export default function ScoreForm({ initialPenalties }: { initialPenalties: Pena
   }, [getGameCode, getPlayerId, router]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const gameCode = getGameCode();
-      const playerId = getPlayerId();
+    if (initialPenalties !== null) return;
+    getPenaltyOptions().then((result) => setPenaltyOptions(result.penalties)).catch(() => {});
+  }, [initialPenalties]);
 
-      if (!gameCode || !playerId) return;
-
-      const [penaltiesResult, gameStateResult, routeResult] = await Promise.allSettled([
-        initialPenalties === null ? getPenaltyOptions() : Promise.resolve({ penalties: initialPenalties }),
-        getGameState(gameCode),
-        getRoute(gameCode),
-      ]);
-
-      if (penaltiesResult.status === 'fulfilled') {
-        setPenaltyOptions(penaltiesResult.value.penalties);
-      }
-      if (routeResult.status === 'fulfilled') {
-        setPubs(routeResult.value.pubs);
-      }
-      if (gameStateResult.status === 'fulfilled') {
-        // Pars are the host's, not global config, so they ride along with game state.
-        setPars(gameStateResult.value.holes.map((h) => h.par));
-        const currentPlayer = gameStateResult.value.players.find((p) => p.id === playerId);
-        if (currentPlayer) {
-          setPlayerScores(currentPlayer.scores);
-          setHole(firstUnplayedHole(currentPlayer.scores, 9));
-        }
-      } else {
-        console.error('Failed to load game state:', gameStateResult.reason);
-        setError('Could not load your current scores — hole selection may be incorrect');
-      }
-    };
-
-    fetchData();
-  }, [getGameCode, getPlayerId, initialPenalties]);
+  useEffect(() => {
+    const gameCode = getGameCode();
+    if (gameCode) getRoute(gameCode).then((route) => setPubs(route.pubs)).catch(() => {});
+  }, [getGameCode]);
 
   const handleHoleSelect = (selectedHole: number) => {
     setHole(selectedHole);
@@ -96,6 +69,7 @@ export default function ScoreForm({ initialPenalties }: { initialPenalties: Pena
 
       // Redirect immediately - SSE will update the scoreboard
       router.push('/game');
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't log your score. Try again.");
       setSubmitting(false);

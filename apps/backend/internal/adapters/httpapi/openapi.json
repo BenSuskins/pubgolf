@@ -203,6 +203,16 @@
           "players": {
             "items": {
               "properties": {
+                "currentHole": {
+                  "maximum": 9,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "holesPlayed": {
+                  "maximum": 9,
+                  "minimum": 0,
+                  "type": "integer"
+                },
                 "id": {
                   "type": "string"
                 },
@@ -250,6 +260,10 @@
                   ],
                   "type": "object"
                 },
+                "rank": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
                 "scores": {
                   "items": {
                     "nullable": true,
@@ -264,6 +278,9 @@
               "required": [
                 "id",
                 "name",
+                "rank",
+                "holesPlayed",
+                "currentHole",
                 "scores",
                 "totalScore",
                 "parRelative",

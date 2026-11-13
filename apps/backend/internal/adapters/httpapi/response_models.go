@@ -19,6 +19,9 @@ type penaltyResponse struct {
 type playerResponse struct {
 	ID          string             `json:"id"          required:"true"`
 	Name        string             `json:"name"        required:"true"`
+	Rank        int                `json:"rank"        required:"true" minimum:"1"`
+	HolesPlayed int                `json:"holesPlayed" required:"true" minimum:"0" maximum:"9"`
+	CurrentHole int                `json:"currentHole" required:"true" minimum:"1" maximum:"9"`
 	Scores      []*int             `json:"scores"      required:"true"`
 	TotalScore  int                `json:"totalScore"  required:"true"`
 	ParRelative int                `json:"parRelative" required:"true"`

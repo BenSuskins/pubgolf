@@ -65,14 +65,28 @@ func (round Round) UseWildcard(actor, outcome string) (Round, []DomainEvent, err
 	return round, nil, Fail(Conflict, "No more holes left")
 }
 
+func (player PlayerSnapshot) CurrentHole() int {
+	if hole, found := player.nextUnplayedHole(); found {
+		return hole
+	}
+	return 9
+}
+
+func (player PlayerSnapshot) nextUnplayedHole() (int, bool) {
+	for hole := 1; hole <= 9; hole++ {
+		if _, played := player.Scores[hole]; !played {
+			return hole, true
+		}
+	}
+	return 0, false
+}
+
 func firstUnplayedHole(player PlayerSnapshot) (HoleNumber, error) {
 	if player.Wildcard != nil {
 		return HoleNumber{}, Fail(Conflict, "Randomise already used")
 	}
-	for hole := 1; hole <= 9; hole++ {
-		if _, played := player.Scores[hole]; !played {
-			return NewHoleNumber(hole)
-		}
+	if hole, found := player.nextUnplayedHole(); found {
+		return NewHoleNumber(hole)
 	}
 	return HoleNumber{}, Fail(Conflict, "No more holes left")
 }

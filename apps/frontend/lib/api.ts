@@ -40,8 +40,12 @@ export async function joinGame(gameCode: string, name: string, rejoin: boolean =
   return request(gamePath(gameCode, '/players'), { method: 'POST', body: { name, rejoin } });
 }
 
-export async function getGameState(gameCode: string): Promise<GameState> {
-  return request(gamePath(gameCode));
+export async function getGameState(gameCode: string, options: PublicConfigOptions = {}): Promise<GameState> {
+  return request(gamePath(gameCode), options);
+}
+
+export async function getServerGameState(gameCode: string): Promise<GameState> {
+  return getGameState(gameCode, serverConfigOptions());
 }
 
 export async function submitScore(
@@ -72,8 +76,12 @@ export interface SpinWheelResponse {
   hole: number;
 }
 
-export async function getRandomiseOptions(): Promise<WheelOptionsResponse> {
-  return request('/api/v1/config/randomise-options');
+export async function getRandomiseOptions(options: PublicConfigOptions = {}): Promise<WheelOptionsResponse> {
+  return request('/api/v1/config/randomise-options', options);
+}
+
+export async function getServerRandomiseOptions(): Promise<WheelOptionsResponse> {
+  return getRandomiseOptions(serverConfigOptions());
 }
 
 export interface PenaltyOption {

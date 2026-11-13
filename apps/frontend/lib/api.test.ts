@@ -8,6 +8,8 @@ import {
   setPubs,
   getRandomiseOptions,
   getServerRoutes,
+  getServerGameState,
+  getServerRandomiseOptions,
   getServerPenaltyOptions,
   activateCustomEvent,
   spinWheel,
@@ -39,6 +41,18 @@ describe('API functions', () => {
       expect(options.signal).toBeInstanceOf(AbortSignal);
 
       mockFetch.mockClear();
+      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ players: [] }), { status: 200 }));
+      await getServerGameState('PAR123');
+      const [gameUrl, gameOptions] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(gameUrl).toBe('http://backend:8080/api/v1/games/PAR123');
+      expect(gameOptions.cache).toBe('no-store');
+
+      mockFetch.mockClear();
+      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ options: [] }), { status: 200 }));
+      await getServerRandomiseOptions();
+      expect((mockFetch.mock.calls[0] as [string, RequestInit])[0]).toBe('http://backend:8080/api/v1/config/randomise-options');
+
+      mockFetch.mockClear();
       mockFetch.mockRejectedValueOnce(new TypeError('offline'));
       await expect(getServerPenaltyOptions()).rejects.toThrow();
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -49,16 +63,16 @@ describe('API functions', () => {
   });
 
   test('expires the browser session after an unauthorized response', async () => {
-    localStorage.setItem('gameCode', 'PAR001');
-    localStorage.setItem('playerId', 'player-1');
+    document.cookie = 'gameCode=PAR001; Path=/';
+    document.cookie = 'playerId=player-1; Path=/';
     const notification = spyOn(toast, 'error').mockImplementation(() => 'toast');
     const timer = spyOn(globalThis, 'setTimeout');
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 }));
 
     try {
       await expect(submitScore('PAR001', 'player-1', 1, 2)).rejects.toThrow(ApiError);
-      expect(localStorage.getItem('gameCode')).toBeNull();
-      expect(localStorage.getItem('playerId')).toBeNull();
+      expect(document.cookie).not.toContain('gameCode=PAR001');
+      expect(document.cookie).not.toContain('playerId=player-1');
       expect(notification).toHaveBeenCalledWith('Session expired', { description: 'Please rejoin the game.' });
       expect(timer.mock.calls.some(([, delay]) => delay === 1500)).toBe(true);
     } finally {

@@ -2,45 +2,38 @@
 
 import { useCallback } from 'react';
 
-export const STORAGE_KEYS = {
-  GAME_CODE: 'gameCode',
-  PLAYER_ID: 'playerId',
-} as const;
+export const STORAGE_KEYS = { GAME_CODE: 'gameCode', PLAYER_ID: 'playerId' } as const;
 
-// Written by older sessions; cleared on sign-out but no longer read or set.
-const LEGACY_PLAYER_NAME_KEY = 'playerName';
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const value = document.cookie.split('; ').find((cookie) => cookie.startsWith(`${name}=`));
+  if (!value) return null;
+  try { return decodeURIComponent(value.slice(name.length + 1)) || null; } catch { return null; }
+}
 
-export function useLocalStorage() {
-  const getGameCode = useCallback((): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(STORAGE_KEYS.GAME_CODE);
-  }, []);
+function writeCookie(name: string, value: string, maxAge: number): void {
+  if (typeof document === 'undefined') return;
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
+}
 
-  const getPlayerId = useCallback((): string | null => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(STORAGE_KEYS.PLAYER_ID);
-  }, []);
-
-  const setGameSession = useCallback(
-    (gameCode: string, playerId: string) => {
-      if (typeof window === 'undefined') return;
-      localStorage.setItem(STORAGE_KEYS.GAME_CODE, gameCode);
-      localStorage.setItem(STORAGE_KEYS.PLAYER_ID, playerId);
-    },
-    []
-  );
-
-  const clearSession = useCallback(() => {
-    if (typeof window === 'undefined') return;
+export function clearGameSession(): void {
+  writeCookie(STORAGE_KEYS.GAME_CODE, '', 0);
+  writeCookie(STORAGE_KEYS.PLAYER_ID, '', 0);
+  if (typeof window !== 'undefined') {
     localStorage.removeItem(STORAGE_KEYS.GAME_CODE);
     localStorage.removeItem(STORAGE_KEYS.PLAYER_ID);
-    localStorage.removeItem(LEGACY_PLAYER_NAME_KEY);
-  }, []);
+    localStorage.removeItem('playerName');
+  }
+}
 
-  return {
-    getGameCode,
-    getPlayerId,
-    setGameSession,
-    clearSession,
-  };
+export function useLocalStorage() {
+  const getGameCode = useCallback(() => readCookie(STORAGE_KEYS.GAME_CODE), []);
+  const getPlayerId = useCallback(() => readCookie(STORAGE_KEYS.PLAYER_ID), []);
+  const setGameSession = useCallback((gameCode: string, playerId: string) => {
+    writeCookie(STORAGE_KEYS.GAME_CODE, gameCode, 60 * 60 * 24 * 365);
+    writeCookie(STORAGE_KEYS.PLAYER_ID, playerId, 60 * 60 * 24 * 365);
+  }, []);
+  const clearSession = useCallback(() => clearGameSession(), []);
+  return { getGameCode, getPlayerId, setGameSession, clearSession };
 }

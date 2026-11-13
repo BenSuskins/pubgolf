@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Player, PENALTY_EMOJI_MAP, PenaltyType } from '@/lib/types';
-import { hasPlayedHole, playerParRelative, formatParRelative } from '@/lib/scoring';
+import { hasPlayedHole, formatParRelative } from '@/lib/scoring';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
 
 interface LeaderboardProps {
@@ -25,16 +25,6 @@ function scoreColor(score: number, par: number | undefined): string {
   if (score < par) return 'text-[var(--color-success)]';
   if (score > par) return 'text-[var(--color-error)]';
   return 'text-[var(--color-text)]';
-}
-
-// Standard competition ranking: tied players share a rank, the next rank is skipped (1, 1, 3).
-function playerRank(player: Player, players: Player[], pars: number[]): number {
-  const parRelative = playerParRelative(player, pars);
-  return players.filter((p) => playerParRelative(p, pars) < parRelative).length;
-}
-
-function holesPlayed(player: Player): number {
-  return player.scores.filter(hasPlayedHole).length;
 }
 
 interface HoleStripProps {
@@ -115,14 +105,7 @@ export function Leaderboard({
     );
   }
 
-  const noHolesPlayedYet = players.every((player) =>
-    player.scores.every((score) => !hasPlayedHole(score))
-  );
-
-  const rankedPlayers = [...players].sort(
-    (a, b) =>
-      playerParRelative(a, pars) - playerParRelative(b, pars) || holesPlayed(b) - holesPlayed(a)
-  );
+  const noHolesPlayedYet = players.every((player) => player.holesPlayed === 0);
 
   const toggleExpanded = (playerId: string) => {
     setExpandedPlayerIds((previous) => {
@@ -144,14 +127,14 @@ export function Leaderboard({
       className="space-y-2 list-none p-0 m-0"
       aria-label="Leaderboard"
     >
-      {rankedPlayers.map((player) => {
-        const rank = playerRank(player, players, pars) + 1;
+      {players.map((player) => {
+        const rank = player.rank;
         const isLeader = rank === 1 && !noHolesPlayedYet;
         const isCurrentPlayer = player.id === currentPlayerId;
         const isHost = player.id === hostPlayerId;
         const isExpanded = expandedPlayerIds.has(player.id);
-        const hasPlayed = player.scores.some((score) => hasPlayedHole(score));
-        const parRelative = playerParRelative(player, pars);
+        const hasPlayed = player.holesPlayed > 0;
+        const parRelative = player.parRelative;
 
         return (
           <motion.li key={player.id} variants={staggerItemVariants} className="list-none">

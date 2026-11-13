@@ -10,7 +10,7 @@ test.describe('Full Game Flow', () => {
     await expect(page).toHaveURL('/game');
 
     await expect(page.getByRole('heading', { name: 'Leaderboard' })).toBeVisible();
-    const gameCode = await page.evaluate(() => localStorage.getItem('gameCode'));
+    const gameCode = await page.evaluate(() => document.cookie.split('; ').find((entry) => entry.startsWith('gameCode='))?.split('=')[1]);
     expect(gameCode).toBeTruthy();
 
     const player2Context = await browser.newContext();
@@ -55,8 +55,8 @@ test.describe('Full Game Flow', () => {
   test('multiple holes game progression', async ({ authenticatedPage, submitScoreViaApi }) => {
     const page = authenticatedPage;
 
-    const gameCode = await page.evaluate(() => localStorage.getItem('gameCode'));
-    const playerId = await page.evaluate(() => localStorage.getItem('playerId'));
+    const gameCode = await page.evaluate(() => document.cookie.split('; ').find((entry) => entry.startsWith('gameCode='))?.split('=')[1]);
+    const playerId = await page.evaluate(() => document.cookie.split('; ').find((entry) => entry.startsWith('playerId='))?.split('=')[1]);
 
     for (let hole = 1; hole <= 5; hole++) {
       await submitScoreViaApi(gameCode!, playerId!, hole, hole);

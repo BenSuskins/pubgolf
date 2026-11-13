@@ -1,10 +1,6 @@
 package httpapi
 
-import (
-	"slices"
-
-	"github.com/BenSuskins/pubgolf/backend/internal/domain"
-)
+import "github.com/BenSuskins/pubgolf/backend/internal/domain"
 
 func eventResponse(event *domain.ActiveGameplayEvent) *activeEventResponse {
 	if event == nil {
@@ -31,25 +27,24 @@ func stateResponse(game domain.RoundSnapshot) gameResponse {
 		ActiveEvent:  eventResponse(game.ActiveGameplayEvent),
 		Holes:        holesResponse(snapshotCourse(game)),
 	}
-	pars := map[int]int{}
-	for _, hole := range response.Holes {
-		pars[hole.Hole] = hole.Par
+	for _, standing := range game.Standings() {
+		response.Players = append(response.Players, playerStateResponse(standing))
 	}
-	for _, player := range game.Players {
-		response.Players = append(response.Players, playerStateResponse(player, pars))
-	}
-	slices.SortStableFunc(response.Players, comparePlayers)
 	return response
 }
 
-func playerStateResponse(player domain.PlayerSnapshot, pars map[int]int) playerResponse {
-	result := playerResponse{ID: player.ID, Name: player.Name, Scores: make([]*int, 9), Penalties: []penaltyResponse{}}
+func playerStateResponse(standing domain.PlayerStanding) playerResponse {
+	player := standing.Player
+	result := playerResponse{
+		ID: player.ID, Name: player.Name, CurrentHole: player.CurrentHole(),
+		Rank: standing.Rank, HolesPlayed: standing.HolesPlayed,
+		TotalScore: standing.TotalScore, ParRelative: standing.ParRelative,
+		Scores: make([]*int, 9), Penalties: []penaltyResponse{},
+	}
 	for hole := 1; hole <= 9; hole++ {
 		if score, exists := player.Scores[hole]; exists {
 			value := score.Value
 			result.Scores[hole-1] = &value
-			result.TotalScore += value
-			result.ParRelative += value - pars[hole]
 		}
 		if penalty, exists := player.Penalties[hole]; exists {
 			result.Penalties = append(result.Penalties, penaltyStateResponse(hole, penalty))
@@ -64,23 +59,6 @@ func playerStateResponse(player domain.PlayerSnapshot, pars map[int]int) playerR
 func penaltyStateResponse(hole int, penalty string) penaltyResponse {
 	definition, _ := domain.FindPenalty(penalty)
 	return penaltyResponse{hole, penalty, definition.Points}
-}
-
-func comparePlayers(left, right playerResponse) int {
-	if left.ParRelative != right.ParRelative {
-		return left.ParRelative - right.ParRelative
-	}
-	return playedHoles(right) - playedHoles(left)
-}
-
-func playedHoles(player playerResponse) int {
-	count := 0
-	for _, score := range player.Scores {
-		if score != nil {
-			count++
-		}
-	}
-	return count
 }
 
 func identityResponse(game domain.Round, player domain.PlayerSnapshot) gameIdentityResponse {

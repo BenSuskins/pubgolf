@@ -66,8 +66,8 @@ function wedgeFill(index: number, count: number): string {
 function polar(angle: number, radius: number): { x: number; y: number } {
   const rad = (angle * Math.PI) / 180;
   return {
-    x: CENTER + radius * Math.sin(rad),
-    y: CENTER - radius * Math.cos(rad),
+    x: Number((CENTER + radius * Math.sin(rad)).toFixed(6)),
+    y: Number((CENTER - radius * Math.cos(rad)).toFixed(6)),
   };
 }
 

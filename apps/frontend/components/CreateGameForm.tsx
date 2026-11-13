@@ -29,6 +29,7 @@ export function CreateGameForm() {
       const response = await createGame(name.trim());
       setGameSession(response.gameCode, response.playerId);
       router.push('/game');
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't start the round. Try again.");
     } finally {
