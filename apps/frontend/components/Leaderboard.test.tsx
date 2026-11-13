@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Leaderboard } from './Leaderboard';
-import { parRelativeTotal, formatParRelative } from '@/lib/scoring';
+import { formatParRelative } from '@/lib/scoring';
 import { Player } from '@/lib/types';
 
 // @ts-expect-error - jest-axe types not compatible with bun:test
@@ -15,6 +15,10 @@ function buildPlayer(overrides: Partial<Player>): Player {
   return {
     id: 'player-1',
     name: 'Ben',
+    currentHole: 1,
+    rank: 1,
+    holesPlayed: 0,
+    parRelative: 0,
     scores: [null, null, null, null, null, null, null, null, null],
     totalScore: 0,
     randomise: null,
@@ -22,18 +26,6 @@ function buildPlayer(overrides: Partial<Player>): Player {
     ...overrides,
   };
 }
-
-describe('parRelativeTotal', () => {
-  test('should sum score minus par over played holes only', () => {
-    const scores = [3, 3, 1, null, null, null, null, null, null];
-    expect(parRelativeTotal(scores, pars)).toBe(2 + 0 - 1);
-  });
-
-  test('should be zero when no holes are played', () => {
-    const scores = [null, null, null, null, null, null, null, null, null];
-    expect(parRelativeTotal(scores, pars)).toBe(0);
-  });
-});
 
 describe('formatParRelative', () => {
   test('should format level par as E', () => {
@@ -55,10 +47,10 @@ describe('Leaderboard', () => {
     expect(screen.getByText(/no players yet/i)).toBeInTheDocument();
   });
 
-  test('should rank players by total score ascending', () => {
+  test('shows the order and rank supplied by the backend', () => {
     const players = [
-      buildPlayer({ id: 'p1', name: 'Ben', scores: [10, ...Array(8).fill(null)], totalScore: 10 }),
-      buildPlayer({ id: 'p2', name: 'Rosa', scores: [1, ...Array(8).fill(null)], totalScore: 1 }),
+      buildPlayer({ id: 'p2', name: 'Rosa', scores: [1, ...Array(8).fill(null)], totalScore: 1, holesPlayed: 1, rank: 1, parRelative: 0 }),
+      buildPlayer({ id: 'p1', name: 'Ben', scores: [10, ...Array(8).fill(null)], totalScore: 10, holesPlayed: 1, rank: 2, parRelative: 9 }),
     ];
     render(<Leaderboard players={players} pars={pars} />);
 
@@ -69,7 +61,7 @@ describe('Leaderboard', () => {
 
   test('should show par-relative totals', () => {
     const players = [
-      buildPlayer({ id: 'p1', name: 'Ben', scores: [4, ...Array(8).fill(null)], totalScore: 4 }),
+      buildPlayer({ id: 'p1', name: 'Ben', scores: [4, ...Array(8).fill(null)], totalScore: 4, holesPlayed: 1, parRelative: 3 }),
     ];
     render(<Leaderboard players={players} pars={pars} />);
     expect(screen.getByText('+3')).toBeInTheDocument();

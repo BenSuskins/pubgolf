@@ -66,6 +66,10 @@ func normalise(value any, variables map[string]string) any {
 		return value
 	case map[string]any:
 		for key, item := range value {
+			if isStandingField(key) {
+				delete(value, key)
+				continue
+			}
 			if key == "activatedAt" {
 				value[key] = "${timestamp}"
 			} else {
@@ -80,6 +84,16 @@ func normalise(value any, variables map[string]string) any {
 		return value
 	default:
 		return value
+	}
+}
+
+// Captured Kotlin responses predate these additive fields.
+func isStandingField(key string) bool {
+	switch key {
+	case "currentHole", "rank", "holesPlayed":
+		return true
+	default:
+		return false
 	}
 }
 
@@ -202,5 +216,49 @@ func TestPlaceSearchHTTPWithRealProviderAdapter(t *testing.T) {
 	validateContract(t, request, response, contents)
 	if response.StatusCode != 200 || !strings.Contains(string(contents), `"name":"Test Pub"`) {
 		t.Fatal(response.StatusCode, string(contents))
+	}
+}
+
+func TestRoundStateReportsPlayerProgress(t *testing.T) {
+	server := server(t)
+	response, err := server.Client().
+		Post(server.URL+"/api/v1/games", "application/json", strings.NewReader(`{"host":"Alice"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var identity map[string]string
+	if err := json.NewDecoder(response.Body).Decode(&identity); err != nil {
+		t.Fatal(err)
+	}
+	response.Body.Close()
+	request, _ := http.NewRequest(
+		http.MethodPost,
+		server.URL+"/api/v1/games/"+identity["gameCode"]+"/scores",
+		strings.NewReader(`{"hole":1,"score":0}`),
+	)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("PubGolf-Player-Id", identity["playerId"])
+	response, _ = perform(t, server, request)
+	if response.StatusCode != http.StatusNoContent {
+		t.Fatal(response.StatusCode)
+	}
+	response, err = server.Client().Get(server.URL + "/api/v1/games/" + identity["gameCode"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	var state struct {
+		Players []struct {
+			CurrentHole int `json:"currentHole"`
+			Rank        int `json:"rank"`
+			HolesPlayed int `json:"holesPlayed"`
+		} `json:"players"`
+	}
+	if err := json.NewDecoder(response.Body).Decode(&state); err != nil {
+		t.Fatal(err)
+	}
+	if len(state.Players) != 1 || state.Players[0].CurrentHole != 2 || state.Players[0].Rank != 1 ||
+		state.Players[0].HolesPlayed != 1 {
+		t.Fatalf("want current hole 2 after a zero score, got %+v", state.Players)
 	}
 }

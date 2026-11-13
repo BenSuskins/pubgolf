@@ -200,3 +200,41 @@ func TestAggregateRejectsUninitialisedValues(t *testing.T) {
 		t.Fatal("accepted invalid version")
 	}
 }
+
+func TestPlayerCurrentHoleUsesPlayedScores(t *testing.T) {
+	player := domain.PlayerSnapshot{Scores: map[int]domain.RecordedScore{1: {Value: 0}, 3: {Value: 4}}}
+	if hole := player.CurrentHole(); hole != 2 {
+		t.Fatalf("want hole 2, got %d", hole)
+	}
+	for hole := 1; hole <= 9; hole++ {
+		player.Scores[hole] = domain.RecordedScore{Value: 0}
+	}
+	if hole := player.CurrentHole(); hole != 9 {
+		t.Fatalf("want hole 9 for a complete scorecard, got %d", hole)
+	}
+}
+
+func TestStandingsRankTiesAndUseZeroScores(t *testing.T) {
+	game := domain.RoundSnapshot{Players: []domain.PlayerSnapshot{
+		{ID: "last", Scores: map[int]domain.RecordedScore{1: {Value: 5}}},
+		{ID: "first", Scores: map[int]domain.RecordedScore{1: {Value: 0}}},
+		{ID: "tied", Scores: map[int]domain.RecordedScore{1: {Value: 0}}},
+	}}
+	standings := game.Standings()
+	if standings[0].Player.ID != "first" || standings[0].Rank != 1 || standings[0].HolesPlayed != 1 ||
+		standings[1].Player.ID != "tied" || standings[1].Rank != 1 ||
+		standings[2].Player.ID != "last" || standings[2].Rank != 3 {
+		t.Fatalf("unexpected standings: %+v", standings)
+	}
+}
+
+func TestStandingsKeepTiedPlayersTogetherAndOrderByHolesPlayed(t *testing.T) {
+	game := domain.RoundSnapshot{Players: []domain.PlayerSnapshot{
+		{ID: "one", Scores: map[int]domain.RecordedScore{1: {Value: 1}}},
+		{ID: "two", Scores: map[int]domain.RecordedScore{1: {Value: 1}, 2: {Value: 3}}},
+	}}
+	standings := game.Standings()
+	if standings[0].Player.ID != "two" || standings[0].Rank != 1 || standings[1].Rank != 1 {
+		t.Fatalf("unexpected tied standings: %+v", standings)
+	}
+}

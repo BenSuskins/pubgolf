@@ -16,7 +16,6 @@ import { CelebrationScreen } from '@/components/CelebrationScreen';
 import { EventNotificationOverlay } from '@/components/EventNotificationOverlay';
 import { EventBanner } from '@/components/EventBanner';
 import { Player, GameState } from '@/lib/types';
-import { firstUnplayedHole, playerParRelative } from '@/lib/scoring';
 import { GAME_RULES_HREF } from '@/lib/constants';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
@@ -160,13 +159,9 @@ export default function GameScreen({ initialGame, initialGameCode, initialPlayer
 
   const holeCount = pars.length || 9;
   const referencePlayer = currentPlayer ?? players[0];
-  const currentHole = referencePlayer ? firstUnplayedHole(referencePlayer.scores, holeCount) : 1;
+  const currentHole = referencePlayer ? referencePlayer.currentHole : 1;
 
-  const getWinners = (): Player[] => {
-    if (players.length === 0) return [];
-    const best = Math.min(...players.map((p) => playerParRelative(p, pars)));
-    return players.filter((p) => playerParRelative(p, pars) === best);
-  };
+  const getWinners = (): Player[] => players.filter((player) => player.rank === 1);
 
   if (error) {
     return (

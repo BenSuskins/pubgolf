@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { submitScore, getPenaltyOptions, getRoute, PenaltyOption } from '@/lib/api';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { GameState, Player, PenaltyType, PubLocation } from '@/lib/types';
-import { firstUnplayedHole } from '@/lib/scoring';
 import { Card } from '@/components/ui/Card';
 import { Counter } from '@/components/ui/Counter';
 import { HoleChips } from '@/components/HoleChips';
@@ -14,8 +13,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
 export default function ScoreForm({ initialPenalties, initialGame, initialPlayer }: { initialPenalties: PenaltyOption[] | null; initialGame: GameState; initialPlayer: Player }) {
-  const [hole, setHole] = useState(() => firstUnplayedHole(initialPlayer.scores, initialGame.holes.length));
-  const [score, setScore] = useState(() => initialPlayer.scores[firstUnplayedHole(initialPlayer.scores, initialGame.holes.length) - 1] ?? 0);
+  const [hole, setHole] = useState(() => initialPlayer.currentHole);
+  const [score, setScore] = useState(() => initialPlayer.scores[initialPlayer.currentHole - 1] ?? 0);
   const [penaltyType, setPenaltyType] = useState<PenaltyType | null>(null);
   const [penaltyOptions, setPenaltyOptions] = useState<PenaltyOption[]>(initialPenalties ?? []);
   const [pars] = useState<number[]>(() => initialGame.holes.map((hole) => hole.par));
