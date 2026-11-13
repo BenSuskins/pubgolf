@@ -26,7 +26,7 @@ test('entry, scoring, and wildcard controls remain usable at narrow and zoomed w
 test('homepage guidance is visible and play stays out of the search index', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'How to play', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Frequently asked questions' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'The basics' })).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pubgolf.me');
   await page.goto('/play');
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
