@@ -5,38 +5,22 @@ import { homeStructuredDataJson } from './homeStructuredData';
 
 export const metadata: Metadata = { alternates: { canonical: '/' } };
 
-const benefits = [
-  ['Make it your round', 'Choose your drinks, set the pars, and build a pub route for your group.'],
-  [
-    'Keep everyone in the game',
-    'Share a code or invite link. Everyone joins and records their scores from their own phone.',
-  ],
-  [
-    'Follow every score',
-    'See the live leaderboard, add penalties, and keep the round moving without a paper scorecard.',
-  ],
-];
-
 const questions = [
   [
     'What is pub golf?',
-    'Pub golf is a pub crawl scored like golf. Each hole has a drink and a par. Count the sips it takes to finish your drink; the lowest total score wins.',
+    'It’s a pub crawl with a golfing twist. Each hole has a drink and a par. Count your sips, record your score and see who wins.',
   ],
   [
-    'How do you score in pub golf?',
-    'Record your sips for each hole and compare them with its par. Penalties can replace the score for a hole. The player with the lowest total wins.',
+    'How does scoring work?',
+    'Count the sips it takes to finish your drink and record them for each hole. Penalties can replace your score. The lowest total wins.',
   ],
   [
-    'How many pubs do you need for pub golf?',
-    'A round has nine holes. You can plan a route with nine pubs, or choose how your group plays the nine holes.',
+    'Do we need nine pubs?',
+    'No. Each round has nine holes, but it’s up to your group how many pubs you visit.',
   ],
   [
-    'Do I need to download an app to play?',
-    'No. Pub Golf is free to use in your browser. There is no sign-up or download.',
-  ],
-  [
-    'How do friends join a round?',
-    'The host shares a game code or invite link. Players join on their own phones and record their scores together.',
+    'How do my mates join?',
+    'Share the game code or invite link. Everyone can join and record their scores on their own phone.',
   ],
 ];
 
@@ -51,16 +35,12 @@ export default function HomePage() {
       <main className="page-container pb-12 md:pb-20">
         <section className="grid items-center gap-10 py-10 md:py-16 lg:grid-cols-2 lg:gap-16">
           <div className="space-y-6">
-            <p className="eyebrow text-[var(--color-accent)]">9 Holes · 9 Drinks · 1 Champion</p>
             <h1 className="font-display text-6xl leading-[1.02] md:text-7xl lg:text-8xl">
-              FREE PUB GOLF
-              <br />
-              <span className="text-[var(--color-accent)]">SCORECARD.</span>
-              <span className="mt-3 block text-3xl md:text-4xl">&amp; LIVE LEADERBOARD</span>
+              PUB GOLF.<br />
+              <span className="text-[var(--color-accent)]">LET’S PLAY.</span>
             </h1>
             <p className="max-w-lg text-base leading-relaxed text-[var(--color-text-secondary)] md:text-lg">
-              The free pub golf score tracker for your next pub crawl. Set up a round, invite your
-              friends, and keep score together.
+              Set up your round, get your mates together and see who comes out on top.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -77,7 +57,7 @@ export default function HomePage() {
               </Link>
             </div>
             <p className="text-sm text-[var(--color-text-secondary)]">
-              No sign-up. Nothing to download.
+              Free to play. No sign-up or download.
             </p>
           </div>
           <figure
@@ -88,7 +68,7 @@ export default function HomePage() {
               <span>Example round · Hole 3 of 9</span>
               <span className="eyebrow text-[var(--color-accent)]">Preview</span>
             </figcaption>
-            <h2 className="mb-5 font-display text-3xl">THE LEADERBOARD</h2>
+            <h2 className="mb-5 font-display text-3xl">Who’s winning?</h2>
             <ol className="space-y-3">
               {[
                 ['Alex', '−2'],
@@ -105,22 +85,9 @@ export default function HomePage() {
               ))}
             </ol>
             <p className="mt-5 text-sm text-[var(--color-text-secondary)]">
-              Scores relative to par. Lowest score wins.
+              Lowest score wins.
             </p>
           </figure>
-        </section>
-        <section
-          aria-label="Why play with Pub Golf"
-          className="grid gap-6 border-t border-[var(--color-border)] py-8 md:grid-cols-3 md:py-12"
-        >
-          {benefits.map(([title, description]) => (
-            <div key={title} className="space-y-3">
-              <h2 className="font-display text-2xl">{title}</h2>
-              <p className="text-base leading-relaxed text-[var(--color-text-secondary)]">
-                {description}
-              </p>
-            </div>
-          ))}
         </section>
         <section
           className="border-t border-[var(--color-border)] py-10 md:py-14"
@@ -130,7 +97,7 @@ export default function HomePage() {
             <div>
               <h2 id="how-to-play" className="font-display text-4xl">How to play</h2>
               <p className="mt-3 max-w-sm leading-relaxed text-[var(--color-text-secondary)]">
-                Turn your pub crawl into a shared scorecard.
+                Your round, your mates, one shared scorecard.
               </p>
               <Link
                 href="/how-to-play"
@@ -141,9 +108,9 @@ export default function HomePage() {
             </div>
             <ol className="grid gap-6 sm:grid-cols-3">
               {[
-                ['Set up', 'Host a round, choose your course, and invite your group.'],
-                ['Play each hole', 'Count your sips and record your score against par.'],
-                ['Find your champion', 'Follow the live leaderboard. The lowest total wins.'],
+                ['Make it your round', 'Choose your drinks and pars, then plan your route.'],
+                ['Bring your mates', 'Share a code or link so everyone can join on their phone.'],
+                ['Play and keep score', 'Record each hole and follow the live leaderboard. Lowest score wins.'],
               ].map(([title, description], index) => (
                 <li key={title} className="border-t border-[var(--color-border-gold)] pt-4">
                   <span className="font-display text-2xl text-[var(--color-accent)]">
@@ -162,7 +129,7 @@ export default function HomePage() {
           className="border-t border-[var(--color-border)] py-10 md:py-14"
           aria-labelledby="faq"
         >
-          <h2 id="faq" className="font-display text-4xl">Frequently asked questions</h2>
+          <h2 id="faq" className="font-display text-4xl">The basics</h2>
           <div className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">
             {questions.map(([question, answer]) => (
               <div key={question}>
@@ -172,6 +139,16 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
+          </div>
+        </section>
+        <section className="glass flex flex-wrap items-center justify-between gap-6 rounded-3xl p-6 md:p-8" aria-labelledby="ready-to-play">
+          <div>
+            <h2 id="ready-to-play" className="font-display text-3xl">Ready for your round?</h2>
+            <p className="mt-2 text-[var(--color-text-secondary)]">Get your group together and let the games begin.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/play?mode=host" className="btn-gradient inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3">Host a round →</Link>
+            <Link href="/play?mode=join" className="glass inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 font-bold">Join a round</Link>
           </div>
         </section>
       </main>

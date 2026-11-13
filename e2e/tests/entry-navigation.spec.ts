@@ -3,11 +3,11 @@ import { test, expect } from '../fixtures/test-fixtures';
 test('landing actions select the correct game entry form', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByLabel('Your Name')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Host a round →', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Host a round →', exact: true }).first().click();
   await expect(page).toHaveURL('/play?mode=host');
   await expect(page.locator('#create-name')).toBeVisible();
   await page.goto('/');
-  await page.getByRole('main').getByRole('link', { name: 'Join a round', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Join a round', exact: true }).first().click();
   await expect(page).toHaveURL('/play?mode=join');
   await expect(page.getByLabel('Game Code')).toBeVisible();
 });
