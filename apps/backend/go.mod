@@ -3,15 +3,15 @@ module github.com/BenSuskins/pubgolf/backend
 go 1.27.3
 
 require (
-	github.com/getkin/kin-openapi v0.152.0
+	github.com/getkin/kin-openapi v0.153.0
 	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/pressly/goose/v3 v3.29.0
+	github.com/pressly/goose/v3 v3.30.1
 	github.com/prometheus/client_golang v1.25.0
-	github.com/tmaxmax/go-sse v0.11.0
-	golang.org/x/sync v0.24.0
+	github.com/tmaxmax/go-sse v0.12.0
+	golang.org/x/sync v0.25.0
 	golang.org/x/time v0.16.0
-	modernc.org/sqlite v1.61.0
+	modernc.org/sqlite v1.62.0
 )
 
 require (
@@ -20,24 +20,22 @@ require (
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
 	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
-	github.com/mfridman/interpolate v0.0.2 // indirect
+	github.com/mfridman/interpolate v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
-	github.com/oasdiff/yaml v0.1.1 // indirect
-	github.com/oasdiff/yaml3 v0.0.14 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
 	github.com/prometheus/common v0.72.0 // indirect
-	github.com/prometheus/procfs v0.22.0 // indirect
+	github.com/prometheus/procfs v0.23.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sethvargo/go-retry v0.5.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
+	go.yaml.in/yaml/v4 v4.0.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
-	modernc.org/libc v1.79.0 // indirect
+	modernc.org/libc v1.80.2 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
